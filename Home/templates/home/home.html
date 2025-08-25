@@ -1,6 +1,6 @@
 {% extends "Dentista/base.html" %}
 
-{% block title %}Dashboard - Consultorio Dental{% endblock %}
+{% block title %}Inicio - Consultorio Dental{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
@@ -8,15 +8,12 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="mb-1">Bienvenido, <span class="text-primary">Dr. Raúl</span></h2>
-            <p class="text-muted mb-0">Resumen de actividades y estadísticas</p>
+            <p class="text-muted mb-0">Panel principal del consultorio dental</p>
         </div>
         <div class="d-flex gap-2">
-            <button class="btn btn-outline-secondary">
-                <i class="bi bi-printer"></i> Imprimir
-            </button>
-            <button class="btn btn-outline-primary">
-                <i class="bi bi-arrow-clockwise"></i> Actualizar
-            </button>
+            <a href="{% url 'menu_citas' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-1"></i> Nueva Cita
+            </a>
         </div>
     </div>
 
@@ -28,15 +25,15 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="text-uppercase text-muted mb-2">Pacientes</h6>
-                            <h2 class="mb-0">{{numero_pacientes}}</h2>
+                            <h2 class="mb-0">{{ numero_pacientes }}</h2>
                         </div>
                         <div class="icon-shape bg-primary bg-opacity-10 text-primary rounded-3 p-3">
                             <i class="bi bi-people-fill fs-3"></i>
                         </div>
                     </div>
                     <div class="mt-3">
-                        <a href="{% url 'registroPacientes'%}" class="text-decoration-none small">
-                            Ver todos <i class="bi bi-arrow-right"></i>
+                        <a href="{% url 'registroPacientes' %}" class="text-decoration-none small">
+                            Gestionar pacientes <i class="bi bi-arrow-right"></i>
                         </a>
                     </div>
                 </div>
@@ -49,14 +46,16 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="text-uppercase text-muted mb-2">Citas Hoy</h6>
-                            <h2 class="mb-0">4</h2>
+                            <h2 class="mb-0">{{ citas_hoy.count }}</h2>
                         </div>
                         <div class="icon-shape bg-success bg-opacity-10 text-success rounded-3 p-3">
                             <i class="bi bi-calendar-check fs-3"></i>
                         </div>
                     </div>
                     <div class="mt-3">
-                        <span class="badge bg-success bg-opacity-10 text-success">2 pendientes</span>
+                        <span class="badge bg-success bg-opacity-10 text-success">
+                            {{ citas_pendientes_hoy }} pendientes
+                        </span>
                     </div>
                 </div>
             </div>
@@ -67,34 +66,38 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="text-uppercase text-muted mb-2">Próximas Citas</h6>
-                            <h2 class="mb-0">7</h2>
+                            <h6 class="text-uppercase text-muted mb-2">Citas Pendientes</h6>
+                            <h2 class="mb-0">{{ total_citas_pendientes }}</h2>
                         </div>
                         <div class="icon-shape bg-warning bg-opacity-10 text-warning rounded-3 p-3">
                             <i class="bi bi-calendar-week fs-3"></i>
                         </div>
                     </div>
                     <div class="mt-3">
-                        <span class="badge bg-warning bg-opacity-10 text-warning">+2 mañana</span>
+                        <a href="{% url 'citas_pendientes' %}" class="text-decoration-none small">
+                            Ver pendientes <i class="bi bi-arrow-right"></i>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-start border-danger border-4 shadow-sm h-100">
+            <div class="card border-start border-info border-4 shadow-sm h-100">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="text-uppercase text-muted mb-2">Diagnósticos IA</h6>
-                            <h2 class="mb-0">3</h2>
+                            <h6 class="text-uppercase text-muted mb-2">Imágenes Analizadas</h6>
+                            <h2 class="mb-0">{{ total_imagenes }}</h2>
                         </div>
-                        <div class="icon-shape bg-danger bg-opacity-10 text-danger rounded-3 p-3">
-                            <i class="bi bi-robot fs-3"></i>
+                        <div class="icon-shape bg-info bg-opacity-10 text-info rounded-3 p-3">
+                            <i class="bi bi-card-image fs-3"></i>
                         </div>
                     </div>
                     <div class="mt-3">
-                        <span class="badge bg-danger bg-opacity-10 text-danger">1 nuevo</span>
+                        <a href="{% url 'diagnosticos' %}" class="text-decoration-none small">
+                            Ver análisis <i class="bi bi-arrow-right"></i>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -104,265 +107,194 @@
     <!-- Sección principal -->
     <div class="row">
         <!-- Agenda de hoy -->
-        <div class="col-lg-6 mb-4">
+        <div class="col-lg-8 mb-4">
             <div class="card shadow-sm h-100">
-                <div class="card-header bg-white border-bottom-0">
+                <div class="card-header bg-white border-bottom-0 d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Agenda de Hoy</h5>
+                    <span class="badge bg-primary">{{ hoy|date:"d/m/Y" }}</span>
                 </div>
                 <div class="card-body p-0">
+                    {% if citas_hoy %}
                     <div class="table-responsive">
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th width="20%">Hora</th>
-                                    <th width="35%">Paciente</th>
+                                    <th width="15%">Hora</th>
+                                    <th width="30%">Paciente</th>
                                     <th width="35%">Motivo</th>
+                                    <th width="10%">Estado</th>
                                     <th width="10%"></th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td><span class="badge bg-primary bg-opacity-10 text-primary">09:00 AM</span></td>
-                                    <td>Juan Pérez</td>
-                                    <td>Limpieza dental</td>
+                                {% for cita in citas_hoy %}
+                                <tr class="{% if cita.estatus == 'P' %}table-active{% endif %}">
+                                    <td>
+                                        <span class="badge {% if cita.estatus == 'P' %}bg-primary{% else %}bg-primary bg-opacity-10 text-primary{% endif %}">
+                                            {{ cita.hora|time:"H:i" }}
+                                        </span>
+                                    </td>
+                                    <td>{{ cita.paciente.nombre }} {{ cita.paciente.appat }}</td>
+                                    <td>{{ cita.motivo|truncatechars:30 }}</td>
+                                    <td>
+                                        <span class="badge {% if cita.estatus == 'P' %}bg-warning{% else %}bg-success{% endif %}">
+                                            {{ cita.get_estatus_display }}
+                                        </span>
+                                    </td>
                                     <td class="text-end">
-                                        <button class="btn btn-sm btn-outline-primary">
+                                        <a href="{% url 'editar_cita' cita.id %}" class="btn btn-sm btn-outline-primary">
                                             <i class="bi bi-eye"></i>
-                                        </button>
+                                        </a>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td><span class="badge bg-primary bg-opacity-10 text-primary">10:30 AM</span></td>
-                                    <td>María López</td>
-                                    <td>Revisión</td>
-                                    <td class="text-end">
-                                        <button class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr class="table-active">
-                                    <td><span class="badge bg-primary">11:30 AM</span></td>
-                                    <td><strong>Carlos Sánchez</strong></td>
-                                    <td><strong>Empaste</strong></td>
-                                    <td class="text-end">
-                                        <button class="btn btn-sm btn-primary">
-                                            <i class="bi bi-check-circle"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><span class="badge bg-primary bg-opacity-10 text-primary">02:00 PM</span></td>
-                                    <td>Ana Torres</td>
-                                    <td>Ortodoncia</td>
-                                    <td class="text-end">
-                                        <button class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
-                                    </td>
-                                </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-calendar-x display-4 text-muted mb-3"></i>
+                        <h5 class="text-muted">No hay citas para hoy</h5>
+                        <p class="text-muted small">No se han programado citas para el día de hoy.</p>
+                    </div>
+                    {% endif %}
                 </div>
                 <div class="card-footer bg-white border-top-0 text-end">
-                    <a href="#" class="btn btn-sm btn-outline-primary">
-                        Ver agenda completa <i class="bi bi-arrow-right"></i>
+                    <a href="{% url 'menu_citas' %}" class="btn btn-sm btn-outline-primary">
+                        Gestionar citas <i class="bi bi-arrow-right"></i>
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- Accesos rápidos y notificaciones -->
-        <div class="col-lg-6 mb-4">
-            <div class="row h-100">
-                <!-- Accesos rápidos -->
-                <div class="col-md-6 mb-3 mb-lg-0">
-                    <div class="card shadow-sm h-100">
-                        <div class="card-header bg-white border-bottom-0">
-                            <h5 class="mb-0">Accesos Rápidos</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-grid gap-3">
-                                <a href="{% url 'registroPacientes'%}" class="btn btn-primary d-flex align-items-center justify-content-between py-3">
-                                    <span><i class="bi bi-people-fill me-2"></i> Pacientes</span>
-                                    <i class="bi bi-chevron-right"></i>
-                                </a>
-                                <a href="{% url 'menu_citas' %}" class="btn btn-success d-flex align-items-center justify-content-between py-3">
-                                    <span><i class="bi bi-calendar-plus me-2"></i> Citas</span>
-                                    <i class="bi bi-chevron-right"></i>
-                                </a>
-                                <a href="{% url 'diagnosticos' %}" class="btn btn-danger d-flex align-items-center justify-content-between py-3">
-                                    <span><i class="bi bi-robot me-2"></i> Diagnóstico IA</span>
-                                    <i class="bi bi-chevron-right"></i>
-                                </a>
-                                <a href="#" class="btn btn-secondary d-flex align-items-center justify-content-between py-3">
-                                    <span><i class="bi bi-file-earmark-text me-2"></i> Reportes</span>
-                                    <i class="bi bi-chevron-right"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+        <!-- Accesos rápidos -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white border-bottom-0">
+                    <h5 class="mb-0">Accesos Rápidos</h5>
                 </div>
-
-                <!-- Notificaciones -->
-                <div class="col-md-6">
-                    <div class="card shadow-sm h-100">
-                        <div class="card-header bg-white border-bottom-0">
-                            <h5 class="mb-0">Notificaciones</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="list-group list-group-flush">
-                                <a href="#" class="list-group-item list-group-item-action border-0 px-0 py-2">
-                                    <div class="d-flex align-items-center">
-                                        <span class="badge bg-warning bg-opacity-10 text-warning me-3">
-                                            <i class="bi bi-calendar-event"></i>
-                                        </span>
-                                        <div>
-                                            <h6 class="mb-1">Cita reprogramada</h6>
-                                            <p class="small text-muted mb-0">Juan Pérez - 23 Jul</p>
-                                        </div>
-                                    </div>
-                                </a>
-                                <a href="#" class="list-group-item list-group-item-action border-0 px-0 py-2">
-                                    <div class="d-flex align-items-center">
-                                        <span class="badge bg-info bg-opacity-10 text-info me-3">
-                                            <i class="bi bi-robot"></i>
-                                        </span>
-                                        <div>
-                                            <h6 class="mb-1">Nuevo diagnóstico</h6>
-                                            <p class="small text-muted mb-0">María López</p>
-                                        </div>
-                                    </div>
-                                </a>
-                                <a href="#" class="list-group-item list-group-item-action border-0 px-0 py-2">
-                                    <div class="d-flex align-items-center">
-                                        <span class="badge bg-success bg-opacity-10 text-success me-3">
-                                            <i class="bi bi-check-circle"></i>
-                                        </span>
-                                        <div>
-                                            <h6 class="mb-1">Pago recibido</h6>
-                                            <p class="small text-muted mb-0">Carlos Sánchez</p>
-                                        </div>
-                                    </div>
-                                </a>
-                                <a href="#" class="list-group-item list-group-item-action border-0 px-0 py-2">
-                                    <div class="d-flex align-items-center">
-                                        <span class="badge bg-primary bg-opacity-10 text-primary me-3">
-                                            <i class="bi bi-person-plus"></i>
-                                        </span>
-                                        <div>
-                                            <h6 class="mb-1">Nuevo paciente</h6>
-                                            <p class="small text-muted mb-0">Laura Gómez</p>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="card-footer bg-white border-top-0 text-end">
-                            <a href="#" class="btn btn-sm btn-outline-primary">
-                                Ver todas <i class="bi bi-arrow-right"></i>
-                            </a>
-                        </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'registroPacientes' %}" class="btn btn-primary d-flex align-items-center justify-content-between py-3">
+                            <span><i class="bi bi-people-fill me-2"></i> Pacientes</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                        <a href="{% url 'menu_citas' %}" class="btn btn-success d-flex align-items-center justify-content-between py-3">
+                            <span><i class="bi bi-calendar-plus me-2"></i> Citas</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                        <a href="{% url 'diagnosticos' %}" class="btn btn-info d-flex align-items-center justify-content-between py-3">
+                            <span><i class="bi bi-card-image me-2"></i> Análisis IA</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                        <a href="{% url 'citas_pendientes' %}" class="btn btn-warning d-flex align-items-center justify-content-between py-3">
+                            <span><i class="bi bi-hourglass-split me-2"></i> Citas Pendientes</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                        <a href="{% url 'citas_completadas' %}" class="btn btn-secondary d-flex align-items-center justify-content-between py-3">
+                            <span><i class="bi bi-check-circle me-2"></i> Citas Completadas</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Últimas citas -->
+    <!-- Próximas citas -->
     <div class="row">
         <div class="col-12">
             <div class="card shadow-sm">
-                <div class="card-header bg-white border-bottom-0">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Historial Reciente</h5>
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown">
-                                <i class="bi bi-funnel"></i> Filtros
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#">Últimos 7 días</a></li>
-                                <li><a class="dropdown-item" href="#">Últimos 30 días</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#">Ver todo</a></li>
-                            </ul>
-                        </div>
-                    </div>
+                <div class="card-header bg-white border-bottom-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Próximas Citas</h5>
+                    <a href="{% url 'menu_citas' %}" class="btn btn-sm btn-outline-primary">
+                        Ver todas <i class="bi bi-arrow-right"></i>
+                    </a>
                 </div>
                 <div class="card-body">
+                    {% if proximas_citas %}
                     <div class="table-responsive">
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
                                 <tr>
                                     <th width="15%">Fecha</th>
-                                    <th width="20%">Paciente</th>
-                                    <th width="20%">Procedimiento</th>
-                                    <th width="15%">Estado</th>
-                                    <th width="15%">Monto</th>
-                                    <th width="15%"></th>
+                                    <th width="15%">Hora</th>
+                                    <th width="25%">Paciente</th>
+                                    <th width="30%">Motivo</th>
+                                    <th width="15%">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
+                                {% for cita in proximas_citas %}
                                 <tr>
-                                    <td>23 Jul 2025</td>
-                                    <td>Juan Pérez</td>
-                                    <td>Limpieza dental</td>
-                                    <td><span class="badge bg-success bg-opacity-10 text-success">Completado</span></td>
-                                    <td>$1,200</td>
-                                    <td class="text-end">
-                                        <button class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-receipt"></i> Recibo
-                                        </button>
+                                    <td>{{ cita.fecha|date:"d/m/Y" }}</td>
+                                    <td>{{ cita.hora|time:"H:i" }}</td>
+                                    <td>{{ cita.paciente.nombre }} {{ cita.paciente.appat }}</td>
+                                    <td>{{ cita.motivo|truncatechars:40 }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{% url 'editar_cita' cita.id %}" class="btn btn-outline-primary" data-bs-toggle="tooltip" title="Editar">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <a href="#" class="btn btn-outline-success" data-bs-toggle="tooltip" title="Confirmar">
+                                                <i class="bi bi-check-circle"></i>
+                                            </a>
+                                            <a href="#" class="btn btn-outline-danger" data-bs-toggle="tooltip" title="Cancelar">
+                                                <i class="bi bi-x-circle"></i>
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>22 Jul 2025</td>
-                                    <td>María López</td>
-                                    <td>Revisión</td>
-                                    <td><span class="badge bg-success bg-opacity-10 text-success">Completado</span></td>
-                                    <td>$800</td>
-                                    <td class="text-end">
-                                        <button class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-receipt"></i> Recibo
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>20 Jul 2025</td>
-                                    <td>Carlos Sánchez</td>
-                                    <td>Extracción</td>
-                                    <td><span class="badge bg-warning bg-opacity-10 text-warning">Pendiente pago</span></td>
-                                    <td>$2,500</td>
-                                    <td class="text-end">
-                                        <button class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-receipt"></i> Recibo
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>18 Jul 2025</td>
-                                    <td>Ana Torres</td>
-                                    <td>Ortodoncia</td>
-                                    <td><span class="badge bg-success bg-opacity-10 text-success">Completado</span></td>
-                                    <td>$3,800</td>
-                                    <td class="text-end">
-                                        <button class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-receipt"></i> Recibo
-                                        </button>
-                                    </td>
-                                </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
-                </div>
-                <div class="card-footer bg-white border-top-0 text-end">
-                    <a href="#" class="btn btn-outline-primary">
-                        Ver historial completo <i class="bi bi-arrow-right"></i>
-                    </a>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-calendar-plus display-5 text-muted mb-3"></i>
+                        <h5 class="text-muted">No hay próximas citas</h5>
+                        <p class="text-muted small">No se han programado citas futuras.</p>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .card {
+        border-radius: 0.5rem;
+    }
+    
+    .icon-shape {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .table th {
+        border-top: none;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .btn-group .btn {
+        padding: 0.25rem 0.5rem;
+    }
+</style>
+
+<script>
+    // Inicializar tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>
 {% endblock %}

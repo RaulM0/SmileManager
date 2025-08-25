@@ -11,7 +11,7 @@
             <hr class="text-white">
             <ul class="nav nav-pills flex-column mb-auto">
                 <li class="nav-item">
-                    <a href="#" class="nav-link text-white active" aria-current="page">
+                    <a href="{% url 'menu_citas' %}" class="nav-link text-white active" aria-current="page">
                         <i class="bi bi-calendar-check me-2"></i>Ver calendario
                     </a>
                 </li>
@@ -57,127 +57,44 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h2 class="h4 fw-bold text-primary mb-1">
-                        <i class="bi bi-calendar3 me-2"></i>Próximas Citas
+                        <i class="bi bi-calendar3 me-2"></i>Calendario de Citas
                     </h2>
-                    <p class="text-muted small mb-0">Resumen de las citas programadas</p>
+                    <p class="text-muted small mb-0">Gestión completa de citas programadas</p>
                 </div>
                 <div>
-                    <button class="btn btn-primary">
+                    <a href="{% url 'nueva_cita' %}" class="btn btn-primary">
                         <i class="bi bi-plus-circle me-1"></i> Nueva Cita
-                    </button>
+                    </a>
                 </div>
             </div>
 
-            <!-- Tarjeta de citas -->
+            <!-- Controles del calendario -->
             <div class="card border-0 shadow-sm mb-4">
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th class="ps-4"><i class="bi bi-person me-1"></i> Paciente</th>
-                                    <th><i class="bi bi-calendar me-1"></i> Fecha</th>
-                                    <th><i class="bi bi-clock me-1"></i> Hora</th>
-                                    <th class="text-end pe-4">Estatus</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for cita in page_obj %}
-                                <tr class="cursor-pointer" onclick="window.location='#';">
-                                    <td class="ps-4">
-                                        <div class="d-flex align-items-center">
-                                            <div
-                                                class="avatar-sm bg-primary bg-opacity-10 text-primary rounded-circle me-3">
-                                                <i class="bi bi-person-fill"></i>
-                                            </div>
-                                            <div>
-                                                <h6 class="mb-0">
-                                                    {{ cita.paciente.nombre }} {{ cita.paciente.appat }} {{cita.paciente.apmat }}
-                                                </h6>
-                                                <small class="text-muted">ID: {{ cita.id }}</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>{{ cita.fecha|date:"d/m/Y" }}</td>
-                                    <td>{{ cita.hora|time:"h:i A" }}</td>
-                                    <td class="text-end pe-4">
-                                        {% if cita.estatus == "P" %}
-                                        <span class="badge bg-warning text-dark">
-                                            <i class="bi bi-hourglass me-1"></i> Pendiente
-                                        </span>
-                                        {% elif cita.estatus == "C" %}
-                                        <span class="badge bg-success">
-                                            <i class="bi bi-check-circle me-1"></i> Completada
-                                        </span>
-                                        {% else %}
-                                        <span class="badge bg-secondary">
-                                            <i class="bi bi-x-circle me-1"></i> Cancelada
-                                        </span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="card-footer bg-white border-0">
+                <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <span class="text-muted small">
-                                Mostrando {{ page_obj.start_index }} - {{ page_obj.end_index }} de {{page_obj.paginator.count }} citas
-                            </span>
+                            <h3 class="h5 mb-0" id="current-month">{{ current_date|date:"F Y" }}</h3>
                         </div>
-                        <nav aria-label="Page navigation">
-                            <ul class="pagination pagination-sm mb-0">
-                                {% if page_obj.has_previous %}
-                                <li class="page-item">
-                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
-                                </li>
-                                {% else %}
-                                <li class="page-item disabled">
-                                    <a class="page-link" href="#" tabindex="-1">Anterior</a>
-                                </li>
-                                {% endif %}
-
-                                {% for num in page_obj.paginator.page_range %}
-                                {% if page_obj.number == num %}
-                                <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
-                                {% else %}
-                                <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
-                                {% endif %}
-                                {% endfor %}
-
-                                {% if page_obj.has_next %}
-                                <li class="page-item">
-                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a>
-                                </li>
-                                {% else %}
-                                <li class="page-item disabled">
-                                    <a class="page-link" href="#">Siguiente</a>
-                                </li>
-                                {% endif %}
-                            </ul>
-                        </nav>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-primary" id="prev-month">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+                            <button class="btn btn-outline-primary" id="today-btn">
+                                Hoy
+                            </button>
+                            <button class="btn btn-outline-primary" id="next-month">
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Calendario Completo con Citas -->
-            <div class="card border-0 shadow-sm">
+            <!-- Calendario Funcional -->
+            <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="bi bi-calendar-date me-2"></i>Calendario de Citas</h5>
-                    <div>
-                        <button class="btn btn-sm btn-outline-secondary">
-                            <i class="bi bi-chevron-left"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-secondary mx-2">
-                            Hoy
-                        </button>
-                        <button class="btn btn-sm btn-outline-secondary">
-                            <i class="bi bi-chevron-right"></i>
-                        </button>
-                    </div>
+                    <span class="badge bg-primary">{{ citas.count }} citas</span>
                 </div>
                 <div class="card-body p-0">
                     <div class="calendar-container">
@@ -192,71 +109,48 @@
                             <div class="calendar-weekday">Dom</div>
                         </div>
 
-                        <!-- Semanas del mes -->
-                        <div class="calendar-week">
-                            <!-- Días del mes anterior -->
-                            <div class="calendar-day other-month">
-                                <div class="day-number">28</div>
-                            </div>
-                            <div class="calendar-day other-month">
-                                <div class="day-number">29</div>
-                            </div>
-                            <div class="calendar-day other-month">
-                                <div class="day-number">30</div>
-                            </div>
-
-                            <!-- Días del mes actual -->
-                            <div class="calendar-day">
-                                <div class="day-number">1</div>
-                                <div class="calendar-events">
-                                    <div class="calendar-event" data-bs-toggle="tooltip" title="Juan Pérez - 10:30 AM">
-                                        <span class="event-dot bg-primary"></span>
-                                        <span class="event-time">10:30</span>
-                                    </div>
-                                    <div class="calendar-event" data-bs-toggle="tooltip" title="María López - 2:00 PM">
-                                        <span class="event-dot bg-success"></span>
-                                        <span class="event-time">14:00</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="calendar-day">
-                                <div class="day-number">2</div>
-                            </div>
-                            <div class="calendar-day">
-                                <div class="day-number">3</div>
-                                <div class="calendar-events">
-                                    <div class="calendar-event" data-bs-toggle="tooltip"
-                                        title="Carlos Sánchez - 9:00 AM">
-                                        <span class="event-dot bg-warning"></span>
-                                        <span class="event-time">9:00</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="calendar-day">
-                                <div class="day-number">4</div>
-                            </div>
-                        </div>
-
-                        <!-- Más semanas... -->
-                        <div class="calendar-week">
-                            <div class="calendar-day today">
-                                <div class="day-number">12</div>
-                                <div class="calendar-events">
-                                    <div class="calendar-event" data-bs-toggle="tooltip" title="Ana García - 11:00 AM">
-                                        <span class="event-dot bg-danger"></span>
-                                        <span class="event-time">11:00</span>
-                                    </div>
-                                    <div class="calendar-event" data-bs-toggle="tooltip"
-                                        title="Luis Martínez - 4:30 PM">
-                                        <span class="event-dot bg-info"></span>
-                                        <span class="event-time">16:30</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Más días... -->
+                        <!-- Semanas del mes - Generado dinámicamente -->
+                        <div id="calendar-weeks">
+                            <!-- El contenido se generará con JavaScript -->
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Citas del Día Seleccionado -->
+            <div class="card border-0 shadow-sm" id="daily-appointments">
+                <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-list-check me-2"></i>Citas del Día</h5>
+                    <span class="badge bg-primary" id="appointment-count">0 citas</span>
+                </div>
+                <div class="card-body">
+                    <div id="appointments-list">
+                        <!-- Las citas se cargarán aquí dinámicamente -->
+                        <div class="text-center py-4">
+                            <i class="bi bi-calendar-event display-5 text-muted mb-3"></i>
+                            <p class="text-muted">Selecciona un día para ver las citas programadas</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Detalles de Cita -->
+<div class="modal fade" id="appointmentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalles de la Cita</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="appointment-details">
+                <!-- Los detalles se cargarán aquí -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <a href="#" class="btn btn-primary" id="edit-appointment-btn">Editar Cita</a>
             </div>
         </div>
     </div>
@@ -278,56 +172,10 @@
         background-color: rgba(255, 255, 255, 0.1);
     }
 
-    /* Tabla mejorada */
-    .table-hover tbody tr:hover {
-        background-color: #f8f9fa;
-    }
-
-    .cursor-pointer {
-        cursor: pointer;
-    }
-
-    /* Calendario */
-    .calendar-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 5px;
-        text-align: center;
-    }
-
-    .day-header {
-        font-weight: bold;
-        padding: 5px;
-        color: #0d6efd;
-    }
-
-    .day {
-        padding: 10px;
-        border-radius: 5px;
-    }
-
-    .day:hover {
-        background-color: #f8f9fa;
-    }
-
-    .day.active {
-        background-color: #0d6efd;
-        color: white;
-    }
-
-    /* Avatar */
-    .avatar-sm {
-        width: 36px;
-        height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
+    /* Calendario Funcional */
     .calendar-container {
         display: flex;
         flex-direction: column;
-        height: 100%;
     }
 
     .calendar-header {
@@ -336,7 +184,7 @@
         background-color: #f8f9fa;
         font-weight: 500;
         text-align: center;
-        padding: 0.5rem 0;
+        padding: 0.75rem 0;
         border-bottom: 1px solid #eee;
     }
 
@@ -348,7 +196,7 @@
     .calendar-week {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
-        min-height: 100px;
+        min-height: 120px;
         border-bottom: 1px solid #f0f0f0;
     }
 
@@ -356,11 +204,17 @@
         padding: 0.5rem;
         border-right: 1px solid #f0f0f0;
         position: relative;
-        min-height: 100px;
+        min-height: 120px;
+        cursor: pointer;
+        transition: all 0.2s ease;
     }
 
     .calendar-day:last-child {
         border-right: none;
+    }
+
+    .calendar-day:hover {
+        background-color: #f8f9fa;
     }
 
     .calendar-day.other-month {
@@ -370,22 +224,22 @@
 
     .calendar-day.today {
         background-color: #e7f5ff;
+        border: 2px solid #0d6efd;
     }
 
-    .calendar-day.today .day-number {
-        background-color: #0d6efd;
-        color: white;
-        border-radius: 50%;
-        width: 24px;
-        height: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    .calendar-day.has-events {
+        background-color: #f0f8ff;
+    }
+
+    .calendar-day.selected {
+        background-color: #e3f2fd;
+        border: 2px solid #0d6efd;
     }
 
     .day-number {
         font-weight: 500;
-        margin-bottom: 0.25rem;
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
     }
 
     .calendar-events {
@@ -396,58 +250,408 @@
 
     .calendar-event {
         font-size: 0.75rem;
-        padding: 0.1rem 0.25rem;
+        padding: 0.25rem;
         border-radius: 0.25rem;
         background-color: rgba(13, 110, 253, 0.1);
-        display: flex;
-        align-items: center;
+        border-left: 3px solid #0d6efd;
         cursor: pointer;
+        transition: background-color 0.2s;
     }
 
     .calendar-event:hover {
         background-color: rgba(13, 110, 253, 0.2);
     }
 
-    .event-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        margin-right: 0.25rem;
-        flex-shrink: 0;
+    .calendar-event.pending {
+        border-left-color: #ffc107;
+        background-color: rgba(255, 193, 7, 0.1);
+    }
+
+    .calendar-event.completed {
+        border-left-color: #198754;
+        background-color: rgba(25, 135, 84, 0.1);
+    }
+
+    .calendar-event.cancelled {
+        border-left-color: #6c757d;
+        background-color: rgba(108, 117, 125, 0.1);
     }
 
     .event-time {
         font-weight: 500;
-        margin-right: 0.25rem;
+        font-size: 0.7rem;
+        margin-bottom: 0.1rem;
+    }
+
+    .event-patient {
+        font-size: 0.7rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .event-indicator {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #0d6efd;
+    }
+
+    /* Lista de citas */
+    .appointment-item {
+        border-left: 4px solid #0d6efd;
+        transition: all 0.2s ease;
+    }
+
+    .appointment-item.pending {
+        border-left-color: #ffc107;
+    }
+
+    .appointment-item.completed {
+        border-left-color: #198754;
+    }
+
+    .appointment-item.cancelled {
+        border-left-color: #6c757d;
+    }
+
+    .appointment-item:hover {
+        background-color: #f8f9fa;
+        transform: translateX(2px);
     }
 
     @media (max-width: 768px) {
         .calendar-day {
-            min-height: 60px;
+            min-height: 80px;
+            padding: 0.25rem;
         }
-
+        
+        .day-number {
+            font-size: 0.9rem;
+        }
+        
         .calendar-event {
             font-size: 0.6rem;
-            padding: 0.05rem 0.15rem;
+            padding: 0.15rem;
         }
     }
 </style>
 
 <script>
-    // Inicializar tooltips
-    document.addEventListener('DOMContentLoaded', function () {
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
+    document.addEventListener('DOMContentLoaded', function() {
+        // Datos de las citas (debes pasar esto desde Django)
+        const appointments = [
+            {% for cita in citas %}
+            {
+                id: {{ cita.id }},
+                paciente: "{{ cita.paciente.nombre }} {{ cita.paciente.appat }}",
+                fecha: "{{ cita.fecha|date:'Y-m-d' }}",
+                hora: "{{ cita.hora|time:'H:i' }}",
+                motivo: "{{ cita.motivo|escapejs }}",
+                estatus: "{{ cita.estatus }}",
+                observaciones: "{{ cita.observaciones|default:''|escapejs }}"
+            },
+            {% endfor %}
+        ];
+
+        let currentDate = new Date();
+        let selectedDate = null;
+
+        // Función para formatear fechas
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Función para obtener citas de una fecha específica
+        function getAppointmentsForDate(date) {
+            const dateStr = formatDate(date);
+            return appointments.filter(app => app.fecha === dateStr);
+        }
+
+        // Función para renderizar el calendario
+        function renderCalendar() {
+            const calendarWeeks = document.getElementById('calendar-weeks');
+            const currentMonth = currentDate.getMonth();
+            const currentYear = currentDate.getFullYear();
+            
+            // Actualizar el título del mes
+            const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                               'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            document.getElementById('current-month').textContent = 
+                `${monthNames[currentMonth]} ${currentYear}`;
+            
+            // Obtener primer y último día del mes
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+            
+            // Ajustar para que la semana empiece en Lunes
+            let firstDayOfWeek = firstDay.getDay();
+            firstDayOfWeek = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
+            
+            const daysInMonth = lastDay.getDate();
+            const totalDays = firstDayOfWeek + daysInMonth;
+            const weeks = Math.ceil(totalDays / 7);
+            
+            let calendarHTML = '';
+            let dayCount = 1;
+            
+            for (let i = 0; i < weeks; i++) {
+                calendarHTML += '<div class="calendar-week">';
+                
+                for (let j = 0; j < 7; j++) {
+                    if ((i === 0 && j < firstDayOfWeek) || dayCount > daysInMonth) {
+                        // Días de otros meses
+                        calendarHTML += `<div class="calendar-day other-month">`;
+                        calendarHTML += `<div class="day-number">${dayCount > daysInMonth ? dayCount - daysInMonth : ''}</div>`;
+                        calendarHTML += `</div>`;
+                        if (dayCount <= daysInMonth) dayCount++;
+                    } else {
+                        // Días del mes actual
+                        const dayDate = new Date(currentYear, currentMonth, dayCount);
+                        const dayAppointments = getAppointmentsForDate(dayDate);
+                        const isToday = formatDate(dayDate) === formatDate(new Date());
+                        const isSelected = selectedDate && formatDate(selectedDate) === formatDate(dayDate);
+                        
+                        calendarHTML += `<div class="calendar-day ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''} ${dayAppointments.length > 0 ? 'has-events' : ''}" 
+                            data-date="${formatDate(dayDate)}">`;
+                        
+                        calendarHTML += `<div class="day-number">${dayCount}</div>`;
+                        
+                        if (dayAppointments.length > 0) {
+                            calendarHTML += `<div class="event-indicator"></div>`;
+                            calendarHTML += `<div class="calendar-events">`;
+                            
+                            // Mostrar máximo 2 citas
+                            dayAppointments.slice(0, 2).forEach(app => {
+                                calendarHTML += `
+                                    <div class="calendar-event ${app.estatus.toLowerCase()}" 
+                                         data-appointment-id="${app.id}">
+                                        <div class="event-time">${app.hora}</div>
+                                        <div class="event-patient">${app.paciente.split(' ')[0]}</div>
+                                    </div>
+                                `;
+                            });
+                            
+                            if (dayAppointments.length > 2) {
+                                calendarHTML += `<div class="text-center small text-muted">+${dayAppointments.length - 2} más</div>`;
+                            }
+                            
+                            calendarHTML += `</div>`;
+                        }
+                        
+                        calendarHTML += `</div>`;
+                        dayCount++;
+                    }
+                }
+                
+                calendarHTML += '</div>';
+            }
+            
+            calendarWeeks.innerHTML = calendarHTML;
+            
+            // Agregar event listeners
+            document.querySelectorAll('.calendar-day').forEach(day => {
+                day.addEventListener('click', function() {
+                    const dateStr = this.getAttribute('data-date');
+                    if (dateStr) {
+                        const date = new Date(dateStr + 'T00:00:00');
+                        selectDate(date);
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.calendar-event').forEach(event => {
+                event.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const appointmentId = this.getAttribute('data-appointment-id');
+                    showAppointmentDetails(appointmentId);
+                });
+            });
+        }
+
+        // Función para seleccionar una fecha
+        function selectDate(date) {
+            selectedDate = date;
+            renderCalendar();
+            showDailyAppointments(date);
+        }
+
+        // Función para mostrar citas del día
+        function showDailyAppointments(date) {
+            const appointments = getAppointmentsForDate(date);
+            const dateFormatted = date.toLocaleDateString('es-ES', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            document.getElementById('appointment-count').textContent = `${appointments.length} citas`;
+            
+            let appointmentsHTML = '';
+            
+            if (appointments.length === 0) {
+                appointmentsHTML = `
+                    <div class="text-center py-4">
+                        <i class="bi bi-calendar-x display-5 text-muted mb-3"></i>
+                        <h5 class="text-muted">No hay citas programadas</h5>
+                        <p class="text-muted small">No se han programado citas para el ${dateFormatted}.</p>
+                        <a href="{% url 'nueva_cita' %}?fecha=${formatDate(date)}" class="btn btn-primary mt-2">
+                            <i class="bi bi-plus-circle me-1"></i> Programar Cita
+                        </a>
+                    </div>
+                `;
+            } else {
+                appointmentsHTML = `
+                    <h6 class="text-muted mb-3">${dateFormatted}</h6>
+                    <div class="list-group">
+                `;
+                
+                appointments.forEach(app => {
+                    let statusClass = '';
+                    let statusText = '';
+                    
+                    if (app.estatus === 'P') {
+                        statusClass = 'pending';
+                        statusText = 'Pendiente';
+                    } else if (app.estatus === 'C') {
+                        statusClass = 'completed';
+                        statusText = 'Completada';
+                    } else {
+                        statusClass = 'cancelled';
+                        statusText = 'Cancelada';
+                    }
+                    
+                    appointmentsHTML += `
+                        <div class="list-group-item appointment-item ${statusClass}">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">${app.paciente}</h6>
+                                    <p class="mb-1 text-muted small">${app.motivo}</p>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <span class="badge bg-${statusClass}">${statusText}</span>
+                                        <span class="text-muted">${app.hora}</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-primary view-appointment" 
+                                            data-appointment-id="${app.id}">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                appointmentsHTML += '</div>';
+            }
+            
+            document.getElementById('appointments-list').innerHTML = appointmentsHTML;
+            
+            // Agregar event listeners a los botones de ver
+            document.querySelectorAll('.view-appointment').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const appointmentId = this.getAttribute('data-appointment-id');
+                    showAppointmentDetails(appointmentId);
+                });
+            });
+        }
+
+        // Función para mostrar detalles de la cita
+        function showAppointmentDetails(appointmentId) {
+            const appointment = appointments.find(app => app.id == appointmentId);
+            if (!appointment) return;
+            
+            let statusText = '';
+            let statusClass = '';
+            
+            if (appointment.estatus === 'P') {
+                statusText = 'Pendiente';
+                statusClass = 'warning';
+            } else if (appointment.estatus === 'C') {
+                statusText = 'Completada';
+                statusClass = 'success';
+            } else {
+                statusText = 'Cancelada';
+                statusClass = 'secondary';
+            }
+            
+            const detailsHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted small mb-1">Paciente</label>
+                            <p class="mb-0 fw-semibold">${appointment.paciente}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted small mb-1">Fecha y Hora</label>
+                            <p class="mb-0">${appointment.fecha} a las ${appointment.hora}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted small mb-1">Motivo</label>
+                            <p class="mb-0">${appointment.motivo}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted small mb-1">Estado</label>
+                            <p class="mb-0"><span class="badge bg-${statusClass}">${statusText}</span></p>
+                        </div>
+                    </div>
+                </div>
+                ${appointment.observaciones ? `
+                <div class="row">
+                    <div class="col-12">
+                        <div class="mb-3">
+                            <label class="form-label text-muted small mb-1">Observaciones</label>
+                            <p class="mb-0">${appointment.observaciones}</p>
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
+            `;
+            
+            document.getElementById('appointment-details').innerHTML = detailsHTML;
+            document.getElementById('edit-appointment-btn').href = `/editar-cita/${appointmentId}/`;
+            
+            const modal = new bootstrap.Modal(document.getElementById('appointmentModal'));
+            modal.show();
+        }
+
+        // Navegación del calendario
+        document.getElementById('prev-month').addEventListener('click', function() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
         });
 
-        // Ejemplo: Manejar clic en eventos
-        document.querySelectorAll('.calendar-event').forEach(function (event) {
-            event.addEventListener('click', function () {
-                // Aquí puedes abrir un modal con los detalles de la cita
-                console.log('Cita clickeada:', this.getAttribute('data-bs-title'));
-            });
+        document.getElementById('next-month').addEventListener('click', function() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
         });
+
+        document.getElementById('today-btn').addEventListener('click', function() {
+            currentDate = new Date();
+            selectDate(currentDate);
+        });
+
+        // Inicializar el calendario
+        renderCalendar();
+        
+        // Seleccionar hoy por defecto
+        selectDate(new Date());
     });
 </script>
 

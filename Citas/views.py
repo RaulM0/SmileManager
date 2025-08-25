@@ -11,16 +11,12 @@ from django.db.models import Q
 
 # Create your views here.
 def menu_citas(request):
-    citas = Cita.objects.all().order_by('fecha', 'hora')  # Added ordering
-    
-    #Paginacion de los resultados 3 por pagina
-    paginator = Paginator(citas, 3)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    citas = Cita.objects.all().select_related('paciente')
+    current_date = timezone.now()
     
     return render(request, 'citas/menu_citas.html', {
-        'page_obj': page_obj, 
-        'citas': page_obj.object_list  
+        'citas': citas,
+        'current_date': current_date
     })
 
 def nueva_cita(request):
