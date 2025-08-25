@@ -1,0 +1,149 @@
+{% extends 'Dentista/base.html'%}
+{% block content %}
+
+<div class="container py-4">
+    <!-- Encabezado mejorado -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold text-primary mb-1">
+                <i class="bi bi-images me-2"></i>Historial de Imágenes Clínicas
+            </h1>
+            <h2 class="h5 text-muted">
+                Paciente: {{ paciente.nombre }} {{ paciente.apellido }}
+            </h2>
+        </div>
+        <a href="{% url 'imagenes_clinicas' paciente.id %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Volver
+        </a>
+    </div>
+
+    <!-- Tarjeta contenedora principal -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0 py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h3 class="h5 mb-0">
+                    <i class="bi bi-collection me-2"></i> Imágenes clínicas
+                </h3>
+                <span class="badge bg-primary rounded-pill">{{ imagenes|length }} registros</span>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            {% if imagenes %}
+            <!-- Grid de imágenes mejorado -->
+            <div class="row g-4">
+                {% for imagen in imagenes %}
+                <div class="col-md-6 col-lg-4 col-xl-3">
+                    <div class="card h-100 border-0 shadow-sm hover-effect">
+                        <!-- Preview de imagen -->
+                        <div class="card-img-top bg-light position-relative" style="height: 200px; overflow: hidden;">
+                            {% if imagen.imagen.url|lower|slice:'-4:' == '.pdf' %}
+                                <div class="d-flex flex-column align-items-center justify-content-center h-100">
+                                    <i class="bi bi-file-earmark-pdf display-4 text-danger"></i>
+                                    <small class="mt-2 text-muted">Documento PDF</small>
+                                </div>
+                            {% else %}
+                                <img src="{{ imagen.imagen.url }}" class="img-fluid w-100 h-100 object-fit-cover" alt="Imagen clínica">
+                            {% endif %}
+                            <div class="position-absolute top-0 end-0 m-2">
+                                <span class="badge bg-dark bg-opacity-75">{{ imagen.tipo_imagen }}</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Detalles de la imagen -->
+                        <div class="card-body">
+                            <ul class="list-unstyled small">
+                                <li class="mb-2">
+                                    <i class="bi bi-calendar2-check me-2 text-primary"></i>
+                                    <strong>Fecha:</strong> {{ imagen.fecha_subida|date:"d/m/Y" }}
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-clock me-2 text-primary"></i>
+                                    <strong>Hora:</strong> {{ imagen.fecha_subida|date:"H:i" }}
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-card-text me-2 text-primary"></i>
+                                    <strong>Notas:</strong> 
+                                    <p class="text-muted mb-0">{{ imagen.descripcion|default:"Sin descripción"|truncatechars:40 }}</p>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Acciones -->
+                        <div class="card-footer bg-white border-0 pt-0">
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ imagen.imagen.url }}" target="_blank" class="btn btn-sm btn-outline-primary flex-grow-1 me-2" data-bs-toggle="tooltip" title="Ver completa">
+                                    <i class="bi bi-eye-fill me-1"></i> Ver
+                                </a>
+                                <a href="{{ imagen.imagen.url }}" download class="btn btn-sm btn-outline-secondary flex-grow-1 me-2" data-bs-toggle="tooltip" title="Descargar">
+                                    <i class="bi bi-download me-1"></i>
+                                </a>
+                                <form action="{% url 'eliminar_imagen' imagen.id %}" method="POST" class="flex-grow-1">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger w-100" data-bs-toggle="tooltip" title="Eliminar" onclick="return confirm('¿Confirmas que deseas eliminar esta imagen?')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <!-- Estado vacío mejorado -->
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="bi bi-images display-3 text-light bg-primary rounded-circle p-4"></i>
+                </div>
+                <h3 class="h4 text-dark mb-3">No hay imágenes registradas</h3>
+                <p class="text-muted mb-4">Parece que aún no se han cargado imágenes clínicas para este paciente.</p>
+                <a href="{% url 'cargar_imagen' paciente.id %}" class="btn btn-primary px-4">
+                    <i class="bi bi-cloud-arrow-up me-2"></i>Cargar primera imagen
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        
+        {% if imagenes %}
+        <div class="card-footer bg-white border-0 py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">Mostrando {{ imagenes|length }} resultados</small>
+                <a href="{% url 'cargar_imagen' paciente.id %}" class="btn btn-sm btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i> Nueva imagen
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Estilos personalizados -->
+<style>
+    .hover-effect {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .hover-effect:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1) !important;
+    }
+    .object-fit-cover {
+        object-fit: cover;
+        object-position: center;
+    }
+    .card-img-top {
+        border-top-left-radius: 8px !important;
+        border-top-right-radius: 8px !important;
+    }
+</style>
+
+<!-- Script para tooltips -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+{% endblock %}

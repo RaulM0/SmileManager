@@ -1,0 +1,30 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.menuPacientes, name='registroPacientes'),
+    path('registrar_pacientes/',  views.registrar_paciente,  name='registrar_pacientes'),
+    path('todosPacientes', views.todos_los_pacientes, name = 'todosPacientes'),
+    path('buscar_pacientes/', views.buscar_pacientes, name='buscar_pacientes'),
+    path('ver_paciente/<int:id>/', views.ver_paciente, name='ver_paciente'),
+    path('editar_paciente/<int:id>/', views.editar_paciente, name='editar_paciente'),
+    path('eliminar_paciente/<int:id>/', views.eliminar_paciente, name='eliminar_paciente'),
+    path('menu_historial/', views.menu_historial, name='menu_historial'),
+    path('buscar_pacientes_ajax/', views.buscar_pacientes_ajax, name='buscar_pacientes_ajax'),
+    path('antecedentes/<int:id>/', views.antecedentes, name='antecedentes'),
+    path('consultas/<int:id>/', views.consultas, name='consultas'),
+    path('receta/<int:id>/', views.receta, name='receta'),
+    path('historial_consultas/<int:id>/', views.historial_consultas, name='historial_consultas'),
+    path('imagenes_clinicas/<int:id>/', views.imagenes_clinicas, name='imagenes_clinicas'),
+    path('cargar_imagen/<int:id>/', views.cargar_imagen, name='cargar_imagen'),
+    path('buscar_imagen/<int:id>/', views.buscar_imagen, name='buscar_imagen'),
+    path('eliminar_imagen/<int:imagen_id>/', views.eliminar_imagen, name='eliminar_imagen'),
+    path('historial_imagenes/<int:id>/', views.historial_imagenes, name='historial_imagenes'),
+    path('exportar_datos/', views.exportar_datos, name='exportar_datos'),
+    path('exportar_pacientes/', views.exportar_pacientes, name='exportar_pacientes'),
+    path('exportar_consultas/', views.exportar_consultas, name='exportar_consultas'),
+    path('exportar_imagenes/', views.exportar_imagenes, name='exportar_imagenes'),
+    path('contactar_pacientes/', views.contactar_pacientes, name='contactar_pacientes'),
+    path('contacto/<int:id>/', views.contacto, name='contacto'),
+    path('enviar_mensaje/', views.enviar_mensaje, name='enviar_mensaje'),
+]

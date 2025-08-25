@@ -1,0 +1,188 @@
+{% extends 'Dentista/base.html' %}
+{% block content %}
+<div class="container py-5">
+
+    <!-- Mensajes -->
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            <i
+                class="bi {% if message.tags == 'success' %}bi-check-circle-fill{% else %}bi-exclamation-triangle-fill{% endif %} me-2"></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Tarjeta principal -->
+    <div class="card border-0 shadow-lg">
+        <div class="card-header bg-primary text-white py-3">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-cloud-arrow-up-fill fs-4 me-3"></i>
+                <h4 class="mb-0">Cargar Nueva Imagen Clínica</h4>
+            </div>
+        </div>
+
+        <div class="card-body p-4">
+            <!-- Info paciente -->
+            <div class="text-center mb-4">
+                <div
+                    class="avatar-lg bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3">
+                    <i class="bi bi-person-fill fs-3"></i>
+                </div>
+                <h5 class="text-primary mb-1">{{ paciente.nombre }} {{ paciente.appat }} {{ paciente.apmat }}</h5>
+            </div>
+
+            <!-- Formulario -->
+            <form action="{% url 'cargar_imagen' paciente.id %}" method="post" enctype="multipart/form-data"
+                class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                <div class="row g-3">
+                    <!-- Campos de solo lectura -->
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" class="form-control bg-light" id="key" value="{{ paciente.id }}"
+                                readonly>
+                            <label for="key"><i class="bi bi-key me-2"></i>ID Paciente</label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <select class="form-select" name="consulta_id" aria-label="Default select example">
+                            <option value="">Consulta:</option>
+                            {% for consulta in consultas %}
+                            <option value="{{ consulta.id }}">{{ consulta.fecha_consulta|date:"d/m/Y H:i" }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+
+                    <!-- Tipo de imagen -->
+                    <div class="col-12">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="tipo" name="tipo" placeholder=" " required>
+                            <label for="tipo"><i class="bi bi-tag me-2"></i>Tipo de Imagen</label>
+                            <div class="invalid-feedback">
+                                Por favor especifique el tipo de imagen
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Descripción -->
+                    <div class="col-12">
+                        <div class="form-floating">
+                            <textarea class="form-control" id="descripcion" name="descripcion" style="height: 100px"
+                                required></textarea>
+                            <label for="descripcion"><i class="bi bi-text-paragraph me-2"></i>Descripción</label>
+                        </div>
+                    </div>
+
+                    <!-- Archivo -->
+                    <div class="col-12">
+                        <div class="file-upload-container">
+                            <label for="archivo" class="form-label"><i class="bi bi-paperclip me-2"></i>Seleccionar
+                                Archivo</label>
+                            <div class="input-group">
+                                <input type="file" class="form-control" id="archivo" name="archivo" required>
+                                <button class="btn btn-outline-secondary" type="button" id="clearFile">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>
+                            <div class="invalid-feedback">
+                                Por favor seleccione un archivo
+                            </div>
+                            <small class="text-muted">Formatos aceptados: JPG, PNG, PDF (Máx. 5MB)</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones -->
+                <div class="d-flex justify-content-between mt-5">
+                    <a href="{% url 'imagenes_clinicas' paciente.id %}" class="btn btn-outline-secondary px-4">
+                        <i class="bi bi-arrow-left me-1"></i> Regresar
+                    </a>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="bi bi-cloud-arrow-up me-1"></i> Cargar Imagen
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Validación de formulario -->
+<script>
+    // Ejemplo de validación de formulario
+    (function () {
+        'use strict'
+
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.querySelectorAll('.needs-validation')
+
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
+
+<!-- Limpiar selección de archivo -->
+<script>
+    document.getElementById('clearFile').addEventListener('click', function () {
+        document.getElementById('archivo').value = '';
+    });
+</script>
+
+<style>
+    .avatar-lg {
+        width: 70px;
+        height: 70px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .card {
+        border-radius: 12px;
+    }
+
+    .form-floating label {
+        padding-left: 2.5rem;
+    }
+
+    .form-floating>.bi {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 5;
+    }
+
+    .file-upload-container {
+        margin-bottom: 1rem;
+    }
+
+    .was-validated .form-control:invalid,
+    .was-validated .form-control:invalid:focus {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+    }
+
+    .was-validated .form-control:valid,
+    .was-validated .form-control:valid:focus {
+        border-color: #198754;
+        box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+    }
+</style>
+{% endblock %}

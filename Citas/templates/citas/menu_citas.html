@@ -1,0 +1,454 @@
+{% extends 'Dentista/base.html' %}
+{% block content %}
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar mejorado -->
+        <div class="col-md-3 col-lg-2 d-flex flex-column flex-shrink-0 p-3 bg-primary" style="height: 100vh;">
+            <div class="text-center mb-4">
+                <span class="fs-4 text-white"><i class="bi bi-calendar2-week me-2"></i>Gestor de Citas</span>
+            </div>
+            <hr class="text-white">
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li class="nav-item">
+                    <a href="#" class="nav-link text-white active" aria-current="page">
+                        <i class="bi bi-calendar-check me-2"></i>Ver calendario
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'nueva_cita' %}" class="nav-link text-white">
+                        <i class="bi bi-plus-circle me-2"></i>Nueva cita
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'buscar_cita' %}" class="nav-link text-white">
+                        <i class="bi bi-search me-2"></i>Buscar citas
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'citas_pendientes' %}" class="nav-link text-white">
+                        <i class="bi bi-hourglass-split me-2"></i>Pendientes
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'citas_completadas' %}" class="nav-link text-white">
+                        <i class="bi bi-check-circle me-2"></i>Completadas
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'citas_canceladas' %}" class="nav-link text-white">
+                        <i class="bi bi-x-circle me-2"></i>Canceladas
+                    </a>
+                </li>
+            </ul>
+            <hr class="text-white">
+            <div class="dropdown">
+                <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
+                    data-bs-toggle="dropdown">
+                    <i class="bi bi-person-circle me-2"></i>
+                    <strong>Usuario</strong>
+                </a>
+            </div>
+        </div>
+
+        <!-- Contenido principal mejorado -->
+        <div class="col-md-9 col-lg-10 p-4" style="height: 100vh; overflow-y: auto;">
+            <!-- Encabezado -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="h4 fw-bold text-primary mb-1">
+                        <i class="bi bi-calendar3 me-2"></i>Próximas Citas
+                    </h2>
+                    <p class="text-muted small mb-0">Resumen de las citas programadas</p>
+                </div>
+                <div>
+                    <button class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-1"></i> Nueva Cita
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tarjeta de citas -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4"><i class="bi bi-person me-1"></i> Paciente</th>
+                                    <th><i class="bi bi-calendar me-1"></i> Fecha</th>
+                                    <th><i class="bi bi-clock me-1"></i> Hora</th>
+                                    <th class="text-end pe-4">Estatus</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cita in page_obj %}
+                                <tr class="cursor-pointer" onclick="window.location='#';">
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center">
+                                            <div
+                                                class="avatar-sm bg-primary bg-opacity-10 text-primary rounded-circle me-3">
+                                                <i class="bi bi-person-fill"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">
+                                                    {{ cita.paciente.nombre }} {{ cita.paciente.appat }} {{cita.paciente.apmat }}
+                                                </h6>
+                                                <small class="text-muted">ID: {{ cita.id }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ cita.fecha|date:"d/m/Y" }}</td>
+                                    <td>{{ cita.hora|time:"h:i A" }}</td>
+                                    <td class="text-end pe-4">
+                                        {% if cita.estatus == "P" %}
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="bi bi-hourglass me-1"></i> Pendiente
+                                        </span>
+                                        {% elif cita.estatus == "C" %}
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-check-circle me-1"></i> Completada
+                                        </span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">
+                                            <i class="bi bi-x-circle me-1"></i> Cancelada
+                                        </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-muted small">
+                                Mostrando {{ page_obj.start_index }} - {{ page_obj.end_index }} de {{page_obj.paginator.count }} citas
+                            </span>
+                        </div>
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination pagination-sm mb-0">
+                                {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1">Anterior</a>
+                                </li>
+                                {% endif %}
+
+                                {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                                {% else %}
+                                <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                                {% endif %}
+                                {% endfor %}
+
+                                {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#">Siguiente</a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendario Completo con Citas -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-calendar-date me-2"></i>Calendario de Citas</h5>
+                    <div>
+                        <button class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary mx-2">
+                            Hoy
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="calendar-container">
+                        <!-- Encabezado con días de la semana -->
+                        <div class="calendar-header">
+                            <div class="calendar-weekday">Lun</div>
+                            <div class="calendar-weekday">Mar</div>
+                            <div class="calendar-weekday">Mié</div>
+                            <div class="calendar-weekday">Jue</div>
+                            <div class="calendar-weekday">Vie</div>
+                            <div class="calendar-weekday">Sáb</div>
+                            <div class="calendar-weekday">Dom</div>
+                        </div>
+
+                        <!-- Semanas del mes -->
+                        <div class="calendar-week">
+                            <!-- Días del mes anterior -->
+                            <div class="calendar-day other-month">
+                                <div class="day-number">28</div>
+                            </div>
+                            <div class="calendar-day other-month">
+                                <div class="day-number">29</div>
+                            </div>
+                            <div class="calendar-day other-month">
+                                <div class="day-number">30</div>
+                            </div>
+
+                            <!-- Días del mes actual -->
+                            <div class="calendar-day">
+                                <div class="day-number">1</div>
+                                <div class="calendar-events">
+                                    <div class="calendar-event" data-bs-toggle="tooltip" title="Juan Pérez - 10:30 AM">
+                                        <span class="event-dot bg-primary"></span>
+                                        <span class="event-time">10:30</span>
+                                    </div>
+                                    <div class="calendar-event" data-bs-toggle="tooltip" title="María López - 2:00 PM">
+                                        <span class="event-dot bg-success"></span>
+                                        <span class="event-time">14:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="calendar-day">
+                                <div class="day-number">2</div>
+                            </div>
+                            <div class="calendar-day">
+                                <div class="day-number">3</div>
+                                <div class="calendar-events">
+                                    <div class="calendar-event" data-bs-toggle="tooltip"
+                                        title="Carlos Sánchez - 9:00 AM">
+                                        <span class="event-dot bg-warning"></span>
+                                        <span class="event-time">9:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="calendar-day">
+                                <div class="day-number">4</div>
+                            </div>
+                        </div>
+
+                        <!-- Más semanas... -->
+                        <div class="calendar-week">
+                            <div class="calendar-day today">
+                                <div class="day-number">12</div>
+                                <div class="calendar-events">
+                                    <div class="calendar-event" data-bs-toggle="tooltip" title="Ana García - 11:00 AM">
+                                        <span class="event-dot bg-danger"></span>
+                                        <span class="event-time">11:00</span>
+                                    </div>
+                                    <div class="calendar-event" data-bs-toggle="tooltip"
+                                        title="Luis Martínez - 4:30 PM">
+                                        <span class="event-dot bg-info"></span>
+                                        <span class="event-time">16:30</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Más días... -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Sidebar mejorado */
+    .nav-pills .nav-link.active {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+
+    .nav-link {
+        border-radius: 0.25rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Tabla mejorada */
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .cursor-pointer {
+        cursor: pointer;
+    }
+
+    /* Calendario */
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 5px;
+        text-align: center;
+    }
+
+    .day-header {
+        font-weight: bold;
+        padding: 5px;
+        color: #0d6efd;
+    }
+
+    .day {
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    .day:hover {
+        background-color: #f8f9fa;
+    }
+
+    .day.active {
+        background-color: #0d6efd;
+        color: white;
+    }
+
+    /* Avatar */
+    .avatar-sm {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .calendar-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .calendar-header {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        background-color: #f8f9fa;
+        font-weight: 500;
+        text-align: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .calendar-weekday {
+        padding: 0.25rem;
+        color: #6c757d;
+    }
+
+    .calendar-week {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        min-height: 100px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .calendar-day {
+        padding: 0.5rem;
+        border-right: 1px solid #f0f0f0;
+        position: relative;
+        min-height: 100px;
+    }
+
+    .calendar-day:last-child {
+        border-right: none;
+    }
+
+    .calendar-day.other-month {
+        background-color: #f9f9f9;
+        color: #adb5bd;
+    }
+
+    .calendar-day.today {
+        background-color: #e7f5ff;
+    }
+
+    .calendar-day.today .day-number {
+        background-color: #0d6efd;
+        color: white;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .day-number {
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+    }
+
+    .calendar-events {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .calendar-event {
+        font-size: 0.75rem;
+        padding: 0.1rem 0.25rem;
+        border-radius: 0.25rem;
+        background-color: rgba(13, 110, 253, 0.1);
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .calendar-event:hover {
+        background-color: rgba(13, 110, 253, 0.2);
+    }
+
+    .event-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 0.25rem;
+        flex-shrink: 0;
+    }
+
+    .event-time {
+        font-weight: 500;
+        margin-right: 0.25rem;
+    }
+
+    @media (max-width: 768px) {
+        .calendar-day {
+            min-height: 60px;
+        }
+
+        .calendar-event {
+            font-size: 0.6rem;
+            padding: 0.05rem 0.15rem;
+        }
+    }
+</style>
+
+<script>
+    // Inicializar tooltips
+    document.addEventListener('DOMContentLoaded', function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Ejemplo: Manejar clic en eventos
+        document.querySelectorAll('.calendar-event').forEach(function (event) {
+            event.addEventListener('click', function () {
+                // Aquí puedes abrir un modal con los detalles de la cita
+                console.log('Cita clickeada:', this.getAttribute('data-bs-title'));
+            });
+        });
+    });
+</script>
+
+{% endblock %}

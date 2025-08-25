@@ -1,0 +1,283 @@
+{% extends 'Dentista/base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold">Menú Historial Clínico</h1>
+        <p class="text-muted fs-5">Selecciona un paciente para continuar con el registro y consulta</p>
+    </div>
+
+    <!-- Buscador -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <label for="selectPaciente" class="form-label fw-semibold mb-3">
+                        <i class="bi bi-search me-2"></i> Buscar Paciente
+                    </label>
+                    <select id="selectPaciente" class="form-select" style="width: 100%;"
+                        aria-label="Buscar paciente"></select>
+                    <small class="text-muted mt-2 d-block">Escribe el nombre, apellido o teléfono del paciente</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if paciente_seleccionado %}
+    <!-- Información del paciente -->
+    <div class="card border-0 shadow-sm mb-5">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center">
+                <div class="flex-shrink-0">
+                    <div
+                        class="avatar-lg bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center">
+                        <i class="bi bi-person-fill fs-3"></i>
+                    </div>
+                </div>
+                <div class="flex-grow-1 ms-4">
+                    <h3 class="mb-1">{{ paciente_seleccionado.nombre }} {{ paciente_seleccionado.appat }}
+                        {{paciente_seleccionado.apmat }}</h3>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-primary bg-opacity-10 text-primary">
+                            <i class="bi bi-telephone me-1"></i> {{ paciente_seleccionado.telefono }}
+                        </span>
+                        <span class="badge bg-primary bg-opacity-10 text-primary">
+                            <i class="bi bi-envelope me-1"></i> {{ paciente_seleccionado.email }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Opciones de historial - Ahora con 5 tarjetas -->
+    <div class="row g-4">
+        <!-- Antecedentes Médicos -->
+        <div class="col-md-6 col-lg-4 col-xl-3">
+            <div class="card card-hover border-0 shadow-sm h-100">
+                <div class="card-body text-center p-4">
+                    <div class="icon-lg bg-blue bg-opacity-10 text-blue rounded-circle mb-3 mx-auto">
+                        <i class="bi bi-file-medical fs-4"></i>
+                    </div>
+                    <h5 class="fw-semibold">Antecedentes Médicos</h5>
+                    <p class="text-muted small">Registrar y consultar antecedentes</p>
+                    <a href="{% url 'antecedentes' paciente_seleccionado.id %}"
+                        class="btn btn-outline-primary btn-sm mt-2">
+                        <i class="bi bi-arrow-right"></i> Acceder
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Consultas -->
+        <div class="col-md-6 col-lg-4 col-xl-3">
+            <div class="card card-hover border-0 shadow-sm h-100">
+                <div class="card-body text-center p-4">
+                    <div class="icon-lg bg-green bg-opacity-10 text-green rounded-circle mb-3 mx-auto">
+                        <i class="bi bi-journal-medical fs-4"></i>
+                    </div>
+                    <h5 class="fw-semibold">Nueva Consulta</h5>
+                    <p class="text-muted small">Registro de consultas odontológicas</p>
+                    <a href="{% url 'consultas' paciente_seleccionado.id %}" class="btn btn-outline-green btn-sm mt-2">
+                        <i class="bi bi-arrow-right"></i> Acceder
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Histrial del consultas -->
+        <div class="col-md-6 col-lg-4 col-xl-3">
+            <div class="card card-hover border-0 shadow-sm h-100">
+                <div class="card-body text-center p-4">
+                    <div class="icon-lg bg-orange bg-opacity-10 text-orange rounded-circle mb-3 mx-auto">
+                        <i class="bi bi-file-earmark-sign fs-4"></i>
+                    </div>
+                    <h5 class="fw-semibold">Historial de Consultas</h5>
+                    <p class="text-muted small">Consultar todas las consultas del paciente</p>
+                    <a href="{% url 'historial_consultas' paciente_seleccionado.id %}" class="btn btn-outline-orange btn-sm mt-2">
+                        <i class="bi bi-arrow-right"></i> Acceder
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Imágenes Clínicas -->
+        <div class="col-md-6 col-lg-4 col-xl-3">
+            <div class="card card-hover border-0 shadow-sm h-100">
+                <div class="card-body text-center p-4">
+                    <div class="icon-lg bg-purple bg-opacity-10 text-purple rounded-circle mb-3 mx-auto">
+                        <i class="bi bi-images fs-4"></i>
+                    </div>
+                    <h5 class="fw-semibold">Imágenes Clínicas</h5>
+                    <p class="text-muted small">Radiografías y documentos</p>
+                    <a href="{% url 'imagenes_clinicas' paciente_seleccionado.id %}" class="btn btn-outline-purple btn-sm mt-2">
+                        <i class="bi bi-arrow-right"></i> Acceder
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center py-4">
+        <i class="bi bi-info-circle fs-4"></i>
+        <h5 class="mt-2">Seleccione un paciente para ver las opciones</h5>
+    </div>
+    {% endif %}
+    <div class="text-center mt-5">
+        <a href="{% url 'registroPacientes' %}" class="btn btn-outline-secondary px-5">
+            <i class="bi bi-arrow-left me-2"></i> Volver
+        </a>
+
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#selectPaciente').select2({
+            placeholder: 'Buscar paciente',
+            ajax: {
+                url: "{% url 'buscar_pacientes_ajax' %}",
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return { term: params.term };
+                },
+                processResults: function (data) {
+                    return { results: data.results };
+                },
+                cache: true
+            },
+            minimumInputLength: 1,
+        });
+
+        $('#selectPaciente').on('select2:select', function (e) {
+            var pacienteId = e.params.data.id;
+            window.location.href = "{% url 'menu_historial' %}?paciente_id=" + pacienteId;
+        });
+    });
+</script>
+
+<style>
+    .avatar-lg {
+        width: 70px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .icon-lg {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .card-hover {
+        transition: all 0.3s ease;
+        border-radius: 10px;
+    }
+
+    .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Colores personalizados */
+    .bg-blue {
+        background-color: #0d6efd;
+    }
+
+    .text-blue {
+        color: #0d6efd;
+    }
+
+    .btn-outline-blue {
+        border-color: #0d6efd;
+        color: #0d6efd;
+    }
+
+    .btn-outline-blue:hover {
+        background-color: #0d6efd;
+        color: white;
+    }
+
+    .bg-green {
+        background-color: #198754;
+    }
+
+    .text-green {
+        color: #198754;
+    }
+
+    .btn-outline-green {
+        border-color: #198754;
+        color: #198754;
+    }
+
+    .btn-outline-green:hover {
+        background-color: #198754;
+        color: white;
+    }
+
+    .bg-purple {
+        background-color: #6f42c1;
+    }
+
+    .text-purple {
+        color: #6f42c1;
+    }
+
+    .btn-outline-purple {
+        border-color: #6f42c1;
+        color: #6f42c1;
+    }
+
+    .btn-outline-purple:hover {
+        background-color: #6f42c1;
+        color: white;
+    }
+
+    .bg-orange {
+        background-color: #fd7e14;
+    }
+
+    .text-orange {
+        color: #fd7e14;
+    }
+
+    .btn-outline-orange {
+        border-color: #fd7e14;
+        color: #fd7e14;
+    }
+
+    .btn-outline-orange:hover {
+        background-color: #fd7e14;
+        color: white;
+    }
+
+    .bg-red {
+        background-color: #dc3545;
+    }
+
+    .text-red {
+        color: #dc3545;
+    }
+
+    .btn-outline-red {
+        border-color: #dc3545;
+        color: #dc3545;
+    }
+
+    .btn-outline-red:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+</style>
+{% endblock %}

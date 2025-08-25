@@ -1,0 +1,137 @@
+{% extends 'Dentista/base.html' %}
+{% block content %}
+
+<style>
+  @media print {
+
+    header,
+    footer,
+    .navbar,
+    .btn,
+    .fixed-top,
+    .fixed-bottom {
+      display: none !important;
+    }
+
+    @page {
+      size: A4 landscape;
+      margin: 1cm;
+    }
+
+    body {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+    }
+
+    .card {
+      border: none;
+      box-shadow: none;
+    }
+  }
+
+  .receta-container {
+    max-width: 100%;
+    margin: auto;
+    padding: 10px 30px;
+  }
+
+  .titulo {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .titulo h2 {
+    margin: 0;
+    font-size: 20px;
+  }
+
+  .datos {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .seccion {
+    margin-bottom: 8px;
+  }
+
+  .etiqueta {
+    font-weight: bold;
+    display: inline-block;
+    width: 150px;
+  }
+
+  .contenido {
+    display: inline-block;
+    width: calc(100% - 160px);
+  }
+
+  .firma {
+    text-align: right;
+    margin-top: 25px;
+  }
+
+  .linea-firma {
+    border-top: 1px solid #000;
+    width: 200px;
+    margin-left: auto;
+  }
+</style>
+{% if messages %}
+<div>
+  {% for message in messages %}
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="receta-container">
+  <div class="titulo">
+    <h2>Receta Médica</h2>
+    <small><strong>Fecha:</strong> {{ consulta.fecha_consulta|date:"d/m/Y H:i" }}</small>
+  </div>
+
+  <div class="datos">
+    <div><strong>Paciente:</strong> {{ consulta.paciente.nombre }} {{ consulta.paciente.appat }} 
+      {{consulta.paciente.apmat }}</div>
+    <div><strong>ID:</strong> {{ consulta.paciente.id }}</div>
+  </div>
+
+  <div class="seccion">
+    <span class="etiqueta">Motivo:</span>
+    <span class="contenido">{{ consulta.motivo_consulta }}</span>
+  </div>
+
+  <div class="seccion">
+    <span class="etiqueta">Diagnóstico:</span>
+    <span class="contenido">{{ consulta.diagnostico }}</span>
+  </div>
+
+  <div class="seccion">
+    <span class="etiqueta">Tratamiento:</span>
+    <span class="contenido">{{ consulta.tratamiento }}</span>
+  </div>
+
+  <div class="seccion">
+    <span class="etiqueta">Observaciones:</span>
+    <span class="contenido">{{ consulta.observaciones }}</span>
+  </div>
+
+  <div class="firma">
+    <div class="linea-firma"></div>
+    <p>Dr. [Tu Nombre]</p>
+    <p>Cédula Profesional: [0000000]</p>
+  </div>
+
+  <div class="text-center mt-3 d-print-none">
+    <a href="{% url 'menu_historial' %}" class="btn btn-secondary me-3">Volver</a>
+    <button onclick="window.print()" class="btn btn-primary">Descargar PDF</button>
+  </div>
+</div>
+
+{% endblock %}

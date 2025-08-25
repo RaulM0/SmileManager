@@ -1,0 +1,53 @@
+{% extends 'Dentista/base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Diagnósticos de Imágenes Clínicas</h2>
+
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Paciente</th>
+                <th>Tipo de Imagen</th>
+                <th>Descripción</th>
+                <th>Imagen</th>
+                <th>Resultado</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for img in imagenes %}
+            <tr>
+                <td>{{ img.paciente.nombre }}</td>
+                <td>{{ img.tipo_imagen }}</td>
+                <td>{{ img.descripcion|default:"Sin descripción" }}</td>
+                <td>
+                    {% if img.imagen %}
+                        <img src="{{ img.imagen.url }}" alt="Imagen clínica" class="img-thumbnail" width="100">
+                    {% endif %}
+                </td>
+                <td>
+                    {% if img.resultados %}
+                        <img src="{{ img.resultados.url }}" alt="Resultado" class="img-thumbnail" width="100">
+                    {% else %}
+                        <span class="text-muted">Pendiente</span>
+                    {% endif %}
+                </td>
+                <td>{{ img.fecha_subida|date:"d/m/Y H:i" }}</td>
+                <td>
+                    <a href="{% url 'resultados' img.id %}" class="btn btn-sm btn-primary">
+                        Procesar
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="text-center text-muted">No hay imágenes disponibles</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

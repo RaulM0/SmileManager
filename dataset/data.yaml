@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 4
+names: ['Cavity', 'Fillings', 'Impacted Tooth', 'Implant']
+
+roboflow:
+  workspace: raul-awfmc
+  project: dental-anomaly-detection-igtps-tmkrf
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/raul-awfmc/dental-anomaly-detection-igtps-tmkrf/dataset/1

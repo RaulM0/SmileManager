@@ -1,0 +1,233 @@
+{% extends "Dentista/base.html" %}
+
+
+{% block title %}Gestión de Pacientes | Consultorio Dental{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <!-- Título principal -->
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold text-primary">
+            <i class="bi bi-people-fill me-2"></i>Panel de Gestión de Pacientes
+        </h1>
+        <p class="lead text-muted">Administra toda la información de tus pacientes de manera eficiente</p>
+    </div>
+
+    <!-- Tarjetas de funciones principales -->
+    <div class="row g-4 mb-5">
+        <!-- Ver pacientes -->
+        <div class="col-xl-4 col-md-6">
+            <div class="card card-hover h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex flex-column h-100">
+                        <div class="mb-4 text-center">
+                            <div class="icon-lg bg-primary bg-opacity-10 text-primary rounded-circle mb-3 mx-auto">
+                                <i class="bi bi-list-ul fs-3"></i>
+                            </div>
+                            <h3 class="h5 fw-bold mb-2">Lista de Pacientes</h3>
+                            <p class="text-muted mb-0">Consulta el registro completo de pacientes</p>
+                        </div>
+                        <div class="mt-auto text-center">
+                            <a href="{% url 'todosPacientes' %}" class="btn btn-primary px-4 stretched-link">
+                                <i class="bi bi-chevron-right me-1"></i> Acceder
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Registrar paciente -->
+        <div class="col-xl-4 col-md-6">
+            <div class="card card-hover h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex flex-column h-100">
+                        <div class="mb-4 text-center">
+                            <div class="icon-lg bg-success bg-opacity-10 text-success rounded-circle mb-3 mx-auto">
+                                <i class="bi bi-person-plus fs-3"></i>
+                            </div>
+                            <h3 class="h5 fw-bold mb-2">Nuevo Paciente</h3>
+                            <p class="text-muted mb-0">Registra un nuevo paciente en el sistema</p>
+                        </div>
+                        <div class="mt-auto text-center">
+                            <a href="{% url 'registrar_pacientes' %}" class="btn btn-success px-4 stretched-link">
+                                <i class="bi bi-plus-lg me-1"></i> Registrar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buscar paciente -->
+        <div class="col-xl-4 col-md-6">
+            <div class="card card-hover h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex flex-column h-100">
+                        <div class="mb-4 text-center">
+                            <div class="icon-lg bg-info bg-opacity-10 text-info rounded-circle mb-3 mx-auto">
+                                <i class="bi bi-search fs-3"></i>
+                            </div>
+                            <h3 class="h5 fw-bold mb-2">Buscar Paciente</h3>
+                            <p class="text-muted mb-0">Encuentra pacientes por diversos criterios</p>
+                        </div>
+                        <div class="mt-auto text-center">
+                            <a href="{% url 'buscar_pacientes' %}" class="btn btn-info px-4 stretched-link text-white">
+                                <i class="bi bi-search me-1"></i> Buscar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historial médico -->
+        <div class="col-xl-4 col-md-6">
+            <div class="card card-hover h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex flex-column h-100">
+                        <div class="mb-4 text-center">
+                            <div class="icon-lg bg-warning bg-opacity-10 text-warning rounded-circle mb-3 mx-auto">
+                                <i class="bi bi-file-medical fs-3"></i>
+                            </div>
+                            <h3 class="h5 fw-bold mb-2">Historial Médico</h3>
+                            <p class="text-muted mb-0">Accede al historial clínico completo</p>
+                        </div>
+                        <div class="mt-auto text-center">
+                            <a href="{% url 'menu_historial' %}" class="btn btn-warning px-4 stretched-link text-white">
+                                <i class="bi bi-folder2-open me-1"></i> Ver
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exportar datos -->
+        <div class="col-xl-4 col-md-6">
+            <div class="card card-hover h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex flex-column h-100">
+                        <div class="mb-4 text-center">
+                            <div class="icon-lg bg-dark bg-opacity-10 text-dark rounded-circle mb-3 mx-auto">
+                                <i class="bi bi-download fs-3"></i>
+                            </div>
+                            <h3 class="h5 fw-bold mb-2">Exportar Datos</h3>
+                            <p class="text-muted mb-0">Genera reportes en PDF o Excel</p>
+                        </div>
+                        <div class="mt-auto text-center">
+                            <a href="{% url 'exportar_datos' %}" class="btn btn-dark px-4 stretched-link">
+                                <i class="bi bi-file-earmark-arrow-down me-1"></i> Exportar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contactar pacientes -->
+        <div class="col-xl-4 col-md-6">
+            <div class="card card-hover h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex flex-column h-100">
+                        <div class="mb-4 text-center">
+                            <div class="icon-lg bg-purple bg-opacity-10 text-purple rounded-circle mb-3 mx-auto">
+                                <i class="bi bi-envelope fs-3"></i>
+                            </div>
+                            <h3 class="h5 fw-bold mb-2">Contactar Pacientes</h3>
+                            <p class="text-muted mb-0">Envía comunicaciones a tus pacientes</p>
+                        </div>
+                        <div class="mt-auto text-center">
+                            <a href="{% url 'contactar_pacientes' %}" class="btn btn-purple px-4 stretched-link text-white">
+                                <i class="bi bi-send me-1"></i> Contactar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección de acceso rápido -->
+    <div class="card border-0 shadow-sm mb-5">
+        <div class="card-header bg-white border-0 py-3">
+            <h3 class="h5 mb-0"><i class="bi bi-lightning-charge text-warning me-2"></i>Accesos Rápidos</h3>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <a href="{% url 'todosPacientes' %}" class="btn btn-outline-primary w-100 d-flex align-items-center">
+                        <i class="bi bi-list-ul fs-4 me-3"></i>
+                        <div class="text-start">
+                            <h6 class="mb-0 fw-bold">Lista Completa</h6>
+                            <small class="text-muted">Todos los pacientes</small>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="{% url 'registrar_pacientes' %}" class="btn btn-outline-success w-100 d-flex align-items-center">
+                        <i class="bi bi-person-plus fs-4 me-3"></i>
+                        <div class="text-start">
+                            <h6 class="mb-0 fw-bold">Registro Rápido</h6>
+                            <small class="text-muted">Nuevo paciente</small>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="#" class="btn btn-outline-info w-100 d-flex align-items-center">
+                        <i class="bi bi-calendar2-plus fs-4 me-3"></i>
+                        <div class="text-start">
+                            <h6 class="mb-0 fw-bold">Nueva Cita</h6>
+                            <small class="text-muted">Agendar ahora</small>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botón de regreso -->
+    <div class="text-center mb-4">
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary px-5">
+            <i class="bi bi-arrow-left me-2"></i> Volver al inicio
+        </a>
+    </div>
+</div>
+
+<style>
+    .card-hover {
+        transition: transform 0.2s, box-shadow 0.2s;
+        border-radius: 10px;
+    }
+    
+    .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .icon-lg {
+        width: 70px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .btn-purple {
+        background-color: #6f42c1;
+        border-color: #6f42c1;
+        color: white;
+    }
+    
+    .btn-purple:hover {
+        background-color: #5e3aa8;
+        border-color: #5e3aa8;
+        color: white;
+    }
+    
+    .text-purple {
+        color: #6f42c1;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,160 @@
+{% extends 'Dentista/base.html' %}
+{% block content %}
+
+<div class="container py-4">
+    <!-- Encabezado -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold text-primary mb-1">
+                <i class="bi bi-calendar-plus me-2"></i>Registrar Nueva Cita
+            </h1>
+            <div class="d-flex align-items-center">
+                <div class="avatar-sm bg-primary bg-opacity-10 text-primary rounded-circle me-3">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+                <h2 class="h5 text-muted mb-0">
+                    {{paciente.nombre}} {{paciente.appat}} {{paciente.apmat}}
+                </h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mostrar mensajes -->
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} mt-2">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Formulario -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+            <form action="{% url 'registrar_cita' paciente.id %}" method="post">
+                {% csrf_token %}
+
+                <div class="row g-3">
+                    <!-- Información del Paciente -->
+                    <div class="col-md-6">
+                        <label for="Paciente" class="form-label fw-semibold">Paciente</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">
+                                <i class="bi bi-person-badge"></i>
+                            </span>
+                            <input type="text" class="form-control" id="Paciente"
+                                value="{{paciente.nombre}} {{paciente.appat}} {{paciente.apmat}}" disabled>
+                        </div>
+                    </div>
+
+                    <!-- Fecha -->
+                    <div class="col-md-6">
+                        <label for="fecha" class="form-label fw-semibold">Fecha</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">
+                                <i class="bi bi-calendar-date"></i>
+                            </span>
+                            <input type="date" class="form-control" id="fecha" name="fecha" required>
+                        </div>
+                    </div>
+
+                    <!-- Hora -->
+                    <div class="col-md-6">
+                        <label for="hora" class="form-label fw-semibold">Hora</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">
+                                <i class="bi bi-clock"></i>
+                            </span>
+                            <input type="time" class="form-control" id="hora" name="hora" required>
+                        </div>
+                    </div>
+
+                    <!-- Estatus -->
+                    <div class="col-md-6">
+                        <label for="estatus" class="form-label fw-semibold">Estatus</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">
+                                <i class="bi bi-list-check"></i>
+                            </span>
+                            <select class="form-select" id="estatus" name="estatus" required>
+                                <option value="" selected disabled>Seleccione Estatus</option>
+                                <option value="P">Pendiente</option>
+                                <option value="C">Completada</option>
+                                <option value="A">Anulada</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Motivo -->
+                    <div class="col-12">
+                        <label for="motivo" class="form-label fw-semibold">Motivo</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light align-items-start">
+                                <i class="bi bi-chat-left-text"></i>
+                            </span>
+                            <textarea class="form-control" id="motivo" name="motivo" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Observaciones -->
+                    <div class="col-12">
+                        <label for="observaciones" class="form-label fw-semibold">Observaciones</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light align-items-start">
+                                <i class="bi bi-card-checklist"></i>
+                            </span>
+                            <textarea class="form-control" id="observaciones" name="observaciones" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between pt-4">
+                            <a href="{% url 'menu_citas' %}" class="btn btn-outline-secondary px-4">
+                                <i class="bi bi-arrow-left me-2"></i> Volver
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="bi bi-save me-2"></i> Registrar Cita
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .avatar-sm {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .card {
+        border-radius: 0.5rem;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        border-color: #86b7fe;
+    }
+
+    .input-group-text {
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus+.input-group-text {
+        color: #0d6efd;
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+</style>
+
+{% endblock %}

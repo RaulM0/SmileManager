@@ -1,0 +1,95 @@
+{% extends "Dentista/base.html" %}
+
+{% block content %}
+{% if messages %}
+<div class="container mt-3">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="container mt-5 mb-5 d-flex justify-content-center">
+    <div class="card shadow w-100" style="max-width: 950px;">
+        <div class="card-body p-5">
+            <h3 class="mb-4 text-primary text-center fw-bold">🦷 Registrar Nuevo Paciente</h3>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <!-- Datos personales -->
+                <h5 class="fw-semibold text-secondary mb-3">Información Personal</h5>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="nombre" class="form-label">Nombre(s)</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="appat" class="form-label">Apellido Paterno</label>
+                        <input type="text" class="form-control" id="appat" name="appat" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="apmat" class="form-label">Apellido Materno</label>
+                        <input type="text" class="form-control" id="apmat" name="apmat" required>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label for="fecha_nacimiento" class="form-label">Fecha de nacimiento</label>
+                        <input type="text" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento"
+                            placeholder="AAAA-MM-DD" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="genero" class="form-label">Género</label>
+                        <select class="form-select" id="genero" name="genero" required>
+                            <option value="" disabled selected>Selecciona género</option>
+                            <option value="M">Masculino</option>
+                            <option value="F">Femenino</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Datos de contacto -->
+                <h5 class="fw-semibold text-secondary mb-3">Información de Contacto</h5>
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label for="telefono" class="form-label">Teléfono</label>
+                        <input type="text" class="form-control" id="telefono" name="telefono" maxlength="10" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="email" class="form-label">Correo electrónico</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                </div>
+
+                <!-- Botones -->
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{% url 'registroPacientes' %}" class="btn btn-outline-primary fw-semibold px-4">
+                        ← Regresar
+                    </a>
+                    <button type="submit" class="btn btn-success fw-semibold px-4">
+                        Guardar Paciente
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Flatpickr CSS y JS -->
+<link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+
+<script>
+    flatpickr("#fecha_nacimiento", {
+        dateFormat: "Y-m-d",
+        maxDate: "today",
+        locale: "es"
+    });
+</script>
+{% endblock %}

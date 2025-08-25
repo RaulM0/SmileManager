@@ -1,0 +1,73 @@
+{% extends 'Dentista/base.html' %}
+{% block content %}
+
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+      <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-primary text-white text-center rounded-top-4">
+          <h2 class="mb-0 fw-bold">Consulta Médica</h2>
+          <small class="fst-italic">Paciente: {{ paciente.nombre }} {{ paciente.appat }} {{ paciente.apmat }}</small>
+        </div>
+        <div class="card-body p-4">
+          <div class="mb-4 text-center">
+            <span class="badge bg-secondary fs-6">ID Paciente: {{ paciente.id }}</span>
+            <span class="badge bg-info text-dark ms-2 fs-6">Fecha: {{ fecha }}</span>
+          </div>
+          <!--
+          {% if messages %}
+          <div>
+            {% for message in messages %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+          -->
+          <form method="post" action="{% url 'consultas' paciente.id %}">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="motivo_consulta" class="form-label fw-semibold">Motivo de la consulta <span
+                  class="text-danger">*</span></label>
+              <textarea class="form-control" id="motivo_consulta" name="motivo_consulta" rows="4" required
+                placeholder="Describe el motivo de la consulta"></textarea>
+            </div>
+
+            <div class="mb-3">
+              <label for="diagnostico" class="form-label fw-semibold">Diagnóstico <span
+                  class="text-danger">*</span></label>
+              <textarea class="form-control" id="diagnostico" name="diagnostico" rows="4" required
+                placeholder="Escribe el diagnóstico"></textarea>
+            </div>
+
+            <div class="mb-3">
+              <label for="tratamiento" class="form-label fw-semibold">Tratamiento <span
+                  class="text-danger">*</span></label>
+              <textarea class="form-control" id="tratamiento" name="tratamiento" rows="4" required
+                placeholder="Detalle el tratamiento"></textarea>
+            </div>
+
+            <div class="mb-4">
+              <label for="observaciones" class="form-label fw-semibold">Observaciones</label>
+              <textarea class="form-control" id="observaciones" name="observaciones" rows="3"
+                placeholder="Comentarios adicionales"></textarea>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+              <a href="{% url 'menu_historial' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left-circle me-2"></i> Volver al menú
+              </a>
+              <button type="submit" class="btn btn-primary fw-semibold">
+                <i class="bi bi-save me-2"></i> Guardar consulta
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

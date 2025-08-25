@@ -1,0 +1,241 @@
+{% extends "Dentista/base.html" %}
+{% load static %}
+
+{% block title %}Detalles del Paciente | Consultorio Dental{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Tarjeta principal -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 py-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="h4 mb-0 text-primary">
+                                <i class="bi bi-person-badge me-2"></i>Detalles del Paciente
+                            </h2>
+                            <small class="text-muted">ID: {{ paciente.id }}</small>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                                id="dropdownMenuButton" data-bs-toggle="dropdown">
+                                <i class="bi bi-gear"></i> Acciones
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{% url 'editar_paciente' paciente.id %}"><i
+                                            class="bi bi-pencil me-2"></i>Editar</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-printer me-2"></i>Imprimir
+                                        ficha</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <form action="{% url 'eliminar_paciente' paciente.id %}" method="post"
+                                    onsubmit="return confirm('¿Estás seguro de eliminar este paciente?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item text-danger"
+                                        style="border: none; background: none;">
+                                        <i class="bi bi-trash me-2"></i>Eliminar
+                                    </button>
+                                </form>
+
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <!-- Encabezado con foto de perfil -->
+                    <div class="text-center mb-4">
+                        <div class="avatar-lg mx-auto mb-3">
+                            <div class="avatar-title bg-primary bg-opacity-10 text-primary rounded-circle display-4">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                        </div>
+                        <h3 class="mb-1">{{ paciente.nombre }} {{ paciente.appat }} {{ paciente.apmat }}</h3>
+                        <div class="badge bg-primary bg-opacity-10 text-primary">
+                            <i
+                                class="bi bi-{% if paciente.genero == 'M' %}gender-male{% else %}gender-female{% endif %} me-1"></i>
+                            {% if paciente.genero == 'M' %}Masculino{% else %}Femenino{% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Información del paciente -->
+                    <div class="row g-4">
+                        <!-- Columna izquierda -->
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-none bg-light">
+                                <div class="card-body">
+                                    <h5 class="card-title text-secondary mb-3"><i
+                                            class="bi bi-info-circle me-2"></i>Información Básica</h5>
+                                    <ul class="list-unstyled">
+                                        <li class="mb-3 d-flex">
+                                            <span class="me-3"><i class="bi bi-calendar text-muted"></i></span>
+                                            <div>
+                                                <h6 class="mb-0 text-muted small">Fecha de Nacimiento</h6>
+                                                <p class="mb-0">{{ paciente.fecha_nacimiento|date:"d/m/Y" }}</p>
+                                            </div>
+                                        </li>
+                                        <li class="mb-3 d-flex">
+                                            <span class="me-3"><i class="bi bi-calendar-check text-muted"></i></span>
+                                            <div>
+                                                <h6 class="mb-0 text-muted small">Edad</h6>
+                                                <p class="mb-0">{{ edad }} años</p>
+                                            </div>
+                                        </li>
+                                        <li class="mb-3 d-flex">
+                                            <span class="me-3">
+                                                {% if paciente.estatus == 'A' %}
+                                                <i class="bi bi-check-circle-fill text-success" title="Activo"></i>
+                                                {% else %}
+                                                <i class="bi bi-x-circle-fill text-danger" title="Inactivo"></i>
+                                                {% endif %}
+                                            </span>
+
+                                            <div>
+                                                <h6 class="mb-0 text-muted small">Estatus</h6>
+                                                <p class="mb-0">
+                                                    {% if paciente.estatus == 'A' %}
+                                                    Activo
+                                                    {% else %}
+                                                    Inactivo
+                                                    {% endif %}
+                                                </p>
+                                            </div>
+                                        </li>
+
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Columna derecha -->
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-none bg-light">
+                                <div class="card-body">
+                                    <h5 class="card-title text-secondary mb-3"><i
+                                            class="bi bi-telephone me-2"></i>Contacto</h5>
+                                    <ul class="list-unstyled">
+                                        <li class="mb-3 d-flex">
+                                            <span class="me-3"><i class="bi bi-phone text-muted"></i></span>
+                                            <div>
+                                                <h6 class="mb-0 text-muted small">Teléfono</h6>
+                                                <p class="mb-0"><a href="tel:{{ paciente.telefono }}"
+                                                        class="text-decoration-none">{{ paciente.telefono }}</a></p>
+                                            </div>
+                                        </li>
+                                        <li class="d-flex">
+                                            <span class="me-3"><i class="bi bi-envelope text-muted"></i></span>
+                                            <div>
+                                                <h6 class="mb-0 text-muted small">Correo Electrónico</h6>
+                                                <p class="mb-0"><a href="mailto:{{ paciente.email }}"
+                                                        class="text-decoration-none">{{ paciente.email }}</a></p>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pestañas para información adicional -->
+                    <div class="mt-4">
+                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="home-tab" data-bs-toggle="tab"
+                                    data-bs-target="#home-tab-pane" type="button" role="tab">
+                                    <i class="bi bi-clipboard2-pulse me-2"></i>Historial Médico
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="profile-tab" data-bs-toggle="tab"
+                                    data-bs-target="#profile-tab-pane" type="button" role="tab">
+                                    <i class="bi bi-calendar-event me-2"></i>Citas
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="contact-tab" data-bs-toggle="tab"
+                                    data-bs-target="#contact-tab-pane" type="button" role="tab">
+                                    <i class="bi bi-cash-coin me-2"></i>Pagos
+                                </button>
+                            </li>
+                        </ul>
+                        <div class="tab-content p-3 border border-top-0 rounded-bottom" id="myTabContent">
+                            <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel">
+                                <div class="text-center py-4">
+                                    <i class="bi bi-clipboard2-pulse display-4 text-muted mb-3"></i>
+                                    <h5 class="text-muted">Historial médico no disponible</h5>
+                                    <p class="text-muted">Aquí se mostrará el historial dental completo del paciente</p>
+                                    <button class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-plus-lg me-1"></i> Agregar registro
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="profile-tab-pane" role="tabpanel">
+                                <div class="text-center py-4">
+                                    <i class="bi bi-calendar-event display-4 text-muted mb-3"></i>
+                                    <h5 class="text-muted">No hay citas registradas</h5>
+                                    <p class="text-muted">Aquí se mostrará el historial de citas del paciente</p>
+                                    <button class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-plus-lg me-1"></i> Agendar cita
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="contact-tab-pane" role="tabpanel">
+                                <div class="text-center py-4">
+                                    <i class="bi bi-cash-coin display-4 text-muted mb-3"></i>
+                                    <h5 class="text-muted">No hay registros de pago</h5>
+                                    <p class="text-muted">Aquí se mostrará el historial de pagos del paciente</p>
+                                    <button class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-plus-lg me-1"></i> Registrar pago
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-white border-0 text-center py-3">
+                    <a href="{% url 'buscar_pacientes' %}" class="btn btn-outline-secondary me-2">
+                        <i class="bi bi-arrow-left me-1"></i> Volver
+                    </a>
+                    <a href="{% url 'editar_paciente' paciente.id %}" class="btn btn-primary">
+                        <i class="bi bi-pencil me-1"></i> Editar Paciente
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .avatar-lg {
+        width: 80px;
+        height: 80px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .card {
+        border-radius: 12px;
+    }
+
+    .nav-tabs .nav-link {
+        border: none;
+        color: #6c757d;
+        font-weight: 500;
+        padding: 0.75rem 1.25rem;
+    }
+
+    .nav-tabs .nav-link.active {
+        color: #0d6efd;
+        background-color: transparent;
+        border-bottom: 3px solid #0d6efd;
+    }
+
+    .bg-light {
+        background-color: #f8f9fa !important;
+    }
+</style>
+{% endblock %}

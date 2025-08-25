@@ -1,0 +1,184 @@
+{% extends "Dentista/base.html" %}
+{% load static %}
+
+{% block title %}Editar Paciente | Consultorio Dental{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Tarjeta de formulario -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2 class="h4 mb-0 text-primary">
+                            <i class="bi bi-person-lines-fill me-2"></i>Editar Paciente
+                        </h2>
+                        <span class="badge bg-light text-dark">ID: {{ paciente.id }}</span>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <form method="post" novalidate class="needs-validation">
+                        {% csrf_token %}
+                        
+                        <div class="row g-3">
+                            <!-- Nombre -->
+                            <div class="col-md-6">
+                                <label for="nombre" class="form-label fw-semibold">Nombre(s)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                    <input type="text" class="form-control" id="nombre" name="nombre" 
+                                        value="{{ paciente.nombre }}" required>
+                                </div>
+                                <div class="invalid-feedback">
+                                    Por favor ingrese el nombre del paciente
+                                </div>
+                            </div>
+                            
+                            <!-- Apellidos -->
+                            <div class="col-md-6">
+                                <label for="appat" class="form-label fw-semibold">Apellido Paterno</label>
+                                <input type="text" class="form-control" id="appat" name="appat" 
+                                    value="{{ paciente.appat }}" required>
+                                <div class="invalid-feedback">
+                                    Por favor ingrese el apellido paterno
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="apmat" class="form-label fw-semibold">Apellido Materno</label>
+                                <input type="text" class="form-control" id="apmat" name="apmat" 
+                                    value="{{ paciente.apmat }}">
+                            </div>
+                            
+                            <!-- Fecha Nacimiento -->
+                            <div class="col-md-6">
+                                <label for="fecha_nacimiento" class="form-label fw-semibold">Fecha de Nacimiento</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                                    <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento" 
+                                        value="{{ paciente.fecha_nacimiento|date:'Y-m-d' }}" required>
+                                </div>
+                                <div class="invalid-feedback">
+                                    Por favor seleccione la fecha de nacimiento
+                                </div>
+                            </div>
+                            
+                            <!-- Género -->
+                            <div class="col-md-6">
+                                <label for="genero" class="form-label fw-semibold">Género</label>
+                                <select class="form-select" id="genero" name="genero" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="M" {% if paciente.genero == 'M' %}selected{% endif %}>Masculino</option>
+                                    <option value="F" {% if paciente.genero == 'F' %}selected{% endif %}>Femenino</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Por favor seleccione el género
+                                </div>
+                            </div>
+                            
+                            <!-- Estatus -->
+                            <div class="col-md-6">
+                                <label for="genero" class="form-label fw-semibold">Estatus</label>
+                                <select class="form-select" id="estatus" name="estatus" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="A" {% if paciente.genero == 'A' %}selected{% endif %}>Activo</option>
+                                    <option value="I" {% if paciente.genero == 'I' %}selected{% endif %}>Inactivo</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Por favor seleccione el género
+                                </div>
+                            </div>
+                            
+                            <!-- Contacto -->
+                            <div class="col-md-6">
+                                <label for="telefono" class="form-label fw-semibold">Teléfono</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                                    <input type="tel" class="form-control" id="telefono" name="telefono" 
+                                        value="{{ paciente.telefono }}" required pattern="\d{10}"
+                                        title="Ingrese 10 dígitos numéricos">
+                                </div>
+                                <div class="invalid-feedback">
+                                    Por favor ingrese un teléfono válido (10 dígitos)
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label for="email" class="form-label fw-semibold">Correo Electrónico</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                    <input type="email" class="form-control" id="email" name="email" 
+                                        value="{{ paciente.email }}" required>
+                                </div>
+                                <div class="invalid-feedback">
+                                    Por favor ingrese un correo electrónico válido
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Botones de acción -->
+                        <div class="d-flex justify-content-between mt-5">
+                            <a href="{% url 'buscar_pacientes' %}" class="btn btn-outline-secondary px-4">
+                                <i class="bi bi-x-circle me-2"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="bi bi-check-circle me-2"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Validación de formulario -->
+<script>
+// Ejemplo de validación de formulario
+(function () {
+  'use strict'
+
+  // Obtener todos los formularios a los que queremos aplicar estilos de validación de Bootstrap personalizados
+  var forms = document.querySelectorAll('.needs-validation')
+
+  // Bucle sobre ellos y evitar el envío
+  Array.prototype.slice.call(forms)
+    .forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+
+        form.classList.add('was-validated')
+      }, false)
+    })
+})()
+</script>
+
+<style>
+    .card {
+        border-radius: 12px;
+    }
+    
+    .form-label {
+        color: #495057;
+    }
+    
+    .input-group-text {
+        background-color: #f8f9fa;
+    }
+    
+    .was-validated .form-control:invalid, 
+    .was-validated .form-select:invalid {
+        border-color: #dc3545;
+    }
+    
+    .was-validated .form-control:valid, 
+    .was-validated .form-select:valid {
+        border-color: #198754;
+    }
+</style>
+{% endblock %}
