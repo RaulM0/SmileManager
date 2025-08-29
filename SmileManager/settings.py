@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'Home',
     'Pacientes',
     'Citas',
-    'DiagnosticosIA'
+    'DiagnosticosIA',
+    'Sesiones',
 ]
 
 MIDDLEWARE = [
@@ -50,7 +51,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'Sesiones.middleware.LoginRequiredMiddleware',  # Middleware personalizado para requerir login
 ]
+
+
 
 ROOT_URLCONF = 'SmileManager.urls'
 
@@ -138,3 +142,8 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'raumillandesa@gmail.com'
 EMAIL_HOST_PASSWORD = 'peamhxmwuwoejjlr' 
 
+
+# Configuración de URLs de autenticación
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'dashboard'
+LOGOUT_REDIRECT_URL = 'login'

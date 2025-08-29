@@ -1,0 +1,349 @@
+{% extends 'Dentista/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="login-container" style="min-height: calc(100vh - 200px);">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-10 col-lg-8">
+                <div class="card login-card shadow-lg border-0">
+                    <div class="row g-0">
+                        <!-- Panel izquierdo con información de la clínica -->
+                        <div class="col-md-6 login-left-panel">
+                            <div class="left-panel-content">
+                                <div class="dental-icon">
+                                    <i class="bi bi-shield-shaded"></i>
+                                </div>
+                                <h1>SmileManager <span>Pro</span></h1>
+                                <p>Sistema de gestión odontológica integral</p>
+                                <div class="features-list">
+                                    <div class="feature-item">
+                                        <i class="bi bi-graph-up"></i>
+                                        <span>Análisis con inteligencia artificial</span>
+                                    </div>
+                                    <div class="feature-item">
+                                        <i class="bi bi-database-check"></i>
+                                        <span>Historiales clínicos seguros</span>
+                                    </div>
+                                    <div class="feature-item">
+                                        <i class="bi bi-calendar2-check"></i>
+                                        <span>Gestión de citas integrada</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Panel derecho con formulario de login -->
+                        <div class="col-md-6">
+                            <div class="card-body p-5">
+                                <div class="login-header mb-4">
+                                    <h2>Bienvenido de nuevo</h2>
+                                    <p class="text-muted">Ingrese sus credenciales para acceder al sistema</p>
+                                </div>
+                                
+                                <form method="post" class="login-form">
+                                    {% csrf_token %}
+                                    
+                                    <div class="form-group mb-3">
+                                        <label for="username" class="form-label">Usuario</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="bi bi-person-circle"></i>
+                                            </span>
+                                            <input type="text" class="form-control" id="username" name="username" 
+                                                   placeholder="Ingrese su nombre de usuario" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group mb-3">
+                                        <label for="password" class="form-label">Contraseña</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="bi bi-key"></i>
+                                            </span>
+                                            <input type="password" class="form-control" id="password" name="password" 
+                                                   placeholder="Ingrese su contraseña" required>
+                                            <span class="input-group-text toggle-password">
+                                                <i class="bi bi-eye"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mb-4">
+                                        <a href="#" class="forgot-password">¿Olvidó su contraseña?</a>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary w-100 login-btn mb-3">
+                                        <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar sesión
+                                    </button>
+                                    
+                                    <!-- Mensajes de alerta -->
+                                    {% for message in messages %}
+                                    <div class="alert alert-danger mt-3" role="alert">
+                                        <i class="bi bi-exclamation-circle me-2"></i>{{ message }}
+                                    </div>
+                                    {% endfor %}
+                                </form>
+                                
+                                <div class="divider my-4"><span>o</span></div>
+                                
+                                <div class="alternative-login text-center">
+                                    <p class="mb-0">¿No tiene una cuenta? <a href="#">Solicitar acceso</a></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="security-notice text-center mt-4">
+                    <i class="bi bi-shield-check"></i>
+                    <span>Sistema seguro · Protegido con encriptación</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --primary-color: #2a6bc1;
+        --primary-dark: #1c56a7;
+        --secondary-color: #38b6a0;
+        --text-dark: #2d3748;
+        --text-light: #718096;
+        --background-light: #f8fafc;
+        --border-color: #e2e8f0;
+    }
+    
+    .login-container {
+        background-color: var(--background-light);
+        padding: 20px 0;
+    }
+    
+    .login-card {
+        border-radius: 16px;
+        overflow: hidden;
+    }
+    
+    .login-left-panel {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        color: white;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .login-left-panel::before {
+        content: '';
+        position: absolute;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+        top: -50px;
+        left: -50px;
+    }
+    
+    .login-left-panel::after {
+        content: '';
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+        bottom: -100px;
+        right: -100px;
+    }
+    
+    .left-panel-content h1 {
+        font-weight: 700;
+        font-size: 28px;
+        margin-bottom: 8px;
+    }
+    
+    .left-panel-content h1 span {
+        font-weight: 300;
+    }
+    
+    .left-panel-content p {
+        opacity: 0.85;
+        margin-bottom: 40px;
+    }
+    
+    .dental-icon {
+        font-size: 50px;
+        margin-bottom: 30px;
+        opacity: 0.9;
+    }
+    
+    .features-list {
+        margin-top: 40px;
+    }
+    
+    .feature-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .feature-item i {
+        font-size: 20px;
+        margin-right: 15px;
+        opacity: 0.9;
+    }
+    
+    .login-header h2 {
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 8px;
+    }
+    
+    .form-group label {
+        font-weight: 500;
+        color: var(--text-dark);
+        margin-bottom: 8px;
+    }
+    
+    .input-group-text {
+        background: white;
+        border-right: none;
+        color: var(--text-light);
+    }
+    
+    .form-control {
+        border-left: none;
+        padding: 12px 15px;
+        height: 48px;
+    }
+    
+    .form-control:focus {
+        box-shadow: none;
+        border-color: var(--border-color);
+    }
+    
+    .form-control:focus + .input-group-text {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+    
+    .toggle-password {
+        cursor: pointer;
+        color: var(--text-light);
+    }
+    
+    .toggle-password:hover {
+        color: var(--primary-color);
+    }
+    
+    .form-check-input:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .forgot-password {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-size: 14px;
+    }
+    
+    .forgot-password:hover {
+        text-decoration: underline;
+    }
+    
+    .login-btn {
+        background: var(--primary-color);
+        border: none;
+        padding: 12px;
+        font-weight: 600;
+        height: 48px;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+    
+    .login-btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(42, 107, 193, 0.3);
+    }
+    
+    .alert {
+        border-radius: 8px;
+        padding: 12px 16px;
+        border: none;
+    }
+    
+    .divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        color: var(--text-light);
+    }
+    
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .divider span {
+        padding: 0 15px;
+        font-size: 14px;
+    }
+    
+    .alternative-login a {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    .security-notice {
+        display: inline-flex;
+        align-items: center;
+        color: var(--text-light);
+        font-size: 13px;
+        padding: 8px 16px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .security-notice i {
+        margin-right: 6px;
+        color: var(--secondary-color);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .login-left-panel {
+            display: none;
+        }
+        
+        .login-card {
+            margin: 0 15px;
+        }
+    }
+</style>
+
+<script>
+    // Funcionalidad para mostrar/ocultar contraseña
+    document.querySelector('.toggle-password').addEventListener('click', function() {
+        const passwordInput = document.getElementById('password');
+        const icon = this.querySelector('i');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    });
+</script>
+
+{% endblock %}

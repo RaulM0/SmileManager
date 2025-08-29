@@ -26,6 +26,7 @@ urlpatterns = [
     path('registroPacientes/', include('Pacientes.urls')),
     path('menu_citas/', include('Citas.urls')),
     path('diagnosticos/', include('DiagnosticosIA.urls')),
+    path('sesiones/', include('Sesiones.urls')),
 ]
 
 if settings.DEBUG:
