@@ -2,57 +2,82 @@
 {% block content %}
 
 <div class="container py-4">
-    <!-- Encabezado -->
+    <!-- Encabezado mejorado -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="h3 fw-bold text-primary mb-1">
-                <i class="bi bi-card-image me-2"></i>Resultados de Detección
+                <i class="bi bi-clipboard2-data-fill me-2"></i>Resultados de Análisis Odontológico
             </h1>
-            <p class="text-muted">Análisis de imagen odontológica procesada</p>
+            <p class="text-muted mb-0">Evaluación detallada de la imagen procesada con inteligencia artificial</p>
         </div>
-        <a href="{% url 'diagnosticos' %}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-1"></i> Volver
+        <a href="{% url 'diagnosticos' %}" class="btn btn-outline-primary d-flex align-items-center">
+            <i class="bi bi-arrow-left me-2"></i> Volver a Diagnósticos
         </a>
     </div>
 
-    <!-- Información del paciente -->
+    <!-- Información del paciente - Tarjeta mejorada -->
     <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header bg-white border-0 py-3">
+        <div class="card-header bg-primary text-white py-3 rounded-top">
             <h3 class="h5 mb-0">
-                <i class="bi bi-person-badge me-2"></i> Información del Paciente
+                <i class="bi bi-person-circle me-2"></i> Información del Paciente
             </h3>
         </div>
         <div class="card-body">
             <div class="row">
-                <div class="col-md-6">
-                    <div class="mb-3">
+                <div class="col-md-3 mb-3">
+                    <div class="border-end pe-3">
                         <label class="form-label text-muted small mb-1">Paciente</label>
-                        <p class="mb-0 fw-semibold">{{ imagen.paciente.nombre }} {{ imagen.paciente.appat }}</p>
+                        <p class="mb-0 fw-semibold fs-6">{{ imagen.paciente.nombre }} {{ imagen.paciente.appat }}</p>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="mb-3">
+                <div class="col-md-3 mb-3">
+                    <div class="border-end pe-3">
                         <label class="form-label text-muted small mb-1">Fecha de Consulta</label>
                         <p class="mb-0">{{ imagen.consulta.fecha_consulta|date:"d/m/Y" }}</p>
                     </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="border-end pe-3">
+                        <label class="form-label text-muted small mb-1">ID de Estudio</label>
+                        <p class="mb-0 text-uppercase small">#{{ imagen.id|stringformat:"06d" }}</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label text-muted small mb-1">Estado</label>
+                    {% if imagen.resultados %}
+                    <span class="badge bg-success rounded-pill">Completado</span>
+                    {% else %}
+                    <span class="badge bg-warning rounded-pill">Pendiente</span>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Visualización de imágenes -->
+    <!-- Visualización de imágenes - Sección mejorada -->
     <div class="row">
         <!-- Imagen original -->
         <div class="col-lg-6 mb-4">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center py-3">
-                    <h3 class="h5 mb-0">
-                        <i class="bi bi-image me-2"></i> Imagen Original
+                <div class="card-header bg-light border-0 d-flex justify-content-between align-items-center py-3">
+                    <h3 class="h5 mb-0 text-dark">
+                        <i class="bi bi-image-alt me-2"></i> Imagen Original
                     </h3>
                     <span class="badge bg-primary rounded-pill">Original</span>
                 </div>
-                <div class="card-body">
-                    <div id="openseadragon-original" style="width: 100%; height: 400px; border: 1px solid #dee2e6; border-radius: 0.375rem;"></div>
+                <div class="card-body p-0 position-relative">
+                    <div id="openseadragon-original" style="width: 100%; height: 400px; border-radius: 0 0 0.375rem 0.375rem;"></div>
+                    <div class="position-absolute top-0 end-0 m-2">
+                        <button class="btn btn-sm btn-light" onclick="viewerOriginal.viewport.zoomBy(1.5)">
+                            <i class="bi bi-zoom-in"></i>
+                        </button>
+                        <button class="btn btn-sm btn-light" onclick="viewerOriginal.viewport.zoomBy(0.5)">
+                            <i class="bi bi-zoom-out"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-footer bg-light border-0 py-2">
+                    <small class="text-muted">Use la rueda del mouse para hacer zoom y arrastre para navegar</small>
                 </div>
             </div>
         </div>
@@ -60,9 +85,9 @@
         <!-- Imagen procesada -->
         <div class="col-lg-6 mb-4">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center py-3">
-                    <h3 class="h5 mb-0">
-                        <i class="bi bi-gear-fill me-2"></i> Imagen Procesada
+                <div class="card-header bg-light border-0 d-flex justify-content-between align-items-center py-3">
+                    <h3 class="h5 mb-0 text-dark">
+                        <i class="bi bi-bounding-box me-2"></i> Imagen Analizada
                     </h3>
                     {% if imagen.resultados %}
                     <span class="badge bg-success rounded-pill">Procesada</span>
@@ -70,43 +95,55 @@
                     <span class="badge bg-warning rounded-pill">Pendiente</span>
                     {% endif %}
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0 position-relative">
                     {% if imagen.resultados %}
-                    <div id="openseadragon-procesada" style="width: 100%; height: 400px; border: 1px solid #dee2e6; border-radius: 0.375rem;"></div>
+                    <div id="openseadragon-procesada" style="width: 100%; height: 400px; border-radius: 0 0 0.375rem 0.375rem;"></div>
+                    <div class="position-absolute top-0 end-0 m-2">
+                        <button class="btn btn-sm btn-light" onclick="viewerProcesada.viewport.zoomBy(1.5)">
+                            <i class="bi bi-zoom-in"></i>
+                        </button>
+                        <button class="btn btn-sm btn-light" onclick="viewerProcesada.viewport.zoomBy(0.5)">
+                            <i class="bi bi-zoom-out"></i>
+                        </button>
+                    </div>
                     {% else %}
-                    <div class="text-center py-5">
-                        <i class="bi bi-hourglass-top display-4 text-muted mb-3"></i>
-                        <h5 class="text-muted">Imagen no procesada</h5>
-                        <p class="text-muted small">Esta imagen aún no ha sido procesada por el sistema.</p>
+                    <div class="text-center py-5 bg-light">
+                        <i class="bi bi-hourglass-split display-4 text-muted mb-3"></i>
+                        <h5 class="text-muted">Imagen en proceso</h5>
+                        <p class="text-muted small">El análisis de esta imagen está siendo procesado por nuestro sistema.</p>
+                        <div class="spinner-border text-primary mt-2" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
                     </div>
                     {% endif %}
                 </div>
+                {% if imagen.resultados %}
+                <div class="card-footer bg-light border-0 py-2">
+                    <small class="text-muted">Análisis generado: {{ imagen.fecha_subida|date:"d/m/Y H:i" }}</small>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
 
-    <!-- Acciones -->
+    <!-- Panel de controles y acciones mejorado -->
     {% if imagen.resultados %}
-    <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white border-0 py-3">
+    <div class="card border-0 shadow-sm mt-4">
+        <div class="card-header bg-primary text-white py-3 rounded-top">
             <h3 class="h5 mb-0">
-                <i class="bi bi-tools me-2"></i> Acciones
+                <i class="bi bi-sliders me-2"></i> Herramientas de Análisis
             </h3>
         </div>
         <div class="card-body">
-            <div class="d-flex gap-2">
-                <a href="{{ imagen.resultados.url }}" class="btn btn-outline-primary" download>
-                    <i class="bi bi-download me-1"></i> Descargar Resultados
-                </a>
-                <a href="#" class="btn btn-outline-success">
-                    <i class="bi bi-printer me-1"></i> Imprimir Reporte
-                </a>
-                <a href="#" class="btn btn-outline-info">
-                    <i class="bi bi-graph-up me-1"></i> Ver Métricas
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <a href="{{ imagen.resultados.url }}" class="btn btn-primary d-flex align-items-center" download>
+                    <i class="bi bi-download me-2"></i> Descargar Resultados
                 </a>
             </div>
         </div>
     </div>
+
+    
     {% endif %}
 </div>
 
@@ -128,7 +165,14 @@
         maxZoomLevel: 20,
         showRotationControl: true,
         showHomeControl: true,
-        showFullPageControl: true
+        showFullPageControl: true,
+        navigatorPosition: "BOTTOM_RIGHT",
+        animationTime: 0.5,
+        blendTime: 0.1,
+        constrainDuringPan: true,
+        maxImageCacheCount: 100,
+        timeout: 30000,
+        useCanvas: true
     });
 
     // Viewer para la imagen procesada (solo si existe)
@@ -146,7 +190,14 @@
         maxZoomLevel: 20,
         showRotationControl: true,
         showHomeControl: true,
-        showFullPageControl: true
+        showFullPageControl: true,
+        navigatorPosition: "BOTTOM_RIGHT",
+        animationTime: 0.5,
+        blendTime: 0.1,
+        constrainDuringPan: true,
+        maxImageCacheCount: 100,
+        timeout: 30000,
+        useCanvas: true
     });
     {% endif %}
 </script>
@@ -154,6 +205,12 @@
 <style>
     .card {
         border-radius: 0.5rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.08) !important;
     }
     
     .openseadragon {
@@ -162,6 +219,15 @@
     
     .btn {
         border-radius: 0.375rem;
+        transition: all 0.2s ease;
+    }
+    
+    .card-header {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    #openseadragon-original, #openseadragon-procesada {
+        background-color: #f8f9fa;
     }
 </style>
 
