@@ -147,3 +147,7 @@ EMAIL_HOST_PASSWORD = 'peamhxmwuwoejjlr'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
+
+# Configuración de sesión
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 1800  # 30 minutos
