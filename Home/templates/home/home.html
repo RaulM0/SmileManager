@@ -7,7 +7,7 @@
     <!-- Encabezado -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="mb-1">Bienvenido, <span class="text-primary">Dr. Raúl</span></h2>
+            <h2 class="mb-1">Bienvenido, <span class="text-primary">Dr. {{request.user.username.upper}}</span></h2>
             <p class="text-muted mb-0">Panel principal del consultorio dental</p>
         </div>
         <div class="d-flex gap-2">
