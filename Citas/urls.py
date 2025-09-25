@@ -10,4 +10,7 @@ urlpatterns = [
     path('citas_pendientes/', views.citas_pendientes, name='citas_pendientes'),
     path('citas_completadas/', views.citas_completadas, name='citas_completadas'),
     path('citas_canceladas/', views.citas_canceladas, name='citas_canceladas'),
+    path('confirmar_asistencia/<int:id>/', views.confirmar_asistencia, name='confirmar_asistencia'),
+    path('cancelar_cita/<int:id>/', views.anular_cita, name='cancelar_cita'),
+    path('detalle_cita/<int:id>/', views.detalle_cita, name='detalle_cita'),
 ]

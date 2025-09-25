@@ -9,6 +9,9 @@ from django.db.models import Q
 from django.shortcuts import render
 import pandas as pd
 from django.core.mail import send_mail
+from django.db.models.functions import Concat
+from django.db.models import Value
+
 
 # Create your views here.
 
@@ -52,15 +55,18 @@ def buscar_pacientes(request):
     pacientes = Paciente.objects.all()
 
     if query:
-        pacientes = pacientes.filter(
+        pacientes = pacientes.annotate(
+            nombre_completo=Concat('nombre', Value(' '), 'appat', Value(' '), 'apmat')
+        ).filter(
             Q(nombre__icontains=query) |
             Q(appat__icontains=query) |
             Q(apmat__icontains=query) |
             Q(telefono__icontains=query) |
-            Q(email__icontains=query)
+            Q(email__icontains=query) |
+            Q(nombre_completo__icontains=query)
         )
 
-    paginator = Paginator(pacientes, 10)  # 10 pacientes por página
+    paginator = Paginator(pacientes, 10)
     page = request.GET.get('page')
     pacientes_paginados = paginator.get_page(page)
 

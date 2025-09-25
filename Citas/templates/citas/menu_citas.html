@@ -617,7 +617,7 @@
             `;
             
             document.getElementById('appointment-details').innerHTML = detailsHTML;
-            document.getElementById('edit-appointment-btn').href = `/editar-cita/${appointmentId}/`;
+            document.getElementById('edit-appointment-btn').href = `/menu_citas/editar_cita/${appointmentId}/`;
             
             const modal = new bootstrap.Modal(document.getElementById('appointmentModal'));
             modal.show();

@@ -1,0 +1,192 @@
+{% extends 'Dentista/base.html' %}
+{% block content %}
+<div class="container py-4">
+    <!-- Encabezado -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold text-primary mb-1">
+                <i class="bi bi-calendar-check me-2"></i>Detalle de Cita
+            </h1>
+            <div class="d-flex align-items-center">
+                <div class="avatar-sm bg-primary bg-opacity-10 text-primary rounded-circle me-3">
+                    <i class="bi bi-info-circle"></i>
+                </div>
+                <h2 class="h5 text-muted mb-0">ID: {{ cita.id }} | {{ cita.fecha|date:"d/m/Y" }} a las {{ cita.hora|time:"H:i" }}</h2>
+            </div>
+        </div>
+        <div class="dropdown">
+            <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-three-dots-vertical"></i>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'editar_cita' cita.id %}"><i class="bi bi-pencil-square me-2"></i>Editar Cita</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash me-2"></i>Eliminar Cita</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Tarjeta de información principal -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-primary bg-opacity-10 border-0 py-3">
+            <h3 class="h5 fw-bold text-primary mb-0">
+                <i class="bi bi-person-circle me-2"></i>Información del Paciente
+            </h3>
+        </div>
+        <div class="card-body p-4">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-light rounded-circle p-2 me-3">
+                            <i class="bi bi-person-fill text-primary"></i>
+                        </div>
+                        <div>
+                            <p class="text-muted small mb-0">Paciente</p>
+                            <p class="fw-semibold mb-0">{{ cita.paciente.nombre }} {{ cita.paciente.appat }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-light rounded-circle p-2 me-3">
+                            <i class="bi bi-telephone-fill text-primary"></i>
+                        </div>
+                        <div>
+                            <p class="text-muted small mb-0">Teléfono</p>
+                            <p class="fw-semibold mb-0">{{ cita.paciente.telefono|default:"No especificado" }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-light rounded-circle p-2 me-3">
+                            <i class="bi bi-envelope-fill text-primary"></i>
+                        </div>
+                        <div>
+                            <p class="text-muted small mb-0">Email</p>
+                            <p class="fw-semibold mb-0">{{ cita.paciente.email|default:"No especificado" }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-light rounded-circle p-2 me-3">
+                            <i class="bi bi-calendar-event text-primary"></i>
+                        </div>
+                        <div>
+                            <p class="text-muted small mb-0">Fecha de Nacimiento</p>
+                            <p class="fw-semibold mb-0">{{ cita.paciente.fecha_nacimiento|date:"d/m/Y"|default:"No especificada" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tarjeta de detalles de la cita -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-primary bg-opacity-10 border-0 py-3">
+            <h3 class="h5 fw-bold text-primary mb-0">
+                <i class="bi bi-calendar2-event me-2"></i>Detalles de la Cita
+            </h3>
+        </div>
+        <div class="card-body p-4">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-light rounded-circle p-2 me-3">
+                            <i class="bi bi-calendar-date text-primary"></i>
+                        </div>
+                        <div>
+                            <p class="text-muted small mb-0">Fecha</p>
+                            <p class="fw-semibold mb-0">{{ cita.fecha|date:"d/m/Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-light rounded-circle p-2 me-3">
+                            <i class="bi bi-clock text-primary"></i>
+                        </div>
+                        <div>
+                            <p class="text-muted small mb-0">Hora</p>
+                            <p class="fw-semibold mb-0">{{ cita.hora|time:"H:i" }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-light rounded-circle p-2 me-3">
+                            <i class="bi bi-list-check text-primary"></i>
+                        </div>
+                        <div>
+                            <p class="text-muted small mb-0">Estado</p>
+                            <span class="badge 
+                                {% if cita.estatus == 'P' %}bg-warning
+                                {% elif cita.estatus == 'C' %}bg-success
+                                {% elif cita.estatus == 'A' %}bg-danger
+                                {% else %}bg-secondary{% endif %}">
+                                {% if cita.estatus == 'P' %}Pendiente
+                                {% elif cita.estatus == 'C' %}Completada
+                                {% elif cita.estatus == 'A' %}Anulada
+                                {% else %}{{ cita.estatus }}{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Motivo y Observaciones -->
+            <div class="row mt-3">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-semibold text-muted">Motivo de la cita</label>
+                    <div class="p-3 bg-light rounded">
+                        <p class="mb-0">{{ cita.motivo|default:"No especificado" }}</p>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-semibold text-muted">Observaciones</label>
+                    <div class="p-3 bg-light rounded">
+                        <p class="mb-0">{{ cita.observaciones|default:"No hay observaciones" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="d-flex justify-content-between align-items-center">
+        <a href="{% url 'buscar_cita' %}" class="btn btn-outline-secondary px-4">
+            <i class="bi bi-arrow-left me-2"></i> Volver a la búsqueda
+        </a>
+        <div class="d-flex gap-2">
+            <a href="{% url 'editar_cita' cita.id %}" class="btn btn-primary px-4">
+                <i class="bi bi-pencil-square me-2"></i> Editar Cita
+            </a>
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .avatar-sm {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .card {
+        border-radius: 0.5rem;
+    }
+    
+    .bg-light.rounded-circle {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+{% endblock %}

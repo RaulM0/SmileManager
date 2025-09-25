@@ -135,3 +135,21 @@ def citas_completadas(request):
 def citas_canceladas(request):
     citas_canceladas = Cita.objects.filter(estatus = 'A').order_by('fecha','hora')
     return render(request, 'citas/citas_canceladas.html', {'citas_canceladas':citas_canceladas})
+
+def confirmar_asistencia(request, id):
+    cita = get_object_or_404(Cita, id=id)
+    cita.estatus = 'C'
+    cita.save()
+    messages.success(request, "Cita marcada como completada.")
+    return redirect('citas_pendientes')
+
+def anular_cita(request, id):
+    cita = get_object_or_404(Cita, id=id)
+    cita.estatus = 'A'
+    cita.save()
+    messages.success(request, "Cita anulada correctamente.")
+    return redirect('citas_pendientes')
+
+def detalle_cita(request, id):
+    cita = get_object_or_404(Cita, id=id)
+    return render(request, 'citas/detalles_cita.html', {'cita': cita})
