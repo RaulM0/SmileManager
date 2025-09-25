@@ -37,19 +37,89 @@
             <form id="antecedentesForm">
                 {% csrf_token %}
                 
-                <!-- Sección de Sí/No -->
+                <!-- Sección de Antecedentes Médicos Generales -->
                 <div class="row mb-4">
+                    <div class="col-12 mb-3">
+                        <h5 class="text-primary border-bottom pb-2">
+                            <i class="bi bi-heart-pulse me-2"></i>Antecedentes Médicos Generales
+                        </h5>
+                    </div>
+                    
                     <div class="col-md-6 mb-3">
-                        <label class="form-label fw-semibold">Diabetes</label>
+                        <label class="form-label fw-semibold">¿Está bajo tratamiento médico?</label>
                         <div class="btn-group w-100" role="group">
-                            <input type="radio" class="btn-check" id="diabetes-yes" name="diabetes" value="True" 
-                                   {% if antecedentes and antecedentes.diabetes %}checked{% endif %}>
-                            <label class="btn btn-outline-success" for="diabetes-yes">
+                            <input type="radio" class="btn-check" id="tratamiento_medico-yes" name="tratamiento_medico" value="True" 
+                                   {% if antecedentes and antecedentes.tratamiento_medico %}checked{% endif %}>
+                            <label class="btn btn-outline-success" for="tratamiento_medico-yes">
                                 <i class="bi bi-check-circle me-1"></i> Sí
                             </label>
-                            <input type="radio" class="btn-check" id="diabetes-no" name="diabetes" value="False" 
-                                   {% if antecedentes and not antecedentes.diabetes %}checked{% endif %}>
-                            <label class="btn btn-outline-danger" for="diabetes-no">
+                            <input type="radio" class="btn-check" id="tratamiento_medico-no" name="tratamiento_medico" value="False" 
+                                   {% if antecedentes and not antecedentes.tratamiento_medico %}checked{% endif %}>
+                            <label class="btn btn-outline-danger" for="tratamiento_medico-no">
+                                <i class="bi bi-x-circle me-1"></i> No
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Problemas del corazón</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" id="problemas_cardiacos-yes" name="problemas_cardiacos" value="True" 
+                                {% if antecedentes and antecedentes.problemas_cardiacos %}checked{% endif %}>
+                            <label class="btn btn-outline-success" for="problemas_cardiacos-yes">
+                                <i class="bi bi-check-circle me-1"></i> Sí
+                            </label>
+                            <input type="radio" class="btn-check" id="problemas_cardiacos-no" name="problemas_cardiacos" value="False" 
+                                {% if antecedentes and not antecedentes.problemas_cardiacos %}checked{% endif %}>
+                            <label class="btn btn-outline-danger" for="problemas_cardiacos-no">
+                                <i class="bi bi-x-circle me-1"></i> No
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Problemas de coagulación</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" id="problemas_coagulacion-yes" name="problemas_coagulacion" value="True" 
+                                   {% if antecedentes and antecedentes.problemas_coagulacion %}checked{% endif %}>
+                            <label class="btn btn-outline-success" for="problemas_coagulacion-yes">
+                                <i class="bi bi-check-circle me-1"></i> Sí
+                            </label>
+                            <input type="radio" class="btn-check" id="problemas_coagulacion-no" name="problemas_coagulacion" value="False" 
+                                   {% if antecedentes and not antecedentes.problemas_coagulacion %}checked{% endif %}>
+                            <label class="btn btn-outline-danger" for="problemas_coagulacion-no">
+                                <i class="bi bi-x-circle me-1"></i> No
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Epilepsia / Convulsiones</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" id="epilepsia-yes" name="epilepsia" value="True" 
+                                   {% if antecedentes and antecedentes.epilepsia %}checked{% endif %}>
+                            <label class="btn btn-outline-success" for="epilepsia-yes">
+                                <i class="bi bi-check-circle me-1"></i> Sí
+                            </label>
+                            <input type="radio" class="btn-check" id="epilepsia-no" name="epilepsia" value="False" 
+                                   {% if antecedentes and not antecedentes.epilepsia %}checked{% endif %}>
+                            <label class="btn btn-outline-danger" for="epilepsia-no">
+                                <i class="bi bi-x-circle me-1"></i> No
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Gastritis / Úlceras</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" id="gastritis-yes" name="gastritis" value="True" 
+                                   {% if antecedentes and antecedentes.gastritis %}checked{% endif %}>
+                            <label class="btn btn-outline-success" for="gastritis-yes">
+                                <i class="bi bi-check-circle me-1"></i> Sí
+                            </label>
+                            <input type="radio" class="btn-check" id="gastritis-no" name="gastritis" value="False" 
+                                   {% if antecedentes and not antecedentes.gastritis %}checked{% endif %}>
+                            <label class="btn btn-outline-danger" for="gastritis-no">
                                 <i class="bi bi-x-circle me-1"></i> No
                             </label>
                         </div>
@@ -70,20 +140,323 @@
                             </label>
                         </div>
                     </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Anemia</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" id="anemia-yes" name="anemia" value="True" 
+                                   {% if antecedentes and antecedentes.anemia %}checked{% endif %}>
+                            <label class="btn btn-outline-success" for="anemia-yes">
+                                <i class="bi bi-check-circle me-1"></i> Sí
+                            </label>
+                            <input type="radio" class="btn-check" id="anemia-no" name="anemia" value="False" 
+                                   {% if antecedentes and not antecedentes.anemia %}checked{% endif %}>
+                            <label class="btn btn-outline-danger" for="anemia-no">
+                                <i class="bi bi-x-circle me-1"></i> No
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Embarazo / Sospecha de embarazo</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" id="embarazo-yes" name="embarazo" value="True" 
+                                   {% if antecedentes and antecedentes.embarazo %}checked{% endif %}>
+                            <label class="btn btn-outline-success" for="embarazo-yes">
+                                <i class="bi bi-check-circle me-1"></i> Sí
+                            </label>
+                            <input type="radio" class="btn-check" id="embarazo-no" name="embarazo" value="False" 
+                                   {% if antecedentes and not antecedentes.embarazo %}checked{% endif %}>
+                            <label class="btn btn-outline-danger" for="embarazo-no">
+                                <i class="bi bi-x-circle me-1"></i> No
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Alergia a Medicamentos</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" id="alergia_medicamentos-yes" name="alergia_medicamentos" value="True" 
+                                   {% if antecedentes and antecedentes.alergia_medicamentos %}checked{% endif %}>
+                            <label class="btn btn-outline-success" for="alergia_medicamentos-yes">
+                                <i class="bi bi-check-circle me-1"></i> Sí
+                            </label>
+                            <input type="radio" class="btn-check" id="alergia_medicamentos-no" name="alergia_medicamentos" value="False" 
+                                   {% if antecedentes and not antecedentes.alergia_medicamentos %}checked{% endif %}>
+                            <label class="btn btn-outline-danger" for="alergia_medicamentos-no">
+                                <i class="bi bi-x-circle me-1"></i> No
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Alergia específica (Anestesia, Penicilina, Sulfas, Aspirina, Otros)</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" id="alergia_especifica-yes" name="alergia_especifica" value="True" 
+                                   {% if antecedentes and antecedentes.alergia_especifica %}checked{% endif %}>
+                            <label class="btn btn-outline-success" for="alergia_especifica-yes">
+                                <i class="bi bi-check-circle me-1"></i> Sí
+                            </label>
+                            <input type="radio" class="btn-check" id="alergia_especifica-no" name="alergia_especifica" value="False" 
+                                   {% if antecedentes and not antecedentes.alergia_especifica %}checked{% endif %}>
+                            <label class="btn btn-outline-danger" for="alergia_especifica-no">
+                                <i class="bi bi-x-circle me-1"></i> No
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Discapacidad</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" id="discapacidad-yes" name="discapacidad" value="True" 
+                                   {% if antecedentes and antecedentes.discapacidad %}checked{% endif %}>
+                            <label class="btn btn-outline-success" for="discapacidad-yes">
+                                <i class="bi bi-check-circle me-1"></i> Sí
+                            </label>
+                            <input type="radio" class="btn-check" id="discapacidad-no" name="discapacidad" value="False" 
+                                   {% if antecedentes and not antecedentes.discapacidad %}checked{% endif %}>
+                            <label class="btn btn-outline-danger" for="discapacidad-no">
+                                <i class="bi bi-x-circle me-1"></i> No
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">¿Fuma?</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" id="fuma-yes" name="fuma" value="True" 
+                                   {% if antecedentes and antecedentes.fuma %}checked{% endif %}>
+                            <label class="btn btn-outline-success" for="fuma-yes">
+                                <i class="bi bi-check-circle me-1"></i> Sí
+                            </label>
+                            <input type="radio" class="btn-check" id="fuma-no" name="fuma" value="False" 
+                                   {% if antecedentes and not antecedentes.fuma %}checked{% endif %}>
+                            <label class="btn btn-outline-danger" for="fuma-no">
+                                <i class="bi bi-x-circle me-1"></i> No
+                            </label>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Campos de texto -->
-                <div class="row g-3">
+                <!-- Sección de Antecedentes Dentales -->
+                <div class="row mb-4">
+                    <div class="col-12 mb-3">
+                        <h5 class="text-primary border-bottom pb-2">
+                            <i class="bi bi-tooth me-2"></i>Antecedentes Dentales
+                        </h5>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Respiración Bucal</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" id="respiracion_bucal-yes" name="respiracion_bucal" value="True" 
+                                   {% if antecedentes and antecedentes.respiracion_bucal %}checked{% endif %}>
+                            <label class="btn btn-outline-success" for="respiracion_bucal-yes">
+                                <i class="bi bi-check-circle me-1"></i> Sí
+                            </label>
+                            <input type="radio" class="btn-check" id="respiracion_bucal-no" name="respiracion_bucal" value="False" 
+                                   {% if antecedentes and not antecedentes.respiracion_bucal %}checked{% endif %}>
+                            <label class="btn btn-outline-danger" for="respiracion_bucal-no">
+                                <i class="bi bi-x-circle me-1"></i> No
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Morder uñas, objetos</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" id="morder_unas-yes" name="morder_unas" value="True" 
+                                   {% if antecedentes and antecedentes.morder_unas %}checked{% endif %}>
+                            <label class="btn btn-outline-success" for="morder_unas-yes">
+                                <i class="bi bi-check-circle me-1"></i> Sí
+                            </label>
+                            <input type="radio" class="btn-check" id="morder_unas-no" name="morder_unas" value="False" 
+                                   {% if antecedentes and not antecedentes.morder_unas %}checked{% endif %}>
+                            <label class="btn btn-outline-danger" for="morder_unas-no">
+                                <i class="bi bi-x-circle me-1"></i> No
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Chupar dedo o labios</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" id="chupar_dedo-yes" name="chupar_dedo" value="True" 
+                                   {% if antecedentes and antecedentes.chupar_dedo %}checked{% endif %}>
+                            <label class="btn btn-outline-success" for="chupar_dedo-yes">
+                                <i class="bi bi-check-circle me-1"></i> Sí
+                            </label>
+                            <input type="radio" class="btn-check" id="chupar_dedo-no" name="chupar_dedo" value="False" 
+                                   {% if antecedentes and not antecedentes.chupar_dedo %}checked{% endif %}>
+                            <label class="btn btn-outline-danger" for="chupar_dedo-no">
+                                <i class="bi bi-x-circle me-1"></i> No
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Rechinar dientes</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" id="rechinar_dientes-yes" name="rechinar_dientes" value="True" 
+                                   {% if antecedentes and antecedentes.rechinar_dientes %}checked{% endif %}>
+                            <label class="btn btn-outline-success" for="rechinar_dientes-yes">
+                                <i class="bi bi-check-circle me-1"></i> Sí
+                            </label>
+                            <input type="radio" class="btn-check" id="rechinar_dientes-no" name="rechinar_dientes" value="False" 
+                                   {% if antecedentes and not antecedentes.rechinar_dientes %}checked{% endif %}>
+                            <label class="btn btn-outline-danger" for="rechinar_dientes-no">
+                                <i class="bi bi-x-circle me-1"></i> No
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Sobre mordida vertical</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" id="sobremordida_vertical-yes" name="sobremordida_vertical" value="True" 
+                                   {% if antecedentes and antecedentes.sobremordida_vertical %}checked{% endif %}>
+                            <label class="btn btn-outline-success" for="sobremordida_vertical-yes">
+                                <i class="bi bi-check-circle me-1"></i> Sí
+                            </label>
+                            <input type="radio" class="btn-check" id="sobremordida_vertical-no" name="sobremordida_vertical" value="False" 
+                                   {% if antecedentes and not antecedentes.sobremordida_vertical %}checked{% endif %}>
+                            <label class="btn btn-outline-danger" for="sobremordida_vertical-no">
+                                <i class="bi bi-x-circle me-1"></i> No
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Sobre mordida horizontal</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" id="sobremordida_horizontal-yes" name="sobremordida_horizontal" value="True" 
+                                   {% if antecedentes and antecedentes.sobremordida_horizontal %}checked{% endif %}>
+                            <label class="btn btn-outline-success" for="sobremordida_horizontal-yes">
+                                <i class="bi bi-check-circle me-1"></i> Sí
+                            </label>
+                            <input type="radio" class="btn-check" id="sobremordida_horizontal-no" name="sobremordida_horizontal" value="False" 
+                                   {% if antecedentes and not antecedentes.sobremordida_horizontal %}checked{% endif %}>
+                            <label class="btn btn-outline-danger" for="sobremordida_horizontal-no">
+                                <i class="bi bi-x-circle me-1"></i> No
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Mordida cruzada</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" id="mordida_cruzada-yes" name="mordida_cruzada" value="True" 
+                                   {% if antecedentes and antecedentes.mordida_cruzada %}checked{% endif %}>
+                            <label class="btn btn-outline-success" for="mordida_cruzada-yes">
+                                <i class="bi bi-check-circle me-1"></i> Sí
+                            </label>
+                            <input type="radio" class="btn-check" id="mordida_cruzada-no" name="mordida_cruzada" value="False" 
+                                   {% if antecedentes and not antecedentes.mordida_cruzada %}checked{% endif %}>
+                            <label class="btn btn-outline-danger" for="mordida_cruzada-no">
+                                <i class="bi bi-x-circle me-1"></i> No
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Mordida abierta</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" id="mordida_abierta-yes" name="mordida_abierta" value="True" 
+                                   {% if antecedentes and antecedentes.mordida_abierta %}checked{% endif %}>
+                            <label class="btn btn-outline-success" for="mordida_abierta-yes">
+                                <i class="bi bi-check-circle me-1"></i> Sí
+                            </label>
+                            <input type="radio" class="btn-check" id="mordida_abierta-no" name="mordida_abierta" value="False" 
+                                   {% if antecedentes and not antecedentes.mordida_abierta %}checked{% endif %}>
+                            <label class="btn btn-outline-danger" for="mordida_abierta-no">
+                                <i class="bi bi-x-circle me-1"></i> No
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Desgaste - Abrasión</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" id="desgaste-yes" name="desgaste" value="True" 
+                                   {% if antecedentes and antecedentes.desgaste %}checked{% endif %}>
+                            <label class="btn btn-outline-success" for="desgaste-yes">
+                                <i class="bi bi-check-circle me-1"></i> Sí
+                            </label>
+                            <input type="radio" class="btn-check" id="desgaste-no" name="desgaste" value="False" 
+                                   {% if antecedentes and not antecedentes.desgaste %}checked{% endif %}>
+                            <label class="btn btn-outline-danger" for="desgaste-no">
+                                <i class="bi bi-x-circle me-1"></i> No
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Problemas ATM chasquidos</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" id="problemas_atm-yes" name="problemas_atm" value="True" 
+                                   {% if antecedentes and antecedentes.problemas_atm %}checked{% endif %}>
+                            <label class="btn btn-outline-success" for="problemas_atm-yes">
+                                <i class="bi bi-check-circle me-1"></i> Sí
+                            </label>
+                            <input type="radio" class="btn-check" id="problemas_atm-no" name="problemas_atm" value="False" 
+                                   {% if antecedentes and not antecedentes.problemas_atm %}checked{% endif %}>
+                            <label class="btn btn-outline-danger" for="problemas_atm-no">
+                                <i class="bi bi-x-circle me-1"></i> No
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Consumo excesivo de cítricos</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" id="consumo_citricos-yes" name="consumo_citricos" value="True" 
+                                   {% if antecedentes and antecedentes.consumo_citricos %}checked{% endif %}>
+                            <label class="btn btn-outline-success" for="consumo_citricos-yes">
+                                <i class="bi bi-check-circle me-1"></i> Sí
+                            </label>
+                            <input type="radio" class="btn-check" id="consumo_citricos-no" name="consumo_citricos" value="False" 
+                                   {% if antecedentes and not antecedentes.consumo_citricos %}checked{% endif %}>
+                            <label class="btn btn-outline-danger" for="consumo_citricos-no">
+                                <i class="bi bi-x-circle me-1"></i> No
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Sangrado de encías</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" id="sangrado_encias-yes" name="sangrado_encias" value="True" 
+                                   {% if antecedentes and antecedentes.sangrado_encias %}checked{% endif %}>
+                            <label class="btn btn-outline-success" for="sangrado_encias-yes">
+                                <i class="bi bi-check-circle me-1"></i> Sí
+                            </label>
+                            <input type="radio" class="btn-check" id="sangrado_encias-no" name="sangrado_encias" value="False" 
+                                   {% if antecedentes and not antecedentes.sangrado_encias %}checked{% endif %}>
+                            <label class="btn btn-outline-danger" for="sangrado_encias-no">
+                                <i class="bi bi-x-circle me-1"></i> No
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección de Información Adicional -->
+                <div class="row g-3 mb-4">
+                    <div class="col-12 mb-3">
+                        <h5 class="text-primary border-bottom pb-2">
+                            <i class="bi bi-file-text me-2"></i>Información Adicional
+                        </h5>
+                    </div>
+                    
                     <div class="col-md-6">
                         <label for="alergias" class="form-label fw-semibold">
-                            <i class="bi bi-exclamation-triangle me-1"></i> Alergias
+                            <i class="bi bi-exclamation-triangle me-1"></i> Alergias (detalles)
                         </label>
-                        <textarea class="form-control" id="alergias" name="alergias" rows="3">{% if antecedentes %}{{ antecedentes.alergias }}{% endif %}</textarea>
+                        <textarea class="form-control" id="alergias" name="alergias_txt" rows="3">{% if antecedentes %}{{ antecedentes.alergias }}{% endif %}</textarea>
                     </div>
 
                     <div class="col-md-6">
                         <label for="medicamentos" class="form-label fw-semibold">
-                            <i class="bi bi-capsule me-1"></i> Medicamentos
+                            <i class="bi bi-capsule me-1"></i> Medicamentos (detalles)
                         </label>
                         <textarea class="form-control" id="medicamentos" name="medicamentos" rows="3">{% if antecedentes %}{{ antecedentes.medicamentos }}{% endif %}</textarea>
                     </div>

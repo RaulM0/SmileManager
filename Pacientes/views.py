@@ -149,28 +149,32 @@ def buscar_pacientes_ajax(request):
 
 def antecedentes(request, id):
     paciente = get_object_or_404(Paciente, id=id)
-    antecedentes = AntescedentesMedicos.objects.filter(paciente=paciente).first()
-
+    
+    antecedentes, created = AntescedentesMedicos.objects.get_or_create(id_paciente=paciente)
+    
     if request.method == 'POST':
-        diabetes = request.POST.get('diabetes') == 'True'
-        hipertension = request.POST.get('hipertension') == 'True'
-        alergias = request.POST.get('alergias', '').upper()
-        medicamentos = request.POST.get('medicamentos', '').upper()
-        cirugias_previas = request.POST.get('cirugias_previas', '').upper()
-        otros = request.POST.get('otros', '').upper()
+        form_data = request.POST
 
-        if not antecedentes:
-            antecedentes = AntescedentesMedicos(paciente=paciente)
-            created = True
-        else:
-            created = False
+        # Campos booleanos
+        bool_fields = [
+            'tratamiento_medico', 'problemas_cardiacos', 'problemas_coagulacion',
+            'epilepsia', 'gastritis', 'hipertension', 'anemia', 'embarazo',
+            'alergia_medicamentos', 'alergia_especifica', 'discapacidad', 'fuma',
+            'respiracion_bucal', 'morder_unas', 'chupar_dedo', 'rechinar_dientes',
+            'sobremordida_vertical', 'sobremordida_horizontal', 'mordida_cruzada',
+            'mordida_abierta', 'desgaste', 'problemas_atm', 'consumo_citricos',
+            'sangrado_encias'
+        ]
 
-        antecedentes.diabetes = diabetes
-        antecedentes.hipertension = hipertension
-        antecedentes.alergias = alergias
-        antecedentes.medicamentos = medicamentos
-        antecedentes.cirugias_previas = cirugias_previas
-        antecedentes.otros = otros
+        for field in bool_fields:
+            setattr(antecedentes, field, form_data.get(field) == 'True')
+
+        # Campos de texto
+        antecedentes.alergias = form_data.get('alergias_txt', '')
+        antecedentes.medicamentos = form_data.get('medicamentos', '')
+        antecedentes.cirugias_previas = form_data.get('cirugias_previas', '')
+        antecedentes.otros = form_data.get('otros', '')
+
         antecedentes.save()
 
         return JsonResponse({
@@ -183,6 +187,7 @@ def antecedentes(request, id):
         'antecedentes': antecedentes,
     }
     return render(request, 'historialMedico/antecedentes.html', context)
+        
 
 def consultas(request, id):
     paciente = Paciente.objects.filter(id=id).first()
