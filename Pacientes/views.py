@@ -3,7 +3,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from SmileManager import settings
-from .models import Paciente, AntescedentesMedicos, Consulta, ImagenesClinicas
+from .models import Paciente, AntescedentesMedicos, Consulta, ImagenesClinicas, Odontograma
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import render
@@ -11,6 +11,9 @@ import pandas as pd
 from django.core.mail import send_mail
 from django.db.models.functions import Concat
 from django.db.models import Value
+import json
+
+from django.views.decorators.csrf import csrf_exempt
 
 
 # Create your views here.
@@ -40,19 +43,20 @@ def registrar_paciente(request):
             fecha_nacimiento = fecha_nac,
             genero = genero,
             telefono = tel,
-            email = email
+            email = email,
+            medico = request.user
         )
         messages.success(request, "Registro exitoso de paciente.")
         return redirect('/registroPacientes/registrar_pacientes/')
     return render(request, 'pacientes/registroPacientes.html')
 
 def todos_los_pacientes(request):
-    pacientes = Paciente.objects.all().order_by('appat')
+    pacientes = Paciente.objects.filter(medico=request.user).order_by('appat')
     return render(request, 'pacientes/todosPacientes.html',{'pacientes': pacientes})
 
 def buscar_pacientes(request):
     query = request.GET.get('q', '').strip()
-    pacientes = Paciente.objects.all()
+    pacientes = Paciente.objects.filter(medico=request.user).order_by('appat')
 
     if query:
         pacientes = pacientes.annotate(
@@ -76,7 +80,7 @@ def buscar_pacientes(request):
     })
     
 def ver_paciente(request, id):
-    paciente = Paciente.objects.filter(id=id).first()
+    paciente = Paciente.objects.filter(id=id, medico= request.user).first()
     if not paciente:
         messages.error(request, 'Paciente no encontrado')
         return redirect('buscar_pacientes')
@@ -85,7 +89,7 @@ def ver_paciente(request, id):
         return render(request, 'pacientes/verPaciente.html', {'paciente': paciente, 'edad': edad})
     
 def editar_paciente(request, id):
-    paciente = Paciente.objects.filter(id=id).first()
+    paciente = Paciente.objects.filter(id=id, medico=request.user).first()
     if not paciente:
         messages.error(request, 'Paciente no encontrado')
         return redirect('buscar_pacientes')
@@ -112,7 +116,7 @@ def editar_paciente(request, id):
 
 #Aqui quiero que la eliminacion sea logica, que el campo estatus cambie a inactivo
 def eliminar_paciente(request, id):
-    paciente = Paciente.objects.filter(id=id).first()
+    paciente = Paciente.objects.filter(id=id, medico = request.user).first()
     if not paciente:
         messages.error(request, 'Paciente no encontrado')
         return redirect('buscar_pacientes')
@@ -131,7 +135,7 @@ def menu_historial(request):
 
     if paciente_id:
         try:
-            paciente_seleccionado = Paciente.objects.get(id=paciente_id)
+            paciente_seleccionado = Paciente.objects.get(id=paciente_id, medico=request.user)
         except Paciente.DoesNotExist:
             paciente_seleccionado = None
 
@@ -142,6 +146,7 @@ def menu_historial(request):
 def buscar_pacientes_ajax(request):
     term = request.GET.get('term', '')
     pacientes = Paciente.objects.filter(
+        medico=request.user,
         nombre__icontains=term
     )[:10]  # Limita resultados para mejor performance
 
@@ -154,7 +159,7 @@ def buscar_pacientes_ajax(request):
     return JsonResponse({'results': results})
 
 def antecedentes(request, id):
-    paciente = get_object_or_404(Paciente, id=id)
+    paciente = get_object_or_404(Paciente, id=id, medico=request.user)
     
     antecedentes, created = AntescedentesMedicos.objects.get_or_create(id_paciente=paciente)
     
@@ -195,13 +200,20 @@ def antecedentes(request, id):
     return render(request, 'historialMedico/antecedentes.html', context)
         
 
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from datetime import datetime
+from .models import Paciente, Consulta
+
+
 def consultas(request, id):
-    paciente = Paciente.objects.filter(id=id).first()
+    paciente = get_object_or_404(Paciente, id=id, medico=request.user)
     fecha = datetime.today().date().strftime('%Y-%m-%d')
     
     if request.method == 'POST':
-        motivo_consulta = request.POST.get('motivo_consulta').upper()
-        diagnostico = request.POST.get('diagnostico','Ninguno').upper()
+        motivo_consulta = request.POST.get('motivo_consulta', '').upper()
+        diagnostico = request.POST.get('diagnostico', 'Ninguno').upper()
         tratamiento = request.POST.get('tratamiento', 'Ninguno').upper()
         observaciones = request.POST.get('observaciones', 'Ninguna').upper()
         
@@ -219,13 +231,12 @@ def consultas(request, id):
 
     return render(request, 'historialMedico/consultas.html', {'paciente': paciente, 'fecha': fecha})
 
-
 def receta(request, id):
     consulta = get_object_or_404(Consulta, id=id)
     return render(request, 'receta/receta.html', {'consulta': consulta})
 
 def historial_consultas(request, id):
-    paciente = get_object_or_404(Paciente, id=id)
+    paciente = get_object_or_404(Paciente, id=id, medico=request.user)
     consultas = Consulta.objects.filter(paciente=paciente).order_by('-fecha_consulta')
     return render(request, 'historialMedico/historial_consultas.html',{'consultas': consultas, 'paciente': paciente})
 
@@ -235,7 +246,7 @@ def imagenes_clinicas(request, id):
     return render(request, 'imagenes/imagenes_clinicas.html', {'paciente': paciente})
 
 def cargar_imagen(request, id):
-    paciente = get_object_or_404(Paciente, id=id)
+    paciente = get_object_or_404(Paciente, id=id, medico=request.user)
     consultas = Consulta.objects.filter(paciente=paciente).order_by('-fecha_consulta')
 
     if request.method == 'POST':
@@ -274,7 +285,7 @@ def cargar_imagen(request, id):
 
 
 def buscar_imagen(request, id):
-    paciente = get_object_or_404(Paciente, id=id)
+    paciente = get_object_or_404(Paciente, id=id, medico=request.user)
     consultas = Consulta.objects.filter(paciente=paciente).order_by('-fecha_consulta')
     imagenes = ImagenesClinicas.objects.filter(paciente=paciente)
     
@@ -306,7 +317,7 @@ def eliminar_imagen(request, imagen_id):
     return redirect('buscar_imagen', paciente_id)
 
 def historial_imagenes(request, id):
-    paciente = get_object_or_404(Paciente, id=id)
+    paciente = get_object_or_404(Paciente, id=id, medico=request.user)
     imagenes = ImagenesClinicas.objects.filter(paciente=paciente).order_by('-fecha_subida')
     return render(request, 'imagenes/historial_imagenes.html',{
         'paciente': paciente,
@@ -319,7 +330,7 @@ def exportar_datos(request):
 
 def exportar_pacientes(request):
     #Obtener los datos
-    pacientes = Paciente.objects.all().values(
+    pacientes = Paciente.objects.filter(medico=request.user).values(
         'id','nombre','appat','apmat','fecha_nacimiento','genero','telefono','email','estatus'
     )
     #Convertir a Dataframe
@@ -334,26 +345,42 @@ def exportar_pacientes(request):
         
     return response
 
+from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
+import pandas as pd
+from .models import Consulta
+
 def exportar_consultas(request):
-    consultas = Consulta.objects.all().values(
-        'paciente', 'fecha_consulta', 'motivo_consulta', 'diagnostico', 'tratamiento', 'observaciones'
+    # Solo consultas de pacientes del médico logueado
+    consultas = Consulta.objects.filter(
+        paciente__medico=request.user
+    ).values(
+        'paciente__nombre', 'paciente__appat', 'paciente__apmat',
+        'fecha_consulta', 'motivo_consulta', 'diagnostico', 
+        'tratamiento', 'observaciones'
     )
 
     df = pd.DataFrame(list(consultas))
     
+    # Quitar la zona horaria si existe
     for col in df.select_dtypes(include=['datetimetz']):
         df[col] = df[col].dt.tz_localize(None)
     
-    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
     response['Content-Disposition'] = 'attachment; filename=Consultas.xlsx'
     
     with pd.ExcelWriter(response, engine='openpyxl') as writer:
         df.to_excel(writer, sheet_name='Consultas', index=False)
         
     return response
+
     
 def exportar_imagenes(request):
-    imagenes = ImagenesClinicas.objects.all().values(
+    imagenes = ImagenesClinicas.objects.filter(
+            paciente__medico=request.user
+        ).values(
         'paciente', 'consulta', 'tipo_imagen', 'descripcion', 'imagen', 'fecha_subida'
     )
 
@@ -404,12 +431,8 @@ def enviar_mensaje(request):
     return render(request, "pacientes/contactar_pacientes.html") # Formulario de correo
 
 
-from django.shortcuts import render, get_object_or_404
-from .models import Paciente, Odontograma
-import json
-
 def odontograma(request, id):
-    paciente = get_object_or_404(Paciente, id=id)
+    paciente = get_object_or_404(Paciente, id=id, medico=request.user)
     
     # Tomamos el odontograma más reciente del paciente
     odontograma_obj = (
@@ -434,16 +457,9 @@ def odontograma(request, id):
 
 
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
-from .models import Odontograma, Paciente
-import json
-
-from django.views.decorators.csrf import csrf_exempt
-
 @csrf_exempt
 def guardar_odontograma(request, paciente_id):
-    paciente = get_object_or_404(Paciente, id=paciente_id)
+    paciente = get_object_or_404(Paciente, id=paciente_id, medico=request.user)
 
     if request.method == 'POST':
         data = json.loads(request.body)  # JSON enviado desde el frontend

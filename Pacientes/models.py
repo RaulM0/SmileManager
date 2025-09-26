@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -13,6 +14,7 @@ class Paciente(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     estatus = models.CharField(max_length=1, choices=[('A', 'Activo'), ('I', 'Inactivo')], default='A')
+    medico = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="pacientes")
     
     class Meta:
         verbose_name = 'Paciente'
