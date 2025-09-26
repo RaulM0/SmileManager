@@ -99,3 +99,14 @@ class ImagenesClinicas(models.Model):
     def __str__(self):
         return f"Imagen clinica de {self.paciente.nombre} {self.paciente.appat} en la consulta del {self.consulta.fecha_consulta.strftime('%Y-%m-%d')}"
 
+class Odontograma(models.Model):
+    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='odontogramas')
+    dientes_permanentes = models.JSONField(default=dict)
+    dientes_deciduos = models.JSONField(default=dict)
+    resumen_clinico = models.JSONField(default=dict)
+    
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"Odontograma de {self.paceinte.nombre} {self.paceinte.appat}"

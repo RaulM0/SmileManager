@@ -402,3 +402,76 @@ def enviar_mensaje(request):
         #return render(request, "gracias.html") # formulario de agradecimiento, una vez enviado el correo 
     
     return render(request, "pacientes/contactar_pacientes.html") # Formulario de correo
+
+
+from django.shortcuts import render, get_object_or_404
+from .models import Paciente, Odontograma
+import json
+
+def odontograma(request, id):
+    paciente = get_object_or_404(Paciente, id=id)
+    
+    # Tomamos el odontograma más reciente del paciente
+    odontograma_obj = (
+        paciente.odontogramas.order_by('-created').first()
+    )
+    
+    if odontograma_obj:
+        odontograma_data = json.dumps({
+            'dientes_permanentes': odontograma_obj.dientes_permanentes,
+            'dientes_deciduos': odontograma_obj.dientes_deciduos,
+            'resumen': odontograma_obj.resumen_clinico
+        })
+    else:
+        odontograma_data = json.dumps({})  # vacío si no existe
+    
+    context = {
+        'paciente': paciente,
+        'odontograma_data': odontograma_data
+    }
+    
+    return render(request, 'odontograma/odontograma.html', context)
+
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
+from .models import Odontograma, Paciente
+import json
+
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def guardar_odontograma(request, paciente_id):
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+
+    if request.method == 'POST':
+        data = json.loads(request.body)  # JSON enviado desde el frontend
+        dientes_permanentes = data.get('denticion_permanente', {})
+        dientes_deciduos = data.get('denticion_decidua', {})
+        resumen_clinico = data.get('resumen', {})
+
+        # Buscamos si ya existe un odontograma para este paciente
+        odontograma, created = Odontograma.objects.get_or_create(
+            paciente=paciente,
+            defaults={
+                'dientes_permanentes': dientes_permanentes,
+                'dientes_deciduos': dientes_deciduos,
+                'resumen_clinico': resumen_clinico
+            }
+        )
+
+        if not created:
+            # Si ya existe, hacemos update
+            odontograma.dientes_permanentes = dientes_permanentes
+            odontograma.dientes_deciduos = dientes_deciduos
+            odontograma.resumen_clinico = resumen_clinico
+            odontograma.save()
+
+        return JsonResponse({
+            'status': 'ok',
+            'mensaje': 'Odontograma guardado' if created else 'Odontograma actualizado',
+            'id': odontograma.id
+        })
+
+    return JsonResponse({'status': 'error', 'mensaje': 'Método no permitido'}, status=405)

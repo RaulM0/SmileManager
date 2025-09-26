@@ -1,0 +1,1050 @@
+{% extends 'Dentista/base.html' %}
+
+{% block content %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="csrf_token" content="{{ csrf_token }}">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary-navy: #1e293b;
+            --primary-blue: #3b82f6;
+            --accent-teal: #0d9488;
+            --surface-white: #ffffff;
+            --surface-light: #f8fafc;
+            --surface-gray: #f1f5f9;
+            --border-color: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-light: #94a3b8;
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --info: #0284c7;
+            --purple: #7c3aed;
+            --shadow-light: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-large: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+
+        /* Header Styles */
+        .main-header {
+            background: var(--surface-white);
+            box-shadow: var(--shadow-light);
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-navy), var(--primary-blue));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .header-text h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-navy);
+            margin: 0;
+        }
+
+        .header-text p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Main Container */
+        .container-fluid {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            background: var(--surface-white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-light);
+            border: 1px solid var(--border-color);
+        }
+
+        .toolbar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .toolbar-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .states-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .state-button {
+            padding: 0.6rem 1.2rem;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            background: var(--surface-gray);
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .state-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .state-button:hover::before {
+            left: 100%;
+        }
+
+        .state-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .state-button.active {
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .state-button.sano.active {
+            background: var(--success);
+        }
+
+        .state-button.caries.active {
+            background: var(--danger);
+        }
+
+        .state-button.restauracion.active {
+            background: var(--info);
+        }
+
+        .state-button.ausente.active {
+            background: var(--text-secondary);
+        }
+
+        .state-button.extraccion.active {
+            background: var(--warning);
+        }
+
+        .state-button.protesis.active {
+            background: var(--purple);
+        }
+
+        /* Odontogram Layout */
+        .odontogram-section {
+            background: var(--surface-white);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-light);
+            border: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary-navy);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 3px solid var(--primary-blue);
+        }
+
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        .section-icon.permanent {
+            background: linear-gradient(135deg, var(--primary-blue), #60a5fa);
+        }
+
+        .section-icon.deciduous {
+            background: linear-gradient(135deg, #ec4899, #f472b6);
+        }
+
+        /* Quadrants */
+        .quadrants-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .quadrant {
+            background: var(--surface-light);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .quadrant-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: var(--surface-white);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .teeth-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        /* Tooth Styles */
+        .tooth {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tooth-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 20px);
+            grid-template-rows: repeat(3, 20px);
+            gap: 1px;
+            background: var(--surface-white);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px;
+            box-shadow: var(--shadow-light);
+            transition: all 0.3s ease;
+        }
+
+        .tooth-grid:hover {
+            box-shadow: var(--shadow-medium);
+            border-color: var(--primary-blue);
+        }
+
+        .tooth-surface {
+            width: 20px;
+            height: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #f8fffe;
+            position: relative;
+        }
+
+        .tooth-surface:hover {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+            z-index: 10;
+        }
+
+        .tooth-surface:hover::after {
+            content: attr(data-surface);
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-primary);
+            background: var(--surface-white);
+            padding: 2px 6px;
+            border-radius: 4px;
+            box-shadow: var(--shadow-light);
+            white-space: nowrap;
+            z-index: 100;
+        }
+
+        /* Surface positions */
+        .surface-mesial {
+            grid-column: 1;
+            grid-row: 2;
+        }
+
+        .surface-oclusal {
+            grid-column: 2;
+            grid-row: 1;
+        }
+
+        .surface-distal {
+            grid-column: 3;
+            grid-row: 2;
+        }
+
+        .surface-lingual {
+            grid-column: 2;
+            grid-row: 2;
+        }
+
+        .surface-vestibular {
+            grid-column: 2;
+            grid-row: 3;
+        }
+
+        /* Surface states */
+        .surface-sano {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border-color: var(--success);
+        }
+
+        .surface-caries {
+            background: linear-gradient(135deg, #fef2f2, #fecaca);
+            border-color: var(--danger);
+        }
+
+        .surface-restauracion {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border-color: var(--info);
+        }
+
+        .surface-ausente {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border-color: var(--text-secondary);
+        }
+
+        .surface-extraccion {
+            background: linear-gradient(135deg, #fffbeb, #fef3c7);
+            border-color: var(--warning);
+        }
+
+        .surface-protesis {
+            background: linear-gradient(135deg, #faf5ff, #f3e8ff);
+            border-color: var(--purple);
+        }
+
+        .tooth-number {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: white;
+            background: var(--primary-navy);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-light);
+        }
+
+        .tooth-number.deciduous {
+            background: #ec4899;
+        }
+
+        /* Action Buttons */
+        .actions-section {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .action-btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow-light);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, var(--success), #047857);
+            color: white;
+        }
+
+        .btn-clear {
+            background: var(--surface-white);
+            color: var(--text-secondary);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-clear:hover {
+            background: var(--surface-gray);
+            border-color: var(--text-secondary);
+        }
+
+        /* Output Panel */
+        .output-section {
+            background: var(--surface-white);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow-light);
+            border: 1px solid var(--border-color);
+        }
+
+        .output-header {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-navy);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .output-data {
+            background: var(--surface-light);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            color: var(--text-secondary);
+            overflow-x: auto;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .info-badge {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            color: #1e40af;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--surface-light);
+            border-radius: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .quadrants-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .teeth-container {
+                gap: 0.75rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .states-container {
+                justify-content: center;
+            }
+
+            .actions-section {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .tooth-grid {
+                grid-template-columns: repeat(3, 18px);
+                grid-template-rows: repeat(3, 18px);
+                padding: 6px;
+            }
+
+            .tooth-surface {
+                width: 18px;
+                height: 18px;
+            }
+
+            .tooth-number {
+                width: 20px;
+                height: 20px;
+                font-size: 0.65rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .container-fluid {
+                padding: 0 0.5rem;
+            }
+
+            .odontogram-section,
+            .toolbar,
+            .output-section {
+                padding: 1rem;
+                margin-left: 0.5rem;
+                margin-right: 0.5rem;
+            }
+
+            .teeth-container {
+                gap: 0.5rem;
+            }
+        }
+
+        /* Loading Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tooth {
+            animation: fadeInUp 0.3s ease forwards;
+        }
+    </style>
+</head>
+
+<div class="container-fluid" data-paciente-id="{{ paciente.id }}">
+</div>
+
+<!-- Header -->
+<header class="main-header">
+    <div class="header-content">
+        <div class="logo-section">
+            <div class="logo">
+                <i class="bi bi-tooth"></i>
+            </div>
+            <div class="header-text">
+                <h1>Odontograma Digital</h1>
+                <p>Sistema Profesional FDI</p>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="container-fluid">
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <div class="toolbar-header">
+            <div class="toolbar-title">
+                <i class="bi bi-palette"></i>
+                Herramientas de Diagnóstico
+            </div>
+        </div>
+
+        <div class="states-container">
+            <button class="state-button sano active" data-state="sano">
+                <i class="bi bi-check-circle"></i>
+                Sano
+            </button>
+            <button class="state-button caries" data-state="caries">
+                <i class="bi bi-exclamation-triangle"></i>
+                Caries
+            </button>
+            <button class="state-button restauracion" data-state="restauracion">
+                <i class="bi bi-tools"></i>
+                Restauración
+            </button>
+            <button class="state-button ausente" data-state="ausente">
+                <i class="bi bi-x-circle"></i>
+                Ausente
+            </button>
+            <button class="state-button extraccion" data-state="extraccion">
+                <i class="bi bi-scissors"></i>
+                Extracción
+            </button>
+            <button class="state-button protesis" data-state="protesis">
+                <i class="bi bi-gear"></i>
+                Prótesis
+            </button>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color"
+                    style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-color: var(--success);"></div>
+                <span>Sano</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color"
+                    style="background: linear-gradient(135deg, #fef2f2, #fecaca); border-color: var(--danger);"></div>
+                <span>Caries</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color"
+                    style="background: linear-gradient(135deg, #eff6ff, #dbeafe); border-color: var(--info);"></div>
+                <span>Restauración</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color"
+                    style="background: linear-gradient(135deg, #f8fafc, #e2e8f0); border-color: var(--text-secondary);">
+                </div>
+                <span>Ausente</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color"
+                    style="background: linear-gradient(135deg, #fffbeb, #fef3c7); border-color: var(--warning);"></div>
+                <span>Extracción</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color"
+                    style="background: linear-gradient(135deg, #faf5ff, #f3e8ff); border-color: var(--purple);"></div>
+                <span>Prótesis</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dientes Permanentes -->
+    <div class="odontogram-section">
+        <div class="section-title">
+            <div class="section-icon permanent">
+                <i class="bi bi-grid-3x3-gap"></i>
+            </div>
+            Dentición Permanente
+        </div>
+
+        <div class="quadrants-grid">
+            <div class="quadrant">
+                <div class="quadrant-title">
+                    <i class="bi bi-arrow-up-right"></i>
+                    Superior Derecho (18-11)
+                </div>
+                <div class="teeth-container" id="perm-sup-der"></div>
+            </div>
+
+            <div class="quadrant">
+                <div class="quadrant-title">
+                    <i class="bi bi-arrow-up-left"></i>
+                    Superior Izquierdo (21-28)
+                </div>
+                <div class="teeth-container" id="perm-sup-izq"></div>
+            </div>
+
+            <div class="quadrant">
+                <div class="quadrant-title">
+                    <i class="bi bi-arrow-down-right"></i>
+                    Inferior Derecho (48-41)
+                </div>
+                <div class="teeth-container" id="perm-inf-der"></div>
+            </div>
+
+            <div class="quadrant">
+                <div class="quadrant-title">
+                    <i class="bi bi-arrow-down-left"></i>
+                    Inferior Izquierdo (31-38)
+                </div>
+                <div class="teeth-container" id="perm-inf-izq"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dientes Deciduos -->
+    <div class="odontogram-section">
+        <div class="section-title">
+            <div class="section-icon deciduous">
+                <i class="bi bi-grid-1x2"></i>
+            </div>
+            Dentición Decidua (Temporal)
+        </div>
+
+        <div class="quadrants-grid">
+            <div class="quadrant">
+                <div class="quadrant-title">
+                    <i class="bi bi-arrow-up-right"></i>
+                    Superior Derecho (55-51)
+                </div>
+                <div class="teeth-container" id="dec-sup-der"></div>
+            </div>
+
+            <div class="quadrant">
+                <div class="quadrant-title">
+                    <i class="bi bi-arrow-up-left"></i>
+                    Superior Izquierdo (61-65)
+                </div>
+                <div class="teeth-container" id="dec-sup-izq"></div>
+            </div>
+
+            <div class="quadrant">
+                <div class="quadrant-title">
+                    <i class="bi bi-arrow-down-right"></i>
+                    Inferior Derecho (85-81)
+                </div>
+                <div class="teeth-container" id="dec-inf-der"></div>
+            </div>
+
+            <div class="quadrant">
+                <div class="quadrant-title">
+                    <i class="bi bi-arrow-down-left"></i>
+                    Inferior Izquierdo (71-75)
+                </div>
+                <div class="teeth-container" id="dec-inf-izq"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions-section">
+        <button class="action-btn btn-save" id="save-btn">
+            <i class="bi bi-cloud-arrow-up"></i>
+            Guardar Odontograma
+        </button>
+        <button class="action-btn btn-clear" id="clear-btn">
+            <i class="bi bi-arrow-clockwise"></i>
+            Limpiar Todo
+        </button>
+        <!-- Volver -->
+        <a href="{% url 'menu_historial' %}" class="action-btn btn-clear">
+            <i class="bi bi-arrow-clockwise"></i>
+            Volver
+        </a>
+    </div>
+
+    <!-- Output -->
+
+    <!--    
+    <div class="output-section">
+        <div class="output-header">
+            <i class="bi bi-file-code"></i>
+            Registro Digital del Odontograma
+        </div>
+
+        <div class="info-badge">
+            <i class="bi bi-info-circle"></i>
+            Datos estructurados listos para integración con sistemas clínicos
+        </div>
+
+        <div class="output-data" id="output">
+            Esperando datos del odontograma...
+        </div>
+    </div>    
+-->
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const existingData = {{ odontograma_data|default:"{}"|safe }};
+
+    console.log(existingData);
+</script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const states = {
+            'sano': 'surface-sano',
+            'caries': 'surface-caries',
+            'restauracion': 'surface-restauracion',
+            'ausente': 'surface-ausente',
+            'extraccion': 'surface-extraccion',
+            'protesis': 'surface-protesis'
+        };
+
+        let activeState = 'sano';
+
+        // Crear diente
+        function createTooth(number, type) {
+            const tooth = document.createElement('div');
+            tooth.className = 'tooth';
+            tooth.dataset.toothNumber = number;
+
+            const grid = document.createElement('div');
+            grid.className = 'tooth-grid';
+
+            const surfaces = ['mesial', 'oclusal', 'distal', 'lingual', 'vestibular'];
+            surfaces.forEach(surfaceName => {
+                const surface = document.createElement('div');
+                surface.className = `tooth-surface surface-${surfaceName} surface-sano`;
+                surface.dataset.surface = surfaceName;
+                grid.appendChild(surface);
+            });
+
+            const numberDiv = document.createElement('div');
+            numberDiv.className = `tooth-number ${type}`;
+            numberDiv.textContent = number;
+
+            tooth.appendChild(grid);
+            tooth.appendChild(numberDiv);
+            return tooth;
+        }
+
+        // Renderizar dientes en un contenedor
+        function renderTeeth(containerId, numbers, type) {
+            const container = document.getElementById(containerId);
+            numbers.forEach(num => container.appendChild(createTooth(num, type)));
+        }
+
+        // Renderizar todos los cuadrantes
+        renderTeeth('perm-sup-der', [18, 17, 16, 15, 14, 13, 12, 11], 'permanent');
+        renderTeeth('perm-sup-izq', [21, 22, 23, 24, 25, 26, 27, 28], 'permanent');
+        renderTeeth('perm-inf-der', [48, 47, 46, 45, 44, 43, 42, 41], 'permanent');
+        renderTeeth('perm-inf-izq', [31, 32, 33, 34, 35, 36, 37, 38], 'permanent');
+
+        renderTeeth('dec-sup-der', [55, 54, 53, 52, 51], 'deciduous');
+        renderTeeth('dec-sup-izq', [61, 62, 63, 64, 65], 'deciduous');
+        renderTeeth('dec-inf-der', [85, 84, 83, 82, 81], 'deciduous');
+        renderTeeth('dec-inf-izq', [71, 72, 73, 74, 75], 'deciduous');
+
+        // Función para aplicar el estado guardado a un diente
+        function applySavedTooth(toothNum, surfacesData) {
+            const tooth = document.querySelector(`.tooth[data-tooth-number='${toothNum}']`);
+            if (!tooth) return;
+            Object.entries(surfacesData).forEach(([surfaceName, state]) => {
+                const surface = tooth.querySelector(`.tooth-surface[data-surface='${surfaceName}']`);
+                if (!surface) return;
+                Object.values(states).forEach(s => surface.classList.remove(s));
+                surface.classList.add(states[state]);
+            });
+        }
+
+        // Cargar datos existentes
+        if (typeof existingData !== 'undefined' && existingData !== null) {
+            const odontogramaGuardado = existingData;
+
+            Object.entries(odontogramaGuardado.dientes_permanentes || {}).forEach(([num, surfaces]) => {
+                applySavedTooth(num, surfaces);
+            });
+
+            Object.entries(odontogramaGuardado.dientes_deciduos || {}).forEach(([num, surfaces]) => {
+                applySavedTooth(num, surfaces);
+            });
+        }
+
+        // Manejo de botones de estado
+        document.querySelectorAll('.state-button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelector('.state-button.active')?.classList.remove('active');
+                btn.classList.add('active');
+                activeState = btn.dataset.state;
+            });
+        });
+
+        // Manejo de clic en superficies dentales
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('tooth-surface')) {
+                Object.values(states).forEach(s => e.target.classList.remove(s));
+                e.target.classList.add(states[activeState]);
+                updateOutput();
+            }
+        });
+
+        // Actualizar salida JSON
+        function updateOutput() {
+            const data = {
+                timestamp: new Date().toISOString(),
+                patient: "Paciente_001",
+                denticion_permanente: {},
+                denticion_decidua: {},
+                resumen: {
+                    total_dientes: 0,
+                    dientes_sanos: 0,
+                    dientes_afectados: 0,
+                    superficies_caries: 0,
+                    superficies_restauradas: 0
+                }
+            };
+
+            let totalDientes = 0;
+            let dientesSanos = 0;
+            let dientesAfectados = 0;
+            let superficiesCaries = 0;
+            let superficiesRestauradas = 0;
+
+            document.querySelectorAll('.tooth').forEach(tooth => {
+                const number = tooth.dataset.toothNumber;
+                const surfaces = {};
+                let dienteSano = true;
+
+                tooth.querySelectorAll('.tooth-surface').forEach(surface => {
+                    const surfaceName = surface.dataset.surface;
+                    let state = 'sano';
+
+                    for (const [key, className] of Object.entries(states)) {
+                        if (surface.classList.contains(className)) {
+                            state = key;
+                            if (state !== 'sano') dienteSano = false;
+                            if (state === 'caries') superficiesCaries++;
+                            if (state === 'restauracion') superficiesRestauradas++;
+                            break;
+                        }
+                    }
+                    surfaces[surfaceName] = state;
+                });
+
+                totalDientes++;
+                if (dienteSano) dientesSanos++; else dientesAfectados++;
+
+                const toothNum = parseInt(number);
+                if (toothNum >= 11 && toothNum <= 48) data.denticion_permanente[number] = surfaces;
+                else if (toothNum >= 51 && toothNum <= 85) data.denticion_decidua[number] = surfaces;
+            });
+
+            data.resumen = {
+                total_dientes: totalDientes,
+                dientes_sanos: dientesSanos,
+                dientes_afectados: dientesAfectados,
+                superficies_caries: superficiesCaries,
+                superficies_restauradas: superficiesRestauradas
+            };
+
+            //document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+            return data;
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const pacienteId = document.querySelector('.container-fluid').dataset.pacienteId;
+
+        // Guardar odontograma
+        document.getElementById('save-btn').addEventListener('click', () => {
+            const odontograma = updateOutput();
+            fetch(`/registroPacientes/odontograma/guardar/${pacienteId}/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                body: JSON.stringify(odontograma)
+            }).then(res => res.json()).then(data => console.log(data));
+        });
+
+        // Limpiar odontograma
+        document.getElementById('clear-btn').addEventListener('click', () => {
+            if (confirm('⚠️ ¿Confirma que desea limpiar completamente el odontograma?\n\nEsta acción eliminará todos los diagnósticos registrados.')) {
+                document.querySelectorAll('.tooth-surface').forEach(surface => {
+                    Object.values(states).forEach(s => surface.classList.remove(s));
+                    surface.classList.add('surface-sano');
+                });
+            }
+        });
+
+        // Inicializar la salida
+        updateOutput();
+    });
+</script>
+
+
+
+{% endblock %}
