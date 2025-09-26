@@ -11,7 +11,7 @@ from django.db.models import Q
 
 # Create your views here.
 def menu_citas(request):
-    citas = Cita.objects.all().select_related('paciente')
+    citas = Cita.objects.filter(paciente__medico=request.user).select_related('paciente')
     current_date = timezone.now()
     
     return render(request, 'citas/menu_citas.html', {
@@ -23,7 +23,7 @@ def nueva_cita(request):
     return render(request, 'citas/nueva_cita.html')
 
 def registrar_cita(request, id):
-    paciente = get_object_or_404(Paciente, id=id)
+    paciente = get_object_or_404(Paciente, id=id, medico=request.user)
 
     if request.method == 'POST':
         fecha = request.POST.get('fecha')
@@ -69,8 +69,8 @@ def registrar_cita(request, id):
     return render(request, 'citas/registrar_cita.html', {'paciente': paciente})
 
 def buscar_cita(request):
-    query = request.GET.get('buscador', '')
-    citas = Cita.objects.all()
+    query = request.GET.get('buscador', '').strip()
+    citas = Cita.objects.filter(paciente__medico=request.user)
 
     if query:
         citas = citas.filter(
@@ -82,7 +82,7 @@ def buscar_cita(request):
     return render(request, 'citas/buscar_cita.html', {'citas': citas,})
 
 def editar_cita(request, id):
-    cita = get_object_or_404(Cita, id=id)
+    cita = get_object_or_404(Cita, id=id, paciente__medico=request.user)
     if request.method == 'POST':
         fecha = request.POST.get('fecha')
         hora = request.POST.get('hora')
@@ -125,31 +125,31 @@ def editar_cita(request, id):
     return render(request, 'citas/editar_cita.html', {'cita': cita, 'estatus_options': estatus_options})
 
 def citas_pendientes(request):
-    citas_pendientes = Cita.objects.filter(estatus='P').order_by('fecha', 'hora')
+    citas_pendientes = Cita.objects.filter(estatus='P', paciente__medico=request.user).order_by('fecha', 'hora')
     return render(request, 'citas/citas_pendientes.html', {'citas_pendientes': citas_pendientes})
 
 def citas_completadas(request):
-    citas_completadas = Cita.objects.filter(estatus = 'C').order_by('fecha','hora')
+    citas_completadas = Cita.objects.filter(estatus = 'C', paciente__medico=request.user).order_by('fecha','hora')
     return render(request, 'citas/citas_completadas.html', {'citas_completadas':citas_completadas})
 
 def citas_canceladas(request):
-    citas_canceladas = Cita.objects.filter(estatus = 'A').order_by('fecha','hora')
+    citas_canceladas = Cita.objects.filter(estatus = 'A', paciente__medico=request.user).order_by('fecha','hora')
     return render(request, 'citas/citas_canceladas.html', {'citas_canceladas':citas_canceladas})
 
 def confirmar_asistencia(request, id):
-    cita = get_object_or_404(Cita, id=id)
+    cita = get_object_or_404(Cita, id=id, paciente__medico=request.user)
     cita.estatus = 'C'
     cita.save()
     messages.success(request, "Cita marcada como completada.")
     return redirect('citas_pendientes')
 
 def anular_cita(request, id):
-    cita = get_object_or_404(Cita, id=id)
+    cita = get_object_or_404(Cita, id=id, paciente__medico=request.user)
     cita.estatus = 'A'
     cita.save()
     messages.success(request, "Cita anulada correctamente.")
     return redirect('citas_pendientes')
 
 def detalle_cita(request, id):
-    cita = get_object_or_404(Cita, id=id)
+    cita = get_object_or_404(Cita, id=id, paciente__medico=request.user)
     return render(request, 'citas/detalles_cita.html', {'cita': cita})

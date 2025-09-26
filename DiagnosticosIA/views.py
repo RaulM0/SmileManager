@@ -13,7 +13,7 @@ model_path = os.path.join('train_model', 'best.pt')
 model = YOLO(model_path)
 
 def diagnosticos(request):
-    imagenes = ImagenesClinicas.objects.all().select_related('paciente')
+    imagenes = ImagenesClinicas.objects.filter(paciente__medico=request.user).select_related('paciente')
     
     # Filtros
     paciente_filter = request.GET.get('paciente')
@@ -52,7 +52,7 @@ def diagnosticos(request):
 
 def resultados(request, imagen_id):
     # Obtener la imagen clínica
-    imagen_obj = get_object_or_404(ImagenesClinicas, id=imagen_id)
+    imagen_obj = get_object_or_404(ImagenesClinicas, id=imagen_id, paciente__medico=request.user)
     img_path = imagen_obj.imagen.path
 
     try:
