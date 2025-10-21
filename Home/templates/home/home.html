@@ -3,145 +3,137 @@
 {% block title %}Inicio - Consultorio Dental{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container-fluid px-4 py-4">
     <!-- Encabezado -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="mb-1">Bienvenido, <span class="text-primary">Dr. {{request.user.username.upper}}</span></h2>
+            <h2 class="mb-1 fw-semibold">Bienvenido, <span class="text-primary">Dr. {{request.user.username.upper}}</span></h2>
             <p class="text-muted mb-0">Panel principal del consultorio dental</p>
         </div>
         <div class="d-flex gap-2">
-            <a href="{% url 'menu_citas' %}" class="btn btn-primary">
-                <i class="bi bi-plus-circle me-1"></i> Nueva Cita
+            <a href="{% url 'menu_citas' %}" class="btn btn-primary px-4">
+                <i class="bi bi-plus-circle me-2"></i> Nueva Cita
             </a>
         </div>
     </div>
 
     <!-- Tarjetas de métricas -->
-    <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-start border-primary border-4 shadow-sm h-100">
+    <div class="row g-3 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
                         <div>
-                            <h6 class="text-uppercase text-muted mb-2">Pacientes</h6>
-                            <h2 class="mb-0">{{ numero_pacientes }}</h2>
+                            <p class="text-muted text-uppercase small mb-2 fw-semibold">Pacientes</p>
+                            <h3 class="mb-0 fw-bold">{{ numero_pacientes }}</h3>
                         </div>
-                        <div class="icon-shape bg-primary bg-opacity-10 text-primary rounded-3 p-3">
-                            <i class="bi bi-people-fill fs-3"></i>
+                        <div class="metric-icon bg-primary bg-opacity-10 text-primary">
+                            <i class="bi bi-people-fill fs-2"></i>
                         </div>
                     </div>
-                    <div class="mt-3">
-                        <a href="{% url 'registroPacientes' %}" class="text-decoration-none small">
-                            Gestionar pacientes <i class="bi bi-arrow-right"></i>
-                        </a>
-                    </div>
+                    <a href="{% url 'registroPacientes' %}" class="text-decoration-none text-primary small">
+                        Gestionar pacientes <i class="bi bi-arrow-right"></i>
+                    </a>
                 </div>
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-start border-success border-4 shadow-sm h-100">
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
                         <div>
-                            <h6 class="text-uppercase text-muted mb-2">Citas Hoy</h6>
-                            <h2 class="mb-0">{{ citas_hoy.count }}</h2>
+                            <p class="text-muted text-uppercase small mb-2 fw-semibold">Citas Hoy</p>
+                            <h3 class="mb-0 fw-bold">{{ citas_hoy.count }}</h3>
                         </div>
-                        <div class="icon-shape bg-success bg-opacity-10 text-success rounded-3 p-3">
-                            <i class="bi bi-calendar-check fs-3"></i>
+                        <div class="metric-icon bg-success bg-opacity-10 text-success">
+                            <i class="bi bi-calendar-check fs-2"></i>
                         </div>
                     </div>
-                    <div class="mt-3">
-                        <span class="badge bg-success bg-opacity-10 text-success">
-                            {{ citas_pendientes_hoy }} pendientes
-                        </span>
-                    </div>
+                    <span class="badge bg-success bg-opacity-10 text-success px-2 py-1">
+                        {{ citas_pendientes_hoy }} pendientes
+                    </span>
                 </div>
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-start border-warning border-4 shadow-sm h-100">
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
                         <div>
-                            <h6 class="text-uppercase text-muted mb-2">Citas Pendientes</h6>
-                            <h2 class="mb-0">{{ total_citas_pendientes }}</h2>
+                            <p class="text-muted text-uppercase small mb-2 fw-semibold">Citas Pendientes</p>
+                            <h3 class="mb-0 fw-bold">{{ total_citas_pendientes }}</h3>
                         </div>
-                        <div class="icon-shape bg-warning bg-opacity-10 text-warning rounded-3 p-3">
-                            <i class="bi bi-calendar-week fs-3"></i>
+                        <div class="metric-icon bg-warning bg-opacity-10 text-warning">
+                            <i class="bi bi-calendar-week fs-2"></i>
                         </div>
                     </div>
-                    <div class="mt-3">
-                        <a href="{% url 'citas_pendientes' %}" class="text-decoration-none small">
-                            Ver pendientes <i class="bi bi-arrow-right"></i>
-                        </a>
-                    </div>
+                    <a href="{% url 'citas_pendientes' %}" class="text-decoration-none text-warning small">
+                        Ver pendientes <i class="bi bi-arrow-right"></i>
+                    </a>
                 </div>
             </div>
         </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-start border-info border-4 shadow-sm h-100">
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
                         <div>
-                            <h6 class="text-uppercase text-muted mb-2">Imágenes Analizadas</h6>
-                            <h2 class="mb-0">{{ total_imagenes }}</h2>
+                            <p class="text-muted text-uppercase small mb-2 fw-semibold">Imágenes Analizadas</p>
+                            <h3 class="mb-0 fw-bold">{{ total_imagenes }}</h3>
                         </div>
-                        <div class="icon-shape bg-info bg-opacity-10 text-info rounded-3 p-3">
-                            <i class="bi bi-card-image fs-3"></i>
+                        <div class="metric-icon bg-info bg-opacity-10 text-info">
+                            <i class="bi bi-card-image fs-2"></i>
                         </div>
                     </div>
-                    <div class="mt-3">
-                        <a href="{% url 'diagnosticos' %}" class="text-decoration-none small">
-                            Ver análisis <i class="bi bi-arrow-right"></i>
-                        </a>
-                    </div>
+                    <a href="{% url 'diagnosticos' %}" class="text-decoration-none text-info small">
+                        Ver análisis <i class="bi bi-arrow-right"></i>
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Sección principal -->
-    <div class="row">
+    <div class="row g-3">
         <!-- Agenda de hoy -->
         <div class="col-lg-8 mb-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-white border-bottom-0 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Agenda de Hoy</h5>
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0 fw-semibold">Agenda de Hoy</h5>
                     <span class="badge bg-primary">{{ hoy|date:"d/m/Y" }}</span>
                 </div>
                 <div class="card-body p-0">
                     {% if citas_hoy %}
                     <div class="table-responsive">
                         <table class="table table-hover mb-0">
-                            <thead class="table-light">
+                            <thead>
                                 <tr>
-                                    <th width="15%">Hora</th>
-                                    <th width="30%">Paciente</th>
-                                    <th width="35%">Motivo</th>
-                                    <th width="10%">Estado</th>
-                                    <th width="10%"></th>
+                                    <th class="px-3">Hora</th>
+                                    <th>Paciente</th>
+                                    <th>Motivo</th>
+                                    <th>Estado</th>
+                                    <th class="text-center">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for cita in citas_hoy %}
-                                <tr class="{% if cita.estatus == 'P' %}table-active{% endif %}">
-                                    <td>
-                                        <span class="badge {% if cita.estatus == 'P' %}bg-primary{% else %}bg-primary bg-opacity-10 text-primary{% endif %}">
+                                <tr>
+                                    <td class="px-3">
+                                        <span class="badge bg-primary">
                                             {{ cita.hora|time:"H:i" }}
                                         </span>
                                     </td>
-                                    <td>{{ cita.paciente.nombre }} {{ cita.paciente.appat }}</td>
-                                    <td>{{ cita.motivo|truncatechars:30 }}</td>
+                                    <td class="fw-medium">{{ cita.paciente.nombre }} {{ cita.paciente.appat }}</td>
+                                    <td class="text-muted">{{ cita.motivo|truncatechars:30 }}</td>
                                     <td>
                                         <span class="badge {% if cita.estatus == 'P' %}bg-warning{% else %}bg-success{% endif %}">
                                             {{ cita.get_estatus_display }}
                                         </span>
                                     </td>
-                                    <td class="text-end">
+                                    <td class="text-center">
                                         <a href="{% url 'editar_cita' cita.id %}" class="btn btn-sm btn-outline-primary">
                                             <i class="bi bi-eye"></i>
                                         </a>
@@ -153,13 +145,13 @@
                     </div>
                     {% else %}
                     <div class="text-center py-5">
-                        <i class="bi bi-calendar-x display-4 text-muted mb-3"></i>
+                        <i class="bi bi-calendar-x display-1 text-muted opacity-50 mb-3 d-block"></i>
                         <h5 class="text-muted">No hay citas para hoy</h5>
                         <p class="text-muted small">No se han programado citas para el día de hoy.</p>
                     </div>
                     {% endif %}
                 </div>
-                <div class="card-footer bg-white border-top-0 text-end">
+                <div class="card-footer bg-white text-end py-3">
                     <a href="{% url 'menu_citas' %}" class="btn btn-sm btn-outline-primary">
                         Gestionar citas <i class="bi bi-arrow-right"></i>
                     </a>
@@ -169,31 +161,85 @@
 
         <!-- Accesos rápidos -->
         <div class="col-lg-4 mb-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-white border-bottom-0">
-                    <h5 class="mb-0">Accesos Rápidos</h5>
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-semibold">Accesos Rápidos</h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-3">
                     <div class="d-grid gap-2">
-                        <a href="{% url 'registroPacientes' %}" class="btn btn-primary d-flex align-items-center justify-content-between py-3">
-                            <span><i class="bi bi-people-fill me-2"></i> Pacientes</span>
-                            <i class="bi bi-chevron-right"></i>
+                        <a href="{% url 'registroPacientes' %}" class="quick-access-btn">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <div class="quick-icon bg-primary bg-opacity-10 text-primary me-3">
+                                        <i class="bi bi-people-fill"></i>
+                                    </div>
+                                    <div>
+                                        <p class="mb-0 fw-semibold">Pacientes</p>
+                                        <p class="mb-0 small text-muted">Gestionar registros</p>
+                                    </div>
+                                </div>
+                                <i class="bi bi-chevron-right text-muted"></i>
+                            </div>
                         </a>
-                        <a href="{% url 'menu_citas' %}" class="btn btn-success d-flex align-items-center justify-content-between py-3">
-                            <span><i class="bi bi-calendar-plus me-2"></i> Citas</span>
-                            <i class="bi bi-chevron-right"></i>
+                        
+                        <a href="{% url 'menu_citas' %}" class="quick-access-btn">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <div class="quick-icon bg-success bg-opacity-10 text-success me-3">
+                                        <i class="bi bi-calendar-plus"></i>
+                                    </div>
+                                    <div>
+                                        <p class="mb-0 fw-semibold">Citas</p>
+                                        <p class="mb-0 small text-muted">Agendar y gestionar</p>
+                                    </div>
+                                </div>
+                                <i class="bi bi-chevron-right text-muted"></i>
+                            </div>
                         </a>
-                        <a href="{% url 'diagnosticos' %}" class="btn btn-info d-flex align-items-center justify-content-between py-3">
-                            <span><i class="bi bi-card-image me-2"></i> Análisis IA</span>
-                            <i class="bi bi-chevron-right"></i>
+                        
+                        <a href="{% url 'diagnosticos' %}" class="quick-access-btn">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <div class="quick-icon bg-info bg-opacity-10 text-info me-3">
+                                        <i class="bi bi-card-image"></i>
+                                    </div>
+                                    <div>
+                                        <p class="mb-0 fw-semibold">Análisis IA</p>
+                                        <p class="mb-0 small text-muted">Diagnóstico inteligente</p>
+                                    </div>
+                                </div>
+                                <i class="bi bi-chevron-right text-muted"></i>
+                            </div>
                         </a>
-                        <a href="{% url 'citas_pendientes' %}" class="btn btn-warning d-flex align-items-center justify-content-between py-3">
-                            <span><i class="bi bi-hourglass-split me-2"></i> Citas Pendientes</span>
-                            <i class="bi bi-chevron-right"></i>
+                        
+                        <a href="{% url 'citas_pendientes' %}" class="quick-access-btn">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <div class="quick-icon bg-warning bg-opacity-10 text-warning me-3">
+                                        <i class="bi bi-hourglass-split"></i>
+                                    </div>
+                                    <div>
+                                        <p class="mb-0 fw-semibold">Pendientes</p>
+                                        <p class="mb-0 small text-muted">Citas por atender</p>
+                                    </div>
+                                </div>
+                                <i class="bi bi-chevron-right text-muted"></i>
+                            </div>
                         </a>
-                        <a href="{% url 'citas_completadas' %}" class="btn btn-secondary d-flex align-items-center justify-content-between py-3">
-                            <span><i class="bi bi-check-circle me-2"></i> Citas Completadas</span>
-                            <i class="bi bi-chevron-right"></i>
+                        
+                        <a href="{% url 'citas_completadas' %}" class="quick-access-btn">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <div class="quick-icon bg-secondary bg-opacity-10 text-secondary me-3">
+                                        <i class="bi bi-check-circle"></i>
+                                    </div>
+                                    <div>
+                                        <p class="mb-0 fw-semibold">Completadas</p>
+                                        <p class="mb-0 small text-muted">Historial de citas</p>
+                                    </div>
+                                </div>
+                                <i class="bi bi-chevron-right text-muted"></i>
+                            </div>
                         </a>
                     </div>
                 </div>
@@ -202,36 +248,40 @@
     </div>
 
     <!-- Próximas citas -->
-    <div class="row">
+    <div class="row mt-4">
         <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white border-bottom-0 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Próximas Citas</h5>
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0 fw-semibold">Próximas Citas</h5>
                     <a href="{% url 'menu_citas' %}" class="btn btn-sm btn-outline-primary">
                         Ver todas <i class="bi bi-arrow-right"></i>
                     </a>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     {% if proximas_citas %}
                     <div class="table-responsive">
                         <table class="table table-hover mb-0">
-                            <thead class="table-light">
+                            <thead>
                                 <tr>
-                                    <th width="15%">Fecha</th>
-                                    <th width="15%">Hora</th>
-                                    <th width="25%">Paciente</th>
-                                    <th width="30%">Motivo</th>
-                                    <th width="15%">Acciones</th>
+                                    <th class="px-3">Fecha</th>
+                                    <th>Hora</th>
+                                    <th>Paciente</th>
+                                    <th>Motivo</th>
+                                    <th class="text-center">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for cita in proximas_citas %}
                                 <tr>
-                                    <td>{{ cita.fecha|date:"d/m/Y" }}</td>
-                                    <td>{{ cita.hora|time:"H:i" }}</td>
-                                    <td>{{ cita.paciente.nombre }} {{ cita.paciente.appat }}</td>
-                                    <td>{{ cita.motivo|truncatechars:40 }}</td>
+                                    <td class="px-3 fw-medium">{{ cita.fecha|date:"d/m/Y" }}</td>
                                     <td>
+                                        <span class="badge bg-primary bg-opacity-10 text-primary">
+                                            {{ cita.hora|time:"H:i" }}
+                                        </span>
+                                    </td>
+                                    <td class="fw-medium">{{ cita.paciente.nombre }} {{ cita.paciente.appat }}</td>
+                                    <td class="text-muted">{{ cita.motivo|truncatechars:40 }}</td>
+                                    <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
                                             <a href="{% url 'editar_cita' cita.id %}" class="btn btn-outline-primary" data-bs-toggle="tooltip" title="Editar">
                                                 <i class="bi bi-pencil"></i>
@@ -250,8 +300,8 @@
                         </table>
                     </div>
                     {% else %}
-                    <div class="text-center py-4">
-                        <i class="bi bi-calendar-plus display-5 text-muted mb-3"></i>
+                    <div class="text-center py-5">
+                        <i class="bi bi-calendar-plus display-1 text-muted opacity-50 mb-3 d-block"></i>
                         <h5 class="text-muted">No hay próximas citas</h5>
                         <p class="text-muted small">No se han programado citas futuras.</p>
                     </div>
@@ -263,28 +313,122 @@
 </div>
 
 <style>
-    .card {
-        border-radius: 0.5rem;
+    body {
+        background-color: #f8f9fa;
     }
-    
-    .icon-shape {
-        width: 60px;
-        height: 60px;
+
+    /* Cards */
+    .card {
+        border-radius: 8px;
+        transition: transform 0.2s ease;
+    }
+
+    .card-header {
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .card-footer {
+        border-top: 1px solid #e9ecef;
+    }
+
+    /* Metric icons */
+    .metric-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
     }
-    
-    .table th {
-        border-top: none;
+
+    /* Quick access buttons - CONSERVADO */
+    .quick-access-btn {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1rem;
+        text-decoration: none;
+        display: block;
+        transition: all 0.2s ease;
+    }
+
+    .quick-access-btn:hover {
+        border-color: #0d6efd;
+        background-color: #f8f9ff;
+        transform: translateX(4px);
+        box-shadow: 0 2px 8px rgba(13, 110, 253, 0.1);
+    }
+
+    .quick-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+
+    /* Tables */
+    .table thead th {
+        border-bottom: 2px solid #dee2e6;
         font-weight: 600;
         font-size: 0.875rem;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        color: #6c757d;
+        padding: 0.75rem;
+        background-color: #f8f9fa;
     }
-    
-    .btn-group .btn {
-        padding: 0.25rem 0.5rem;
+
+    .table tbody td {
+        padding: 0.875rem 0.75rem;
+        vertical-align: middle;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9ff;
+    }
+
+    /* Badges */
+    .badge {
+        font-weight: 500;
+        padding: 0.375rem 0.75rem;
+        border-radius: 6px;
+    }
+
+    /* Buttons */
+    .btn {
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    .btn-primary:hover {
+        background-color: #0b5ed7;
+        border-color: #0a58ca;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(13, 110, 253, 0.2);
+    }
+
+    .btn-outline-primary:hover {
+        transform: translateY(-1px);
+    }
+
+    /* Shadows */
+    .shadow-sm {
+        box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.075) !important;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .table {
+            font-size: 0.875rem;
+        }
     }
 </style>
 
