@@ -243,17 +243,22 @@
 
 <div class="estudio-container">
     <!-- Header Principal -->
-    <div class="section-header">
+    <div class="section-header d-flex justify-content-between align-items-center">
         <div>
             <h2 class="mb-0">
                 <i class="fas fa-camera-retro me-2"></i>
                 Plantilla de Progreso
             </h2>
             <p class="text-muted mb-0 mt-2">
-                <strong>Paciente:</strong> {{paciente.nombre}} {{paciente.appat}} {{paciente.apmat}}
+                <strong>Paciente:</strong> {{ paciente.nombre }} {{ paciente.appat }} {{ paciente.apmat }}
             </p>
         </div>
+
+        <a href="{% url 'menu_historial' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left-circle me-2"></i> Regresar
+        </a>
     </div>
+
 
     <form method="POST" enctype="multipart/form-data" id="estudioForm"
         action="{% url 'estudio_comparativo' paciente.id %}">
@@ -350,8 +355,7 @@
                     <label>Oclusal Inferior</label>
                     <p class="upload-text">...</p>
                     <img class="image-preview" src="{{ estudio.antes_oclusal_inferior.url }}" alt="Preview">
-                    <input type="file" name="antes_oclusal_inferior" accept="image/*" 
-                    {% if not estudio.antes_oclusal_inferior %}required{% endif %} onchange="handleFileSelect(this)">
+                    <input type="file" name="antes_oclusal_inferior" accept="image/*" {% if not estudio.antes_oclusal_inferior %}required{% endif %} onchange="handleFileSelect(this)">
                 </div>
             </div>
         </div>
