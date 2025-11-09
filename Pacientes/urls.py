@@ -29,4 +29,9 @@ urlpatterns = [
     path('enviar_mensaje/', views.enviar_mensaje, name='enviar_mensaje'),
     path('odontograma/<int:id>/', views.odontograma, name='odontograma'),
     path('odontograma/guardar/<int:paciente_id>/', views.guardar_odontograma, name='guardar_odontograma'),
+    path('progreso/<int:paciente_id>/', views.progreso, name='progreso'),
+    path('estudio/<int:paciente_id>/', views.estudio_comparativo_view, name='estudio_comparativo'),
+    path('estudio/<int:paciente_id>/visualizar/', views.visualizar_estudio, name='visualizar_estudio'),
+    path('estudio/<int:paciente_id>/descargar-pdf/', views.descargar_pdf_estudio, name='descargar_pdf_estudio'),
+
 ]

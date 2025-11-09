@@ -1,0 +1,574 @@
+{% extends 'Dentista/base.html'%}
+{% load static %}
+{% block content %}
+
+<style>
+    :root {
+        --color-principal: #005A78;
+        --color-acento: #00A9E2;
+        --color-info-bg: #DDF6FF;
+        --color-success: #28a745;
+    }
+
+    .estudio-container {
+        max-width: 1400px;
+        margin: 30px auto;
+        padding: 30px;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .section-header {
+        color: var(--color-principal);
+        border-bottom: 3px solid var(--color-acento);
+        padding-bottom: 12px;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .section-badge {
+        background-color: var(--color-acento);
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .upload-box {
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        border: 2px dashed #dee2e6;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        min-height: 200px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .upload-box:hover {
+        background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+        border-color: var(--color-acento);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 169, 226, 0.15);
+    }
+
+    .upload-box.has-image {
+        border-color: var(--color-success);
+        border-style: solid;
+        background: linear-gradient(135deg, #d4edda 0%, #f8f9fa 100%);
+    }
+
+    .upload-box label {
+        font-weight: 600;
+        color: var(--color-principal);
+        margin-bottom: 10px;
+        display: block;
+        font-size: 15px;
+    }
+
+    .upload-icon {
+        font-size: 48px;
+        color: #adb5bd;
+        margin-bottom: 10px;
+        transition: all 0.3s;
+    }
+
+    .upload-box:hover .upload-icon {
+        color: var(--color-acento);
+        transform: scale(1.1);
+    }
+
+    .upload-box.has-image .upload-icon {
+        color: var(--color-success);
+    }
+
+    .upload-box input[type="file"] {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .upload-text {
+        color: #6c757d;
+        font-size: 13px;
+        margin-top: 8px;
+    }
+
+    .image-preview {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-top: 10px;
+        display: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .upload-box.has-image .image-preview {
+        display: block;
+    }
+
+    .upload-box.has-image .upload-icon,
+    .upload-box.has-image .upload-text {
+        display: none;
+    }
+
+    .check-icon {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: var(--color-success);
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+    }
+
+    .upload-box.has-image .check-icon {
+        display: flex;
+    }
+
+    .remove-image {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: #dc3545;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+        z-index: 10;
+    }
+
+    .upload-box.has-image .remove-image {
+        display: flex;
+    }
+
+    .remove-image:hover {
+        background-color: #c82333;
+        transform: scale(1.1);
+    }
+
+    .progress-counter {
+        background-color: var(--color-info-bg);
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .progress-counter strong {
+        color: var(--color-principal);
+        font-size: 18px;
+    }
+
+    .info-section {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+        border-left: 4px solid var(--color-acento);
+    }
+
+    .btn-guardar {
+        background-color: var(--color-principal);
+        color: #fff;
+        padding: 14px 40px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 12px rgba(0, 90, 120, 0.2);
+    }
+
+    .btn-guardar:hover {
+        background-color: #00415a;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 90, 120, 0.3);
+    }
+
+    .btn-guardar:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .optional-badge {
+        background-color: #ffc107;
+        color: #000;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+
+    .required-badge {
+        background-color: #dc3545;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+</style>
+
+<div class="estudio-container">
+    <!-- Header Principal -->
+    <div class="section-header">
+        <div>
+            <h2 class="mb-0">
+                <i class="fas fa-camera-retro me-2"></i>
+                Plantilla de Progreso
+            </h2>
+            <p class="text-muted mb-0 mt-2">
+                <strong>Paciente:</strong> {{paciente.nombre}} {{paciente.appat}} {{paciente.apmat}}
+            </p>
+        </div>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" id="estudioForm"
+        action="{% url 'estudio_comparativo' paciente.id %}">
+        {% csrf_token %}
+
+        <div class="info-section">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="fecha_inicio" class="form-label">Fecha de Inicio del Tratamiento</label>
+                    <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio"
+                        value="{{ estudio.fecha_inicio|date:'Y-m-d' }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="diagnostico" class="form-label">Diagnóstico Inicial</label>
+                    <input type="text" class="form-control" id="diagnostico" name="diagnostico"
+                        value="{{ estudio.diagnostico|default:'' }}" placeholder="Ej: Maloclusión Clase II">
+                </div>
+                <div class="col-12">
+                    <label for="observaciones" class="form-label">Observaciones</label>
+                    <textarea class="form-control" id="observaciones" name="observaciones" rows="3"
+                        placeholder="Notas adicionales sobre el caso...">{{ estudio.observaciones|default:'' }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-header">
+        </div>
+        <div class="progress-counter">
+        </div>
+
+        <div class="row g-3 mb-5">
+            <div class="col-12">
+                <div class="upload-box {% if estudio.antes_oclusal_superior %}has-image{% endif %}" data-tipo="antes"
+                    data-name="antes_oclusal_superior">
+                    <button type="button" class="remove-image" onclick="removeImage(this)">×</button>
+                    <div class="check-icon">✓</div>
+                    <div class="upload-icon">📷</div>
+                    <label>Oclusal Superior</label>
+                    <p class="upload-text">...</p>
+                    <img class="image-preview" src="{{ estudio.antes_oclusal_superior.url }}" alt="Preview">
+                    <input type="file" name="antes_oclusal_superior" accept="image/*" 
+                    {% if not estudio.antes_oclusal_superior %}required{% endif %} onchange="handleFileSelect(this)">
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="upload-box {% if estudio.antes_lateral_izquierda %}has-image{% endif %}" data-tipo="antes"
+                    data-name="antes_lateral_izquierda">
+                    <button type="button" class="remove-image" onclick="removeImage(this)">×</button>
+                    <div class="check-icon">✓</div>
+                    <div class="upload-icon">📷</div>
+                    <label>Lateral Izquierda</label>
+                    <p class="upload-text">...</p>
+                    <img class="image-preview" src="{{ estudio.antes_lateral_izquierda.url }}" alt="Preview">
+                    <input type="file" name="antes_lateral_izquierda" accept="image/*" 
+                    {% if not estudio.antes_lateral_izquierda %}required{% endif %} onchange="handleFileSelect(this)">
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="upload-box {% if estudio.antes_frontal %}has-image{% endif %}" data-tipo="antes"
+                    data-name="antes_frontal">
+                    <button type="button" class="remove-image" onclick="removeImage(this)">×</button>
+                    <div class="check-icon">✓</div>
+                    <div class="upload-icon">📷</div>
+                    <label>Frontal</label>
+                    <p class="upload-text">...</p>
+                    <img class="image-preview" src="{{ estudio.antes_frontal.url }}" alt="Preview">
+                    <input type="file" name="antes_frontal" accept="image/*" 
+                    {% if not estudio.antes_frontal %}required{% endif %} onchange="handleFileSelect(this)">
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="upload-box {% if estudio.antes_lateral_derecha %}has-image{% endif %}" data-tipo="antes"
+                    data-name="antes_lateral_derecha">
+                    <button type="button" class="remove-image" onclick="removeImage(this)">×</button>
+                    <div class="check-icon">✓</div>
+                    <div class="upload-icon">📷</div>
+                    <label>Lateral Derecha</label>
+                    <p class="upload-text">...</p>
+                    <img class="image-preview" src="{{ estudio.antes_lateral_derecha.url }}" alt="Preview">
+                    <input type="file" name="antes_lateral_derecha" accept="image/*" 
+                    {% if not estudio.antes_lateral_derecha %}required{% endif %} onchange="handleFileSelect(this)">
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="upload-box {% if estudio.antes_oclusal_inferior %}has-image{% endif %}" data-tipo="antes"
+                    data-name="antes_oclusal_inferior">
+                    <button type="button" class="remove-image" onclick="removeImage(this)">×</button>
+                    <div class="check-icon">✓</div>
+                    <div class="upload-icon">📷</div>
+                    <label>Oclusal Inferior</label>
+                    <p class="upload-text">...</p>
+                    <img class="image-preview" src="{{ estudio.antes_oclusal_inferior.url }}" alt="Preview">
+                    <input type="file" name="antes_oclusal_inferior" accept="image/*" 
+                    {% if not estudio.antes_oclusal_inferior %}required{% endif %} onchange="handleFileSelect(this)">
+                </div>
+            </div>
+        </div>
+
+        <div class="section-header">
+        </div>
+        <div class="alert alert-info">
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="upload-box {% if estudio.despues_perfil %}has-image{% endif %}" data-tipo="despues"
+                    data-name="despues_perfil">
+                    <button type="button" class="remove-image" onclick="removeImage(this)">×</button>
+                    <div class="check-icon">✓</div>
+                    <div class="upload-icon">📷</div>
+                    <label>Perfil</label>
+                    <p class="upload-text">...</p>
+                    <img class="image-preview" src="{{ estudio.despues_perfil.url }}" alt="Preview">
+                    <input type="file" name="despues_perfil" accept="image/*" onchange="handleFileSelect(this)">
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="upload-box {% if estudio.despues_retrato_frontal %}has-image{% endif %}" data-tipo="despues"
+                    data-name="despues_retrato_frontal">
+                    <button type="button" class="remove-image" onclick="removeImage(this)">×</button>
+                    <div class="check-icon">✓</div>
+                    <div class="upload-icon">📷</div>
+                    <label>Retrato Frontal</label>
+                    <p class="upload-text">...</p>
+                    <img class="image-preview" src="{{ estudio.despues_retrato_frontal.url }}" alt="Preview">
+                    <input type="file" name="despues_retrato_frontal" accept="image/*"
+                        onchange="handleFileSelect(this)">
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="upload-box {% if estudio.despues_semiperfil %}has-image{% endif %}" data-tipo="despues"
+                    data-name="despues_semiperfil">
+                    <button type="button" class="remove-image" onclick="removeImage(this)">×</button>
+                    <div class="check-icon">✓</div>
+                    <div class="upload-icon">📷</div>
+                    <label>Semiperfil</label>
+                    <p class="upload-text">...</p>
+                    <img class="image-preview" src="{{ estudio.despues_semiperfil.url }}" alt="Preview">
+                    <input type="file" name="despues_semiperfil" accept="image/*" onchange="handleFileSelect(this)">
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="upload-box {% if estudio.despues_retrato_sonrisa %}has-image{% endif %}" data-tipo="despues"
+                    data-name="despues_retrato_sonrisa">
+                    <button type="button" class="remove-image" onclick="removeImage(this)">×</button>
+                    <div class="check-icon">✓</div>
+                    <div class="upload-icon">📷</div>
+                    <label>Retrato Sonrisa</label>
+                    <p class="upload-text">...</p>
+                    <img class="image-preview" src="{{ estudio.despues_retrato_sonrisa.url }}" alt="Preview">
+                    <input type="file" name="despues_retrato_sonrisa" accept="image/*"
+                        onchange="handleFileSelect(this)">
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-guardar" id="btnGuardar" {% if not estudio %}disabled{% endif %}>
+                <i class="fas fa-save me-2"></i>
+                {% if estudio %}Actualizar Estudio{% else %}Guardar Estudio{% endif %}
+            </button>
+
+            {% if visualizar_activado %}
+            <a href="{% url 'visualizar_estudio' paciente.id %}" class="btn btn-guardar" id="btnVer">
+                <i class="fas fa-eye me-2"></i>
+                Visualizar Estudio
+            </a>
+            {% else %}
+            <button type="button" class="btn btn-guardar" id="btnVer" disabled>
+                <i class="fas fa-eye me-2"></i>
+                Visualizar Estudio
+            </button>
+            {% endif %}
+
+        </div>
+    </form>
+</div>
+
+<script>
+    // Contadores
+    let contadorAntes = 0;
+    let contadorDespues = 0;
+    const totalAntes = 5;
+    const totalDespues = 4;
+
+    // Manejar selección de archivo
+    function handleFileSelect(input) {
+        const file = input.files[0];
+        const uploadBox = input.closest('.upload-box');
+        const preview = uploadBox.querySelector('.image-preview');
+
+        if (file) {
+            // Validar tamaño (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('El archivo es muy grande. Tamaño máximo: 5MB');
+                input.value = '';
+                return;
+            }
+
+            // Validar tipo
+            if (!file.type.match('image.*')) {
+                alert('Por favor selecciona una imagen válida');
+                input.value = '';
+                return;
+            }
+
+            // Mostrar preview
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                uploadBox.classList.add('has-image');
+                updateCounter(uploadBox.dataset.tipo);
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Remover imagen
+    function removeImage(button) {
+        const uploadBox = button.closest('.upload-box');
+        const input = uploadBox.querySelector('input[type="file"]');
+        const preview = uploadBox.querySelector('.image-preview');
+
+        input.value = '';
+        preview.src = '';
+        uploadBox.classList.remove('has-image');
+
+        updateCounter(uploadBox.dataset.tipo);
+    }
+
+    // Actualizar contadores
+    function updateCounter(tipo) {
+        if (tipo === 'antes') {
+            contadorAntes = document.querySelectorAll('.upload-box[data-tipo="antes"].has-image').length;
+            document.getElementById('counterAntes').textContent = `${contadorAntes}/${totalAntes}`;
+
+            if (contadorAntes === totalAntes) {
+                document.getElementById('progressTextAntes').innerHTML = '<i class="fas fa-check-circle me-2"></i>¡Perfecto! Todas las fotografías "Antes" están completas';
+                document.getElementById('progressTextAntes').style.color = '#28a745';
+            } else {
+                document.getElementById('progressTextAntes').textContent = `Completa las ${totalAntes - contadorAntes} fotografías restantes`;
+                document.getElementById('progressTextAntes').style.color = '#6c757d';
+            }
+        } else {
+            contadorDespues = document.querySelectorAll('.upload-box[data-tipo="despues"].has-image').length;
+            document.getElementById('counterDespues').textContent = `${contadorDespues}/${totalDespues}`;
+        }
+
+        // Habilitar/deshabilitar botón
+        document.getElementById('btnGuardar').disabled = contadorAntes < totalAntes;
+    }
+
+    // Drag and Drop
+    document.querySelectorAll('.upload-box').forEach(box => {
+        box.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            box.style.borderColor = '#00A9E2';
+            box.style.backgroundColor = '#f0f8ff';
+        });
+
+        box.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            box.style.borderColor = '#dee2e6';
+            box.style.backgroundColor = '';
+        });
+
+        box.addEventListener('drop', (e) => {
+            e.preventDefault();
+            box.style.borderColor = '#dee2e6';
+            box.style.backgroundColor = '';
+
+            const input = box.querySelector('input[type="file"]');
+            const files = e.dataTransfer.files;
+
+            if (files.length > 0) {
+                input.files = files;
+                handleFileSelect(input);
+            }
+        });
+    });
+
+    // Establecer fecha actual como default
+    const fechaInput = document.getElementById('id_fecha_inicio');
+    if (fechaInput && !fechaInput.value) {
+        fechaInput.valueAsDate = new Date();
+    }
+
+    //Añadimos un listener para que se ejecute cuando cargue la página-- -
+    document.addEventListener('DOMContentLoaded', function () {
+
+        // 1. Actualiza los contadores con las imágenes ya cargadas
+        //    (Tu CSS añade 'has-image' y el JS de abajo lo contará)
+        updateCounter('antes');
+        updateCounter('despues');
+
+        // 2. Establece la fecha de hoy, SOLO si el campo está vacío
+        //    (Tu código original para esto es perfecto)
+        const fechaInput = document.getElementById('fecha_inicio');
+        if (fechaInput && !fechaInput.value) {
+            fechaInput.valueAsDate = new Date();
+        }
+
+        // 3. Habilitar el botón de guardar si ya existe un estudio
+        //    (Incluso si el contador es 0, si 'estudio' existe, está bien)
+        {% if estudio %}
+        document.getElementById('btnGuardar').disabled = false;
+        {% endif %}
+    });
+</script>
+
+{% endblock %}

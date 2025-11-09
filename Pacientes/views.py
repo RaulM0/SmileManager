@@ -1,9 +1,10 @@
-from datetime import datetime
+from datetime import date, datetime
+import traceback
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from SmileManager import settings
-from .models import Paciente, AntescedentesMedicos, Consulta, ImagenesClinicas, Odontograma
+from .models import Paciente, AntescedentesMedicos, Consulta, ImagenesClinicas, Odontograma, EstudioComparativo
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import render
@@ -12,8 +13,10 @@ from django.core.mail import send_mail
 from django.db.models.functions import Concat
 from django.db.models import Value
 import json
-
+from .forms import EstudioComparativoForm
 from django.views.decorators.csrf import csrf_exempt
+from .PDF import pdf_progreso
+
 
 
 # Create your views here.
@@ -491,3 +494,70 @@ def guardar_odontograma(request, paciente_id):
         })
 
     return JsonResponse({'status': 'error', 'mensaje': 'Método no permitido'}, status=405)
+
+
+#Progreso del paciente (Before & After)
+
+def progreso(request, paciente_id):
+    paciente = get_object_or_404(Paciente, id=paciente_id, medico=request.user)
+    estudio = EstudioComparativo.objects.filter(paciente=paciente).order_by('-fecha_creacion').first()    
+    form = EstudioComparativoForm(instance=estudio)
+    visualizar_activado = True if estudio else False
+    
+    context = {
+        'paciente': paciente,
+        'form': form,              
+        'estudio': estudio,          
+        'visualizar_activado': visualizar_activado
+    }
+    
+    # Asegúrate de que el path del template sea el correcto
+    return render(request, 'before_after/progreso.html', context)
+
+def estudio_comparativo_view(request, paciente_id):
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+    estudio = EstudioComparativo.objects.filter(paciente=paciente).first()
+
+    if request.method == 'POST':
+        form = EstudioComparativoForm(request.POST, request.FILES, instance=estudio)
+        if form.is_valid():
+            nuevo_estudio = form.save(commit=False)
+            nuevo_estudio.paciente = paciente
+            nuevo_estudio.save()
+            messages.success(request, "✅ El estudio se ha guardado correctamente.")
+            return redirect('estudio_comparativo', paciente_id=paciente.id)
+        else:
+            messages.error(request, "⚠️ Ocurrió un error al guardar el estudio. Verifica los datos ingresados.")
+    else:
+        form = EstudioComparativoForm(instance=estudio)
+
+    context = {
+        'paciente': paciente,
+        'form': form,
+        'estudio': estudio,
+        'visualizar_activado': estudio is not None,
+    }
+    return render(request, 'before_After/estudio_comparativo.html', context)
+
+def visualizar_estudio(request, paciente_id):
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+    estudio = get_object_or_404(EstudioComparativo, paciente=paciente)
+
+    # Calcular edad
+    edad = None
+    if paciente.fecha_nacimiento:
+        hoy = date.today()
+        edad = hoy.year - paciente.fecha_nacimiento.year - (
+            (hoy.month, hoy.day) < (paciente.fecha_nacimiento.month, paciente.fecha_nacimiento.day)
+        )
+
+    context = {
+        'paciente': paciente,
+        'estudio': estudio,
+        'edad': edad if edad is not None else "N/A"
+    }
+
+    return render(request, 'before_After/estudio_comparativo.html', context)
+
+def descargar_pdf_estudio(request, paciente_id):
+    return pdf_progreso(request, paciente_id)

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            color: #333;
+            font-size: 12px;
+        }
+
+        h1 {
+            background-color: #005A78;
+            color: white;
+            text-align: center;
+            padding: 6px 0;
+            font-size: 18px;
+        }
+
+        .section {
+            page-break-after: always;
+            text-align: center;
+        }
+
+        .info {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 11px;
+        }
+
+        /* --- INICIO DE NUEVOS ESTILOS PARA MAQUETACIÓN --- */
+
+        /* Estilo general para las tablas de maquetación */
+        .layout-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed; /* Importante para PDF */
+            margin: 20px 0; /* Espacio antes y después de la tabla */
+        }
+
+        .layout-table td {
+            text-align: center;
+            vertical-align: middle;
+            padding: 5px;
+        }
+
+        /* Estilo base para todas las imágenes dentro de las tablas */
+        .layout-table img {
+            height: auto;
+            border: 1px solid #ccc;
+            padding: 3px;
+            box-sizing: border-box; /* Buen hábito */
+        }
+
+        /* --- Maquetación Intraoral (5 fotos) --- */
+        .intraoral-layout td {
+            width: 33.33%; /* 3 columnas */
+        }
+        .intraoral-layout img {
+            width: 170px; /* Ancho fijo para las fotos pequeñas */
+        }
+
+        /* --- Maquetación Extraoral (4 fotos) --- */
+        .extraoral-layout td {
+            width: 50%; /* 2 columnas */
+        }
+        .extraoral-layout img {
+            width: 210px; /* Fotos más grandes, como en tu ejemplo */
+        }
+
+        /* --- FIN DE NUEVOS ESTILOS --- */
+    </style>
+</head>
+
+<body>
+
+    <!-- 
+      PÁGINA 1: MAQUETACIÓN INTRAORAL
+      Usamos una tabla de 3x3 para la maquetación en cruz.
+    -->
+    <div class="section">
+        <h1>ANTES - FOTOGRAFÍAS INTRAORALES</h1>
+        
+        <table class="layout-table intraoral-layout">
+            <!-- Fila 1: Oclusal Superior (en celda central) -->
+            <tr>
+                <td></td> <!-- Celda vacía -->
+                <td>
+                    {% if antes_oclusal_superior %}
+                        <img src="{{ antes_oclusal_superior.url }}">
+                    {% endif %}
+                </td>
+                <td></td> <!-- Celda vacía -->
+            </tr>
+            
+            <!-- Fila 2: Laterales y Frontal -->
+            <tr>
+                <td>
+                    {% if antes_lateral_izquierda %}
+                        <img src="{{ antes_lateral_izquierda.url }}">
+                    {% endif %}
+                </td>
+                <td>
+                    {% if antes_frontal %}
+                        <img src="{{ antes_frontal.url }}">
+                    {% endif %}
+                </td>
+                <td>
+                    {% if antes_lateral_derecha %}
+                        <img src="{{ antes_lateral_derecha.url }}">
+                    {% endif %}
+                </td>
+            </tr>
+
+            <!-- Fila 3: Oclusal Inferior (en celda central) -->
+            <tr>
+                <td></td> <!-- Celda vacía -->
+                <td>
+                    {% if antes_oclusal_inferior %}
+                        <img src="{{ antes_oclusal_inferior.url }}">
+                    {% endif %}
+                </td>
+                <td></td> <!-- Celda vacía -->
+            </tr>
+        </table>
+
+        <div class="info">
+            <strong>Paciente:</strong> {{ paciente.nombre }} {{ paciente.appat }} {{ paciente.apmat }}<br>
+            <strong>Edad:</strong> {{ edad }} años<br>
+            <strong>Fecha de inicio:</strong> {{ fecha_tratamiento }}
+        </div>
+    </div>
+
+    <!-- 
+      PÁGINA 2: MAQUETACIÓN EXTRAORAL
+      Usamos una tabla de 2x2.
+    -->
+    <div class="section">
+        <h1>DESPUÉS - FOTOGRAFÍAS EXTRAORALES</h1>
+        
+        <table class="layout-table extraoral-layout">
+            <!-- Fila 1 -->
+            <tr>
+                <td>
+                    {% if despues_perfil %}
+                        <img src="{{ despues_perfil.url }}">
+                    {% endif %}
+                </td>
+                <td>
+                    {% if despues_retrato_frontal %}
+                        <img src="{{ despues_retrato_frontal.url }}">
+                    {% endif %}
+                </td>
+            </tr>
+
+            <!-- Fila 2 -->
+            <tr>
+                <td>
+                    {% if despues_semiperfil %}
+                        <img src="{{ despues_semiperfil.url }}">
+                    {% endif %}
+                </td>
+                <td>
+                    {% if despues_retrato_sonrisa %}
+                        <img src="{{ despues_retrato_sonrisa.url }}">
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+
+        <div class="info">
+            <strong>Paciente:</strong> {{ paciente.nombre }} {{ paciente.appat }} {{ paciente.apmat }}<br>
+            <strong>Edad:</strong> {{ edad }} años<br>
+            <strong>Fecha de inicio:</strong> {{ fecha_tratamiento }}
+        </div>
+    </div>
+
+
+</body>
+
+</html>

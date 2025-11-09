@@ -1,0 +1,477 @@
+{% extends 'Dentista/base.html'%}
+{% load static %}
+{% block content %}
+
+<style>
+    :root {
+        --color-principal: #005A78;
+        --color-acento: #00A9E2;
+    }
+
+    .visualizacion-container {
+        max-width: 1800px;
+        margin: 30px auto;
+        padding: 30px;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .header-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 3px solid var(--color-acento);
+    }
+
+    .btn-action {
+        padding: 12px 30px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-regresar {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .btn-regresar:hover {
+        background-color: #5a6268;
+        transform: translateY(-2px);
+    }
+
+    .btn-descargar {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .btn-descargar:hover {
+        background-color: #218838;
+        transform: translateY(-2px);
+    }
+
+    /* Contenedor para imprimir */
+    #contenido-pdf {
+        background-color: #2d2d2d;
+        padding: 50px;
+        border-radius: 12px;
+    }
+
+    /* Layout vertical: ANTES arriba, DESPUÉS abajo */
+    .comparacion-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 50px;
+    }
+
+    .seccion-panel {
+        background-color: #1a1a1a;
+        padding: 40px;
+        border-radius: 12px;
+        border: 3px solid #3a3a3a;
+    }
+
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 3px solid #4a4a4a;
+    }
+
+    .panel-title {
+        color: #ffffff;
+        font-size: 28px;
+        font-weight: bold;
+        margin: 0;
+    }
+
+    .panel-badge {
+        background-color: var(--color-acento);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    /* Grid de imágenes ANTES (1-3-1) */
+    .grid-antes {
+        display: grid;
+        gap: 20px;
+        grid-template-areas:
+            "superior superior superior"
+            "izq frontal der"
+            "inferior inferior inferior";
+        margin-bottom: 30px;
+    }
+
+    .imagen-box[data-pos="superior"] {
+        grid-area: superior;
+    }
+
+    .imagen-box[data-pos="izq"] {
+        grid-area: izq;
+    }
+
+    .imagen-box[data-pos="frontal"] {
+        grid-area: frontal;
+    }
+
+    .imagen-box[data-pos="der"] {
+        grid-area: der;
+    }
+
+    .imagen-box[data-pos="inferior"] {
+        grid-area: inferior;
+    }
+
+    /* Grid de imágenes DESPUÉS (2x2) */
+    .grid-despues {
+        display: grid;
+        gap: 20px;
+        grid-template-columns: repeat(2, 1fr);
+        margin-bottom: 30px;
+    }
+
+    .imagen-box {
+        background-color: #000;
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+        aspect-ratio: 4/3;
+        border: 2px solid #2a2a2a;
+        transition: transform 0.3s ease;
+    }
+
+    .imagen-box:hover {
+        transform: scale(1.02);
+        border-color: var(--color-acento);
+    }
+
+    .imagen-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .imagen-label {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 5px 12px;
+        border-radius: 5px;
+        font-size: 12px;
+        font-weight: 600;
+        z-index: 10;
+    }
+
+    .imagen-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+        font-size: 16px;
+        background-color: #1a1a1a;
+        gap: 10px;
+    }
+
+    .imagen-placeholder i {
+        font-size: 48px;
+        color: #444;
+    }
+
+    .info-paciente {
+        color: #ffffff;
+        font-size: 15px;
+        padding: 20px;
+        background-color: #000;
+        border-radius: 10px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        text-align: center;
+    }
+
+    .info-item {
+        padding: 10px;
+    }
+
+    .info-item strong {
+        display: block;
+        color: var(--color-acento);
+        margin-bottom: 5px;
+        font-size: 13px;
+    }
+
+    .info-item span {
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    @media print {
+        .header-actions {
+            display: none !important;
+        }
+
+        body {
+            background: #2d2d2d;
+        }
+
+        .visualizacion-container {
+            box-shadow: none;
+            margin: 0;
+            padding: 20px;
+        }
+
+        #contenido-pdf {
+            page-break-inside: avoid;
+        }
+
+        .seccion-panel {
+            page-break-inside: avoid;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .grid-antes {
+            grid-template-areas:
+                "superior"
+                "izq"
+                "frontal"
+                "der"
+                "inferior";
+            grid-template-columns: 1fr;
+        }
+
+        .grid-despues {
+            grid-template-columns: 1fr;
+        }
+
+        .info-paciente {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="visualizacion-container">
+    <!-- Header con botones -->
+    <div class="header-actions">
+        <a href="{% url 'progreso' paciente.id %}" class="btn btn-action btn-regresar">
+            <i class="fas fa-arrow-left me-2"></i>
+            Regresar
+        </a>
+
+        <h2 class="mb-0" style="color: var(--color-principal);">
+            <i class="fas fa-eye me-2"></i>
+            Visualización del Estudio Comparativo
+        </h2>
+
+        <!-- Reemplaza el botón actual -->
+        <a href="{% url 'descargar_pdf_estudio' estudio.paciente.id %}" class="btn btn-action btn-descargar"
+            target="_blank">
+            <i class="fas fa-file-pdf me-2"></i>
+            Descargar PDF
+        </a>
+
+        <!-- ELIMINA el script de html2pdf.js -->
+    </div>
+
+    <!-- Contenido para PDF -->
+    <div id="contenido-pdf">
+        <div class="comparacion-layout">
+
+            <!-- Panel ANTES -->
+            <div class="seccion-panel">
+                <div class="panel-header">
+                    <h3 class="panel-title">
+                        <i class="fas fa-tooth me-3"></i>
+                        ANTES - FOTOGRAFÍAS INTRAORALES
+                    </h3>
+                    <span class="panel-badge">Inicio del Tratamiento</span>
+                </div>
+
+                <div class="grid-antes">
+                    <!-- Oclusal Superior -->
+                    <div class="imagen-box" data-pos="superior">
+                        <div class="imagen-label">Oclusal Superior</div>
+                        {% if estudio.antes_oclusal_superior %}
+                        <img src="{{ estudio.antes_oclusal_superior.url }}" alt="Oclusal Superior">
+                        {% else %}
+                        <div class="imagen-placeholder">
+                            <i class="fas fa-image"></i>
+                            <span>Sin imagen</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Lateral Izquierda -->
+                    <div class="imagen-box" data-pos="izq">
+                        <div class="imagen-label">Lateral Izquierda</div>
+                        {% if estudio.antes_lateral_izquierda %}
+                        <img src="{{ estudio.antes_lateral_izquierda.url }}" alt="Lateral Izquierda">
+                        {% else %}
+                        <div class="imagen-placeholder">
+                            <i class="fas fa-image"></i>
+                            <span>Sin imagen</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Frontal -->
+                    <div class="imagen-box" data-pos="frontal">
+                        <div class="imagen-label">Frontal</div>
+                        {% if estudio.antes_frontal %}
+                        <img src="{{ estudio.antes_frontal.url }}" alt="Frontal">
+                        {% else %}
+                        <div class="imagen-placeholder">
+                            <i class="fas fa-image"></i>
+                            <span>Sin imagen</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Lateral Derecha -->
+                    <div class="imagen-box" data-pos="der">
+                        <div class="imagen-label">Lateral Derecha</div>
+                        {% if estudio.antes_lateral_derecha %}
+                        <img src="{{ estudio.antes_lateral_derecha.url }}" alt="Lateral Derecha">
+                        {% else %}
+                        <div class="imagen-placeholder">
+                            <i class="fas fa-image"></i>
+                            <span>Sin imagen</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Oclusal Inferior -->
+                    <div class="imagen-box" data-pos="inferior">
+                        <div class="imagen-label">Oclusal Inferior</div>
+                        {% if estudio.antes_oclusal_inferior %}
+                        <img src="{{ estudio.antes_oclusal_inferior.url }}" alt="Oclusal Inferior">
+                        {% else %}
+                        <div class="imagen-placeholder">
+                            <i class="fas fa-image"></i>
+                            <span>Sin imagen</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Info del paciente -->
+                <div class="info-paciente">
+                    <div class="info-item">
+                        <strong>NOMBRE DEL PACIENTE</strong>
+                        <span>{{ estudio.paciente.nombre|upper }} {{ estudio.paciente.appat|upper }} 
+                            {{estudio.paciente.apmat|upper }}</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>EDAD</strong>
+                        <span>{{ edad }}</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>FECHA DE INICIO</strong>
+                        <span>{{ estudio.fecha_inicio|date:"d/m/Y" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel DESPUÉS -->
+            <div class="seccion-panel">
+                <div class="panel-header">
+                    <h3 class="panel-title">
+                        <i class="fas fa-smile me-3"></i>
+                        DESPUÉS - FOTOGRAFÍAS EXTRAORALES
+                    </h3>
+                    <span class="panel-badge" style="background-color: #28a745;">Resultado del Tratamiento</span>
+                </div>
+
+                <div class="grid-despues">
+                    <!-- Perfil -->
+                    <div class="imagen-box">
+                        <div class="imagen-label">Perfil</div>
+                        {% if estudio.despues_perfil %}
+                        <img src="{{ estudio.despues_perfil.url }}" alt="Perfil">
+                        {% else %}
+                        <div class="imagen-placeholder">
+                            <i class="fas fa-image"></i>
+                            <span>Sin imagen - Perfil</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Retrato Frontal -->
+                    <div class="imagen-box">
+                        <div class="imagen-label">Retrato Frontal</div>
+                        {% if estudio.despues_retrato_frontal %}
+                        <img src="{{ estudio.despues_retrato_frontal.url }}" alt="Retrato Frontal">
+                        {% else %}
+                        <div class="imagen-placeholder">
+                            <i class="fas fa-image"></i>
+                            <span>Sin imagen - Retrato</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Semiperfil -->
+                    <div class="imagen-box">
+                        <div class="imagen-label">Semiperfil</div>
+                        {% if estudio.despues_semiperfil %}
+                        <img src="{{ estudio.despues_semiperfil.url }}" alt="Semiperfil">
+                        {% else %}
+                        <div class="imagen-placeholder">
+                            <i class="fas fa-image"></i>
+                            <span>Sin imagen - Semiperfil</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Retrato Sonrisa -->
+                    <div class="imagen-box">
+                        <div class="imagen-label">Retrato Sonrisa</div>
+                        {% if estudio.despues_retrato_sonrisa %}
+                        <img src="{{ estudio.despues_retrato_sonrisa.url }}" alt="Retrato Sonrisa">
+                        {% else %}
+                        <div class="imagen-placeholder">
+                            <i class="fas fa-image"></i>
+                            <span>Sin imagen - Sonrisa</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Info del paciente -->
+                <div class="info-paciente">
+                    <div class="info-item">
+                        <strong>NOMBRE DEL PACIENTE</strong>
+                        <span>{{ estudio.paciente.nombre|upper }} {{ estudio.paciente.appat|upper }} 
+                            {{estudio.paciente.apmat|upper }}</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>EDAD</strong>
+                        <span>{{ edad }}</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>{% if estudio.diagnostico %}DIAGNÓSTICO{% else %}ESTADO{% endif %}</strong>
+                        <span>{% if estudio.diagnostico %}{{ estudio.diagnostico }}{% else %}En tratamiento{% endif %}</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

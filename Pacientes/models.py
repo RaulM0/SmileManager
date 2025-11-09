@@ -101,6 +101,7 @@ class ImagenesClinicas(models.Model):
     def __str__(self):
         return f"Imagen clinica de {self.paciente.nombre} {self.paciente.appat} en la consulta del {self.consulta.fecha_consulta.strftime('%Y-%m-%d')}"
 
+# Odontograma
 class Odontograma(models.Model):
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='odontogramas')
     dientes_permanentes = models.JSONField(default=dict)
@@ -112,3 +113,34 @@ class Odontograma(models.Model):
     
     def __str__(self):
         return f"Odontograma de {self.paceinte.nombre} {self.paceinte.appat}"
+    
+# Estidio Comparativo Progreso
+
+class EstudioComparativo(models.Model):
+    paciente = models.ForeignKey('Paciente', on_delete=models.CASCADE)
+    fecha_inicio = models.DateField()
+    diagnostico = models.CharField(max_length=255, blank=True, null=True)
+    observaciones = models.TextField(blank=True, null=True)
+    
+    # Imágenes ANTES
+    antes_oclusal_superior = models.ImageField(upload_to='estudios/antes/', null=True, blank=True)
+    antes_lateral_izquierda = models.ImageField(upload_to='estudios/antes/', null=True, blank=True)
+    antes_frontal = models.ImageField(upload_to='estudios/antes/', null=True, blank=True)
+    antes_lateral_derecha = models.ImageField(upload_to='estudios/antes/', null=True, blank=True)
+    antes_oclusal_inferior = models.ImageField(upload_to='estudios/antes/', null=True, blank=True)
+    
+    # Imágenes DESPUÉS
+    despues_perfil = models.ImageField(upload_to='estudios/despues/', null=True, blank=True)
+    despues_semiperfil = models.ImageField(upload_to='estudios/despues/', null=True, blank=True)
+    despues_retrato_frontal = models.ImageField(upload_to='estudios/despues/', null=True, blank=True)
+    despues_retrato_sonrisa = models.ImageField(upload_to='estudios/despues/', null=True, blank=True)
+    
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Estudio Comparativo"
+        verbose_name_plural = "Estudios Comparativos"
+    
+    def __str__(self):
+        return f"Estudio - {self.paciente.nombre} {self.paciente.appat}"
