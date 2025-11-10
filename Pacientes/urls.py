@@ -33,5 +33,5 @@ urlpatterns = [
     path('estudio/<int:paciente_id>/', views.estudio_comparativo_view, name='estudio_comparativo'),
     path('estudio/<int:paciente_id>/visualizar/', views.visualizar_estudio, name='visualizar_estudio'),
     path('estudio/<int:paciente_id>/descargar-pdf/', views.descargar_pdf_estudio, name='descargar_pdf_estudio'),
-
+    path('consentimiento/<int:paciente_id>/', views.consentimiento_informado, name='consentimiento'),
 ]

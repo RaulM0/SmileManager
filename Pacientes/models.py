@@ -144,3 +144,14 @@ class EstudioComparativo(models.Model):
     
     def __str__(self):
         return f"Estudio - {self.paciente.nombre} {self.paciente.appat}"
+    
+# Consentimiento Informado
+class Consentimiento(models.Model):
+    paciente = models.ForeignKey('Paciente', on_delete=models.CASCADE)
+    texto = models.TextField()  # texto legal firmado
+    fecha_aceptacion = models.DateTimeField(auto_now_add=True)
+    archivo_ine = models.FileField(upload_to='consentimientos/ine/', null=True, blank=True)
+    pdf_generado = models.FileField(upload_to='consentimientos/pdf/', null=True, blank=True)
+
+    def __str__(self):
+        return f"Consentimiento de {self.paciente.nombre} - {self.fecha_aceptacion.strftime('%d/%m/%Y')}"

@@ -1,0 +1,294 @@
+{% extends 'Dentista/base.html' %}
+
+{% block content %}
+
+<style>
+    body {
+        background-color: #f9fafb;
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+    }
+
+    .card {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .consent-text {
+        background: #fff;
+        padding: 25px;
+        border-radius: 10px;
+        max-height: 350px;
+        overflow-y: auto;
+        border: 1px solid #dee2e6;
+        line-height: 1.7;
+    }
+
+    .consent-text ul {
+        padding-left: 20px;
+    }
+
+    .consent-text li {
+        margin-bottom: 12px;
+    }
+
+    .btn-primary {
+        background-color: #006d77;
+        border-color: #006d77;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: #005560;
+        border-color: #005560;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 109, 119, 0.3);
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .btn-outline-secondary {
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-secondary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-section {
+        background: linear-gradient(135deg, #006d77 0%, #005560 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(0, 109, 119, 0.2);
+    }
+
+    .info-badge {
+        background-color: rgba(255, 255, 255, 0.2);
+        padding: 8px 15px;
+        border-radius: 20px;
+        display: inline-block;
+        font-size: 0.9rem;
+    }
+
+    .form-check-input:checked {
+        background-color: #006d77;
+        border-color: #006d77;
+    }
+
+    .file-upload-wrapper {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+        width: 100%;
+    }
+
+    .file-upload-wrapper input[type=file] {
+        cursor: pointer;
+    }
+
+    .file-upload-wrapper input[type=file]:disabled {
+        cursor: not-allowed;
+    }
+
+    .alert-info-custom {
+        background-color: #e8f4f5;
+        border-left: 4px solid #006d77;
+        border-radius: 8px;
+    }
+
+    .accepted-info {
+        background-color: #d4edda;
+        border-left: 4px solid #28a745;
+        border-radius: 8px;
+        padding: 20px;
+    }
+
+    .scroll-indicator {
+        text-align: center;
+        color: #6c757d;
+        font-size: 0.85rem;
+        margin-top: 10px;
+    }
+</style>
+
+<body>
+    <div class="container py-4">
+        <!-- Botón de regresar -->
+        <div class="mb-3">
+            <a href="{% url 'menu_historial' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Regresar
+            </a>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-7">
+                <!-- Header mejorado -->
+                <div class="header-section text-center">
+                    <i class="bi bi-file-earmark-text-fill display-4 mb-3"></i>
+                    <h2 class="mb-2">Consentimiento Informado</h2>
+                    <p class="mb-3 opacity-75">Documento de autorización para tratamiento odontológico</p>
+                    {% if form_activo %}
+                    <span class="info-badge">
+                        <i class="bi bi-info-circle me-1"></i>Lectura requerida
+                    </span>
+                    {% else %}
+                    <span class="info-badge">
+                        <i class="bi bi-check-circle me-1"></i>Consentimiento aceptado
+                    </span>
+                    {% endif %}
+                </div>
+
+                <div class="card p-4 p-md-5">
+                    {% if form_activo %}
+                    <!-- Alerta informativa -->
+                    <div class="alert alert-info-custom mb-4" role="alert">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        <strong>Importante:</strong> Por favor, lea cuidadosamente todo el contenido antes de aceptar.
+                    </div>
+                    {% endif %}
+
+                    <!-- Texto del consentimiento -->
+                    <div class="consent-text mb-3">
+                        <p class="fw-bold mb-3">
+                            A través del presente, declaro y manifiesto en pleno uso de mis facultades mentales libre,
+                            responsable y en consecuencia autorizo al doctor lo siguiente:
+                        </p>
+                        <ul>
+                            <li>He sido informado(a) de manera clara, completa y comprendo la necesidad de ser
+                                atendido(a) por el especialista más abajo mencionado.</li>
+                            <li>He sido informado(a) de las alternativas posibles de tratamiento(s) que requiero.</li>
+                            <li>Acepto la realización de cualquier prueba diagnóstica necesaria para el tratamiento
+                                odontológico, incluyendo estudios radiológicos o algún otro servicio médico propuesto a
+                                fin de conocer el estado general de mi salud.</li>
+                            <li>Comprendo la necesidad de utilizar anestesia local para realizar el tratamiento dental
+                                y/o quirúrgico indicado.</li>
+                            <li>Comprendo los posibles riesgos, molestias, efectos secundarios y complicaciones
+                                involucradas en los tratamientos odontológicos o quirúrgicos, y que la duración de estos
+                                fenómenos puede variar.</li>
+                            <li>Comprendo también que la medicina no es una ciencia exacta, por lo que no existen
+                                garantías sobre el resultado exacto de los tratamientos.</li>
+                            <li>Me ha sido explicado los cuidados postoperatorios que debo tener para que el tratamiento
+                                resulte exitoso.</li>
+                        </ul>
+                    </div>
+                    <div class="scroll-indicator">
+                        <i class="bi bi-arrow-down-circle"></i> Desplácese para leer todo el contenido
+                    </div>
+
+                    <hr class="my-4">
+
+                    {% if form_activo %}
+                    <!-- Formulario -->
+                    <form method="POST" enctype="multipart/form-data" id="consentForm">
+                        {% csrf_token %}
+
+                        <div class="mb-4">
+                            <div class="form-check p-3 border rounded" style="background-color: #f8f9fa;">
+                                <input class="form-check-input" type="checkbox" id="aceptoCheck"
+                                    style="margin-top: 0.4rem;">
+                                <label class="form-check-label ms-2" for="aceptoCheck">
+                                    <strong>He leído y acepto los términos del consentimiento informado.</strong>
+                                    <br>
+                                    <small class="text-muted">Al marcar esta casilla confirmo que he leído, entendido y
+                                        acepto todas las condiciones anteriores.</small>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="ine" class="form-label fw-semibold">
+                                <i class="bi bi-upload me-2"></i>Identificación Oficial (INE o Pasaporte)
+                            </label>
+                            <div class="file-upload-wrapper">
+                                <input class="form-control form-control-lg" type="file" name="archivo_ine" id="ine"
+                                    accept="image/*,application/pdf" required disabled>
+                            </div>
+                            <small class="text-muted d-block mt-2">
+                                <i class="bi bi-info-circle me-1"></i>Formatos permitidos: JPG, PNG, GIF, PDF (máx. 5
+                                MB)
+                            </small>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <button type="button" class="btn btn-outline-secondary px-4 me-md-2"
+                                onclick="window.location.href='#'">
+                                <i class="bi bi-x-circle me-1"></i> Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-primary px-5" id="btnSubmit" disabled>
+                                <i class="bi bi-check-circle me-1"></i> Aceptar y Guardar
+                            </button>
+                        </div>
+                    </form>
+
+                    <script>
+                        const checkbox = document.getElementById('aceptoCheck');
+                        const btnSubmit = document.getElementById('btnSubmit');
+                        const fileInput = document.getElementById('ine');
+
+                        checkbox.addEventListener('change', () => {
+                            const isChecked = checkbox.checked;
+                            btnSubmit.disabled = !isChecked;
+                            fileInput.disabled = !isChecked;
+                        });
+
+                        fileInput.addEventListener('change', () => {
+                            const file = fileInput.files[0];
+                            if (file) {
+                                if (file.size > 5 * 1024 * 1024) {
+                                    alert("El archivo no debe superar los 5 MB.");
+                                    fileInput.value = "";
+                                }
+                                const allowed = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
+                                if (!allowed.includes(file.type)) {
+                                    alert("Solo se permiten imágenes o PDF.");
+                                    fileInput.value = "";
+                                }
+                            }
+                        });
+                    </script>
+
+                    {% else %}
+                    <!-- Modo solo lectura -->
+                    <div class="accepted-info">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <i class="bi bi-check-circle-fill text-success display-4"></i>
+                            </div>
+                            <div class="col">
+                                <h5 class="text-success mb-2">
+                                    <i class="bi bi-shield-check me-2"></i>Consentimiento Aceptado
+                                </h5>
+                                <p class="mb-2">
+                                    <strong>Fecha de aceptación:</strong>
+                                    <span class="badge bg-success ms-2">{{ consentimiento.fecha_aceptacion }}</span>
+                                </p>
+                                {% if consentimiento.archivo_ine %}
+                                <p class="mb-0">
+                                    <strong>Documento de identificación:</strong>
+                                    <a href="{{ consentimiento.archivo_ine.url }}" target="_blank"
+                                        class="btn btn-sm btn-outline-success ms-2">
+                                        <i class="bi bi-file-earmark-arrow-down me-1"></i>Ver Archivo
+                                    </a>
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+
+{% endblock %}

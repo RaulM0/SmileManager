@@ -150,6 +150,21 @@
             </div>
         </div>
 
+        <!-- Progreso -->
+        <div class="col-md-6 col-lg-4 col-xl-3">
+            <div class="card card-hover border-0 shadow-sm h-100">
+                <div class="card-body text-center p-4">
+                    <div class="icon-lg bg-info bg-opacity-10 text-info rounded-circle mb-3 mx-auto">
+                    </div>
+                    <h5 class="fw-semibold">Consentimiento Informado</h5>
+                    <p class="text-muted small">Formato de autorización medica</p>
+                    <a href="{% url 'consentimiento' paciente_seleccionado.id %}" class="btn btn-outline-info btn-sm mt-2">
+                        <i class="bi bi-arrow-right"></i> Acceder
+                    </a>
+                </div>
+            </div>
+        </div>
+
     </div>
     {% else %}
     <div class="alert alert-info text-center py-4">

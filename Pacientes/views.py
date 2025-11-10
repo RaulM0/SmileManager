@@ -1,10 +1,10 @@
 from datetime import date, datetime
-import traceback
+import os
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from SmileManager import settings
-from .models import Paciente, AntescedentesMedicos, Consulta, ImagenesClinicas, Odontograma, EstudioComparativo
+from .models import Consentimiento, Paciente, AntescedentesMedicos, Consulta, ImagenesClinicas, Odontograma, EstudioComparativo
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import render
@@ -16,6 +16,8 @@ import json
 from .forms import EstudioComparativoForm
 from django.views.decorators.csrf import csrf_exempt
 from .PDF import pdf_progreso
+from django.utils import timezone
+
 
 
 
@@ -561,3 +563,49 @@ def visualizar_estudio(request, paciente_id):
 
 def descargar_pdf_estudio(request, paciente_id):
     return pdf_progreso(request, paciente_id)
+
+# Consentimiento Informado
+
+def consentimiento_informado(request, paciente_id):
+    paciente = get_object_or_404(Paciente, id=paciente_id, medico=request.user)
+    consentimiento, created = Consentimiento.objects.get_or_create(paciente=paciente)
+
+    # Verificar si ya fue aceptado
+    form_activo = not bool(consentimiento.fecha_aceptacion)
+
+    if request.method == 'POST' and form_activo:
+        texto = request.POST.get('texto', '')
+        archivo_ine = request.FILES.get('archivo_ine')
+
+        # Validación de archivo
+        if archivo_ine:
+            # Validar tamaño máximo 5MB
+            max_size = 5 * 1024 * 1024
+            if archivo_ine.size > max_size:
+                messages.error(request, "El archivo no debe superar los 5 MB.")
+                return redirect('consentimiento', paciente_id=paciente.id)
+
+            # Validar formato (imagen o PDF)
+            valid_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.pdf']
+            ext = os.path.splitext(archivo_ine.name)[1].lower()
+            if ext not in valid_extensions:
+                messages.error(request, "Solo se permiten archivos tipo imagen o PDF.")
+                return redirect('consentimiento', paciente_id=paciente.id)
+
+            consentimiento.archivo_ine = archivo_ine
+
+        consentimiento.texto = texto
+        consentimiento.fecha_aceptacion = timezone.now()
+        consentimiento.save()
+
+        messages.success(request, "Consentimiento guardado correctamente.")
+        return redirect('menu_historial', paciente_id=paciente.id)  
+
+    context = {
+        'paciente': paciente,
+        'consentimiento': consentimiento,
+        'form_activo': form_activo
+    }
+    return render(request, 'consentimiento/consentimiento.html', context)
+
+
