@@ -7,8 +7,6 @@ from datetime import datetime
 from django.core.paginator import Paginator
 from django.db.models import Q
 
-
-
 # Create your views here.
 def menu_citas(request):
     citas = Cita.objects.filter(paciente__medico=request.user).select_related('paciente')

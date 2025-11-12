@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <style>
+      body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f8f9fa;
+        color: #333;
+        padding: 20px;
+      }
+      .container {
+        background-color: white;
+        border-radius: 10px;
+        padding: 25px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      }
+      .header {
+        text-align: center;
+        color: #0066cc;
+      }
+      .info {
+        margin-top: 20px;
+      }
+      .footer {
+        margin-top: 30px;
+        font-size: 0.9em;
+        color: #777;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2 class="header">🦷 Recordatorio de cita dental</h2>
+      <p>Hola <strong>{{ paciente.nombre }}</strong>,</p>
+      <p>Te recordamos que mañana tienes una cita en nuestra clínica.</p>
+      <div class="info">
+        <p><strong>Fecha:</strong> {{ cita.fecha }}</p>
+        <p><strong>Hora:</strong> {{ cita.hora }}</p>
+      </div>
+      <p>Por favor llega 10 minutos antes de tu cita. Si necesitas reprogramarla, contáctanos a la brevedad.</p>
+      <div class="footer">
+        <p>Clínica Dental Sonrisa Perfecta<br>
+        📞 (722) 616-2384 | ✉️ contacto@clinicadental.com</p>
+      </div>
+    </div>
+  </body>
+</html>

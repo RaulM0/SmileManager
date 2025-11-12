@@ -15,3 +15,6 @@ def home(request):
         'citas_hoy': citas_hoy,
         'proximas_citas': proximas_citas
     })
+    
+def aviso_privacidad(request):
+    return render(request, 'aviso_privacidad/aviso_privacidad.html')

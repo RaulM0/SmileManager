@@ -17,6 +17,8 @@ from .forms import EstudioComparativoForm
 from django.views.decorators.csrf import csrf_exempt
 from .PDF import pdf_progreso
 from django.utils import timezone
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
 
 
 
@@ -424,16 +426,40 @@ def contacto(request, id):
 # Mandar un mensaje al paciente
 def enviar_mensaje(request):
     if request.method == "POST":
-        subject = request.POST.get("asunto")  # Asunto del correo
-        message = request.POST.get("mensaje")  # Cuerpo del correo
-        email_from = settings.EMAIL_HOST_USER # Correo de remitente
+        asunto = request.POST.get("asunto")
+        mensaje = request.POST.get("mensaje")
+        destinatario = request.POST.get("email")
 
-        recipient_list = [request.POST.get('email')] # Correo destinatario
-        send_mail( subject, message, email_from, recipient_list )
-        messages.success(request, "Correo enviado exitosamente.")
-        #return render(request, "gracias.html") # formulario de agradecimiento, una vez enviado el correo 
-    
-    return render(request, "pacientes/contactar_pacientes.html") # Formulario de correo
+        if not (asunto and mensaje and destinatario):
+            messages.error(request, "Por favor completa todos los campos.")
+            return redirect('enviar_mensaje')
+
+        # --- versión texto plano ---
+        texto = (
+            f"{mensaje}\n\n"
+            f"Atentamente,\nClínica Dental Sonrisa Perfecta 🦷"
+        )
+
+        # --- versión HTML (usa una plantilla personalizada) ---
+        contexto = {
+            'asunto': asunto,
+            'mensaje': mensaje,
+        }
+        html = render_to_string('emails/mensaje_paciente.html', contexto)
+
+        correo = EmailMultiAlternatives(
+            asunto,
+            texto,
+            settings.EMAIL_HOST_USER,  # remitente configurado en settings.py
+            [destinatario]
+        )
+        correo.attach_alternative(html, 'text/html')
+        correo.send()
+
+        messages.success(request, f"Correo enviado exitosamente a {destinatario}.")
+        return redirect('enviar_mensaje')
+
+    return render(request, "pacientes/contactar_pacientes.html")
 
 
 def odontograma(request, id):
