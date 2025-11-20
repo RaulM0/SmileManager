@@ -25,8 +25,6 @@
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" href="{% url 'editar_paciente' paciente.id %}"><i
                                             class="bi bi-pencil me-2"></i>Editar</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-printer me-2"></i>Imprimir
-                                        ficha</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
@@ -138,62 +136,7 @@
                         </div>
                     </div>
 
-                    <!-- Pestañas para información adicional -->
-                    <div class="mt-4">
-                        <ul class="nav nav-tabs" id="myTab" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="home-tab" data-bs-toggle="tab"
-                                    data-bs-target="#home-tab-pane" type="button" role="tab">
-                                    <i class="bi bi-clipboard2-pulse me-2"></i>Historial Médico
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="profile-tab" data-bs-toggle="tab"
-                                    data-bs-target="#profile-tab-pane" type="button" role="tab">
-                                    <i class="bi bi-calendar-event me-2"></i>Citas
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="contact-tab" data-bs-toggle="tab"
-                                    data-bs-target="#contact-tab-pane" type="button" role="tab">
-                                    <i class="bi bi-cash-coin me-2"></i>Pagos
-                                </button>
-                            </li>
-                        </ul>
-                        <div class="tab-content p-3 border border-top-0 rounded-bottom" id="myTabContent">
-                            <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel">
-                                <div class="text-center py-4">
-                                    <i class="bi bi-clipboard2-pulse display-4 text-muted mb-3"></i>
-                                    <h5 class="text-muted">Historial médico no disponible</h5>
-                                    <p class="text-muted">Aquí se mostrará el historial dental completo del paciente</p>
-                                    <button class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-plus-lg me-1"></i> Agregar registro
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="tab-pane fade" id="profile-tab-pane" role="tabpanel">
-                                <div class="text-center py-4">
-                                    <i class="bi bi-calendar-event display-4 text-muted mb-3"></i>
-                                    <h5 class="text-muted">No hay citas registradas</h5>
-                                    <p class="text-muted">Aquí se mostrará el historial de citas del paciente</p>
-                                    <button class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-plus-lg me-1"></i> Agendar cita
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="tab-pane fade" id="contact-tab-pane" role="tabpanel">
-                                <div class="text-center py-4">
-                                    <i class="bi bi-cash-coin display-4 text-muted mb-3"></i>
-                                    <h5 class="text-muted">No hay registros de pago</h5>
-                                    <p class="text-muted">Aquí se mostrará el historial de pagos del paciente</p>
-                                    <button class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-plus-lg me-1"></i> Registrar pago
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                    
 
                 <div class="card-footer bg-white border-0 text-center py-3">
                     <a href="{% url 'buscar_pacientes' %}" class="btn btn-outline-secondary me-2">

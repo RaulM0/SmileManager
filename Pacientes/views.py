@@ -344,6 +344,7 @@ def exportar_pacientes(request):
         
     return response
 
+
 def exportar_consultas(request):
     # Solo consultas de pacientes del médico logueado
     consultas = Consulta.objects.filter(
