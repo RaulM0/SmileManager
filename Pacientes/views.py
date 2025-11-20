@@ -206,14 +206,6 @@ def antecedentes(request, id):
     }
     return render(request, 'historialMedico/antecedentes.html', context)
         
-
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from datetime import datetime
-from .models import Paciente, Consulta
-
-
 def consultas(request, id):
     paciente = get_object_or_404(Paciente, id=id, medico=request.user)
     fecha = datetime.today().date().strftime('%Y-%m-%d')
@@ -351,11 +343,6 @@ def exportar_pacientes(request):
         df.to_excel(writer, sheet_name= 'Pacientes', index=False)
         
     return response
-
-from django.http import HttpResponse
-from django.contrib.auth.decorators import login_required
-import pandas as pd
-from .models import Consulta
 
 def exportar_consultas(request):
     # Solo consultas de pacientes del médico logueado
