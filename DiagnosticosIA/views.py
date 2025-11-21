@@ -51,22 +51,28 @@ def diagnosticos(request):
     })
 
 def resultados(request, imagen_id):
-    # Obtener la imagen clínica
     imagen_obj = get_object_or_404(ImagenesClinicas, id=imagen_id, paciente__medico=request.user)
     img_path = imagen_obj.imagen.path
 
+    # Directorio temporal de escritura en el servidor (ej: /tmp/detecciones)
+    temp_results_dir = os.path.join(settings.MEDIA_ROOT, 'detecciones_yolo')
+    os.makedirs(temp_results_dir, exist_ok=True)
+    
+    output_file = None # Inicializar la variable de ruta del archivo de salida
+    detecciones = []
+
     try:
-        # Ejecutar la detección
+        # Ejecutar la detección. YOLO creará una subcarpeta (pred) dentro de temp_results_dir
         results = model.predict(
             img_path,
             save=True,
-            project=os.path.join(settings.MEDIA_ROOT, 'detecciones'),
+            project=temp_results_dir, # Usamos el directorio temporal
             name='pred'
         )
 
-        # Obtener la ruta de la imagen generada
-        save_dir = str(results[0].save_dir)
-        output_file = None
+        # 1. Encontrar el archivo de imagen generado por YOLO
+        save_dir = str(results[0].save_dir) # La ruta final que YOLO usó (ej: /tmp/media/detecciones_yolo/pred)
+        
         for file in os.listdir(save_dir):
             if file.lower().endswith(('.jpg', '.png', '.jpeg', '.webp')):
                 output_file = os.path.join(save_dir, file)
@@ -75,12 +81,12 @@ def resultados(request, imagen_id):
         if not output_file or not os.path.exists(output_file):
             raise FileNotFoundError(f"No se encontró la imagen procesada en {save_dir}")
 
-        # Guardar el resultado en ImageField
+        # 2. Subir el resultado a S3 usando el campo de Django
         with open(output_file, 'rb') as f:
+            # .save() con django-storages subirá el archivo a S3
             imagen_obj.resultados.save(os.path.basename(output_file), File(f), save=True)
 
-        # Extraer información de las detecciones para mostrar en la plantilla
-        detecciones = []
+        # 3. Extraer información de las detecciones
         boxes = results[0].boxes
         for i, cls in enumerate(boxes.cls):
             detecciones.append({
@@ -92,12 +98,17 @@ def resultados(request, imagen_id):
     except Exception as e:
         return render(request, 'diagnosticos/resultados.html', {
             'imagen': imagen_obj,
-            'error': str(e)
+            'error': f"Error al ejecutar YOLO: {str(e)}"
         })
+
+    finally:
+        # 4. Limpieza: Eliminar el directorio temporal de la instancia
+        if os.path.exists(temp_results_dir):
+             import shutil
+             shutil.rmtree(temp_results_dir, ignore_errors=True)
 
     return render(request, 'diagnosticos/resultados.html', {
         'imagen': imagen_obj,
         'detecciones': detecciones,
-        'results_image': imagen_obj.resultados.url
+        'results_image': imagen_obj.resultados.url # Esto apuntará a la URL de S3
     })
-    
