@@ -120,22 +120,3 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
-
-# Configuración de URLs
-from django.urls import path, include
-from django.conf import settings
-from django.conf.urls.static import static
-from django.contrib import admin
-
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('home/', include('Home.urls')),
-    path('registroPacientes/', include('Pacientes.urls')),
-    path('menu_citas/', include('Citas.urls')),
-    path('diagnosticos/', include('DiagnosticosIA.urls')),
-    path('sesiones/', include('Sesiones.urls')),
-]
-
-# Sirve media solo en DEBUG
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=BASE_DIR / 'media')
