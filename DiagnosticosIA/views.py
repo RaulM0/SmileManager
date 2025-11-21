@@ -6,6 +6,9 @@ from django.core.files import File
 from SmileManager import settings
 from django.core.paginator import Paginator
 from django.db.models import Count
+import requests
+from io import BytesIO
+import tempfile
 
 # Create your views here.
 
@@ -13,7 +16,7 @@ model_path = os.path.join('train_model', 'best.pt')
 model = YOLO(model_path)
 
 def diagnosticos(request):
-    imagenes = ImagenesClinicas.objects.filter(paciente__medico=request.user).select_related('paciente')
+    imagenes = ImagenesClinicas.objects.filter(paciente__medico=request.user).select_related('paciente').order_by('-fecha_subida')
     
     # Filtros
     paciente_filter = request.GET.get('paciente')
@@ -52,26 +55,35 @@ def diagnosticos(request):
 
 def resultados(request, imagen_id):
     imagen_obj = get_object_or_404(ImagenesClinicas, id=imagen_id, paciente__medico=request.user)
-    img_path = imagen_obj.imagen.path
-
-    # Directorio temporal de escritura en el servidor (ej: /tmp/detecciones)
-    temp_results_dir = os.path.join(settings.MEDIA_ROOT, 'detecciones_yolo')
-    os.makedirs(temp_results_dir, exist_ok=True)
     
-    output_file = None # Inicializar la variable de ruta del archivo de salida
+    # Como la imagen está en S3, necesitamos descargarla temporalmente
+    temp_input_file = None
+    temp_results_dir = None
     detecciones = []
 
     try:
-        # Ejecutar la detección. YOLO creará una subcarpeta (pred) dentro de temp_results_dir
+        # 1. Descargar la imagen desde S3 a un archivo temporal
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as tmp_file:
+            # Obtener la URL de S3 y descargar
+            response = requests.get(imagen_obj.imagen.url)
+            response.raise_for_status()
+            tmp_file.write(response.content)
+            temp_input_file = tmp_file.name
+        
+        # 2. Crear directorio temporal para resultados
+        temp_results_dir = tempfile.mkdtemp(prefix='yolo_results_')
+        
+        # 3. Ejecutar la detección
         results = model.predict(
-            img_path,
+            temp_input_file,
             save=True,
-            project=temp_results_dir, # Usamos el directorio temporal
+            project=temp_results_dir,
             name='pred'
         )
 
-        # 1. Encontrar el archivo de imagen generado por YOLO
-        save_dir = str(results[0].save_dir) # La ruta final que YOLO usó (ej: /tmp/media/detecciones_yolo/pred)
+        # 4. Encontrar el archivo de imagen generado por YOLO
+        save_dir = str(results[0].save_dir)
+        output_file = None
         
         for file in os.listdir(save_dir):
             if file.lower().endswith(('.jpg', '.png', '.jpeg', '.webp')):
@@ -81,12 +93,11 @@ def resultados(request, imagen_id):
         if not output_file or not os.path.exists(output_file):
             raise FileNotFoundError(f"No se encontró la imagen procesada en {save_dir}")
 
-        # 2. Subir el resultado a S3 usando el campo de Django
+        # 5. Subir el resultado a S3 usando el campo de Django
         with open(output_file, 'rb') as f:
-            # .save() con django-storages subirá el archivo a S3
             imagen_obj.resultados.save(os.path.basename(output_file), File(f), save=True)
 
-        # 3. Extraer información de las detecciones
+        # 6. Extraer información de las detecciones
         boxes = results[0].boxes
         for i, cls in enumerate(boxes.cls):
             detecciones.append({
@@ -95,6 +106,12 @@ def resultados(request, imagen_id):
                 'coordenadas': boxes.xyxy[i].tolist()
             })
 
+    except requests.RequestException as e:
+        return render(request, 'diagnosticos/resultados.html', {
+            'imagen': imagen_obj,
+            'error': f"Error al descargar la imagen desde S3: {str(e)}"
+        })
+    
     except Exception as e:
         return render(request, 'diagnosticos/resultados.html', {
             'imagen': imagen_obj,
@@ -102,13 +119,19 @@ def resultados(request, imagen_id):
         })
 
     finally:
-        # 4. Limpieza: Eliminar el directorio temporal de la instancia
-        if os.path.exists(temp_results_dir):
-             import shutil
-             shutil.rmtree(temp_results_dir, ignore_errors=True)
+        # 7. Limpieza: Eliminar archivos temporales
+        if temp_input_file and os.path.exists(temp_input_file):
+            try:
+                os.remove(temp_input_file)
+            except:
+                pass
+                
+        if temp_results_dir and os.path.exists(temp_results_dir):
+            import shutil
+            shutil.rmtree(temp_results_dir, ignore_errors=True)
 
     return render(request, 'diagnosticos/resultados.html', {
         'imagen': imagen_obj,
         'detecciones': detecciones,
-        'results_image': imagen_obj.resultados.url # Esto apuntará a la URL de S3
+        'results_image': imagen_obj.resultados.url  # URL de S3
     })
