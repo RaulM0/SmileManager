@@ -106,3 +106,6 @@ LOGOUT_REDIRECT_URL = 'login'
 # Session
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 1800  # 30 minutos
+
+# CSRF
+CSRF_TRUSTED_ORIGINS = ['https://smilemanager.onrender.com']
