@@ -1,9 +1,11 @@
 from django.shortcuts import redirect
 
 # Rutas públicas que no requieren login
-EXEMPT_PATHS = [
+EXEMPT_PREFIXES = [
     '/sesiones/login/',
     '/sesiones/logout/',
+    '/admin/',        # permite todas las rutas del admin
+    '/static/',       # archivos estáticos (admin usa estos)
 ]
 
 class LoginRequiredMiddleware:
@@ -11,10 +13,15 @@ class LoginRequiredMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if not request.user.is_authenticated:
-            if request.path not in EXEMPT_PATHS:
-                # Redirige al login con next para volver después
-                return redirect(f"/sesiones/login/?next={request.path}")
+        path = request.path
 
-        response = self.get_response(request)
-        return response
+        # Si la ruta comienza con alguna ruta exenta, no requerimos login
+        for prefix in EXEMPT_PREFIXES:
+            if path.startswith(prefix):
+                return self.get_response(request)
+
+        # Si no está autenticado → redirigir
+        if not request.user.is_authenticated:
+            return redirect(f"/sesiones/login/?next={path}")
+
+        return self.get_response(request)
