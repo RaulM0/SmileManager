@@ -18,9 +18,13 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
+from django.views.generic import RedirectView
+
 
 
 urlpatterns = [
+    path('', RedirectView.as_view(url='/sesiones/login/', permanent=False), name='index'),
+
     path('admin/', admin.site.urls), # user: admin / password: 123
     path('home/', include('Home.urls')),
     path('registroPacientes/', include('Pacientes.urls')),

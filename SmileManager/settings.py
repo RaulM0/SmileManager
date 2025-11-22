@@ -99,17 +99,9 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = os.environ.get('EMAIL_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASS', '')
 
-# Login
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'dashboard'
-LOGOUT_REDIRECT_URL = 'login'
-
 # Session
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 1800  # 30 minutos
-
-# CSRF
-CSRF_TRUSTED_ORIGINS = ['https://smilemanager.onrender.com']
 
 # STORAGES (opcional si quieres usar el alias)
 STORAGES = {
@@ -120,3 +112,24 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
+
+# Login y csrf settings
+# Login
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'home'  # Cambiado de 'dashboard' a 'home'
+LOGOUT_REDIRECT_URL = 'login'
+
+# Session
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 1800
+
+# CSRF
+CSRF_TRUSTED_ORIGINS = ['https://smilemanager.onrender.com']
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = 'Lax'
