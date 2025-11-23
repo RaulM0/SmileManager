@@ -599,7 +599,7 @@ def estudio_comparativo_view(request, paciente_id):
         'estudio': estudio,
         'visualizar_activado': estudio is not None,
     }
-    return render(request, 'before_After/estudio_comparativo.html', context)
+    return render(request, 'before_after/estudio_comparativo.html', context)
 
 def visualizar_estudio(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id, medico=request.user)
@@ -619,7 +619,7 @@ def visualizar_estudio(request, paciente_id):
         'edad': edad if edad is not None else "N/A"
     }
 
-    return render(request, 'before_After/estudio_comparativo.html', context)
+    return render(request, 'before_after/estudio_comparativo.html', context)
 
 def descargar_pdf_estudio(request, paciente_id):
     return pdf_progreso(request, paciente_id)
