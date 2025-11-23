@@ -28,6 +28,11 @@ from django.template.loader import render_to_string
 def menuPacientes(request):
     return render(request, 'pacientes/menuPacientes.html')
 
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from datetime import datetime
+from .models import Paciente
+
 def registrar_paciente(request):
     if request.method == 'POST':
         nombre = request.POST.get('nombre').upper()
@@ -38,24 +43,44 @@ def registrar_paciente(request):
         tel = request.POST.get('telefono')
         email = request.POST.get('email').upper()
         
-        if Paciente.objects.filter(telefono = tel).exists():
-            messages.error(request, "El teléfono ya está registrado.")
+        # Validar que el teléfono no exista para este médico
+        if Paciente.objects.filter(telefono=tel, medico=request.user).exists():
+            messages.error(request, "El teléfono ya está registrado para tu consultorio.")
             return render(request, 'pacientes/registroPacientes.html')
         
-        # Crear al paciente
+        # Validar que el email no exista para este médico
+        if Paciente.objects.filter(email=email, medico=request.user).exists():
+            messages.error(request, "El email ya está registrado para tu consultorio.")
+            return render(request, 'pacientes/registroPacientes.html')
+
+        # Validar que la fecha no esté vacía y sea válida
+        if not fecha_nac:
+            messages.error(request, "La fecha de nacimiento es obligatoria.")
+            return render(request, 'pacientes/registroPacientes.html')
+
+        try:
+            # Intentamos convertir la fecha al formato YYYY-MM-DD
+            fecha_nac_obj = datetime.strptime(fecha_nac, '%Y-%m-%d').date()
+        except ValueError:
+            messages.error(request, "Formato de fecha inválido. Usa YYYY-MM-DD.")
+            return render(request, 'pacientes/registroPacientes.html')
+
+        # Crear paciente asignando el médico logueado
         Paciente.objects.create(
-            nombre = nombre,
-            appat = appat,
-            apmat = apmat,
-            fecha_nacimiento = fecha_nac,
-            genero = genero,
-            telefono = tel,
-            email = email,
-            medico = request.user
+            nombre=nombre,
+            appat=appat,
+            apmat=apmat,
+            fecha_nacimiento=fecha_nac_obj,
+            genero=genero,
+            telefono=tel,
+            email=email,
+            medico=request.user
         )
         messages.success(request, "Registro exitoso de paciente.")
         return redirect('/registroPacientes/registrar_pacientes/')
+    
     return render(request, 'pacientes/registroPacientes.html')
+
 
 def todos_los_pacientes(request):
     pacientes = Paciente.objects.filter(medico=request.user).order_by('appat')
@@ -111,8 +136,9 @@ def editar_paciente(request, id):
         paciente.email = request.POST.get('email').upper()
         paciente.estatus = request.POST.get('estatus', 'Activo')
         
-        if Paciente.objects.filter(telefono=paciente.telefono).exclude(id=id).exists():
-            messages.error(request, "El teléfono ya está registrado.")
+        # Validación solo dentro del médico actual
+        if Paciente.objects.filter(telefono=paciente.telefono, medico=request.user).exclude(id=id).exists():
+            messages.error(request, "El teléfono ya está registrado para tu consultorio.")
             return render(request, 'pacientes/editarPaciente.html', {'paciente': paciente})
         
         paciente.save()
@@ -121,7 +147,7 @@ def editar_paciente(request, id):
 
     return render(request, 'pacientes/editarPaciente.html', {'paciente': paciente})
 
-#Aqui quiero que la eliminacion sea logica, que el campo estatus cambie a inactivo
+#la eliminacion ed logica, que el campo estatus cambie a inactivo
 def eliminar_paciente(request, id):
     paciente = Paciente.objects.filter(id=id, medico = request.user).first()
     if not paciente:
@@ -168,7 +194,10 @@ def buscar_pacientes_ajax(request):
 def antecedentes(request, id):
     paciente = get_object_or_404(Paciente, id=id, medico=request.user)
     
-    antecedentes, created = AntescedentesMedicos.objects.get_or_create(id_paciente=paciente)
+    antecedentes, created = AntescedentesMedicos.objects.get_or_create(
+        paciente=paciente,
+        defaults={'medico': request.user}  # Asignamos el médico al crear
+    )
     
     if request.method == 'POST':
         form_data = request.POST
@@ -193,6 +222,8 @@ def antecedentes(request, id):
         antecedentes.cirugias_previas = form_data.get('cirugias_previas', '')
         antecedentes.otros = form_data.get('otros', '')
 
+        # Aseguramos que siempre tenga el médico correcto
+        antecedentes.medico = request.user
         antecedentes.save()
 
         return JsonResponse({
@@ -205,6 +236,7 @@ def antecedentes(request, id):
         'antecedentes': antecedentes,
     }
     return render(request, 'historialMedico/antecedentes.html', context)
+
         
 def consultas(request, id):
     paciente = get_object_or_404(Paciente, id=id, medico=request.user)
@@ -218,6 +250,7 @@ def consultas(request, id):
         
         nueva_consulta = Consulta.objects.create(
             paciente=paciente,
+            medico=request.user,  # Asignamos el médico logueado
             fecha_consulta=datetime.now(),
             motivo_consulta=motivo_consulta,
             diagnostico=diagnostico,
@@ -230,23 +263,24 @@ def consultas(request, id):
 
     return render(request, 'historialMedico/consultas.html', {'paciente': paciente, 'fecha': fecha})
 
+
 def receta(request, id):
-    consulta = get_object_or_404(Consulta, id=id)
+    consulta = get_object_or_404(Consulta, id=id, medico=request.user)
     return render(request, 'receta/receta.html', {'consulta': consulta})
 
 def historial_consultas(request, id):
     paciente = get_object_or_404(Paciente, id=id, medico=request.user)
-    consultas = Consulta.objects.filter(paciente=paciente).order_by('-fecha_consulta')
-    return render(request, 'historialMedico/historial_consultas.html',{'consultas': consultas, 'paciente': paciente})
+    consultas = Consulta.objects.filter(paciente=paciente, medico=request.user).order_by('-fecha_consulta')
+    return render(request, 'historialMedico/historial_consultas.html', {'consultas': consultas, 'paciente': paciente})
 
 # Vistas para imágenes clínicas
 def imagenes_clinicas(request, id):
-    paciente = get_object_or_404(Paciente, id=id)
+    paciente = get_object_or_404(Paciente, id=id, medico=request.user)
     return render(request, 'imagenes/imagenes_clinicas.html', {'paciente': paciente})
 
 def cargar_imagen(request, id):
     paciente = get_object_or_404(Paciente, id=id, medico=request.user)
-    consultas = Consulta.objects.filter(paciente=paciente).order_by('-fecha_consulta')
+    consultas = Consulta.objects.filter(paciente=paciente, medico=request.user).order_by('-fecha_consulta')
 
     if request.method == 'POST':
         consulta_id = request.POST.get('consulta_id')
@@ -266,11 +300,12 @@ def cargar_imagen(request, id):
             messages.error(request, "Debes seleccionar una consulta válida.")
             return render(request, 'imagenes/cargarImagen.html', {'paciente': paciente, 'consultas': consultas})
 
-        consulta = get_object_or_404(Consulta, id=consulta_id)
+        consulta = get_object_or_404(Consulta, id=consulta_id, paciente=paciente, medico=request.user)
 
         ImagenesClinicas.objects.create(
             paciente=paciente,
             consulta=consulta,
+            medico=request.user,  # Asignamos el médico
             tipo_imagen=tipo_imagen,
             descripcion=descripcion,
             imagen=imagen
@@ -279,29 +314,32 @@ def cargar_imagen(request, id):
         messages.success(request, "Imagen clínica cargada exitosamente.")
         return redirect('cargar_imagen', paciente.id)
 
-    # GET: mostrar formulario
     return render(request, 'imagenes/cargarImagen.html', {'paciente': paciente, 'consultas': consultas})
 
 
 def buscar_imagen(request, id):
     paciente = get_object_or_404(Paciente, id=id, medico=request.user)
-    consultas = Consulta.objects.filter(paciente=paciente).order_by('-fecha_consulta')
-    imagenes = ImagenesClinicas.objects.filter(paciente=paciente)
+    consultas = Consulta.objects.filter(paciente=paciente, medico=request.user).order_by('-fecha_consulta')
+    imagenes = ImagenesClinicas.objects.filter(paciente=paciente, medico=request.user)
     
-    #Obtencion mediante get
+    # Obtención mediante GET
     fecha = request.GET.get('fecha')
-    consulta = request.GET.get('consulta_id')
+    consulta_id = request.GET.get('consulta_id')
     
     if fecha:
         imagenes = imagenes.filter(fecha_subida__date=fecha)
     
-    if consulta:
-        imagenes = imagenes.filter(consulta__id=consulta)
+    if consulta_id and consulta_id.isdigit():
+        imagenes = imagenes.filter(consulta__id=consulta_id, consulta__medico=request.user)
     
-    return render(request, 'imagenes/buscar_imagen.html', {'paciente': paciente, 'consultas': consultas, 'imagenes': imagenes})
+    return render(request, 'imagenes/buscar_imagen.html', {
+        'paciente': paciente,
+        'consultas': consultas,
+        'imagenes': imagenes
+    })
 
 def eliminar_imagen(request, imagen_id):
-    imagen = get_object_or_404(ImagenesClinicas, id=imagen_id)
+    imagen = get_object_or_404(ImagenesClinicas, id=imagen_id, medico=request.user)
     paciente_id = imagen.paciente.id  # Para redirigir después
 
     if request.method == 'POST':
@@ -315,13 +353,15 @@ def eliminar_imagen(request, imagen_id):
 
     return redirect('buscar_imagen', paciente_id)
 
+
 def historial_imagenes(request, id):
     paciente = get_object_or_404(Paciente, id=id, medico=request.user)
-    imagenes = ImagenesClinicas.objects.filter(paciente=paciente).order_by('-fecha_subida')
-    return render(request, 'imagenes/historial_imagenes.html',{
+    imagenes = ImagenesClinicas.objects.filter(paciente=paciente, medico=request.user).order_by('-fecha_subida')
+    return render(request, 'imagenes/historial_imagenes.html', {
         'paciente': paciente,
         'imagenes': imagenes
     })
+
 
 # Exportacion de datos a Excel
 def exportar_datos(request):
@@ -399,28 +439,34 @@ def contactar_pacientes(request):
 
     if paciente_id:
         try:
-            paciente_seleccionado = Paciente.objects.get(id=paciente_id)
+            paciente_seleccionado = Paciente.objects.get(id=paciente_id, medico=request.user)
         except Paciente.DoesNotExist:
             paciente_seleccionado = None
 
     return render(request, 'pacientes/contactar_pacientes.html', {
         'paciente_seleccionado': paciente_seleccionado
     })
+
     
 def contacto(request, id):
-    paciente = get_object_or_404(Paciente, id=id)
+    paciente = get_object_or_404(Paciente, id=id, medico=request.user)
     return render(request, 'pacientes/contacto.html', {'paciente': paciente})
+
 
 # Mandar un mensaje al paciente
 def enviar_mensaje(request):
     if request.method == "POST":
         asunto = request.POST.get("asunto")
         mensaje = request.POST.get("mensaje")
-        destinatario = request.POST.get("email")
+        paciente_id = request.POST.get("paciente_id")
 
-        if not (asunto and mensaje and destinatario):
+        if not (asunto and mensaje and paciente_id):
             messages.error(request, "Por favor completa todos los campos.")
             return redirect('enviar_mensaje')
+
+        # Validar que el paciente exista y pertenezca al médico
+        paciente = get_object_or_404(Paciente, id=paciente_id, medico=request.user)
+        destinatario = paciente.email
 
         # --- versión texto plano ---
         texto = (
@@ -428,17 +474,14 @@ def enviar_mensaje(request):
             f"Atentamente,\nClínica Dental Sonrisa Perfecta 🦷"
         )
 
-        # --- versión HTML (usa una plantilla personalizada) ---
-        contexto = {
-            'asunto': asunto,
-            'mensaje': mensaje,
-        }
+        # --- versión HTML ---
+        contexto = {'asunto': asunto, 'mensaje': mensaje, 'paciente': paciente}
         html = render_to_string('emails/mensaje_paciente.html', contexto)
 
         correo = EmailMultiAlternatives(
             asunto,
             texto,
-            settings.EMAIL_HOST_USER,  # remitente configurado en settings.py
+            settings.EMAIL_HOST_USER,
             [destinatario]
         )
         correo.attach_alternative(html, 'text/html')
@@ -448,6 +491,7 @@ def enviar_mensaje(request):
         return redirect('enviar_mensaje')
 
     return render(request, "pacientes/contactar_pacientes.html")
+
 
 
 def odontograma(request, id):
@@ -489,6 +533,7 @@ def guardar_odontograma(request, paciente_id):
         # Buscamos si ya existe un odontograma para este paciente
         odontograma, created = Odontograma.objects.get_or_create(
             paciente=paciente,
+            medico=request.user,
             defaults={
                 'dientes_permanentes': dientes_permanentes,
                 'dientes_deciduos': dientes_deciduos,
@@ -531,7 +576,7 @@ def progreso(request, paciente_id):
     return render(request, 'before_after/progreso.html', context)
 
 def estudio_comparativo_view(request, paciente_id):
-    paciente = get_object_or_404(Paciente, id=paciente_id)
+    paciente = get_object_or_404(Paciente, id=paciente_id, medico=request.user)
     estudio = EstudioComparativo.objects.filter(paciente=paciente).first()
 
     if request.method == 'POST':
@@ -539,6 +584,7 @@ def estudio_comparativo_view(request, paciente_id):
         if form.is_valid():
             nuevo_estudio = form.save(commit=False)
             nuevo_estudio.paciente = paciente
+            nuevo_estudio.medico = request.user
             nuevo_estudio.save()
             messages.success(request, "✅ El estudio se ha guardado correctamente.")
             return redirect('estudio_comparativo', paciente_id=paciente.id)
@@ -556,7 +602,7 @@ def estudio_comparativo_view(request, paciente_id):
     return render(request, 'before_After/estudio_comparativo.html', context)
 
 def visualizar_estudio(request, paciente_id):
-    paciente = get_object_or_404(Paciente, id=paciente_id)
+    paciente = get_object_or_404(Paciente, id=paciente_id, medico=request.user)
     estudio = get_object_or_404(EstudioComparativo, paciente=paciente)
 
     # Calcular edad
@@ -582,7 +628,12 @@ def descargar_pdf_estudio(request, paciente_id):
 
 def consentimiento_informado(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id, medico=request.user)
-    consentimiento, created = Consentimiento.objects.get_or_create(paciente=paciente)
+    
+    # Crear o recuperar consentimiento asignando medico
+    consentimiento, created = Consentimiento.objects.get_or_create(
+        paciente=paciente,
+        medico=request.user
+    )
 
     # Verificar si ya fue aceptado
     form_activo = not bool(consentimiento.fecha_aceptacion)
@@ -593,13 +644,11 @@ def consentimiento_informado(request, paciente_id):
 
         # Validación de archivo
         if archivo_ine:
-            # Validar tamaño máximo 5MB
-            max_size = 5 * 1024 * 1024
+            max_size = 5 * 1024 * 1024  # 5MB
             if archivo_ine.size > max_size:
                 messages.error(request, "El archivo no debe superar los 5 MB.")
                 return redirect('consentimiento', paciente_id=paciente.id)
 
-            # Validar formato (imagen o PDF)
             valid_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.pdf']
             ext = os.path.splitext(archivo_ine.name)[1].lower()
             if ext not in valid_extensions:
@@ -613,7 +662,7 @@ def consentimiento_informado(request, paciente_id):
         consentimiento.save()
 
         messages.success(request, "Consentimiento guardado correctamente.")
-        return redirect('menu_historial', paciente_id=paciente.id)  
+        return redirect('menu_historial')
 
     context = {
         'paciente': paciente,
@@ -621,5 +670,3 @@ def consentimiento_informado(request, paciente_id):
         'form_activo': form_activo
     }
     return render(request, 'consentimiento/consentimiento.html', context)
-
-

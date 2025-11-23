@@ -46,7 +46,7 @@ def link_callback(uri, rel):
 
 # --- Tu vista, ahora MÁS SIMPLE ---
 def pdf_progreso(request, paciente_id):
-    paciente = get_object_or_404(Paciente, id=paciente_id)
+    paciente = get_object_or_404(Paciente, id=paciente_id, medico=request.user)
     estudio = EstudioComparativo.objects.filter(paciente=paciente).order_by('-fecha_creacion').first()
     
     if not estudio:

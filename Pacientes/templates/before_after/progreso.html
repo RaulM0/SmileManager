@@ -298,7 +298,7 @@
                     <div class="upload-icon">📷</div>
                     <label>Oclusal Superior</label>
                     <p class="upload-text">...</p>
-                    <img class="image-preview" src="{{ estudio.antes_oclusal_superior.url }}" alt="Preview">
+                    <img class="image-preview" src="{% if estudio.antes_oclusal_superior %}{{ estudio.antes_oclusal_superior.url }}{% endif %}" alt="Preview">
                     <input type="file" name="antes_oclusal_superior" accept="image/*" 
                     {% if not estudio.antes_oclusal_superior %}required{% endif %} onchange="handleFileSelect(this)">
                 </div>
@@ -312,7 +312,7 @@
                     <div class="upload-icon">📷</div>
                     <label>Lateral Izquierda</label>
                     <p class="upload-text">...</p>
-                    <img class="image-preview" src="{{ estudio.antes_lateral_izquierda.url }}" alt="Preview">
+                    <img class="image-preview" src="{% if estudio.antes_lateral_izquierda %}{{ estudio.antes_lateral_izquierda.url }}{% endif %}" alt="Preview">
                     <input type="file" name="antes_lateral_izquierda" accept="image/*" 
                     {% if not estudio.antes_lateral_izquierda %}required{% endif %} onchange="handleFileSelect(this)">
                 </div>
@@ -326,7 +326,7 @@
                     <div class="upload-icon">📷</div>
                     <label>Frontal</label>
                     <p class="upload-text">...</p>
-                    <img class="image-preview" src="{{ estudio.antes_frontal.url }}" alt="Preview">
+                    <img class="image-preview" src="{% if estudio.antes_frontal %}{{ estudio.antes_frontal.url }}{% endif %}" alt="Preview">
                     <input type="file" name="antes_frontal" accept="image/*" 
                     {% if not estudio.antes_frontal %}required{% endif %} onchange="handleFileSelect(this)">
                 </div>
@@ -340,7 +340,7 @@
                     <div class="upload-icon">📷</div>
                     <label>Lateral Derecha</label>
                     <p class="upload-text">...</p>
-                    <img class="image-preview" src="{{ estudio.antes_lateral_derecha.url }}" alt="Preview">
+                    <img class="image-preview" src="{% if estudio.antes_lateral_derecha %}{{ estudio.antes_lateral_derecha.url }}{% endif %}" alt="Preview">
                     <input type="file" name="antes_lateral_derecha" accept="image/*" 
                     {% if not estudio.antes_lateral_derecha %}required{% endif %} onchange="handleFileSelect(this)">
                 </div>
@@ -354,7 +354,7 @@
                     <div class="upload-icon">📷</div>
                     <label>Oclusal Inferior</label>
                     <p class="upload-text">...</p>
-                    <img class="image-preview" src="{{ estudio.antes_oclusal_inferior.url }}" alt="Preview">
+                    <img class="image-preview" src="{% if estudio.antes_oclusal_inferior %}{{ estudio.antes_oclusal_inferior.url }}{% endif %}" alt="Preview">
                     <input type="file" name="antes_oclusal_inferior" accept="image/*" {% if not estudio.antes_oclusal_inferior %}required{% endif %} onchange="handleFileSelect(this)">
                 </div>
             </div>
@@ -374,7 +374,7 @@
                     <div class="upload-icon">📷</div>
                     <label>Perfil</label>
                     <p class="upload-text">...</p>
-                    <img class="image-preview" src="{{ estudio.despues_perfil.url }}" alt="Preview">
+                    <img class="image-preview" src="{% if estudio.despues_perfil %}{{ estudio.despues_perfil.url }}{% endif %}" alt="Preview">
                     <input type="file" name="despues_perfil" accept="image/*" onchange="handleFileSelect(this)">
                 </div>
             </div>
@@ -387,7 +387,7 @@
                     <div class="upload-icon">📷</div>
                     <label>Retrato Frontal</label>
                     <p class="upload-text">...</p>
-                    <img class="image-preview" src="{{ estudio.despues_retrato_frontal.url }}" alt="Preview">
+                    <img class="image-preview" src="{% if estudio.despues_retrato_frontal %}{{ estudio.despues_retrato_frontal.url }}{% endif %}" alt="Preview">
                     <input type="file" name="despues_retrato_frontal" accept="image/*"
                         onchange="handleFileSelect(this)">
                 </div>
@@ -401,7 +401,7 @@
                     <div class="upload-icon">📷</div>
                     <label>Semiperfil</label>
                     <p class="upload-text">...</p>
-                    <img class="image-preview" src="{{ estudio.despues_semiperfil.url }}" alt="Preview">
+                    <img class="image-preview" src="{% if estudio.despues_semiperfil %}{{ estudio.despues_semiperfil.url }}{% endif %}" alt="Preview">
                     <input type="file" name="despues_semiperfil" accept="image/*" onchange="handleFileSelect(this)">
                 </div>
             </div>
@@ -414,7 +414,7 @@
                     <div class="upload-icon">📷</div>
                     <label>Retrato Sonrisa</label>
                     <p class="upload-text">...</p>
-                    <img class="image-preview" src="{{ estudio.despues_retrato_sonrisa.url }}" alt="Preview">
+                    <img class="image-preview" src="{% if estudio.despues_retrato_sonrisa %}{{ estudio.despues_retrato_sonrisa.url }}{% endif %}" alt="Preview">
                     <input type="file" name="despues_retrato_sonrisa" accept="image/*"
                         onchange="handleFileSelect(this)">
                 </div>
@@ -499,22 +499,18 @@
     function updateCounter(tipo) {
         if (tipo === 'antes') {
             contadorAntes = document.querySelectorAll('.upload-box[data-tipo="antes"].has-image').length;
-            document.getElementById('counterAntes').textContent = `${contadorAntes}/${totalAntes}`;
-
-            if (contadorAntes === totalAntes) {
-                document.getElementById('progressTextAntes').innerHTML = '<i class="fas fa-check-circle me-2"></i>¡Perfecto! Todas las fotografías "Antes" están completas';
-                document.getElementById('progressTextAntes').style.color = '#28a745';
-            } else {
-                document.getElementById('progressTextAntes').textContent = `Completa las ${totalAntes - contadorAntes} fotografías restantes`;
-                document.getElementById('progressTextAntes').style.color = '#6c757d';
-            }
         } else {
             contadorDespues = document.querySelectorAll('.upload-box[data-tipo="despues"].has-image').length;
-            document.getElementById('counterDespues').textContent = `${contadorDespues}/${totalDespues}`;
         }
 
-        // Habilitar/deshabilitar botón
-        document.getElementById('btnGuardar').disabled = contadorAntes < totalAntes;
+        // Habilitar botón si ya existe un estudio O si se completan todas las fotos "antes"
+        {% if estudio %}
+            // Si ya existe un estudio, siempre permitir guardar
+            document.getElementById('btnGuardar').disabled = false;
+        {% else %}
+            // Si es nuevo, requerir todas las fotos "antes"
+            document.getElementById('btnGuardar').disabled = contadorAntes < totalAntes;
+        {% endif %}
     }
 
     // Drag and Drop
@@ -546,29 +542,19 @@
         });
     });
 
-    // Establecer fecha actual como default
-    const fechaInput = document.getElementById('id_fecha_inicio');
-    if (fechaInput && !fechaInput.value) {
-        fechaInput.valueAsDate = new Date();
-    }
-
-    //Añadimos un listener para que se ejecute cuando cargue la página-- -
+    // Al cargar la página
     document.addEventListener('DOMContentLoaded', function () {
-
-        // 1. Actualiza los contadores con las imágenes ya cargadas
-        //    (Tu CSS añade 'has-image' y el JS de abajo lo contará)
+        // Actualizar contadores con imágenes ya cargadas
         updateCounter('antes');
         updateCounter('despues');
 
-        // 2. Establece la fecha de hoy, SOLO si el campo está vacío
-        //    (Tu código original para esto es perfecto)
+        // Establecer fecha de hoy si el campo está vacío
         const fechaInput = document.getElementById('fecha_inicio');
         if (fechaInput && !fechaInput.value) {
             fechaInput.valueAsDate = new Date();
         }
 
-        // 3. Habilitar el botón de guardar si ya existe un estudio
-        //    (Incluso si el contador es 0, si 'estudio' existe, está bien)
+        // Si ya existe un estudio, habilitar el botón inmediatamente
         {% if estudio %}
         document.getElementById('btnGuardar').disabled = false;
         {% endif %}

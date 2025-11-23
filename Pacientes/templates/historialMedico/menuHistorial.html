@@ -49,7 +49,7 @@
         </div>
     </div>
 
-    <!-- Opciones de historial - Ahora con 5 tarjetas -->
+    <!-- Opciones de historial -->
     <div class="row g-4">
         <!-- Antecedentes Médicos -->
         <div class="col-md-6 col-lg-4 col-xl-3">
@@ -61,10 +61,9 @@
                     <h5 class="fw-semibold">Antecedentes Médicos</h5>
                     <p class="text-muted small">Registrar y consultar antecedentes</p>
                     <a href="{% url 'antecedentes' paciente_seleccionado.id %}"
-                        class="btn btn-outline-primary btn-sm mt-2">
+                        class="btn btn-outline-blue btn-sm mt-2">
                         <i class="bi bi-arrow-right"></i> Acceder
                     </a>
-
                 </div>
             </div>
         </div>
@@ -85,7 +84,7 @@
             </div>
         </div>
 
-        <!-- Histrial del consultas -->
+        <!-- Historial de consultas -->
         <div class="col-md-6 col-lg-4 col-xl-3">
             <div class="card card-hover border-0 shadow-sm h-100">
                 <div class="card-body text-center p-4">
@@ -124,7 +123,7 @@
             <div class="card card-hover border-0 shadow-sm h-100">
                 <div class="card-body text-center p-4">
                     <div class="icon-lg bg-red bg-opacity-10 text-red rounded-circle mb-3 mx-auto">
-                        <i class="bi bi-images fs-4"></i>
+                        <i class="bi bi-heart-pulse fs-4"></i>
                     </div>
                     <h5 class="fw-semibold">Odontograma</h5>
                     <p class="text-muted small">Analisis Dental</p>
@@ -139,26 +138,28 @@
         <div class="col-md-6 col-lg-4 col-xl-3">
             <div class="card card-hover border-0 shadow-sm h-100">
                 <div class="card-body text-center p-4">
-                    <div class="icon-lg bg-info bg-opacity-10 text-info rounded-circle mb-3 mx-auto">
+                    <div class="icon-lg bg-teal bg-opacity-10 text-teal rounded-circle mb-3 mx-auto">
+                        <i class="bi bi-graph-up-arrow fs-4"></i>
                     </div>
                     <h5 class="fw-semibold">Progreso</h5>
                     <p class="text-muted small">Plantilla de Progreso</p>
-                    <a href="{% url 'progreso' paciente_seleccionado.id %}" class="btn btn-outline-info btn-sm mt-2">
+                    <a href="{% url 'progreso' paciente_seleccionado.id %}" class="btn btn-outline-teal btn-sm mt-2">
                         <i class="bi bi-arrow-right"></i> Acceder
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- Progreso -->
+        <!-- Consentimiento Informado -->
         <div class="col-md-6 col-lg-4 col-xl-3">
             <div class="card card-hover border-0 shadow-sm h-100">
                 <div class="card-body text-center p-4">
-                    <div class="icon-lg bg-info bg-opacity-10 text-info rounded-circle mb-3 mx-auto">
+                    <div class="icon-lg bg-cyan bg-opacity-10 text-cyan rounded-circle mb-3 mx-auto">
+                        <i class="bi bi-clipboard-check fs-4"></i>
                     </div>
                     <h5 class="fw-semibold">Consentimiento Informado</h5>
                     <p class="text-muted small">Formato de autorización medica</p>
-                    <a href="{% url 'consentimiento' paciente_seleccionado.id %}" class="btn btn-outline-info btn-sm mt-2">
+                    <a href="{% url 'consentimiento' paciente_seleccionado.id %}" class="btn btn-outline-cyan btn-sm mt-2">
                         <i class="bi bi-arrow-right"></i> Acceder
                     </a>
                 </div>
@@ -176,7 +177,6 @@
         <a href="{% url 'registroPacientes' %}" class="btn btn-outline-secondary px-5">
             <i class="bi bi-arrow-left me-2"></i> Volver
         </a>
-
     </div>
 </div>
 
@@ -274,24 +274,6 @@
         color: white;
     }
 
-    .bg-purple {
-        background-color: #6f42c1;
-    }
-
-    .text-purple {
-        color: #6f42c1;
-    }
-
-    .btn-outline-purple {
-        border-color: #6f42c1;
-        color: #6f42c1;
-    }
-
-    .btn-outline-purple:hover {
-        background-color: #6f42c1;
-        color: white;
-    }
-
     .bg-orange {
         background-color: #fd7e14;
     }
@@ -310,6 +292,24 @@
         color: white;
     }
 
+    .bg-purple {
+        background-color: #6f42c1;
+    }
+
+    .text-purple {
+        color: #6f42c1;
+    }
+
+    .btn-outline-purple {
+        border-color: #6f42c1;
+        color: #6f42c1;
+    }
+
+    .btn-outline-purple:hover {
+        background-color: #6f42c1;
+        color: white;
+    }
+
     .bg-red {
         background-color: #dc3545;
     }
@@ -325,6 +325,42 @@
 
     .btn-outline-red:hover {
         background-color: #dc3545;
+        color: white;
+    }
+
+    .bg-teal {
+        background-color: #20c997;
+    }
+
+    .text-teal {
+        color: #20c997;
+    }
+
+    .btn-outline-teal {
+        border-color: #20c997;
+        color: #20c997;
+    }
+
+    .btn-outline-teal:hover {
+        background-color: #20c997;
+        color: white;
+    }
+
+    .bg-cyan {
+        background-color: #0dcaf0;
+    }
+
+    .text-cyan {
+        color: #0dcaf0;
+    }
+
+    .btn-outline-cyan {
+        border-color: #0dcaf0;
+        color: #0dcaf0;
+    }
+
+    .btn-outline-cyan:hover {
+        background-color: #0dcaf0;
         color: white;
     }
 </style>
