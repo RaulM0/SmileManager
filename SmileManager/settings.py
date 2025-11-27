@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'Citas',
     'DiagnosticosIA',
     'Sesiones',
+    'Usuarios.apps.UsuariosConfig',
 ]
 
 MIDDLEWARE = [

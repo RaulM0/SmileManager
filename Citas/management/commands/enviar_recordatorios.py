@@ -19,7 +19,6 @@ class Command(BaseCommand):
             estatus='P'
         )
 
-
         enviados = 0
         errores = 0
 
@@ -42,7 +41,10 @@ Motivo: {cita.motivo}
 Por favor, llega 10 minutos antes de tu cita.
 Si no puedes asistir, contáctanos para reagendar.
                 ''',
-                'now': timezone.now()
+                'paciente': cita.paciente,
+                'cita': cita,
+                'user': cita.paciente.medico,
+                'now': timezone.now(),
             }
 
             try:

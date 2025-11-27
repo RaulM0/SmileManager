@@ -79,7 +79,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Clínica Dental🦷</h1>
+            <h1>Clínica Dental {{user.perfil.clinica_nombre}}🦷</h1>
         </div>
 
         <div class="content">
@@ -93,10 +93,9 @@
         </div>
 
         <div class="footer">
-            <p>📍 C. Pino Suárez 131, Casa Blanca
-                52175 San Jerónimo Chicahualco, México</p>
-            <p>📞 (722) 616-2384 | ✉️ <a href="mailto:contacto@clinicadental.com">contacto@clinicadental.com</a></p>
-            <p>&copy; {{ now|date:"Y" }} Clínica Dental Sonrisa Perfecta. Todos los derechos reservados.</p>
+            <p>📍 {{user.perfil.direccion}}</p>
+            <p>📞 {{user.perfil.telefono}} | ✉️ <a href="mailto:{{user.email}}">{{user.email}}</a></p>
+            <p>&copy; {{ now|date:"Y" }} SmileManager. Todos los derechos reservados.</p>
         </div>
     </div>
 </body>

@@ -475,7 +475,7 @@ def enviar_mensaje(request):
         )
 
         # --- versión HTML ---
-        contexto = {'asunto': asunto, 'mensaje': mensaje, 'paciente': paciente}
+        contexto = {'asunto': asunto, 'mensaje': mensaje, 'paciente': paciente, 'user': request.user}
         html = render_to_string('emails/mensaje_paciente.html', contexto)
 
         correo = EmailMultiAlternatives(
