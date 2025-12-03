@@ -168,4 +168,9 @@ class Consentimiento(models.Model):
     pdf_generado = models.FileField(upload_to='consentimientos/pdf/', null=True, blank=True)
 
     def __str__(self):
-        return f"Consentimiento de {self.paciente.nombre} - {self.fecha_aceptacion.strftime('%d/%m/%Y')}"
+        if self.fecha_aceptacion:
+            fecha = self.fecha_aceptacion.strftime('%d/%m/%Y')
+        else:
+            fecha = "Sin fecha"
+        return f"Consentimiento de {self.paciente.nombre} - {fecha}"
+
