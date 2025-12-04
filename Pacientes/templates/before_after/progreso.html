@@ -385,7 +385,7 @@
                     <button type="button" class="remove-image" onclick="removeImage(this)">×</button>
                     <div class="check-icon">✓</div>
                     <div class="upload-icon">📷</div>
-                    <label>Retrato Frontal</label>
+                    <label>Perfil Derecho</label>
                     <p class="upload-text">...</p>
                     <img class="image-preview" src="{% if estudio.despues_retrato_frontal %}{{ estudio.despues_retrato_frontal.url }}{% endif %}" alt="Preview">
                     <input type="file" name="despues_retrato_frontal" accept="image/*"
@@ -399,7 +399,7 @@
                     <button type="button" class="remove-image" onclick="removeImage(this)">×</button>
                     <div class="check-icon">✓</div>
                     <div class="upload-icon">📷</div>
-                    <label>Semiperfil</label>
+                    <label>Perfil Izquierdo</label>
                     <p class="upload-text">...</p>
                     <img class="image-preview" src="{% if estudio.despues_semiperfil %}{{ estudio.despues_semiperfil.url }}{% endif %}" alt="Preview">
                     <input type="file" name="despues_semiperfil" accept="image/*" onchange="handleFileSelect(this)">
