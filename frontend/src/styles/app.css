@@ -1,0 +1,18 @@
+:root { --dental-primary:#2a7f97; --dental-secondary:#3ab4cc; --dental-light:#e8f4f8; --dental-dark:#1a596d; }
+body { margin:0; background:#f8f9fa; color:#2d3748; }
+.app-shell { display:flex; min-height:100vh; flex-direction:column; }
+.app-shell main { flex:1; }
+.dental-navbar { background:linear-gradient(135deg,var(--dental-primary),var(--dental-secondary)); box-shadow:0 4px 20px rgba(42,127,151,.15); }
+.dental-navbar .nav-link { border-radius:8px; margin:0 .15rem; }
+.dental-navbar .nav-link:hover,.dental-navbar .nav-link.active { background:rgba(255,255,255,.2); }
+.page-loader { min-height:60vh; display:grid; place-items:center; }
+.login-container { min-height:100vh; display:flex; align-items:center; background:#f8fafc; }
+.login-card { border-radius:16px; overflow:hidden; }
+.login-left-panel { background:linear-gradient(135deg,#2a6bc1,#1c56a7); color:white; padding:40px; display:flex; align-items:center; min-height:480px; }
+.login-left-panel h1 { font-size:28px; font-weight:700; }.login-left-panel h1 span{font-weight:300}.dental-icon{font-size:50px;margin-bottom:30px}.features-list>div{margin:18px 0}.features-list i{margin-right:10px}.card{border-radius:8px}
+@media(max-width:767px){.login-left-panel{display:none}.login-container{align-items:flex-start}}
+@media print{.dental-navbar,footer{display:none!important}.prescription{box-shadow:none!important}}
+.clinical-thumbnail{height:220px;object-fit:cover;background:#eef2f5}
+.odontogram-quadrants{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.5rem}.tooth-row{display:flex;gap:.65rem;overflow-x:auto;padding:1rem}.tooth{display:flex;flex-direction:column;align-items:center;gap:.4rem}.tooth-grid{display:grid;grid-template-columns:repeat(3,14px);grid-template-rows:repeat(3,14px)}.tooth-surface{border:1px solid #94a3b8;padding:0}.tooth-mesial{grid-area:2/1}.tooth-oclusal{grid-area:2/2}.tooth-distal{grid-area:2/3}.tooth-lingual{grid-area:1/2}.tooth-vestibular{grid-area:3/2}.state-sano{background:#dcfce7}.state-caries{background:#ef4444}.state-restauracion{background:#3b82f6}.state-ausente{background:#94a3b8}.state-extraccion{background:#f59e0b}.state-protesis{background:#a855f7}.state-choice{border:2px solid rgba(0,0,0,.15)}.state-choice.active{box-shadow:0 0 0 3px rgba(42,127,151,.3)}@media(max-width:992px){.odontogram-quadrants{grid-template-columns:1fr}}
+.study-preview{display:block;width:100%;height:180px;object-fit:cover;border-radius:.5rem}.consent-card{max-width:850px}
+.image-viewer{width:100%;height:420px;background:#eef2f5}

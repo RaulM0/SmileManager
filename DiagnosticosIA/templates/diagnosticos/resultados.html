@@ -2,6 +2,15 @@
 {% block content %}
 
 <div class="container py-4">
+    {% if error %}
+    <div class="alert alert-danger" role="alert">
+        <h2 class="h5 alert-heading">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>No se pudo analizar la imagen
+        </h2>
+        <p class="mb-0">{{ error }}</p>
+    </div>
+    {% endif %}
+
     <!-- Encabezado mejorado -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -89,14 +98,22 @@
                     <h3 class="h5 mb-0 text-dark">
                         <i class="bi bi-bounding-box me-2"></i> Imagen Analizada
                     </h3>
-                    {% if imagen.resultados %}
+                    {% if error %}
+                    <span class="badge bg-danger rounded-pill">Error</span>
+                    {% elif imagen.resultados %}
                     <span class="badge bg-success rounded-pill">Procesada</span>
                     {% else %}
                     <span class="badge bg-warning rounded-pill">Pendiente</span>
                     {% endif %}
                 </div>
                 <div class="card-body p-0 position-relative">
-                    {% if imagen.resultados %}
+                    {% if error %}
+                    <div class="text-center py-5 bg-light">
+                        <i class="bi bi-exclamation-triangle display-4 text-danger mb-3"></i>
+                        <h5 class="text-danger">El análisis no pudo completarse</h5>
+                        <p class="text-muted small mb-0">Consulta el mensaje de error mostrado arriba.</p>
+                    </div>
+                    {% elif imagen.resultados %}
                     <div id="openseadragon-procesada" style="width: 100%; height: 400px; border-radius: 0 0 0.375rem 0.375rem;"></div>
                     <div class="position-absolute top-0 end-0 m-2">
                         <button class="btn btn-sm btn-light" onclick="viewerProcesada.viewport.zoomBy(1.5)">

@@ -1,19 +1,12 @@
 from django.shortcuts import render, get_object_or_404
 from Pacientes.models import ImagenesClinicas
-from ultralytics import YOLO
-import os
-from django.core.files import File
-from SmileManager import settings
+import logging
 from django.core.paginator import Paginator
-from django.db.models import Count
-import requests
-from io import BytesIO
-import tempfile
+from .services import analyze_clinical_image
 
 # Create your views here.
 
-model_path = os.path.join('train_model', 'best.pt')
-model = YOLO(model_path)
+logger = logging.getLogger(__name__)
 
 def diagnosticos(request):
     imagenes = ImagenesClinicas.objects.filter(paciente__medico=request.user).select_related('paciente').order_by('-fecha_subida')
@@ -56,79 +49,15 @@ def diagnosticos(request):
 def resultados(request, imagen_id):
     imagen_obj = get_object_or_404(ImagenesClinicas, id=imagen_id, paciente__medico=request.user)
     
-    # Como la imagen está en S3, necesitamos descargarla temporalmente
-    temp_input_file = None
-    temp_results_dir = None
-    detecciones = []
-
     try:
-        # 1. Descargar la imagen desde S3 a un archivo temporal
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as tmp_file:
-            # Obtener la URL de S3 y descargar
-            response = requests.get(imagen_obj.imagen.url)
-            response.raise_for_status()
-            tmp_file.write(response.content)
-            temp_input_file = tmp_file.name
-        
-        # 2. Crear directorio temporal para resultados
-        temp_results_dir = tempfile.mkdtemp(prefix='yolo_results_')
-        
-        # 3. Ejecutar la detección
-        results = model.predict(
-            temp_input_file,
-            save=True,
-            project=temp_results_dir,
-            name='pred'
-        )
+        detecciones = analyze_clinical_image(imagen_obj)
 
-        # 4. Encontrar el archivo de imagen generado por YOLO
-        save_dir = str(results[0].save_dir)
-        output_file = None
-        
-        for file in os.listdir(save_dir):
-            if file.lower().endswith(('.jpg', '.png', '.jpeg', '.webp')):
-                output_file = os.path.join(save_dir, file)
-                break
-
-        if not output_file or not os.path.exists(output_file):
-            raise FileNotFoundError(f"No se encontró la imagen procesada en {save_dir}")
-
-        # 5. Subir el resultado a S3 usando el campo de Django
-        with open(output_file, 'rb') as f:
-            imagen_obj.resultados.save(os.path.basename(output_file), File(f), save=True)
-
-        # 6. Extraer información de las detecciones
-        boxes = results[0].boxes
-        for i, cls in enumerate(boxes.cls):
-            detecciones.append({
-                'clase': model.names[int(cls)],
-                'confianza': float(boxes.conf[i]),
-                'coordenadas': boxes.xyxy[i].tolist()
-            })
-
-    except requests.RequestException as e:
-        return render(request, 'diagnosticos/resultados.html', {
-            'imagen': imagen_obj,
-            'error': f"Error al descargar la imagen desde S3: {str(e)}"
-        })
-    
     except Exception as e:
+        logger.exception('Error al analizar la imagen clínica %s', imagen_id)
         return render(request, 'diagnosticos/resultados.html', {
             'imagen': imagen_obj,
             'error': f"Error al ejecutar YOLO: {str(e)}"
-        })
-
-    finally:
-        # 7. Limpieza: Eliminar archivos temporales
-        if temp_input_file and os.path.exists(temp_input_file):
-            try:
-                os.remove(temp_input_file)
-            except:
-                pass
-                
-        if temp_results_dir and os.path.exists(temp_results_dir):
-            import shutil
-            shutil.rmtree(temp_results_dir, ignore_errors=True)
+        }, status=500)
 
     return render(request, 'diagnosticos/resultados.html', {
         'imagen': imagen_obj,
