@@ -7,5 +7,6 @@ frontend/node_modules/
 frontend/dist/
 frontend/test-results/
 frontend/playwright-report/
+node_modules/
 .e2e.sqlite3
 .e2e-media/

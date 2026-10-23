@@ -1,5 +1,64 @@
-import { useEffect,useState } from 'react'
-import { useNavigate,useParams } from 'react-router-dom'
-import { api } from '../../api/client'
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { api } from "../../api/client";
 
-export default function ConsultationCreatePage(){const {id}=useParams();const navigate=useNavigate();const [patient,setPatient]=useState(null);const [form,setForm]=useState({motivo_consulta:'',diagnostico:'',tratamiento:'',observaciones:''});const [error,setError]=useState('');useEffect(()=>{api(`patients/${id}/`).then(setPatient)},[id]);async function submit(e){e.preventDefault();try{const result=await api(`patients/${id}/consultations/`,{method:'POST',body:JSON.stringify(form)});navigate(`/consultations/${result.id}/prescription`)}catch(err){setError(err.message)}};return <div className="container py-4"><h1 className="h2">Nueva consulta {patient&&`— ${patient.nombre} ${patient.appat}`}</h1>{error&&<div className="alert alert-danger">{error}</div>}<form onSubmit={submit} className="card border-0 shadow-sm mt-4"><div className="card-body p-4">{[['motivo_consulta','Motivo de consulta'],['diagnostico','Diagnóstico'],['tratamiento','Tratamiento'],['observaciones','Observaciones']].map(([name,label])=><div className="mb-3" key={name}><label className="form-label" htmlFor={name}>{label}</label><textarea id={name} className="form-control" rows="3" required={name==='motivo_consulta'} value={form[name]} onChange={e=>setForm({...form,[name]:e.target.value})}/></div>)}<button className="btn btn-primary">Registrar consulta</button></div></form></div>}
+export default function ConsultationCreatePage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [patient, setPatient] = useState(null);
+  const [form, setForm] = useState({
+    motivo_consulta: "",
+    diagnostico: "",
+    tratamiento: "",
+    observaciones: "",
+  });
+  const [error, setError] = useState("");
+  useEffect(() => {
+    api(`patients/${id}/`).then(setPatient);
+  }, [id]);
+  async function submit(e) {
+    e.preventDefault();
+    try {
+      const result = await api(`patients/${id}/consultations/`, {
+        method: "POST",
+        body: JSON.stringify(form),
+      });
+      navigate(`/consultations/${result.id}/prescription`);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+  return (
+    <div className="container py-4">
+      <h1 className="h2">
+        Nueva consulta {patient && `— ${patient.nombre} ${patient.appat}`}
+      </h1>
+      {error && <div className="alert alert-danger">{error}</div>}
+      <form onSubmit={submit} className="card border-0 shadow-sm mt-4">
+        <div className="card-body p-4">
+          {[
+            ["motivo_consulta", "Motivo de consulta"],
+            ["diagnostico", "Diagnóstico"],
+            ["tratamiento", "Tratamiento"],
+            ["observaciones", "Observaciones"],
+          ].map(([name, label]) => (
+            <div className="mb-3" key={name}>
+              <label className="form-label" htmlFor={name}>
+                {label}
+              </label>
+              <textarea
+                id={name}
+                className="form-control"
+                rows="3"
+                required={name === "motivo_consulta"}
+                value={form[name]}
+                onChange={(e) => setForm({ ...form, [name]: e.target.value })}
+              />
+            </div>
+          ))}
+          <button className="btn btn-primary">Registrar consulta</button>
+        </div>
+      </form>
+    </div>
+  );
+}

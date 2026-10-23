@@ -1,5 +1,136 @@
-import { useEffect,useState } from 'react'
-import { useNavigate,useParams } from 'react-router-dom'
-import { api } from '../../api/client'
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { api } from "../../api/client";
 
-export default function ClinicalImageUploadPage(){const {id}=useParams();const navigate=useNavigate();const [consultations,setConsultations]=useState([]);const [form,setForm]=useState({consulta_id:'',tipo_imagen:'',descripcion:'',imagen:null});const [errors,setErrors]=useState({});const [saving,setSaving]=useState(false);useEffect(()=>{api(`patients/${id}/consultations/`).then(setConsultations)},[id]);async function submit(e){e.preventDefault();setSaving(true);setErrors({});const data=new FormData();Object.entries(form).forEach(([key,value])=>data.append(key,value));try{await api(`patients/${id}/clinical-images/`,{method:'POST',body:data});navigate(`/patients/${id}/images/history`)}catch(error){setErrors(error.payload||{detail:error.message})}finally{setSaving(false)}}return <div className="container py-4"><h1 className="h2 mb-4">Cargar imagen clínica</h1><form onSubmit={submit} className="card border-0 shadow-sm"><div className="card-body p-4"><div className="mb-3"><label htmlFor="consulta" className="form-label">Consulta</label><select id="consulta" required className="form-select" value={form.consulta_id} onChange={e=>setForm({...form,consulta_id:e.target.value})}><option value="">Seleccione una consulta</option>{consultations.map(c=><option key={c.id} value={c.id}>{new Date(c.fecha_consulta).toLocaleString()} — {c.motivo_consulta}</option>)}</select>{errors.consulta_id&&<div className="text-danger small">{errors.consulta_id.join(' ')}</div>}</div><div className="mb-3"><label htmlFor="tipo" className="form-label">Tipo de imagen</label><input id="tipo" required className="form-control" value={form.tipo_imagen} onChange={e=>setForm({...form,tipo_imagen:e.target.value})}/></div><div className="mb-3"><label htmlFor="descripcion" className="form-label">Descripción</label><textarea id="descripcion" required className="form-control" value={form.descripcion} onChange={e=>setForm({...form,descripcion:e.target.value})}/></div><div className="mb-3"><label htmlFor="imagen" className="form-label">Archivo</label><input id="imagen" required type="file" accept="image/*" className="form-control" onChange={e=>setForm({...form,imagen:e.target.files[0]})}/>{errors.imagen&&<div className="text-danger small">{errors.imagen.join(' ')}</div>}</div>{errors.detail&&<div className="alert alert-danger">{errors.detail}</div>}<button disabled={saving||!consultations.length} className="btn btn-primary">{saving?<span className="spinner-border spinner-border-sm"/>:'Cargar imagen'}</button>{!consultations.length&&<p className="text-warning mt-3 mb-0">Primero registra una consulta para este paciente.</p>}</div></form></div>}
+export default function ClinicalImageUploadPage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [consultations, setConsultations] = useState([]);
+  const [form, setForm] = useState({
+    consulta_id: "",
+    tipo_imagen: "",
+    descripcion: "",
+    imagen: null,
+  });
+  const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
+  useEffect(() => {
+    api(`patients/${id}/consultations/`).then(setConsultations);
+  }, [id]);
+  async function submit(e) {
+    e.preventDefault();
+    setSaving(true);
+    setErrors({});
+    const data = new FormData();
+    Object.entries(form).forEach(([key, value]) => data.append(key, value));
+    try {
+      await api(`patients/${id}/clinical-images/`, {
+        method: "POST",
+        body: data,
+      });
+      navigate(`/patients/${id}/images/history`);
+    } catch (error) {
+      setErrors(error.payload || { detail: error.message });
+    } finally {
+      setSaving(false);
+    }
+  }
+  return (
+    <div className="container py-4">
+      <h1 className="h2 mb-4">Cargar imagen clínica</h1>
+      <form onSubmit={submit} className="card border-0 shadow-sm">
+        <div className="card-body p-4">
+          <div className="mb-3">
+            <label htmlFor="consulta" className="form-label">
+              Consulta
+            </label>
+            <select
+              id="consulta"
+              required
+              className="form-select"
+              value={form.consulta_id}
+              onChange={(e) =>
+                setForm({ ...form, consulta_id: e.target.value })
+              }
+            >
+              <option value="">Seleccione una consulta</option>
+              {consultations.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {new Date(c.fecha_consulta).toLocaleString()} —{" "}
+                  {c.motivo_consulta}
+                </option>
+              ))}
+            </select>
+            {errors.consulta_id && (
+              <div className="text-danger small">
+                {errors.consulta_id.join(" ")}
+              </div>
+            )}
+          </div>
+          <div className="mb-3">
+            <label htmlFor="tipo" className="form-label">
+              Tipo de imagen
+            </label>
+            <input
+              id="tipo"
+              required
+              className="form-control"
+              value={form.tipo_imagen}
+              onChange={(e) =>
+                setForm({ ...form, tipo_imagen: e.target.value })
+              }
+            />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="descripcion" className="form-label">
+              Descripción
+            </label>
+            <textarea
+              id="descripcion"
+              required
+              className="form-control"
+              value={form.descripcion}
+              onChange={(e) =>
+                setForm({ ...form, descripcion: e.target.value })
+              }
+            />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="imagen" className="form-label">
+              Archivo
+            </label>
+            <input
+              id="imagen"
+              required
+              type="file"
+              accept="image/*"
+              className="form-control"
+              onChange={(e) => setForm({ ...form, imagen: e.target.files[0] })}
+            />
+            {errors.imagen && (
+              <div className="text-danger small">{errors.imagen.join(" ")}</div>
+            )}
+          </div>
+          {errors.detail && (
+            <div className="alert alert-danger">{errors.detail}</div>
+          )}
+          <button
+            disabled={saving || !consultations.length}
+            className="btn btn-primary"
+          >
+            {saving ? (
+              <span className="spinner-border spinner-border-sm" />
+            ) : (
+              "Cargar imagen"
+            )}
+          </button>
+          {!consultations.length && (
+            <p className="text-warning mt-3 mb-0">
+              Primero registra una consulta para este paciente.
+            </p>
+          )}
+        </div>
+      </form>
+    </div>
+  );
+}

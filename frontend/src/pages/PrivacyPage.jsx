@@ -1,3 +1,60 @@
 export default function PrivacyPage() {
-  return <div className="container py-5"><div className="card border-0 shadow-sm privacy-card"><div className="card-body p-5"><h1>Aviso de Privacidad</h1><p className="lead">Protección de datos personales y clínicos</p><p>SmileManager, responsable del tratamiento de sus datos personales, pone a su disposición este aviso conforme a la legislación aplicable.</p><h2 className="h4 mt-4">Datos personales recabados</h2><p>Podemos recabar datos de identificación, contacto, información médica y odontológica, antecedentes clínicos, fotografías, radiografías, documentos de identificación y datos relacionados con citas y tratamientos.</p><h2 className="h4 mt-4">Finalidades del tratamiento</h2><ul><li>Integrar y administrar el expediente clínico odontológico.</li><li>Programar, confirmar y dar seguimiento a citas.</li><li>Realizar diagnósticos, tratamientos, recetas y estudios comparativos.</li><li>Contactar al paciente y enviar recordatorios.</li><li>Cumplir obligaciones legales, sanitarias y administrativas.</li></ul><h2 className="h4 mt-4">Protección y conservación</h2><p>Los datos se protegen mediante medidas administrativas y técnicas orientadas a evitar pérdida, alteración, acceso o uso no autorizado. Se conservarán durante el tiempo necesario para las finalidades clínicas y obligaciones legales.</p><h2 className="h4 mt-4">Transferencias</h2><p>La información sólo será compartida cuando resulte necesaria para la atención médica, por obligación legal o con autorización del titular.</p><h2 className="h4 mt-4">Derechos del titular</h2><p>El titular puede solicitar acceso, rectificación, cancelación u oposición al tratamiento de sus datos, así como revocar su consentimiento, mediante contacto directo con la clínica responsable de su expediente.</p><h2 className="h4 mt-4">Cambios al aviso</h2><p>Las modificaciones al presente aviso estarán disponibles dentro de SmileManager o serán comunicadas por la clínica.</p></div></div></div>
+  return (
+    <div className="container py-5">
+      <div className="card border-0 shadow-sm privacy-card">
+        <div className="card-body p-5">
+          <h1>Aviso de Privacidad</h1>
+          <p className="lead">Protección de datos personales y clínicos</p>
+          <p>
+            SmileManager, responsable del tratamiento de sus datos personales,
+            pone a su disposición este aviso conforme a la legislación
+            aplicable.
+          </p>
+          <h2 className="h4 mt-4">Datos personales recabados</h2>
+          <p>
+            Podemos recabar datos de identificación, contacto, información
+            médica y odontológica, antecedentes clínicos, fotografías,
+            radiografías, documentos de identificación y datos relacionados con
+            citas y tratamientos.
+          </p>
+          <h2 className="h4 mt-4">Finalidades del tratamiento</h2>
+          <ul>
+            <li>Integrar y administrar el expediente clínico odontológico.</li>
+            <li>Programar, confirmar y dar seguimiento a citas.</li>
+            <li>
+              Realizar diagnósticos, tratamientos, recetas y estudios
+              comparativos.
+            </li>
+            <li>Contactar al paciente y enviar recordatorios.</li>
+            <li>Cumplir obligaciones legales, sanitarias y administrativas.</li>
+          </ul>
+          <h2 className="h4 mt-4">Protección y conservación</h2>
+          <p>
+            Los datos se protegen mediante medidas administrativas y técnicas
+            orientadas a evitar pérdida, alteración, acceso o uso no autorizado.
+            Se conservarán durante el tiempo necesario para las finalidades
+            clínicas y obligaciones legales.
+          </p>
+          <h2 className="h4 mt-4">Transferencias</h2>
+          <p>
+            La información sólo será compartida cuando resulte necesaria para la
+            atención médica, por obligación legal o con autorización del
+            titular.
+          </p>
+          <h2 className="h4 mt-4">Derechos del titular</h2>
+          <p>
+            El titular puede solicitar acceso, rectificación, cancelación u
+            oposición al tratamiento de sus datos, así como revocar su
+            consentimiento, mediante contacto directo con la clínica responsable
+            de su expediente.
+          </p>
+          <h2 className="h4 mt-4">Cambios al aviso</h2>
+          <p>
+            Las modificaciones al presente aviso estarán disponibles dentro de
+            SmileManager o serán comunicadas por la clínica.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
 }

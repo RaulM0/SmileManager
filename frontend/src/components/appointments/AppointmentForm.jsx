@@ -1,3 +1,113 @@
-import { useState } from 'react'
+import { useState } from "react";
 
-export default function AppointmentForm({initialValue,onSubmit,submitLabel}){const [form,setForm]=useState(initialValue);const [errors,setErrors]=useState({});const [saving,setSaving]=useState(false);const set=name=>e=>setForm({...form,[name]:e.target.value});async function submit(e){e.preventDefault();setSaving(true);setErrors({});try{await onSubmit(form)}catch(error){setErrors(error.payload||{detail:error.message})}finally{setSaving(false)}};return <form onSubmit={submit} className="card border-0 shadow-sm"><div className="card-body p-4"><div className="row g-3"><div className="col-md-6"><label htmlFor="fecha" className="form-label">Fecha</label><input id="fecha" type="date" required className="form-control" value={form.fecha} onChange={set('fecha')}/>{errors.fecha&&<div className="text-danger small">{errors.fecha.join(' ')}</div>}</div><div className="col-md-6"><label htmlFor="hora" className="form-label">Hora</label><input id="hora" type="time" required className="form-control" value={form.hora} onChange={set('hora')}/>{errors.hora&&<div className="text-danger small">{errors.hora.join(' ')}</div>}</div><div className="col-md-6"><label htmlFor="estatus" className="form-label">Estado</label><select id="estatus" className="form-select" value={form.estatus} onChange={set('estatus')}><option value="P">Pendiente</option><option value="C">Completada</option><option value="A">Anulada</option></select></div><div className="col-12"><label htmlFor="motivo" className="form-label">Motivo</label><textarea id="motivo" className="form-control" rows="3" value={form.motivo} onChange={set('motivo')}/></div><div className="col-12"><label htmlFor="observaciones" className="form-label">Observaciones</label><textarea id="observaciones" className="form-control" rows="3" value={form.observaciones} onChange={set('observaciones')}/></div></div>{errors.detail&&<div className="alert alert-danger mt-3">{errors.detail}</div>}<button disabled={saving} className="btn btn-primary mt-4">{saving?<span className="spinner-border spinner-border-sm"/>:submitLabel}</button></div></form>}
+export default function AppointmentForm({
+  initialValue,
+  onSubmit,
+  submitLabel,
+}) {
+  const [form, setForm] = useState(initialValue);
+  const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
+  const set = (name) => (e) => setForm({ ...form, [name]: e.target.value });
+  async function submit(e) {
+    e.preventDefault();
+    setSaving(true);
+    setErrors({});
+    try {
+      await onSubmit(form);
+    } catch (error) {
+      setErrors(error.payload || { detail: error.message });
+    } finally {
+      setSaving(false);
+    }
+  }
+  return (
+    <form onSubmit={submit} className="card border-0 shadow-sm">
+      <div className="card-body p-4">
+        <div className="row g-3">
+          <div className="col-md-6">
+            <label htmlFor="fecha" className="form-label">
+              Fecha
+            </label>
+            <input
+              id="fecha"
+              type="date"
+              required
+              className="form-control"
+              value={form.fecha}
+              onChange={set("fecha")}
+            />
+            {errors.fecha && (
+              <div className="text-danger small">{errors.fecha.join(" ")}</div>
+            )}
+          </div>
+          <div className="col-md-6">
+            <label htmlFor="hora" className="form-label">
+              Hora
+            </label>
+            <input
+              id="hora"
+              type="time"
+              required
+              className="form-control"
+              value={form.hora}
+              onChange={set("hora")}
+            />
+            {errors.hora && (
+              <div className="text-danger small">{errors.hora.join(" ")}</div>
+            )}
+          </div>
+          <div className="col-md-6">
+            <label htmlFor="estatus" className="form-label">
+              Estado
+            </label>
+            <select
+              id="estatus"
+              className="form-select"
+              value={form.estatus}
+              onChange={set("estatus")}
+            >
+              <option value="P">Pendiente</option>
+              <option value="C">Completada</option>
+              <option value="A">Anulada</option>
+            </select>
+          </div>
+          <div className="col-12">
+            <label htmlFor="motivo" className="form-label">
+              Motivo
+            </label>
+            <textarea
+              id="motivo"
+              className="form-control"
+              rows="3"
+              value={form.motivo}
+              onChange={set("motivo")}
+            />
+          </div>
+          <div className="col-12">
+            <label htmlFor="observaciones" className="form-label">
+              Observaciones
+            </label>
+            <textarea
+              id="observaciones"
+              className="form-control"
+              rows="3"
+              value={form.observaciones}
+              onChange={set("observaciones")}
+            />
+          </div>
+        </div>
+        {errors.detail && (
+          <div className="alert alert-danger mt-3">{errors.detail}</div>
+        )}
+        <button disabled={saving} className="btn btn-primary mt-4">
+          {saving ? (
+            <span className="spinner-border spinner-border-sm" />
+          ) : (
+            submitLabel
+          )}
+        </button>
+      </div>
+    </form>
+  );
+}

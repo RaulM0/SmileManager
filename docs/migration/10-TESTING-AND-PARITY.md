@@ -2,50 +2,50 @@
 
 `VERIFIED` exige API/servicio, consumidor React cuando aplica, reglas/seguridad comprobadas y equivalencia con el comportamiento legacy inventariado.
 
-| ID | Funcionalidad | Legacy | API | React | Tests | Paridad |
-|---|---|---|---|---|---|---|
-| FUNC-001 | Login | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-002 | Logout | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-003 | Sesión, perfil y layout | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-004 | Dashboard | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-005 | Privacidad | OK | N/A | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-006 | Hub de pacientes | OK | N/A | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-007 | Alta de paciente | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-008 | Listado de pacientes | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-009 | Búsqueda/paginación de pacientes | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-010 | Detalle de paciente | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-011 | Edición de paciente | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-012 | Desactivación de paciente | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-013 | Selector/autocomplete | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-014 | Antecedentes médicos | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-015 | Alta de consulta | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-016 | Historial de consultas | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-017 | Receta imprimible | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-018 | Hub de imágenes | OK | N/A | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-019 | Carga de imagen | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-020 | Búsqueda/filtros de imágenes | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-021 | Historial de imágenes | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-022 | Eliminación de imagen | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-023 | Odontograma | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-024 | Crear/actualizar estudio | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-025 | Visualizar estudio | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-026 | PDF del estudio | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-027 | Consentimiento | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-028 | Excel de pacientes | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-029 | Excel de consultas | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-030 | Excel de imágenes | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-031 | Correo al paciente | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-032 | Calendario de citas | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-033 | Selector para cita | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-034 | Alta de cita | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-035 | Búsqueda/detalle de cita | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-036 | Edición de cita | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-037 | Filtros por estado | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-038 | Completar/cancelar cita | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-039 | Listado/filtros diagnósticos | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-040 | Inferencia YOLO/resultados | OK | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
-| FUNC-041 | Django Admin | OK | VERIFIED | N/A | VERIFIED | VERIFIED |
-| FUNC-042 | Recordatorios por correo | OK | VERIFIED | N/A | VERIFIED | VERIFIED |
+| ID       | Funcionalidad                    | Legacy | API      | React    | Tests    | Paridad  |
+| -------- | -------------------------------- | ------ | -------- | -------- | -------- | -------- |
+| FUNC-001 | Login                            | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-002 | Logout                           | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-003 | Sesión, perfil y layout          | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-004 | Dashboard                        | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-005 | Privacidad                       | OK     | N/A      | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-006 | Hub de pacientes                 | OK     | N/A      | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-007 | Alta de paciente                 | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-008 | Listado de pacientes             | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-009 | Búsqueda/paginación de pacientes | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-010 | Detalle de paciente              | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-011 | Edición de paciente              | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-012 | Desactivación de paciente        | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-013 | Selector/autocomplete            | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-014 | Antecedentes médicos             | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-015 | Alta de consulta                 | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-016 | Historial de consultas           | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-017 | Receta imprimible                | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-018 | Hub de imágenes                  | OK     | N/A      | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-019 | Carga de imagen                  | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-020 | Búsqueda/filtros de imágenes     | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-021 | Historial de imágenes            | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-022 | Eliminación de imagen            | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-023 | Odontograma                      | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-024 | Crear/actualizar estudio         | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-025 | Visualizar estudio               | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-026 | PDF del estudio                  | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-027 | Consentimiento                   | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-028 | Excel de pacientes               | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-029 | Excel de consultas               | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-030 | Excel de imágenes                | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-031 | Correo al paciente               | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-032 | Calendario de citas              | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-033 | Selector para cita               | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-034 | Alta de cita                     | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-035 | Búsqueda/detalle de cita         | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-036 | Edición de cita                  | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-037 | Filtros por estado               | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-038 | Completar/cancelar cita          | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-039 | Listado/filtros diagnósticos     | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-040 | Inferencia YOLO/resultados       | OK     | VERIFIED | VERIFIED | VERIFIED | VERIFIED |
+| FUNC-041 | Django Admin                     | OK     | VERIFIED | N/A      | VERIFIED | VERIFIED |
+| FUNC-042 | Recordatorios por correo         | OK     | VERIFIED | N/A      | VERIFIED | VERIFIED |
 
 ## Evidencia automática final
 

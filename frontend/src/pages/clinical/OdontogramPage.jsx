@@ -1,14 +1,195 @@
-import { useEffect,useMemo,useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { api } from '../../api/client'
+import { useEffect, useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
+import { api } from "../../api/client";
 
-const states=[['sano','Sano'],['caries','Caries'],['restauracion','Restauración'],['ausente','Ausente'],['extraccion','Extracción'],['protesis','Prótesis']]
-const surfaces=['mesial','oclusal','distal','lingual','vestibular']
-const permanent=[[18,17,16,15,14,13,12,11],[21,22,23,24,25,26,27,28],[48,47,46,45,44,43,42,41],[31,32,33,34,35,36,37,38]]
-const deciduous=[[55,54,53,52,51],[61,62,63,64,65],[85,84,83,82,81],[71,72,73,74,75]]
-const healthy=()=>Object.fromEntries(surfaces.map(surface=>[surface,'sano']))
-function fullDentition(groups,saved){return Object.fromEntries(groups.flat().map(number=>[number,{...healthy(),...(saved?.[number]||{})}]))}
-function Tooth({number,data,onSurface}){return <div className="tooth"><div className="tooth-grid">{surfaces.map(surface=><button aria-label={`${number} ${surface} ${data[surface]}`} title={surface} type="button" key={surface} className={`tooth-surface tooth-${surface} state-${data[surface]}`} onClick={()=>onSurface(number,surface)}/>)}</div><span className="tooth-number">{number}</span></div>}
-function Dentition({title,groups,data,onSurface}){return <section className="card border-0 shadow-sm mb-4"><div className="card-body"><h2 className="h4">{title}</h2><div className="odontogram-quadrants">{groups.map((group,index)=><div className="tooth-row" key={index}>{group.map(number=><Tooth key={number} number={number} data={data[number]} onSurface={onSurface}/>)}</div>)}</div></div></section>}
+const states = [
+  ["sano", "Sano"],
+  ["caries", "Caries"],
+  ["restauracion", "Restauración"],
+  ["ausente", "Ausente"],
+  ["extraccion", "Extracción"],
+  ["protesis", "Prótesis"],
+];
+const surfaces = ["mesial", "oclusal", "distal", "lingual", "vestibular"];
+const permanent = [
+  [18, 17, 16, 15, 14, 13, 12, 11],
+  [21, 22, 23, 24, 25, 26, 27, 28],
+  [48, 47, 46, 45, 44, 43, 42, 41],
+  [31, 32, 33, 34, 35, 36, 37, 38],
+];
+const deciduous = [
+  [55, 54, 53, 52, 51],
+  [61, 62, 63, 64, 65],
+  [85, 84, 83, 82, 81],
+  [71, 72, 73, 74, 75],
+];
+const healthy = () =>
+  Object.fromEntries(surfaces.map((surface) => [surface, "sano"]));
+function fullDentition(groups, saved) {
+  return Object.fromEntries(
+    groups
+      .flat()
+      .map((number) => [number, { ...healthy(), ...(saved?.[number] || {}) }]),
+  );
+}
+function Tooth({ number, data, onSurface }) {
+  return (
+    <div className="tooth">
+      <div className="tooth-grid">
+        {surfaces.map((surface) => (
+          <button
+            aria-label={`${number} ${surface} ${data[surface]}`}
+            title={surface}
+            type="button"
+            key={surface}
+            className={`tooth-surface tooth-${surface} state-${data[surface]}`}
+            onClick={() => onSurface(number, surface)}
+          />
+        ))}
+      </div>
+      <span className="tooth-number">{number}</span>
+    </div>
+  );
+}
+function Dentition({ title, groups, data, onSurface }) {
+  return (
+    <section className="card border-0 shadow-sm mb-4">
+      <div className="card-body">
+        <h2 className="h4">{title}</h2>
+        <div className="odontogram-quadrants">
+          {groups.map((group, index) => (
+            <div className="tooth-row" key={index}>
+              {group.map((number) => (
+                <Tooth
+                  key={number}
+                  number={number}
+                  data={data[number]}
+                  onSurface={onSurface}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
 
-export default function OdontogramPage(){const {id}=useParams();const [active,setActive]=useState('sano');const [permanentData,setPermanent]=useState(null);const [deciduousData,setDeciduous]=useState(null);const [notice,setNotice]=useState('');useEffect(()=>{api(`patients/${id}/odontogram/`).then(data=>{setPermanent(fullDentition(permanent,data.denticion_permanente));setDeciduous(fullDentition(deciduous,data.denticion_decidua))})},[id]);const summary=useMemo(()=>{if(!permanentData||!deciduousData)return{};const all=[...Object.values(permanentData),...Object.values(deciduousData)];return{total_dientes:all.length,dientes_sanos:all.filter(tooth=>Object.values(tooth).every(state=>state==='sano')).length,dientes_afectados:all.filter(tooth=>Object.values(tooth).some(state=>state!=='sano')).length,superficies_caries:all.flatMap(Object.values).filter(state=>state==='caries').length,superficies_restauradas:all.flatMap(Object.values).filter(state=>state==='restauracion').length}},[permanentData,deciduousData]);if(!permanentData||!deciduousData)return <div className="page-loader"><div className="spinner-border text-primary"/></div>;const change=(setter)=>(number,surface)=>setter(current=>({...current,[number]:{...current[number],[surface]:active}}));async function save(){await api(`patients/${id}/odontogram/`,{method:'PUT',body:JSON.stringify({denticion_permanente:permanentData,denticion_decidua:deciduousData,resumen:summary})});setNotice('Odontograma guardado correctamente.')}function clear(){if(!window.confirm('¿Confirma que desea limpiar completamente el odontograma?'))return;setPermanent(fullDentition(permanent,{}));setDeciduous(fullDentition(deciduous,{}))}return <div className="container-fluid px-4 py-4"><h1>Odontograma Digital</h1><p className="text-muted">Sistema Profesional FDI</p>{notice&&<div className="alert alert-success">{notice}</div>}<div className="card border-0 shadow-sm mb-4"><div className="card-body"><h2 className="h5">Herramientas de diagnóstico</h2><div className="d-flex flex-wrap gap-2">{states.map(([value,label])=><button type="button" key={value} className={`btn state-choice state-${value} ${active===value?'active':''}`} onClick={()=>setActive(value)}>{label}</button>)}</div></div></div><Dentition title="Dentición Permanente" groups={permanent} data={permanentData} onSurface={change(setPermanent)}/><Dentition title="Dentición Decidua (Temporal)" groups={deciduous} data={deciduousData} onSurface={change(setDeciduous)}/><div className="card border-0 shadow-sm mb-4"><div className="card-body d-flex flex-wrap gap-4"><span>Total: {summary.total_dientes}</span><span>Sanos: {summary.dientes_sanos}</span><span>Afectados: {summary.dientes_afectados}</span><span>Caries: {summary.superficies_caries}</span><span>Restauradas: {summary.superficies_restauradas}</span></div></div><button className="btn btn-primary me-2" onClick={save}>Guardar odontograma</button><button className="btn btn-outline-secondary" onClick={clear}>Limpiar todo</button></div>}
+export default function OdontogramPage() {
+  const { id } = useParams();
+  const [active, setActive] = useState("sano");
+  const [permanentData, setPermanent] = useState(null);
+  const [deciduousData, setDeciduous] = useState(null);
+  const [notice, setNotice] = useState("");
+  useEffect(() => {
+    api(`patients/${id}/odontogram/`).then((data) => {
+      setPermanent(fullDentition(permanent, data.denticion_permanente));
+      setDeciduous(fullDentition(deciduous, data.denticion_decidua));
+    });
+  }, [id]);
+  const summary = useMemo(() => {
+    if (!permanentData || !deciduousData) return {};
+    const all = [
+      ...Object.values(permanentData),
+      ...Object.values(deciduousData),
+    ];
+    return {
+      total_dientes: all.length,
+      dientes_sanos: all.filter((tooth) =>
+        Object.values(tooth).every((state) => state === "sano"),
+      ).length,
+      dientes_afectados: all.filter((tooth) =>
+        Object.values(tooth).some((state) => state !== "sano"),
+      ).length,
+      superficies_caries: all
+        .flatMap(Object.values)
+        .filter((state) => state === "caries").length,
+      superficies_restauradas: all
+        .flatMap(Object.values)
+        .filter((state) => state === "restauracion").length,
+    };
+  }, [permanentData, deciduousData]);
+  if (!permanentData || !deciduousData)
+    return (
+      <div className="page-loader">
+        <div className="spinner-border text-primary" />
+      </div>
+    );
+  const change = (setter) => (number, surface) =>
+    setter((current) => ({
+      ...current,
+      [number]: { ...current[number], [surface]: active },
+    }));
+  async function save() {
+    await api(`patients/${id}/odontogram/`, {
+      method: "PUT",
+      body: JSON.stringify({
+        denticion_permanente: permanentData,
+        denticion_decidua: deciduousData,
+        resumen: summary,
+      }),
+    });
+    setNotice("Odontograma guardado correctamente.");
+  }
+  function clear() {
+    if (
+      !window.confirm(
+        "¿Confirma que desea limpiar completamente el odontograma?",
+      )
+    )
+      return;
+    setPermanent(fullDentition(permanent, {}));
+    setDeciduous(fullDentition(deciduous, {}));
+  }
+  return (
+    <div className="container-fluid px-4 py-4">
+      <h1>Odontograma Digital</h1>
+      <p className="text-muted">Sistema Profesional FDI</p>
+      {notice && <div className="alert alert-success">{notice}</div>}
+      <div className="card border-0 shadow-sm mb-4">
+        <div className="card-body">
+          <h2 className="h5">Herramientas de diagnóstico</h2>
+          <div className="d-flex flex-wrap gap-2">
+            {states.map(([value, label]) => (
+              <button
+                type="button"
+                key={value}
+                className={`btn state-choice state-${value} ${active === value ? "active" : ""}`}
+                onClick={() => setActive(value)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+      <Dentition
+        title="Dentición Permanente"
+        groups={permanent}
+        data={permanentData}
+        onSurface={change(setPermanent)}
+      />
+      <Dentition
+        title="Dentición Decidua (Temporal)"
+        groups={deciduous}
+        data={deciduousData}
+        onSurface={change(setDeciduous)}
+      />
+      <div className="card border-0 shadow-sm mb-4">
+        <div className="card-body d-flex flex-wrap gap-4">
+          <span>Total: {summary.total_dientes}</span>
+          <span>Sanos: {summary.dientes_sanos}</span>
+          <span>Afectados: {summary.dientes_afectados}</span>
+          <span>Caries: {summary.superficies_caries}</span>
+          <span>Restauradas: {summary.superficies_restauradas}</span>
+        </div>
+      </div>
+      <button className="btn btn-primary me-2" onClick={save}>
+        Guardar odontograma
+      </button>
+      <button className="btn btn-outline-secondary" onClick={clear}>
+        Limpiar todo
+      </button>
+    </div>
+  );
+}

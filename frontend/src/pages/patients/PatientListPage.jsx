@@ -1,13 +1,138 @@
-import { useEffect, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
-import { api } from '../../api/client'
+import { useEffect, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { api } from "../../api/client";
 
-export default function PatientListPage({ searchable=false }){
-  const [params,setParams]=useSearchParams(); const [data,setData]=useState(null); const [error,setError]=useState(''); const query=params.get('q')||''; const page=params.get('page')||'1'; const [term,setTerm]=useState(query)
-  useEffect(()=>{api(`patients/?search=${encodeURIComponent(query)}&page=${page}`).then(setData).catch(e=>setError(e.message))},[query,page])
-  function search(event){event.preventDefault();setParams(term?{q:term}:{})}
-  return <div className="container py-4"><div className="d-flex justify-content-between mb-4"><h1 className="h2">{searchable?'Buscar pacientes':'Todos los pacientes'}</h1><Link to="/patients/new" className="btn btn-primary"><i className="bi bi-person-plus me-2"/>Registrar</Link></div>
-    {searchable&&<form onSubmit={search} className="input-group mb-4"><input type="search" aria-label="Buscar pacientes" className="form-control" value={term} onChange={e=>setTerm(e.target.value)} placeholder="Nombre, teléfono o correo"/><button className="btn btn-primary">Buscar</button></form>}
-    {error&&<div className="alert alert-danger">{error}</div>}{!data?<div className="page-loader"><div className="spinner-border text-primary"/></div>:data.results.length?<div className="card border-0 shadow-sm"><div className="table-responsive"><table className="table table-hover mb-0"><thead><tr><th>Paciente</th><th>Teléfono</th><th>Correo</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>{data.results.map(p=><tr key={p.id}><td>{p.nombre} {p.appat} {p.apmat}</td><td>{p.telefono}</td><td>{p.email}</td><td><span className={`badge bg-${p.estatus==='A'?'success':'secondary'}`}>{p.estatus==='A'?'Activo':'Inactivo'}</span></td><td><Link aria-label={`Ver ${p.nombre}`} className="btn btn-sm btn-outline-primary me-2" to={`/patients/${p.id}`}><i className="bi bi-eye"/></Link><Link aria-label={`Editar ${p.nombre}`} className="btn btn-sm btn-outline-secondary" to={`/patients/${p.id}/edit`}><i className="bi bi-pencil"/></Link></td></tr>)}</tbody></table></div></div>:<div className="alert alert-light text-center">No se encontraron pacientes.</div>}
-    {data&&<div className="d-flex justify-content-between mt-3"><button className="btn btn-outline-primary" disabled={!data.previous} onClick={()=>setParams({...Object.fromEntries(params),page:String(Number(page)-1)})}>Anterior</button><span>Página {page} · {data.count} registros</span><button className="btn btn-outline-primary" disabled={!data.next} onClick={()=>setParams({...Object.fromEntries(params),page:String(Number(page)+1)})}>Siguiente</button></div>}
-  </div>}
+export default function PatientListPage({ searchable = false }) {
+  const [params, setParams] = useSearchParams();
+  const [data, setData] = useState(null);
+  const [error, setError] = useState("");
+  const query = params.get("q") || "";
+  const page = params.get("page") || "1";
+  const [term, setTerm] = useState(query);
+  useEffect(() => {
+    api(`patients/?search=${encodeURIComponent(query)}&page=${page}`)
+      .then(setData)
+      .catch((e) => setError(e.message));
+  }, [query, page]);
+  function search(event) {
+    event.preventDefault();
+    setParams(term ? { q: term } : {});
+  }
+  return (
+    <div className="container py-4">
+      <div className="d-flex justify-content-between mb-4">
+        <h1 className="h2">
+          {searchable ? "Buscar pacientes" : "Todos los pacientes"}
+        </h1>
+        <Link to="/patients/new" className="btn btn-primary">
+          <i className="bi bi-person-plus me-2" />
+          Registrar
+        </Link>
+      </div>
+      {searchable && (
+        <form onSubmit={search} className="input-group mb-4">
+          <input
+            type="search"
+            aria-label="Buscar pacientes"
+            className="form-control"
+            value={term}
+            onChange={(e) => setTerm(e.target.value)}
+            placeholder="Nombre, teléfono o correo"
+          />
+          <button className="btn btn-primary">Buscar</button>
+        </form>
+      )}
+      {error && <div className="alert alert-danger">{error}</div>}
+      {!data ? (
+        <div className="page-loader">
+          <div className="spinner-border text-primary" />
+        </div>
+      ) : data.results.length ? (
+        <div className="card border-0 shadow-sm">
+          <div className="table-responsive">
+            <table className="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>Paciente</th>
+                  <th>Teléfono</th>
+                  <th>Correo</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.results.map((p) => (
+                  <tr key={p.id}>
+                    <td>
+                      {p.nombre} {p.appat} {p.apmat}
+                    </td>
+                    <td>{p.telefono}</td>
+                    <td>{p.email}</td>
+                    <td>
+                      <span
+                        className={`badge bg-${p.estatus === "A" ? "success" : "secondary"}`}
+                      >
+                        {p.estatus === "A" ? "Activo" : "Inactivo"}
+                      </span>
+                    </td>
+                    <td>
+                      <Link
+                        aria-label={`Ver ${p.nombre}`}
+                        className="btn btn-sm btn-outline-primary me-2"
+                        to={`/patients/${p.id}`}
+                      >
+                        <i className="bi bi-eye" />
+                      </Link>
+                      <Link
+                        aria-label={`Editar ${p.nombre}`}
+                        className="btn btn-sm btn-outline-secondary"
+                        to={`/patients/${p.id}/edit`}
+                      >
+                        <i className="bi bi-pencil" />
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : (
+        <div className="alert alert-light text-center">
+          No se encontraron pacientes.
+        </div>
+      )}
+      {data && (
+        <div className="d-flex justify-content-between mt-3">
+          <button
+            className="btn btn-outline-primary"
+            disabled={!data.previous}
+            onClick={() =>
+              setParams({
+                ...Object.fromEntries(params),
+                page: String(Number(page) - 1),
+              })
+            }
+          >
+            Anterior
+          </button>
+          <span>
+            Página {page} · {data.count} registros
+          </span>
+          <button
+            className="btn btn-outline-primary"
+            disabled={!data.next}
+            onClick={() =>
+              setParams({
+                ...Object.fromEntries(params),
+                page: String(Number(page) + 1),
+              })
+            }
+          >
+            Siguiente
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}

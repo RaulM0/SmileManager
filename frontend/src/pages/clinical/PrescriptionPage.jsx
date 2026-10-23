@@ -1,5 +1,47 @@
-import { useEffect,useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { api } from '../../api/client'
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { api } from "../../api/client";
 
-export default function PrescriptionPage(){const {id}=useParams();const [item,setItem]=useState(null);useEffect(()=>{api(`consultations/${id}/`).then(setItem)},[id]);if(!item)return <div className="page-loader"><div className="spinner-border text-primary"/></div>;return <div className="container py-4"><div className="card border-0 shadow-sm prescription"><div className="card-body p-5"><h1 className="text-primary">Receta médica</h1><hr/><p><strong>Paciente:</strong> {item.paciente.full_name}</p><p><strong>Fecha:</strong> {new Date(item.fecha_consulta).toLocaleString()}</p><h2 className="h5 mt-4">Diagnóstico</h2><p>{item.diagnostico}</p><h2 className="h5">Tratamiento</h2><p>{item.tratamiento}</p><h2 className="h5">Observaciones</h2><p>{item.observaciones}</p></div></div><button className="btn btn-primary mt-3 d-print-none" onClick={()=>window.print()}><i className="bi bi-printer me-2"/>Descargar PDF / Imprimir</button></div>}
+export default function PrescriptionPage() {
+  const { id } = useParams();
+  const [item, setItem] = useState(null);
+  useEffect(() => {
+    api(`consultations/${id}/`).then(setItem);
+  }, [id]);
+  if (!item)
+    return (
+      <div className="page-loader">
+        <div className="spinner-border text-primary" />
+      </div>
+    );
+  return (
+    <div className="container py-4">
+      <div className="card border-0 shadow-sm prescription">
+        <div className="card-body p-5">
+          <h1 className="text-primary">Receta médica</h1>
+          <hr />
+          <p>
+            <strong>Paciente:</strong> {item.paciente.full_name}
+          </p>
+          <p>
+            <strong>Fecha:</strong>{" "}
+            {new Date(item.fecha_consulta).toLocaleString()}
+          </p>
+          <h2 className="h5 mt-4">Diagnóstico</h2>
+          <p>{item.diagnostico}</p>
+          <h2 className="h5">Tratamiento</h2>
+          <p>{item.tratamiento}</p>
+          <h2 className="h5">Observaciones</h2>
+          <p>{item.observaciones}</p>
+        </div>
+      </div>
+      <button
+        className="btn btn-primary mt-3 d-print-none"
+        onClick={() => window.print()}
+      >
+        <i className="bi bi-printer me-2" />
+        Descargar PDF / Imprimir
+      </button>
+    </div>
+  );
+}

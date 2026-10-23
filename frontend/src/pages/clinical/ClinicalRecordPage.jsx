@@ -1,3 +1,46 @@
-import { Link,useParams } from 'react-router-dom'
+import { Link, useParams } from "react-router-dom";
 
-export default function ClinicalRecordPage(){const {id}=useParams();const actions=[['Antecedentes médicos','bi-heart-pulse',`/patients/${id}/medical-history`],['Nueva consulta','bi-clipboard2-plus',`/patients/${id}/consultations/new`],['Historial de consultas','bi-clock-history',`/patients/${id}/consultations`],['Imágenes clínicas','bi-images',`/patients/${id}/images`],['Odontograma','bi-grid-3x3-gap',`/patients/${id}/odontogram`],['Progreso','bi-arrow-left-right',`/patients/${id}/comparative-study`],['Consentimiento','bi-file-earmark-check',`/patients/${id}/consent`]];return <div className="container py-4"><h1 className="h2 mb-4">Expediente clínico</h1><div className="row g-3">{actions.map(([title,icon,to])=><div className="col-md-6 col-lg-4" key={title}><Link className="card border-0 shadow-sm h-100 text-decoration-none text-dark" to={to}><div className="card-body p-4"><i className={`bi ${icon} fs-2 text-primary`}/><h2 className="h5 mt-3">{title}</h2></div></Link></div>)}</div></div>}
+export default function ClinicalRecordPage() {
+  const { id } = useParams();
+  const actions = [
+    [
+      "Antecedentes médicos",
+      "bi-heart-pulse",
+      `/patients/${id}/medical-history`,
+    ],
+    [
+      "Nueva consulta",
+      "bi-clipboard2-plus",
+      `/patients/${id}/consultations/new`,
+    ],
+    [
+      "Historial de consultas",
+      "bi-clock-history",
+      `/patients/${id}/consultations`,
+    ],
+    ["Imágenes clínicas", "bi-images", `/patients/${id}/images`],
+    ["Odontograma", "bi-grid-3x3-gap", `/patients/${id}/odontogram`],
+    ["Progreso", "bi-arrow-left-right", `/patients/${id}/comparative-study`],
+    ["Consentimiento", "bi-file-earmark-check", `/patients/${id}/consent`],
+  ];
+  return (
+    <div className="container py-4">
+      <h1 className="h2 mb-4">Expediente clínico</h1>
+      <div className="row g-3">
+        {actions.map(([title, icon, to]) => (
+          <div className="col-md-6 col-lg-4" key={title}>
+            <Link
+              className="card border-0 shadow-sm h-100 text-decoration-none text-dark"
+              to={to}
+            >
+              <div className="card-body p-4">
+                <i className={`bi ${icon} fs-2 text-primary`} />
+                <h2 className="h5 mt-3">{title}</h2>
+              </div>
+            </Link>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
