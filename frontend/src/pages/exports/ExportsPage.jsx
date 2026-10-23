@@ -1,0 +1,41 @@
+const exports = [
+  ["Pacientes", "Datos generales y contacto", "patients.xlsx", "bi-people"],
+  [
+    "Consultas",
+    "Historial clínico",
+    "consultations.xlsx",
+    "bi-clipboard2-pulse",
+  ],
+  [
+    "Imágenes clínicas",
+    "Metadatos de imágenes",
+    "clinical-images.xlsx",
+    "bi-images",
+  ],
+];
+export default function ExportsPage() {
+  return (
+    <div className="container py-4">
+      <h1 className="h2 mb-4">Exportar datos</h1>
+      <div className="row g-4">
+        {exports.map(([title, text, path, icon]) => (
+          <div className="col-md-4" key={path}>
+            <div className="card border-0 shadow-sm h-100">
+              <div className="card-body p-4">
+                <i className={`bi ${icon} fs-2 text-primary`} />
+                <h2 className="h5 mt-3">{title}</h2>
+                <p className="text-muted">{text}</p>
+                <a
+                  className="btn btn-outline-primary"
+                  href={`/api/v1/exports/${path}`}
+                >
+                  Descargar Excel
+                </a>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

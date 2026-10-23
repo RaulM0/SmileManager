@@ -18,7 +18,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'storages',
+    'api',
     'Home',
     'Pacientes',
     'Citas',
@@ -44,7 +46,7 @@ ROOT_URLCONF = 'SmileManager.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'frontend' / 'dist'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -80,6 +82,9 @@ USE_TZ = True
 # STATIC (WhiteNoise)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [
+    ('react', BASE_DIR / 'frontend' / 'dist'),
+]
 
 # ============================================
 # AWS S3 Configuration
@@ -137,6 +142,15 @@ SESSION_COOKIE_AGE = 1800
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'login'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
 
 # CSRF & Cookies
 CSRF_TRUSTED_ORIGINS = ['https://smilemanager.onrender.com']

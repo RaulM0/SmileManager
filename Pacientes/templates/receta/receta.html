@@ -1,9 +1,7 @@
-{% extends 'Dentista/base.html' %}
-{% block content %}
+{% extends 'Dentista/base.html' %} {% block content %}
 
 <style>
   @media print {
-
     header,
     footer,
     .navbar,
@@ -84,7 +82,12 @@
   {% for message in messages %}
   <div class="alert alert-success alert-dismissible fade show" role="alert">
     {{ message }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="alert"
+      aria-label="Cerrar"
+    ></button>
   </div>
   {% endfor %}
 </div>
@@ -93,12 +96,17 @@
 <div class="receta-container">
   <div class="titulo">
     <h2>Receta Médica</h2>
-    <small><strong>Fecha:</strong> {{ consulta.fecha_consulta|date:"d/m/Y H:i" }}</small>
+    <small
+      ><strong>Fecha:</strong> {{ consulta.fecha_consulta|date:"d/m/Y H:i"
+      }}</small
+    >
   </div>
 
   <div class="datos">
-    <div><strong>Paciente:</strong> {{ consulta.paciente.nombre }} {{ consulta.paciente.appat }} 
-      {{consulta.paciente.apmat }}</div>
+    <div>
+      <strong>Paciente:</strong> {{ consulta.paciente.nombre }} {{
+      consulta.paciente.appat }} {{consulta.paciente.apmat }}
+    </div>
     <div><strong>ID:</strong> {{ consulta.paciente.id }}</div>
   </div>
 
@@ -129,8 +137,12 @@
   </div>
 
   <div class="text-center mt-3 d-print-none">
-    <a href="{% url 'menu_historial' %}" class="btn btn-secondary me-3">Volver</a>
-    <button onclick="window.print()" class="btn btn-primary">Descargar PDF</button>
+    <a href="{% url 'menu_historial' %}" class="btn btn-secondary me-3"
+      >Volver</a
+    >
+    <button onclick="window.print()" class="btn btn-primary">
+      Descargar PDF
+    </button>
   </div>
 </div>
 

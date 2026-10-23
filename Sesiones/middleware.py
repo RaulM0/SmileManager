@@ -6,6 +6,8 @@ EXEMPT_PREFIXES = [
     '/sesiones/logout/',
     '/admin/',        # permite todas las rutas del admin
     '/static/',       # archivos estáticos (admin usa estos)
+    '/api/',          # DRF aplica permisos y devuelve JSON, no redirecciones HTML
+    '/app',           # React gestiona sus propias rutas y protección de sesión
 ]
 
 class LoginRequiredMiddleware:

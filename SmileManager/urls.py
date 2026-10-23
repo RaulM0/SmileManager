@@ -16,9 +16,10 @@ Including another URLconf
 """
 from django.conf import settings
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf.urls.static import static
 from django.views.generic import RedirectView
+from django.views.generic import TemplateView
 
 
 
@@ -31,7 +32,9 @@ urlpatterns = [
     path('menu_citas/', include('Citas.urls')),
     path('diagnosticos/', include('DiagnosticosIA.urls')),
     path('sesiones/', include('Sesiones.urls')),
+    path('api/v1/', include('api.urls')),
+    re_path(r'^app(?:/.*)?$', TemplateView.as_view(template_name='index.html'), name='react-app'),
 ]
 
-#if settings.DEBUG:
-#   urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
