@@ -17,16 +17,20 @@ Including another URLconf
 from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include, re_path
-from django.conf.urls.static import static
 from django.views.generic import RedirectView
 from django.views.generic import TemplateView
+from api import health
 
 
 
 urlpatterns = [
+    path('health', health.live),
+    path('health/', health.live, name='health-live'),
+    path('health/ready', health.ready),
+    path('health/ready/', health.ready, name='health-ready'),
     path('', RedirectView.as_view(url='/sesiones/login/', permanent=False), name='index'),
 
-    path('admin/', admin.site.urls), # user: admin / password: 123
+    path('admin/', admin.site.urls),
     path('home/', include('Home.urls')),
     path('registroPacientes/', include('Pacientes.urls')),
     path('menu_citas/', include('Citas.urls')),
@@ -35,6 +39,3 @@ urlpatterns = [
     path('api/v1/', include('api.urls')),
     re_path(r'^app(?:/.*)?$', TemplateView.as_view(template_name='index.html'), name='react-app'),
 ]
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

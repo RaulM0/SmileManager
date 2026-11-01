@@ -1,21 +1,53 @@
 import os
 import shutil
 import tempfile
+import hashlib
+from functools import lru_cache
 from django.conf import settings
 from django.core.files import File
 from ultralytics import YOLO
 
+@lru_cache(maxsize=1)
+def model_version():
+    digest = hashlib.sha256()
+    with open(os.path.join(settings.BASE_DIR, 'train_model', 'best.pt'), 'rb') as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b''):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+# El artefacto debe permanecer inmutable durante la vida del proceso.
+model_version()
 model=YOLO(os.path.join(settings.BASE_DIR,'train_model','best.pt'))
 
-def analyze_clinical_image(image):
+class ClinicalImageMissingError(Exception):
+    """The source referenced by the clinical record is absent from storage."""
+
+
+class ClinicalImageChangedError(Exception):
+    """La imagen cambió después de calcular la huella."""
+
+
+def analyze_clinical_image(image, *, expected_hash=None):
     temp_input=None; temp_results=None
     try:
+        if not image.imagen:
+            raise ClinicalImageMissingError
         suffix=os.path.splitext(image.imagen.name)[1] or '.jpg'
-        with tempfile.NamedTemporaryFile(delete=False,suffix=suffix) as temporary:
+        try:
             image.imagen.open('rb')
-            try: shutil.copyfileobj(image.imagen,temporary)
-            finally: image.imagen.close()
+        except FileNotFoundError as exc:
+            raise ClinicalImageMissingError from exc
+        with tempfile.NamedTemporaryFile(delete=False,suffix=suffix) as temporary:
             temp_input=temporary.name
+            try:
+                digest = hashlib.sha256()
+                for chunk in iter(lambda: image.imagen.read(1024 * 1024), b''):
+                    digest.update(chunk)
+                    temporary.write(chunk)
+                if expected_hash and digest.hexdigest() != expected_hash:
+                    raise ClinicalImageChangedError
+            finally: image.imagen.close()
         temp_results=tempfile.mkdtemp(prefix='yolo_results_')
         results=model.predict(temp_input,save=True,project=temp_results,name='pred')
         save_dir=str(results[0].save_dir)

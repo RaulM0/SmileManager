@@ -1,0 +1,9 @@
+[extend]
+useDefault = true
+
+[allowlist]
+paths = [
+  '''(^|/)(\.venv|node_modules|\.git|media|staticfiles|dist|\.security-tools)(/|$)''',
+  '''(^|/)\.e2e-(run|closure|phase4)[^/]*(/|$)''',
+  '''(^|/)(db\.sqlite3|\.pip-audit-closure\.json)$''',
+]

@@ -31,32 +31,32 @@ class AntescedentesMedicos(models.Model):
     medico = models.ForeignKey(User, on_delete=models.CASCADE)
 
     # Detalles médicos
-    tratamiento_medico = models.BooleanField(default=False, verbose_name="¿Está en tratamiento médico?")
-    problemas_cardiacos = models.BooleanField(default=False, verbose_name="¿Tiene problemas cardíacos?")
-    problemas_coagulacion = models.BooleanField(default=False, verbose_name="¿Tiene problemas de coagulación?")
-    epilepsia = models.BooleanField(default=False, verbose_name="Epilepsia/Convulsiones")
-    gastritis = models.BooleanField(default=False, verbose_name="Gastritis/Úlceras")
-    hipertension = models.BooleanField(default=False, verbose_name="Hipertensión")
-    anemia = models.BooleanField(default=False, verbose_name="Anemia")
-    embarazo = models.BooleanField(default=False, verbose_name="Embarazo/Sospecha de embarazo")
-    alergia_medicamentos = models.BooleanField(default=False, verbose_name="Alergia a algún medicamento")
-    alergia_especifica = models.BooleanField(default=False, verbose_name="Alergia específica")
-    discapacidad = models.BooleanField(default=False, verbose_name="Discapacidad")
-    fuma = models.BooleanField(default=False, verbose_name="¿Fuma?")
+    tratamiento_medico = models.BooleanField(null=True, blank=True, default=None, verbose_name="¿Está en tratamiento médico?")
+    problemas_cardiacos = models.BooleanField(null=True, blank=True, default=None, verbose_name="¿Tiene problemas cardíacos?")
+    problemas_coagulacion = models.BooleanField(null=True, blank=True, default=None, verbose_name="¿Tiene problemas de coagulación?")
+    epilepsia = models.BooleanField(null=True, blank=True, default=None, verbose_name="Epilepsia/Convulsiones")
+    gastritis = models.BooleanField(null=True, blank=True, default=None, verbose_name="Gastritis/Úlceras")
+    hipertension = models.BooleanField(null=True, blank=True, default=None, verbose_name="Hipertensión")
+    anemia = models.BooleanField(null=True, blank=True, default=None, verbose_name="Anemia")
+    embarazo = models.BooleanField(null=True, blank=True, default=None, verbose_name="Embarazo/Sospecha de embarazo")
+    alergia_medicamentos = models.BooleanField(null=True, blank=True, default=None, verbose_name="Alergia a algún medicamento")
+    alergia_especifica = models.BooleanField(null=True, blank=True, default=None, verbose_name="Alergia específica")
+    discapacidad = models.BooleanField(null=True, blank=True, default=None, verbose_name="Discapacidad")
+    fuma = models.BooleanField(null=True, blank=True, default=None, verbose_name="¿Fuma?")
 
     # Detalles dentales
-    respiracion_bucal = models.BooleanField(default=False, verbose_name="Respiración bucal")
-    morder_unas = models.BooleanField(default=False, verbose_name="Morderse las uñas")
-    chupar_dedo = models.BooleanField(default=False, verbose_name="Chupar dedo o labios")
-    rechinar_dientes = models.BooleanField(default=False, verbose_name="Rechinar los dientes")
-    sobremordida_vertical = models.BooleanField(default=False, verbose_name="Sobremordida vertical")
-    sobremordida_horizontal = models.BooleanField(default=False, verbose_name="Sobremordida horizontal")
-    mordida_cruzada = models.BooleanField(default=False, verbose_name="Mordida cruzada")
-    mordida_abierta = models.BooleanField(default=False, verbose_name="Mordida abierta")
-    desgaste = models.BooleanField(default=False, verbose_name="Desgaste - Abrasion")
-    problemas_atm = models.BooleanField(default=False, verbose_name="Problemas ATM chasquidos")
-    consumo_citricos = models.BooleanField(default=False, verbose_name="Consumo frecuente de cítricos")
-    sangrado_encias = models.BooleanField(default=False, verbose_name="Sangrado de encías")
+    respiracion_bucal = models.BooleanField(null=True, blank=True, default=None, verbose_name="Respiración bucal")
+    morder_unas = models.BooleanField(null=True, blank=True, default=None, verbose_name="Morderse las uñas")
+    chupar_dedo = models.BooleanField(null=True, blank=True, default=None, verbose_name="Chupar dedo o labios")
+    rechinar_dientes = models.BooleanField(null=True, blank=True, default=None, verbose_name="Rechinar los dientes")
+    sobremordida_vertical = models.BooleanField(null=True, blank=True, default=None, verbose_name="Sobremordida vertical")
+    sobremordida_horizontal = models.BooleanField(null=True, blank=True, default=None, verbose_name="Sobremordida horizontal")
+    mordida_cruzada = models.BooleanField(null=True, blank=True, default=None, verbose_name="Mordida cruzada")
+    mordida_abierta = models.BooleanField(null=True, blank=True, default=None, verbose_name="Mordida abierta")
+    desgaste = models.BooleanField(null=True, blank=True, default=None, verbose_name="Desgaste - Abrasion")
+    problemas_atm = models.BooleanField(null=True, blank=True, default=None, verbose_name="Problemas ATM chasquidos")
+    consumo_citricos = models.BooleanField(null=True, blank=True, default=None, verbose_name="Consumo frecuente de cítricos")
+    sangrado_encias = models.BooleanField(null=True, blank=True, default=None, verbose_name="Sangrado de encías")
 
     # Adicionales
     alergias = models.TextField(blank=True, null=True)
@@ -66,6 +66,7 @@ class AntescedentesMedicos(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    version = models.PositiveIntegerField(default=0)
 
     class Meta:
         verbose_name = 'Antecedente Medico'
@@ -123,9 +124,24 @@ class Odontograma(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    version = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return f"Odontograma de {self.paciente.nombre} {self.paciente.appat}"
+
+
+class ClinicalRevision(models.Model):
+    """Snapshot clínico separado del log de auditoría, sin archivos."""
+    patient = models.ForeignKey(Paciente, null=True, on_delete=models.SET_NULL, related_name='clinical_revisions')
+    actor = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+    resource_type = models.CharField(max_length=32)
+    resource_id = models.BigIntegerField()
+    version = models.PositiveIntegerField()
+    snapshot = models.JSONField()
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['resource_type', 'resource_id', 'version'], name='unique_clinical_revision')]
 
 
 class EstudioComparativo(models.Model):

@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 # app_name = 'Pacientes'
 urlpatterns = [
+    path('archivos/<str:kind>/<int:resource_id>/<str:field>/', views.clinical_session_file, name='clinical-session-file'),
     path('', views.menuPacientes, name='registroPacientes'),
     path('registrar_pacientes/',  views.registrar_paciente,  name='registrar_pacientes'),
     path('todosPacientes', views.todos_los_pacientes, name = 'todosPacientes'),

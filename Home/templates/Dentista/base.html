@@ -593,12 +593,11 @@
                   <hr class="dropdown-divider" />
                 </li>
                 <li>
-                  <a
+                  <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit"
                     class="dropdown-item text-danger"
-                    href="{% url 'logout' %}"
                   >
                     <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
-                  </a>
+                  </button></form>
                 </li>
               </ul>
             </div>
@@ -628,10 +627,10 @@
           <span>Perfil</span>
         </a>
         <div class="divider"></div>
-        <a class="menu-item logout" href="{% url 'logout' %}">
+        <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit"  class="menu-item logout" >
           <i class="bi bi-box-arrow-right"></i>
           <span>Cerrar sesión</span>
-        </a>
+        </button></form>
       </div>
     </div>
 

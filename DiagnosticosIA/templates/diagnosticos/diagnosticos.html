@@ -189,12 +189,12 @@
               <td>
                 {% if img.imagen %}
                 <a
-                  href="{{ img.imagen.url }}"
+                  href="{% url 'clinical-session-file' 'image' img.id 'imagen' %}"
                   data-fancybox="gallery"
                   data-caption="Imagen de {{ img.paciente.nombre }}"
                 >
                   <img
-                    src="{{ img.imagen.url }}"
+                    src="{% url 'clinical-session-file' 'image' img.id 'imagen' %}"
                     alt="Imagen clínica"
                     class="img-thumbnail"
                     width="80"
@@ -234,7 +234,7 @@
                     <i class="bi bi-gear"></i>
                   </a>
                   <a
-                    href="{{ img.imagen.url }}"
+                    href="{% url 'clinical-session-file' 'image' img.id 'imagen' %}"
                     download
                     class="btn btn-outline-secondary"
                     data-bs-toggle="tooltip"
@@ -270,7 +270,7 @@
                   <div class="modal-body text-center">
                     {% if img.imagen %}
                     <img
-                      src="{{ img.imagen.url }}"
+                      src="{% url 'clinical-session-file' 'image' img.id 'imagen' %}"
                       class="img-fluid rounded"
                       alt="Imagen clínica"
                     />

@@ -1,0 +1,7 @@
+# Consistencia entre base de datos y archivos
+
+Una transacción SQL no revierte S3: upload puede producir un objeto huérfano si falla DB o audit; una referencia puede apuntar a objeto ausente si falla storage; reemplazar/eliminar requiere retención coordinada. Actualmente no existe compensación transaccional completa ni reconciliación automatizada: **PARTIALLY RESOLVED**. No se agregaron borrados automáticos que pudieran destruir documentos válidos o interferir con backups.
+
+Diseño recomendado: guardar con nombre único y estado pendiente, confirmar DB y publicar referencia, registrar evento, y ejecutar reconciliación idempotente con ventana de gracia antes de cualquier limpieza; conservar inventario y métricas de referencias ausentes/huérfanos. Primero verificar autorización, versionado de bucket, retención y fallos de red. Para fallos de storage devolver error sin actualizar DB; para fallo de DB conservar evidencia del objeto huérfano y tratarlo bajo proceso operativo autorizado. No se ha demostrado compensación por pruebas de fallo en esta fase.
+
+Paciente se desactiva en API/HTML pero cascadas existentes de paciente/usuario/consulta pueden borrar filas; imágenes pueden borrarse físicamente de DB y objetos quedar huérfanos. Consentimiento no tiene política de borrado explícita. **LEGAL/CLINICAL DECISION REQUIRED** antes de cambiar cascadas o eliminar registros/archivos; revisar Django admin y restore. No se cambian las reglas de retención en silencio.
