@@ -1,20 +1,27 @@
 import { execFileSync } from "node:child_process";
-import { rmSync } from "node:fs";
-import { resolve } from "node:path";
+import { mkdtempSync, rmSync } from "node:fs";
+import { join, resolve } from "node:path";
+import process from "node:process";
+import {
+  startE2EServer,
+  stopE2EServer,
+} from "./server-lifecycle.js";
 
 const root = resolve(import.meta.dirname, "../..");
-const database = resolve(root, ".e2e.sqlite3");
-const media = resolve(root, ".e2e-media");
-const python = resolve(root, ".venv/bin/python");
+const python = resolve(
+  root,
+  process.platform === "win32" ? ".venv/Scripts/python.exe" : ".venv/bin/python",
+);
 const manage = resolve(root, "manage.py");
-const env = {
-  ...globalThis.process.env,
-  DJANGO_SETTINGS_MODULE: "SmileManager.settings_e2e",
-};
-
-export default function globalSetup() {
-  rmSync(database, { force: true });
-  rmSync(media, { recursive: true, force: true });
+export default async function globalSetup() {
+  const directory = mkdtempSync(join(root, '.e2e-run-'));
+  const env = { ...process.env, DJANGO_SETTINGS_MODULE: 'SmileManager.settings_e2e', SMILE_E2E_DIR: directory };
+  let server;
+  const cleanup = async () => {
+    if (server) await stopE2EServer(server);
+    rmSync(directory, { recursive: true, force: true });
+  };
+  try {
   execFileSync(python, [manage, "migrate", "--noinput"], {
     cwd: root,
     env,
@@ -25,4 +32,10 @@ export default function globalSetup() {
     env,
     stdio: "inherit",
   });
+    server = await startE2EServer(env);
+    return cleanup;
+  } catch (error) {
+    await cleanup();
+    throw error;
+  }
 }

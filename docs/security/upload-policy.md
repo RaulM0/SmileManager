@@ -1,0 +1,5 @@
+# Política de archivos
+
+`api.upload_policy.validate_upload` valida bytes antes de guardar en API y rutas HTML de carga clínica, estudio e identificación. Límite inicial revisable 5 MiB (`CLINICAL_UPLOAD_MAX_BYTES`) y 20 millones de píxeles (`CLINICAL_UPLOAD_MAX_PIXELS`), configurables por entorno. Imagen requiere JPEG, PNG, GIF o WEBP coherente con extensión, MIME declarado y contenido; Pillow verifica y decodifica, con advertencias de decompression bomb tratadas como error. Identificación también admite PDF con firma y terminación; esto comprueba estructura superficial, no elimina contenido malicioso. MIME es una señal adicional, no fuente de verdad. Se rechazan archivos vacíos o fuera de límites. La aplicación sigue necesitando límites de body en proxy, almacenamiento privado y procesamiento seguro.
+
+**INFRASTRUCTURE CAPABILITY RECOMMENDED:** evaluación de malware/sandbox para documentos antes de permitir descarga o uso, según riesgo y contexto. Ninguna verificación de firma certifica que un PDF sea inocuo. Otros puntos administrativos o integraciones de carga deben revisarse por separado; no se valida retroactivamente el contenido almacenado.

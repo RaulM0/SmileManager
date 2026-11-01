@@ -380,6 +380,10 @@
     }
 
     /* Surface states */
+    .surface-sin_registrar {
+      background: #fff;
+      border: 1px dashed #718087;
+    }
     .surface-sano {
       background: linear-gradient(135deg, #f0fdf4, #dcfce7);
       border-color: var(--success);
@@ -684,6 +688,7 @@
     </div>
 
     <div class="states-container">
+      <button class="state-button" data-state="sin_registrar" type="button">Sin registrar</button>
       <button class="state-button sano active" data-state="sano">
         <i class="bi bi-check-circle"></i>
         Sano
@@ -710,6 +715,7 @@
       </button>
     </div>
 
+    <p>Las superficies sin registrar no se consideran sanas. Confirma clínicamente los estados existentes.</p>
     <div class="legend">
       <div class="legend-item">
         <div
@@ -912,6 +918,7 @@
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const states = {
+      sin_registrar: "surface-sin_registrar",
       sano: "surface-sano",
       caries: "surface-caries",
       restauracion: "surface-restauracion",
@@ -934,7 +941,7 @@
       const surfaces = ["mesial", "oclusal", "distal", "lingual", "vestibular"];
       surfaces.forEach((surfaceName) => {
         const surface = document.createElement("div");
-        surface.className = `tooth-surface surface-${surfaceName} surface-sano`;
+        surface.className = `tooth-surface surface-${surfaceName} surface-sin_registrar`;
         surface.dataset.surface = surfaceName;
         grid.appendChild(surface);
       });
@@ -977,7 +984,7 @@
         );
         if (!surface) return;
         Object.values(states).forEach((s) => surface.classList.remove(s));
-        surface.classList.add(states[state]);
+        surface.classList.add(states[state] || states.sin_registrar);
       });
     }
 
@@ -1037,6 +1044,7 @@
       let totalDientes = 0;
       let dientesSanos = 0;
       let dientesAfectados = 0;
+      let dientesSinRegistrar = 0;
       let superficiesCaries = 0;
       let superficiesRestauradas = 0;
 
@@ -1044,31 +1052,36 @@
         const number = tooth.dataset.toothNumber;
         const surfaces = {};
         let dienteSano = true;
+        let dienteAfectado = false;
+        let dienteSinRegistrar = false;
 
         tooth.querySelectorAll(".tooth-surface").forEach((surface) => {
           const surfaceName = surface.dataset.surface;
-          let state = "sano";
+          let state = "sin_registrar";
 
           for (const [key, className] of Object.entries(states)) {
             if (surface.classList.contains(className)) {
               state = key;
               if (state !== "sano") dienteSano = false;
+              if (state === "sin_registrar") dienteSinRegistrar = true;
+              else if (state !== "sano") dienteAfectado = true;
               if (state === "caries") superficiesCaries++;
               if (state === "restauracion") superficiesRestauradas++;
               break;
             }
           }
-          surfaces[surfaceName] = state;
+          if (state !== "sin_registrar") surfaces[surfaceName] = state;
         });
 
         totalDientes++;
         if (dienteSano) dientesSanos++;
-        else dientesAfectados++;
+        if (dienteAfectado) dientesAfectados++;
+        if (dienteSinRegistrar) dientesSinRegistrar++;
 
         const toothNum = parseInt(number);
-        if (toothNum >= 11 && toothNum <= 48)
+        if (Object.keys(surfaces).length && toothNum >= 11 && toothNum <= 48)
           data.denticion_permanente[number] = surfaces;
-        else if (toothNum >= 51 && toothNum <= 85)
+        else if (Object.keys(surfaces).length && toothNum >= 51 && toothNum <= 85)
           data.denticion_decidua[number] = surfaces;
       });
 
@@ -1076,6 +1089,7 @@
         total_dientes: totalDientes,
         dientes_sanos: dientesSanos,
         dientes_afectados: dientesAfectados,
+        dientes_sin_registrar: dientesSinRegistrar,
         superficies_caries: superficiesCaries,
         superficies_restauradas: superficiesRestauradas,
       };
@@ -1101,10 +1115,12 @@
 
     const pacienteId =
       document.querySelector(".container-fluid").dataset.pacienteId;
+    let odontogramaVersion = {{ odontograma_version }};
 
     // Guardar odontograma
     document.getElementById("save-btn").addEventListener("click", () => {
       const odontograma = updateOutput();
+      odontograma.version = odontogramaVersion;
       fetch(`/registroPacientes/odontograma/guardar/${pacienteId}/`, {
         method: "POST",
         headers: {
@@ -1113,8 +1129,12 @@
         },
         body: JSON.stringify(odontograma),
       })
-        .then((res) => res.json())
-        .then((data) => console.log(data));
+        .then(async (res) => {
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.detail || "No fue posible guardar el odontograma.");
+          odontogramaVersion = data.version;
+        })
+        .catch((error) => alert(error.message));
     });
 
     // Limpiar odontograma
@@ -1126,7 +1146,7 @@
       ) {
         document.querySelectorAll(".tooth-surface").forEach((surface) => {
           Object.values(states).forEach((s) => surface.classList.remove(s));
-          surface.classList.add("surface-sano");
+          surface.classList.add("surface-sin_registrar");
         });
       }
     });

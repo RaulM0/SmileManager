@@ -25,12 +25,10 @@
           <h3 class="h5 mb-1">{{ paciente.nombre }} {{ paciente.appat }}</h3>
           <div class="text-muted small">
             <span class="me-3"
-              ><i class="bi bi-calendar me-1"></i> {{
-              paciente.fecha_nacimiento|date:"d/m/Y" }}</span
+              ><i class="bi bi-calendar me-1"></i> {{ paciente.fecha_nacimiento|date:"d/m/Y" }}</span
             >
             <span
-              ><i class="bi bi-telephone me-1"></i> {{ paciente.telefono
-              }}</span
+              ><i class="bi bi-telephone me-1"></i> {{ paciente.telefono }}</span
             >
           </div>
         </div>
@@ -43,6 +41,8 @@
     <div class="card-body">
       <form id="antecedentesForm">
         {% csrf_token %}
+        <input type="hidden" name="version" value="{{ antecedentes.version|default:0 }}" />
+        <p>Una pregunta sin respuesta permanece sin registrar. En registros anteriores, las respuestas negativas pueden provenir de valores predeterminados; confírmalas antes de utilizarlas.</p>
 
         <!-- Sección de Antecedentes Médicos Generales -->
         <div class="row mb-4">
@@ -58,20 +58,15 @@
               >¿Está bajo tratamiento médico?</label
             >
             <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" id="tratamiento_medico-unknown" name="tratamiento_medico" value="" {% if antecedentes.tratamiento_medico == None %}checked{% endif %} />
+              <label class="btn btn-outline-secondary" for="tratamiento_medico-unknown">Sin registrar</label>
               <input
                 type="radio"
                 class="btn-check"
                 id="tratamiento_medico-yes"
                 name="tratamiento_medico"
                 value="True"
-                {%
-                if
-                antecedentes
-                and
-                antecedentes.tratamiento_medico
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.tratamiento_medico %}checked{% endif %}
               />
               <label
                 class="btn btn-outline-success"
@@ -85,15 +80,7 @@
                 id="tratamiento_medico-no"
                 name="tratamiento_medico"
                 value="False"
-                {%
-                if
-                antecedentes
-                and
-                not
-                antecedentes.tratamiento_medico
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.tratamiento_medico == False %}checked{% endif %}
               />
               <label class="btn btn-outline-danger" for="tratamiento_medico-no">
                 <i class="bi bi-x-circle me-1"></i> No
@@ -104,20 +91,15 @@
           <div class="col-md-6 mb-3">
             <label class="form-label fw-semibold">Problemas del corazón</label>
             <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" id="problemas_cardiacos-unknown" name="problemas_cardiacos" value="" {% if antecedentes.problemas_cardiacos == None %}checked{% endif %} />
+              <label class="btn btn-outline-secondary" for="problemas_cardiacos-unknown">Sin registrar</label>
               <input
                 type="radio"
                 class="btn-check"
                 id="problemas_cardiacos-yes"
                 name="problemas_cardiacos"
                 value="True"
-                {%
-                if
-                antecedentes
-                and
-                antecedentes.problemas_cardiacos
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.problemas_cardiacos %}checked{% endif %}
               />
               <label
                 class="btn btn-outline-success"
@@ -131,15 +113,7 @@
                 id="problemas_cardiacos-no"
                 name="problemas_cardiacos"
                 value="False"
-                {%
-                if
-                antecedentes
-                and
-                not
-                antecedentes.problemas_cardiacos
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.problemas_cardiacos == False %}checked{% endif %}
               />
               <label
                 class="btn btn-outline-danger"
@@ -155,20 +129,15 @@
               >Problemas de coagulación</label
             >
             <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" id="problemas_coagulacion-unknown" name="problemas_coagulacion" value="" {% if antecedentes.problemas_coagulacion == None %}checked{% endif %} />
+              <label class="btn btn-outline-secondary" for="problemas_coagulacion-unknown">Sin registrar</label>
               <input
                 type="radio"
                 class="btn-check"
                 id="problemas_coagulacion-yes"
                 name="problemas_coagulacion"
                 value="True"
-                {%
-                if
-                antecedentes
-                and
-                antecedentes.problemas_coagulacion
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.problemas_coagulacion %}checked{% endif %}
               />
               <label
                 class="btn btn-outline-success"
@@ -182,15 +151,7 @@
                 id="problemas_coagulacion-no"
                 name="problemas_coagulacion"
                 value="False"
-                {%
-                if
-                antecedentes
-                and
-                not
-                antecedentes.problemas_coagulacion
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.problemas_coagulacion == False %}checked{% endif %}
               />
               <label
                 class="btn btn-outline-danger"
@@ -206,20 +167,15 @@
               >Epilepsia / Convulsiones</label
             >
             <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" id="epilepsia-unknown" name="epilepsia" value="" {% if antecedentes.epilepsia == None %}checked{% endif %} />
+              <label class="btn btn-outline-secondary" for="epilepsia-unknown">Sin registrar</label>
               <input
                 type="radio"
                 class="btn-check"
                 id="epilepsia-yes"
                 name="epilepsia"
                 value="True"
-                {%
-                if
-                antecedentes
-                and
-                antecedentes.epilepsia
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.epilepsia %}checked{% endif %}
               />
               <label class="btn btn-outline-success" for="epilepsia-yes">
                 <i class="bi bi-check-circle me-1"></i> Sí
@@ -230,15 +186,7 @@
                 id="epilepsia-no"
                 name="epilepsia"
                 value="False"
-                {%
-                if
-                antecedentes
-                and
-                not
-                antecedentes.epilepsia
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.epilepsia == False %}checked{% endif %}
               />
               <label class="btn btn-outline-danger" for="epilepsia-no">
                 <i class="bi bi-x-circle me-1"></i> No
@@ -249,20 +197,15 @@
           <div class="col-md-6 mb-3">
             <label class="form-label fw-semibold">Gastritis / Úlceras</label>
             <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" id="gastritis-unknown" name="gastritis" value="" {% if antecedentes.gastritis == None %}checked{% endif %} />
+              <label class="btn btn-outline-secondary" for="gastritis-unknown">Sin registrar</label>
               <input
                 type="radio"
                 class="btn-check"
                 id="gastritis-yes"
                 name="gastritis"
                 value="True"
-                {%
-                if
-                antecedentes
-                and
-                antecedentes.gastritis
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.gastritis %}checked{% endif %}
               />
               <label class="btn btn-outline-success" for="gastritis-yes">
                 <i class="bi bi-check-circle me-1"></i> Sí
@@ -273,15 +216,7 @@
                 id="gastritis-no"
                 name="gastritis"
                 value="False"
-                {%
-                if
-                antecedentes
-                and
-                not
-                antecedentes.gastritis
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.gastritis == False %}checked{% endif %}
               />
               <label class="btn btn-outline-danger" for="gastritis-no">
                 <i class="bi bi-x-circle me-1"></i> No
@@ -292,20 +227,15 @@
           <div class="col-md-6 mb-3">
             <label class="form-label fw-semibold">Hipertensión</label>
             <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" id="hipertension-unknown" name="hipertension" value="" {% if antecedentes.hipertension == None %}checked{% endif %} />
+              <label class="btn btn-outline-secondary" for="hipertension-unknown">Sin registrar</label>
               <input
                 type="radio"
                 class="btn-check"
                 id="hipertension-yes"
                 name="hipertension"
                 value="True"
-                {%
-                if
-                antecedentes
-                and
-                antecedentes.hipertension
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.hipertension %}checked{% endif %}
               />
               <label class="btn btn-outline-success" for="hipertension-yes">
                 <i class="bi bi-check-circle me-1"></i> Sí
@@ -316,15 +246,7 @@
                 id="hipertension-no"
                 name="hipertension"
                 value="False"
-                {%
-                if
-                antecedentes
-                and
-                not
-                antecedentes.hipertension
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.hipertension == False %}checked{% endif %}
               />
               <label class="btn btn-outline-danger" for="hipertension-no">
                 <i class="bi bi-x-circle me-1"></i> No
@@ -335,20 +257,15 @@
           <div class="col-md-6 mb-3">
             <label class="form-label fw-semibold">Anemia</label>
             <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" id="anemia-unknown" name="anemia" value="" {% if antecedentes.anemia == None %}checked{% endif %} />
+              <label class="btn btn-outline-secondary" for="anemia-unknown">Sin registrar</label>
               <input
                 type="radio"
                 class="btn-check"
                 id="anemia-yes"
                 name="anemia"
                 value="True"
-                {%
-                if
-                antecedentes
-                and
-                antecedentes.anemia
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.anemia %}checked{% endif %}
               />
               <label class="btn btn-outline-success" for="anemia-yes">
                 <i class="bi bi-check-circle me-1"></i> Sí
@@ -359,15 +276,7 @@
                 id="anemia-no"
                 name="anemia"
                 value="False"
-                {%
-                if
-                antecedentes
-                and
-                not
-                antecedentes.anemia
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.anemia == False %}checked{% endif %}
               />
               <label class="btn btn-outline-danger" for="anemia-no">
                 <i class="bi bi-x-circle me-1"></i> No
@@ -380,20 +289,15 @@
               >Embarazo / Sospecha de embarazo</label
             >
             <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" id="embarazo-unknown" name="embarazo" value="" {% if antecedentes.embarazo == None %}checked{% endif %} />
+              <label class="btn btn-outline-secondary" for="embarazo-unknown">Sin registrar</label>
               <input
                 type="radio"
                 class="btn-check"
                 id="embarazo-yes"
                 name="embarazo"
                 value="True"
-                {%
-                if
-                antecedentes
-                and
-                antecedentes.embarazo
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.embarazo %}checked{% endif %}
               />
               <label class="btn btn-outline-success" for="embarazo-yes">
                 <i class="bi bi-check-circle me-1"></i> Sí
@@ -404,15 +308,7 @@
                 id="embarazo-no"
                 name="embarazo"
                 value="False"
-                {%
-                if
-                antecedentes
-                and
-                not
-                antecedentes.embarazo
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.embarazo == False %}checked{% endif %}
               />
               <label class="btn btn-outline-danger" for="embarazo-no">
                 <i class="bi bi-x-circle me-1"></i> No
@@ -423,20 +319,15 @@
           <div class="col-md-6 mb-3">
             <label class="form-label fw-semibold">Alergia a Medicamentos</label>
             <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" id="alergia_medicamentos-unknown" name="alergia_medicamentos" value="" {% if antecedentes.alergia_medicamentos == None %}checked{% endif %} />
+              <label class="btn btn-outline-secondary" for="alergia_medicamentos-unknown">Sin registrar</label>
               <input
                 type="radio"
                 class="btn-check"
                 id="alergia_medicamentos-yes"
                 name="alergia_medicamentos"
                 value="True"
-                {%
-                if
-                antecedentes
-                and
-                antecedentes.alergia_medicamentos
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.alergia_medicamentos %}checked{% endif %}
               />
               <label
                 class="btn btn-outline-success"
@@ -450,15 +341,7 @@
                 id="alergia_medicamentos-no"
                 name="alergia_medicamentos"
                 value="False"
-                {%
-                if
-                antecedentes
-                and
-                not
-                antecedentes.alergia_medicamentos
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.alergia_medicamentos == False %}checked{% endif %}
               />
               <label
                 class="btn btn-outline-danger"
@@ -475,20 +358,15 @@
               Otros)</label
             >
             <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" id="alergia_especifica-unknown" name="alergia_especifica" value="" {% if antecedentes.alergia_especifica == None %}checked{% endif %} />
+              <label class="btn btn-outline-secondary" for="alergia_especifica-unknown">Sin registrar</label>
               <input
                 type="radio"
                 class="btn-check"
                 id="alergia_especifica-yes"
                 name="alergia_especifica"
                 value="True"
-                {%
-                if
-                antecedentes
-                and
-                antecedentes.alergia_especifica
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.alergia_especifica %}checked{% endif %}
               />
               <label
                 class="btn btn-outline-success"
@@ -502,15 +380,7 @@
                 id="alergia_especifica-no"
                 name="alergia_especifica"
                 value="False"
-                {%
-                if
-                antecedentes
-                and
-                not
-                antecedentes.alergia_especifica
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.alergia_especifica == False %}checked{% endif %}
               />
               <label class="btn btn-outline-danger" for="alergia_especifica-no">
                 <i class="bi bi-x-circle me-1"></i> No
@@ -521,20 +391,15 @@
           <div class="col-md-6 mb-3">
             <label class="form-label fw-semibold">Discapacidad</label>
             <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" id="discapacidad-unknown" name="discapacidad" value="" {% if antecedentes.discapacidad == None %}checked{% endif %} />
+              <label class="btn btn-outline-secondary" for="discapacidad-unknown">Sin registrar</label>
               <input
                 type="radio"
                 class="btn-check"
                 id="discapacidad-yes"
                 name="discapacidad"
                 value="True"
-                {%
-                if
-                antecedentes
-                and
-                antecedentes.discapacidad
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.discapacidad %}checked{% endif %}
               />
               <label class="btn btn-outline-success" for="discapacidad-yes">
                 <i class="bi bi-check-circle me-1"></i> Sí
@@ -545,15 +410,7 @@
                 id="discapacidad-no"
                 name="discapacidad"
                 value="False"
-                {%
-                if
-                antecedentes
-                and
-                not
-                antecedentes.discapacidad
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.discapacidad == False %}checked{% endif %}
               />
               <label class="btn btn-outline-danger" for="discapacidad-no">
                 <i class="bi bi-x-circle me-1"></i> No
@@ -564,20 +421,15 @@
           <div class="col-md-6 mb-3">
             <label class="form-label fw-semibold">¿Fuma?</label>
             <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" id="fuma-unknown" name="fuma" value="" {% if antecedentes.fuma == None %}checked{% endif %} />
+              <label class="btn btn-outline-secondary" for="fuma-unknown">Sin registrar</label>
               <input
                 type="radio"
                 class="btn-check"
                 id="fuma-yes"
                 name="fuma"
                 value="True"
-                {%
-                if
-                antecedentes
-                and
-                antecedentes.fuma
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.fuma %}checked{% endif %}
               />
               <label class="btn btn-outline-success" for="fuma-yes">
                 <i class="bi bi-check-circle me-1"></i> Sí
@@ -588,15 +440,7 @@
                 id="fuma-no"
                 name="fuma"
                 value="False"
-                {%
-                if
-                antecedentes
-                and
-                not
-                antecedentes.fuma
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.fuma == False %}checked{% endif %}
               />
               <label class="btn btn-outline-danger" for="fuma-no">
                 <i class="bi bi-x-circle me-1"></i> No
@@ -616,20 +460,15 @@
           <div class="col-md-6 mb-3">
             <label class="form-label fw-semibold">Respiración Bucal</label>
             <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" id="respiracion_bucal-unknown" name="respiracion_bucal" value="" {% if antecedentes.respiracion_bucal == None %}checked{% endif %} />
+              <label class="btn btn-outline-secondary" for="respiracion_bucal-unknown">Sin registrar</label>
               <input
                 type="radio"
                 class="btn-check"
                 id="respiracion_bucal-yes"
                 name="respiracion_bucal"
                 value="True"
-                {%
-                if
-                antecedentes
-                and
-                antecedentes.respiracion_bucal
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.respiracion_bucal %}checked{% endif %}
               />
               <label
                 class="btn btn-outline-success"
@@ -643,15 +482,7 @@
                 id="respiracion_bucal-no"
                 name="respiracion_bucal"
                 value="False"
-                {%
-                if
-                antecedentes
-                and
-                not
-                antecedentes.respiracion_bucal
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.respiracion_bucal == False %}checked{% endif %}
               />
               <label class="btn btn-outline-danger" for="respiracion_bucal-no">
                 <i class="bi bi-x-circle me-1"></i> No
@@ -662,20 +493,15 @@
           <div class="col-md-6 mb-3">
             <label class="form-label fw-semibold">Morder uñas, objetos</label>
             <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" id="morder_unas-unknown" name="morder_unas" value="" {% if antecedentes.morder_unas == None %}checked{% endif %} />
+              <label class="btn btn-outline-secondary" for="morder_unas-unknown">Sin registrar</label>
               <input
                 type="radio"
                 class="btn-check"
                 id="morder_unas-yes"
                 name="morder_unas"
                 value="True"
-                {%
-                if
-                antecedentes
-                and
-                antecedentes.morder_unas
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.morder_unas %}checked{% endif %}
               />
               <label class="btn btn-outline-success" for="morder_unas-yes">
                 <i class="bi bi-check-circle me-1"></i> Sí
@@ -686,15 +512,7 @@
                 id="morder_unas-no"
                 name="morder_unas"
                 value="False"
-                {%
-                if
-                antecedentes
-                and
-                not
-                antecedentes.morder_unas
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.morder_unas == False %}checked{% endif %}
               />
               <label class="btn btn-outline-danger" for="morder_unas-no">
                 <i class="bi bi-x-circle me-1"></i> No
@@ -705,20 +523,15 @@
           <div class="col-md-6 mb-3">
             <label class="form-label fw-semibold">Chupar dedo o labios</label>
             <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" id="chupar_dedo-unknown" name="chupar_dedo" value="" {% if antecedentes.chupar_dedo == None %}checked{% endif %} />
+              <label class="btn btn-outline-secondary" for="chupar_dedo-unknown">Sin registrar</label>
               <input
                 type="radio"
                 class="btn-check"
                 id="chupar_dedo-yes"
                 name="chupar_dedo"
                 value="True"
-                {%
-                if
-                antecedentes
-                and
-                antecedentes.chupar_dedo
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.chupar_dedo %}checked{% endif %}
               />
               <label class="btn btn-outline-success" for="chupar_dedo-yes">
                 <i class="bi bi-check-circle me-1"></i> Sí
@@ -729,15 +542,7 @@
                 id="chupar_dedo-no"
                 name="chupar_dedo"
                 value="False"
-                {%
-                if
-                antecedentes
-                and
-                not
-                antecedentes.chupar_dedo
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.chupar_dedo == False %}checked{% endif %}
               />
               <label class="btn btn-outline-danger" for="chupar_dedo-no">
                 <i class="bi bi-x-circle me-1"></i> No
@@ -748,20 +553,15 @@
           <div class="col-md-6 mb-3">
             <label class="form-label fw-semibold">Rechinar dientes</label>
             <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" id="rechinar_dientes-unknown" name="rechinar_dientes" value="" {% if antecedentes.rechinar_dientes == None %}checked{% endif %} />
+              <label class="btn btn-outline-secondary" for="rechinar_dientes-unknown">Sin registrar</label>
               <input
                 type="radio"
                 class="btn-check"
                 id="rechinar_dientes-yes"
                 name="rechinar_dientes"
                 value="True"
-                {%
-                if
-                antecedentes
-                and
-                antecedentes.rechinar_dientes
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.rechinar_dientes %}checked{% endif %}
               />
               <label class="btn btn-outline-success" for="rechinar_dientes-yes">
                 <i class="bi bi-check-circle me-1"></i> Sí
@@ -772,15 +572,7 @@
                 id="rechinar_dientes-no"
                 name="rechinar_dientes"
                 value="False"
-                {%
-                if
-                antecedentes
-                and
-                not
-                antecedentes.rechinar_dientes
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.rechinar_dientes == False %}checked{% endif %}
               />
               <label class="btn btn-outline-danger" for="rechinar_dientes-no">
                 <i class="bi bi-x-circle me-1"></i> No
@@ -791,20 +583,15 @@
           <div class="col-md-6 mb-3">
             <label class="form-label fw-semibold">Sobre mordida vertical</label>
             <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" id="sobremordida_vertical-unknown" name="sobremordida_vertical" value="" {% if antecedentes.sobremordida_vertical == None %}checked{% endif %} />
+              <label class="btn btn-outline-secondary" for="sobremordida_vertical-unknown">Sin registrar</label>
               <input
                 type="radio"
                 class="btn-check"
                 id="sobremordida_vertical-yes"
                 name="sobremordida_vertical"
                 value="True"
-                {%
-                if
-                antecedentes
-                and
-                antecedentes.sobremordida_vertical
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.sobremordida_vertical %}checked{% endif %}
               />
               <label
                 class="btn btn-outline-success"
@@ -818,15 +605,7 @@
                 id="sobremordida_vertical-no"
                 name="sobremordida_vertical"
                 value="False"
-                {%
-                if
-                antecedentes
-                and
-                not
-                antecedentes.sobremordida_vertical
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.sobremordida_vertical == False %}checked{% endif %}
               />
               <label
                 class="btn btn-outline-danger"
@@ -842,20 +621,15 @@
               >Sobre mordida horizontal</label
             >
             <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" id="sobremordida_horizontal-unknown" name="sobremordida_horizontal" value="" {% if antecedentes.sobremordida_horizontal == None %}checked{% endif %} />
+              <label class="btn btn-outline-secondary" for="sobremordida_horizontal-unknown">Sin registrar</label>
               <input
                 type="radio"
                 class="btn-check"
                 id="sobremordida_horizontal-yes"
                 name="sobremordida_horizontal"
                 value="True"
-                {%
-                if
-                antecedentes
-                and
-                antecedentes.sobremordida_horizontal
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.sobremordida_horizontal %}checked{% endif %}
               />
               <label
                 class="btn btn-outline-success"
@@ -869,15 +643,7 @@
                 id="sobremordida_horizontal-no"
                 name="sobremordida_horizontal"
                 value="False"
-                {%
-                if
-                antecedentes
-                and
-                not
-                antecedentes.sobremordida_horizontal
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.sobremordida_horizontal == False %}checked{% endif %}
               />
               <label
                 class="btn btn-outline-danger"
@@ -891,20 +657,15 @@
           <div class="col-md-6 mb-3">
             <label class="form-label fw-semibold">Mordida cruzada</label>
             <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" id="mordida_cruzada-unknown" name="mordida_cruzada" value="" {% if antecedentes.mordida_cruzada == None %}checked{% endif %} />
+              <label class="btn btn-outline-secondary" for="mordida_cruzada-unknown">Sin registrar</label>
               <input
                 type="radio"
                 class="btn-check"
                 id="mordida_cruzada-yes"
                 name="mordida_cruzada"
                 value="True"
-                {%
-                if
-                antecedentes
-                and
-                antecedentes.mordida_cruzada
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.mordida_cruzada %}checked{% endif %}
               />
               <label class="btn btn-outline-success" for="mordida_cruzada-yes">
                 <i class="bi bi-check-circle me-1"></i> Sí
@@ -915,15 +676,7 @@
                 id="mordida_cruzada-no"
                 name="mordida_cruzada"
                 value="False"
-                {%
-                if
-                antecedentes
-                and
-                not
-                antecedentes.mordida_cruzada
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.mordida_cruzada == False %}checked{% endif %}
               />
               <label class="btn btn-outline-danger" for="mordida_cruzada-no">
                 <i class="bi bi-x-circle me-1"></i> No
@@ -934,20 +687,15 @@
           <div class="col-md-6 mb-3">
             <label class="form-label fw-semibold">Mordida abierta</label>
             <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" id="mordida_abierta-unknown" name="mordida_abierta" value="" {% if antecedentes.mordida_abierta == None %}checked{% endif %} />
+              <label class="btn btn-outline-secondary" for="mordida_abierta-unknown">Sin registrar</label>
               <input
                 type="radio"
                 class="btn-check"
                 id="mordida_abierta-yes"
                 name="mordida_abierta"
                 value="True"
-                {%
-                if
-                antecedentes
-                and
-                antecedentes.mordida_abierta
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.mordida_abierta %}checked{% endif %}
               />
               <label class="btn btn-outline-success" for="mordida_abierta-yes">
                 <i class="bi bi-check-circle me-1"></i> Sí
@@ -958,15 +706,7 @@
                 id="mordida_abierta-no"
                 name="mordida_abierta"
                 value="False"
-                {%
-                if
-                antecedentes
-                and
-                not
-                antecedentes.mordida_abierta
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.mordida_abierta == False %}checked{% endif %}
               />
               <label class="btn btn-outline-danger" for="mordida_abierta-no">
                 <i class="bi bi-x-circle me-1"></i> No
@@ -977,20 +717,15 @@
           <div class="col-md-6 mb-3">
             <label class="form-label fw-semibold">Desgaste - Abrasión</label>
             <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" id="desgaste-unknown" name="desgaste" value="" {% if antecedentes.desgaste == None %}checked{% endif %} />
+              <label class="btn btn-outline-secondary" for="desgaste-unknown">Sin registrar</label>
               <input
                 type="radio"
                 class="btn-check"
                 id="desgaste-yes"
                 name="desgaste"
                 value="True"
-                {%
-                if
-                antecedentes
-                and
-                antecedentes.desgaste
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.desgaste %}checked{% endif %}
               />
               <label class="btn btn-outline-success" for="desgaste-yes">
                 <i class="bi bi-check-circle me-1"></i> Sí
@@ -1001,15 +736,7 @@
                 id="desgaste-no"
                 name="desgaste"
                 value="False"
-                {%
-                if
-                antecedentes
-                and
-                not
-                antecedentes.desgaste
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.desgaste == False %}checked{% endif %}
               />
               <label class="btn btn-outline-danger" for="desgaste-no">
                 <i class="bi bi-x-circle me-1"></i> No
@@ -1022,20 +749,15 @@
               >Problemas ATM chasquidos</label
             >
             <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" id="problemas_atm-unknown" name="problemas_atm" value="" {% if antecedentes.problemas_atm == None %}checked{% endif %} />
+              <label class="btn btn-outline-secondary" for="problemas_atm-unknown">Sin registrar</label>
               <input
                 type="radio"
                 class="btn-check"
                 id="problemas_atm-yes"
                 name="problemas_atm"
                 value="True"
-                {%
-                if
-                antecedentes
-                and
-                antecedentes.problemas_atm
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.problemas_atm %}checked{% endif %}
               />
               <label class="btn btn-outline-success" for="problemas_atm-yes">
                 <i class="bi bi-check-circle me-1"></i> Sí
@@ -1046,15 +768,7 @@
                 id="problemas_atm-no"
                 name="problemas_atm"
                 value="False"
-                {%
-                if
-                antecedentes
-                and
-                not
-                antecedentes.problemas_atm
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.problemas_atm == False %}checked{% endif %}
               />
               <label class="btn btn-outline-danger" for="problemas_atm-no">
                 <i class="bi bi-x-circle me-1"></i> No
@@ -1067,20 +781,15 @@
               >Consumo excesivo de cítricos</label
             >
             <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" id="consumo_citricos-unknown" name="consumo_citricos" value="" {% if antecedentes.consumo_citricos == None %}checked{% endif %} />
+              <label class="btn btn-outline-secondary" for="consumo_citricos-unknown">Sin registrar</label>
               <input
                 type="radio"
                 class="btn-check"
                 id="consumo_citricos-yes"
                 name="consumo_citricos"
                 value="True"
-                {%
-                if
-                antecedentes
-                and
-                antecedentes.consumo_citricos
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.consumo_citricos %}checked{% endif %}
               />
               <label class="btn btn-outline-success" for="consumo_citricos-yes">
                 <i class="bi bi-check-circle me-1"></i> Sí
@@ -1091,15 +800,7 @@
                 id="consumo_citricos-no"
                 name="consumo_citricos"
                 value="False"
-                {%
-                if
-                antecedentes
-                and
-                not
-                antecedentes.consumo_citricos
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.consumo_citricos == False %}checked{% endif %}
               />
               <label class="btn btn-outline-danger" for="consumo_citricos-no">
                 <i class="bi bi-x-circle me-1"></i> No
@@ -1110,20 +811,15 @@
           <div class="col-md-6 mb-3">
             <label class="form-label fw-semibold">Sangrado de encías</label>
             <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" id="sangrado_encias-unknown" name="sangrado_encias" value="" {% if antecedentes.sangrado_encias == None %}checked{% endif %} />
+              <label class="btn btn-outline-secondary" for="sangrado_encias-unknown">Sin registrar</label>
               <input
                 type="radio"
                 class="btn-check"
                 id="sangrado_encias-yes"
                 name="sangrado_encias"
                 value="True"
-                {%
-                if
-                antecedentes
-                and
-                antecedentes.sangrado_encias
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.sangrado_encias %}checked{% endif %}
               />
               <label class="btn btn-outline-success" for="sangrado_encias-yes">
                 <i class="bi bi-check-circle me-1"></i> Sí
@@ -1134,15 +830,7 @@
                 id="sangrado_encias-no"
                 name="sangrado_encias"
                 value="False"
-                {%
-                if
-                antecedentes
-                and
-                not
-                antecedentes.sangrado_encias
-                %}checked{%
-                endif
-                %}
+                {% if antecedentes and antecedentes.sangrado_encias == False %}checked{% endif %}
               />
               <label class="btn btn-outline-danger" for="sangrado_encias-no">
                 <i class="bi bi-x-circle me-1"></i> No
@@ -1235,6 +923,7 @@
         type: "POST",
         data: $form.serialize(),
         success: function (response) {
+          $form.find('[name="version"]').val(response.version);
           $mensaje
             .removeClass("d-none alert-danger")
             .addClass("alert-success")
@@ -1245,7 +934,11 @@
             .delay(3000)
             .fadeOut();
         },
-        error: function () {
+        error: function (response) {
+          if (response.status === 409) {
+            $mensaje.removeClass("d-none alert-success").addClass("alert-danger").text("Este expediente fue actualizado desde otra sesión. Recarga la información antes de guardar tus cambios.").fadeIn();
+            return;
+          }
           $mensaje
             .removeClass("d-none alert-success")
             .addClass("alert-danger")

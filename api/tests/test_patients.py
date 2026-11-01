@@ -45,7 +45,8 @@ class PatientApiTests(APITestCase):
     def test_list_search_and_detail_are_owner_scoped(self):
         own = self.create()
         self.create(owner=self.other, telefono='2222222222', email='other@example.com')
-        response = self.client.get(reverse('api-patient-list'), {'search': 'López'})
+        # SQLite does not Unicode case-fold accented letters for icontains.
+        response = self.client.get(reverse('api-patient-list'), {'search': 'LÓPEZ'})
         self.assertEqual(response.data['count'], 1)
         self.assertEqual(response.data['results'][0]['id'], own.id)
         self.assertEqual(
@@ -76,7 +77,16 @@ class PatientApiTests(APITestCase):
         patient.refresh_from_db()
         self.assertEqual(patient.estatus, 'I')
 
-    def test_autocomplete_matches_legacy_name_only_and_limit(self):
+    def test_autocomplete_preserves_result_shape_for_name_search(self):
         own = self.create(nombre='Ana')
         response = self.client.get(reverse('api-patient-autocomplete'), {'term': 'an'})
         self.assertEqual(response.data, {'results': [{'id': own.id, 'text': 'ANA LÓPEZ DÍAZ'}]})
+
+    def test_autocomplete_searches_surname_phone_and_id_within_owner_scope(self):
+        own = self.create()
+        foreign = self.create(owner=self.other, telefono='2222222222', email='other@example.com')
+        url = reverse('api-patient-autocomplete')
+        for term in ('LÓPEZ', '1111111111', str(own.id)):
+            result = self.client.get(url, {'term': term}).data['results']
+            self.assertEqual([item['id'] for item in result], [own.id])
+        self.assertEqual(self.client.get(url, {'term': str(foreign.id)}).data['results'], [])

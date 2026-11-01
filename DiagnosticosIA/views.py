@@ -2,14 +2,20 @@ from django.shortcuts import render, get_object_or_404
 from Pacientes.models import ImagenesClinicas
 import logging
 from django.core.paginator import Paginator
-from .services import analyze_clinical_image
+from django.views.decorators.http import require_http_methods
+from django.urls import reverse
+from .services import ClinicalImageMissingError, analyze_clinical_image
+from .services import ClinicalImageChangedError
+from .runs import execute as execute_analysis
+from api.policies import scoped, owned_or_404
+from api.throttles import limit_legacy, ExpensiveThrottle
 
 # Create your views here.
 
 logger = logging.getLogger(__name__)
 
 def diagnosticos(request):
-    imagenes = ImagenesClinicas.objects.filter(paciente__medico=request.user).select_related('paciente').order_by('-fecha_subida')
+    imagenes = scoped(request.user, ImagenesClinicas).select_related('paciente').order_by('-fecha_subida')
     
     # Filtros
     paciente_filter = request.GET.get('paciente')
@@ -46,21 +52,35 @@ def diagnosticos(request):
         'tipos_count': tipos_count,
     })
 
+@require_http_methods(['GET', 'POST'])
+@limit_legacy(ExpensiveThrottle)
 def resultados(request, imagen_id):
-    imagen_obj = get_object_or_404(ImagenesClinicas, id=imagen_id, paciente__medico=request.user)
-    
+    imagen_obj = owned_or_404(request.user, ImagenesClinicas, id=imagen_id)
+    if request.method == 'GET':
+        return render(request, 'diagnosticos/resultados.html', {'imagen': imagen_obj})
     try:
-        detecciones = analyze_clinical_image(imagen_obj)
+        run, disposition = execute_analysis(user=request.user, image_id=imagen_obj.pk, request_id=request.request_id, force=request.POST.get('force') == 'true', analyzer=analyze_clinical_image)
+        if disposition == 'running':
+            return render(request, 'diagnosticos/resultados.html', {'imagen': imagen_obj, 'error': 'Ya hay un análisis en curso. Vuelve a consultar en unos momentos.'}, status=202)
+        detecciones = run.detections
+        imagen_obj.refresh_from_db()
 
-    except Exception as e:
-        logger.exception('Error al analizar la imagen clínica %s', imagen_id)
+    except ClinicalImageMissingError:
         return render(request, 'diagnosticos/resultados.html', {
             'imagen': imagen_obj,
-            'error': f"Error al ejecutar YOLO: {str(e)}"
+            'error': 'La imagen original no está disponible. Recupera el archivo original o vuelve a cargarlo en el expediente.'
+        }, status=404)
+    except ClinicalImageChangedError:
+        return render(request, 'diagnosticos/resultados.html', {'imagen': imagen_obj, 'error': 'La imagen cambió durante el análisis.'}, status=409)
+    except Exception:
+        logger.error('Fallo de análisis de imagen clínica id=%s request_id=%s', imagen_id, request.request_id)
+        return render(request, 'diagnosticos/resultados.html', {
+            'imagen': imagen_obj,
+            'error': 'No se pudo analizar la imagen. Inténtalo de nuevo.'
         }, status=500)
 
     return render(request, 'diagnosticos/resultados.html', {
         'imagen': imagen_obj,
         'detecciones': detecciones,
-        'results_image': imagen_obj.resultados.url  # URL de S3
+        'results_image': reverse('clinical-session-file', args=['image', imagen_obj.pk, 'resultados']) if imagen_obj.resultados else None,
     })

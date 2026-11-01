@@ -1,4 +1,6 @@
 from django.shortcuts import get_object_or_404, render, redirect
+from api.policies import scoped, owned_or_404
+from django.views.decorators.http import require_POST
 from Pacientes.models import Paciente
 from .models import Cita
 from django.contrib import messages
@@ -6,10 +8,12 @@ from django.utils import timezone
 from datetime import datetime
 from django.core.paginator import Paginator
 from django.db.models import Q
+from api.services.appointments import InvalidStateTransition, save_appointment, transition_appointment
+from rest_framework.exceptions import ValidationError
 
 # Create your views here.
 def menu_citas(request):
-    citas = Cita.objects.filter(paciente__medico=request.user).select_related('paciente')
+    citas = scoped(request.user, Cita).select_related('paciente')
     current_date = timezone.now()
     
     return render(request, 'citas/menu_citas.html', {
@@ -21,7 +25,7 @@ def nueva_cita(request):
     return render(request, 'citas/nueva_cita.html')
 
 def registrar_cita(request, id):
-    paciente = get_object_or_404(Paciente, id=id, medico=request.user)
+    paciente = owned_or_404(request.user, Paciente, id=id)
 
     if request.method == 'POST':
         fecha = request.POST.get('fecha')
@@ -53,14 +57,12 @@ def registrar_cita(request, id):
             return redirect('registrar_cita', id=id)
 
         # Guardar cita
-        Cita.objects.create(
-            paciente=paciente,
-            fecha=fecha,
-            hora=hora,
-            motivo=motivo,
-            estatus=estatus,
-            observaciones=observaciones
-        )
+        try:
+            save_appointment(user=request.user, patient=paciente, validated_data={'fecha': fecha_cita, 'hora': hora_cita, 'motivo': motivo, 'estatus': estatus, 'observaciones': observaciones})
+        except ValidationError:
+            messages.error(request, 'No se pudo registrar la cita con esos datos.')
+            return redirect('registrar_cita', id=id)
+        request.audit_success = True
         messages.success(request, "Cita registrada correctamente.")
         return redirect('registrar_cita', id=id)
 
@@ -68,7 +70,7 @@ def registrar_cita(request, id):
 
 def buscar_cita(request):
     query = request.GET.get('buscador', '').strip()
-    citas = Cita.objects.filter(paciente__medico=request.user)
+    citas = scoped(request.user, Cita)
 
     if query:
         citas = citas.filter(
@@ -80,7 +82,7 @@ def buscar_cita(request):
     return render(request, 'citas/buscar_cita.html', {'citas': citas,})
 
 def editar_cita(request, id):
-    cita = get_object_or_404(Cita, id=id, paciente__medico=request.user)
+    cita = owned_or_404(request.user, Cita, id=id)
     if request.method == 'POST':
         fecha = request.POST.get('fecha')
         hora = request.POST.get('hora')
@@ -107,12 +109,12 @@ def editar_cita(request, id):
             messages.error(request, "La hora debe estar entre las 08:00 y las 20:00.")
             return redirect('editar_cita', id=id)
         # Actualizar cita
-        cita.fecha = fecha
-        cita.hora = hora
-        cita.motivo = motivo
-        cita.estatus = estatus
-        cita.observaciones = observaciones
-        cita.save()
+        try:
+            cita = save_appointment(user=request.user, appointment=cita, patient=None, validated_data={'fecha': fecha_cita, 'hora': hora_cita, 'motivo': motivo, 'estatus': estatus, 'observaciones': observaciones})
+        except (InvalidStateTransition, ValidationError):
+            messages.error(request, 'El estado o los datos de la cita no son válidos.')
+            return redirect('editar_cita', id=id)
+        request.audit_success = True
         messages.success(request, "Cita actualizada correctamente.")
         
     estatus_options = {
@@ -123,31 +125,41 @@ def editar_cita(request, id):
     return render(request, 'citas/editar_cita.html', {'cita': cita, 'estatus_options': estatus_options})
 
 def citas_pendientes(request):
-    citas_pendientes = Cita.objects.filter(estatus='P', paciente__medico=request.user).order_by('fecha', 'hora')
+    citas_pendientes = scoped(request.user, Cita).filter(estatus='P').order_by('fecha', 'hora')
     return render(request, 'citas/citas_pendientes.html', {'citas_pendientes': citas_pendientes})
 
 def citas_completadas(request):
-    citas_completadas = Cita.objects.filter(estatus = 'C', paciente__medico=request.user).order_by('fecha','hora')
+    citas_completadas = scoped(request.user, Cita).filter(estatus='C').order_by('fecha','hora')
     return render(request, 'citas/citas_completadas.html', {'citas_completadas':citas_completadas})
 
 def citas_canceladas(request):
-    citas_canceladas = Cita.objects.filter(estatus = 'A', paciente__medico=request.user).order_by('fecha','hora')
+    citas_canceladas = scoped(request.user, Cita).filter(estatus='A').order_by('fecha','hora')
     return render(request, 'citas/citas_canceladas.html', {'citas_canceladas':citas_canceladas})
 
+@require_POST
 def confirmar_asistencia(request, id):
-    cita = get_object_or_404(Cita, id=id, paciente__medico=request.user)
-    cita.estatus = 'C'
-    cita.save()
+    cita = owned_or_404(request.user, Cita, id=id)
+    try:
+        transition_appointment(user=request.user, appointment=cita, target='C')
+    except InvalidStateTransition:
+        messages.error(request, 'La transición de estado no está permitida.')
+        return redirect('citas_pendientes')
+    request.audit_success = True
     messages.success(request, "Cita marcada como completada.")
     return redirect('citas_pendientes')
 
+@require_POST
 def anular_cita(request, id):
-    cita = get_object_or_404(Cita, id=id, paciente__medico=request.user)
-    cita.estatus = 'A'
-    cita.save()
+    cita = owned_or_404(request.user, Cita, id=id)
+    try:
+        transition_appointment(user=request.user, appointment=cita, target='A')
+    except InvalidStateTransition:
+        messages.error(request, 'La transición de estado no está permitida.')
+        return redirect('citas_pendientes')
+    request.audit_success = True
     messages.success(request, "Cita anulada correctamente.")
     return redirect('citas_pendientes')
 
 def detalle_cita(request, id):
-    cita = get_object_or_404(Cita, id=id, paciente__medico=request.user)
+    cita = owned_or_404(request.user, Cita, id=id)
     return render(request, 'citas/detalles_cita.html', {'cita': cita})

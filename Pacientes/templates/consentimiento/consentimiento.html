@@ -329,7 +329,7 @@
                 <p class="mb-0">
                   <strong>Documento de identificación:</strong>
                   <a
-                    href="{{ consentimiento.archivo_ine.url }}"
+                    href="{% url 'clinical-session-file' 'consent' consentimiento.id 'archivo_ine' %}"
                     target="_blank"
                     class="btn btn-sm btn-outline-success ms-2"
                   >

@@ -1,0 +1,106 @@
+# Plan priorizado de mejoras de usabilidad
+
+Este plan desarrolla los hallazgos de [ux-audit.md](ux-audit.md). La implementación está en curso; el estado real de cada hallazgo aparece a continuación. P0–P3 indican orden de atención, no un compromiso de calendario. Esfuerzo estimado: **S** hasta 1 día, **M** 2–5 días, **L** más de 5 días; son rangos orientativos sin investigación, revisión clínica, despliegue ni migración de datos.
+
+## Estado de implementación
+
+| Hallazgo | Estado | Alcance y trabajo pendiente |
+|---|---|---|
+| UX-01 | Parcialmente implementado | Nuevos antecedentes usan `null` para sin registrar; GET API no crea registro; respuestas explícitas sí/no se conservan. Migración `0022` no reescribe valores previos. **BLOCKED — BUSINESS/CLINICAL DECISION REQUIRED:** los `false` históricos no permiten saber si fueron respuestas reales o valores automáticos; se requiere política clínica de revisión y trazabilidad. |
+| UX-02 | Parcialmente implementado | Superficies no registradas son neutrales y se guardan mapas dispersos; React y vista Django reconocen el estado. **BLOCKED — BUSINESS/CLINICAL DECISION REQUIRED:** no se puede inferir si estados sanos guardados históricamente fueron examinados; revisar política clínica para validación histórica. |
+| UX-03 | Parcialmente implementado | Data router, diálogo de navegación y aviso `beforeunload` para formularios de paciente, cita, consulta, antecedentes, odontograma, imágenes, consentimiento, contacto y estudio. Cambiar paciente con cita en borrador y cerrar sesión piden confirmación; un fallo de cierre restaura la protección. E2E cubre navegación y cierre cancelado. Pendiente recuperación de borrador cuando caduca la autenticación y pruebas en otros navegadores y guardados concurrentes. |
+| UX-04 | Parcialmente implementado | Cancelar cita requiere diálogo con paciente, fecha y consecuencia. El completado permanece inmediato; falta acordar si requiere confirmación o reversión clínica/operativa. |
+| UX-05 | Parcialmente implementado | Abrir resultado no inicia YOLO; análisis inicial y repetición son acciones explícitas. Las detecciones detalladas no están persistidas. **BLOCKED — BUSINESS/CLINICAL DECISION REQUIRED:** política de versionado y conservación de resultados existentes. |
+| UX-06 | Parcialmente implementado | Autocomplete busca nombre completo, apellidos, teléfono o ID; muestra nombre e ID y limita por propietario. Pendiente validar con usuarios homónimos, orden y límite de diez. |
+| UX-07 | Implementado | Búsqueda disponible en ambas variantes del listado, conservando URLs y paginación. |
+| UX-08 | Implementado | Detalle de cita y receta enlazan al paciente; receta enlaza a historial. |
+| UX-09 | Implementado | Desde paciente se abre nueva cita con ID consultado y autorizado; sigue disponible cambiar paciente. |
+| UX-10 | Parcialmente implementado | Las citas del inicio enlazan al detalle; el resumen clínico incluye hasta tres consultas reales con estados de carga/error/vacío. Pendiente evaluación con personal y contraste de otras necesidades operativas. |
+| UX-11 | Implementado | La opción `A` se muestra como «Cancelada» en el formulario, conservando el código. |
+| UX-12 | Implementado | Accesos del hub tienen nombres accesibles específicos. |
+| UX-13 | Implementado | Carga sin consulta enlaza a nueva consulta del paciente y regresa a la carga al guardarla; el flujo habitual conserva el retorno a receta. |
+| UX-14 | Parcialmente implementado | La interfaz explica qué se registra y pide verificar el paciente. **BLOCKED — BUSINESS/CLINICAL DECISION REQUIRED:** determinar quién acepta, significado legal y procedimiento de corrección; no se ha inventado firma ni regla de consentimiento. |
+| UX-15 | Parcialmente implementado | Se aclara que la nueva carga crea un registro independiente. Reparar el original requiere acuerdo sobre identidad, permisos y trazabilidad. |
+| UX-16 | Implementado | Datos duplicados se retiraron del detalle; permanecen en cabecera y se conserva enlace al expediente. |
+| UX-17 | Parcialmente implementado | Exportaciones, PDF, identificación e imágenes informan preparación y comienzo de descarga; se renombró descarga de identificación. Pendiente revisión con asistencia tecnológica. |
+| UX-18 | Parcialmente implementado | Búsquedas vacías de pacientes/citas/diagnósticos/imágenes permiten limpiar filtros. Resto de vacíos/errores aún requieren revisión. |
+| UX-19 | Implementado | Se identifica la tabla como todas las citas coincidentes, diferenciándola del mes del calendario. |
+| UX-20 | Parcialmente implementado | Se explican requisitos en formularios de paciente, cita, consulta, imagen y estudio; faltan revisión completa y validación con usuarios. |
+| UX-21 | Parcialmente implementado | Se conserva la interacción por cuadrantes y botones; estado sin registrar identificado; superficies táctiles de 32 px en móvil y distribución adaptada para preservar la secuencia dental en escritorio. Pendiente evaluación con personal clínico y lector de pantalla. |
+| UX-22 | Implementado | Resultado de diagnóstico muestra paciente, tipo y fecha y enlaza a ficha. |
+
+## Decisiones y comprobaciones realizadas
+
+- **Antecedentes:** causa: booleanos con valor falso automático. Solución: campos anulables, GET sin creación y tercera opción; archivos `Pacientes/models.py`, migración `0022`, `api/views.py`, vista React y plantilla/vista Django legacy. Pruebas backend de ausencia, actualización y ronda de valores; `makemigrations --check` sin cambios. Valores históricos no se transforman.
+- **Odontograma:** causa: superficies no presentes se convertían a `sano`. Solución: representación neutra en React y legacy, resumen sin contar desconocido como afectado o sano y payload disperso; archivos `OdontogramPage.tsx`, plantilla legacy y CSS. Prueba frontend con odontograma vacío y guardado de una sola superficie.
+- **Borradores:** causa: navegación desmontaba formularios. Solución: data router, `useUnsavedChanges` y `ConfirmDialog`; se guardan referencias de inicio/último guardado y se usa `beforeunload`. Pruebas unitarias de continuar, descartar y cierre fallido; E2E de navegación y cierre cancelado. Pendiente recuperación ante expiración de autenticación y pruebas en otros navegadores.
+- **Citas:** causa: mutación de cancelación inmediata. Solución: diálogo nativo con acción segura enfocada, paciente/fecha y envío solo tras confirmar; pruebas unitarias y E2E, además de verificación visual en móvil pendiente.
+- **IA:** causa: efecto ejecutaba POST al montar. Solución: GET para consultar, POST solo en botón; pruebas para consulta sin ejecución y repetición explícita.
+- **Navegación y búsqueda:** causa: reselección de paciente y enlaces ambiguos. Solución: ampliar autocomplete preservando formato de respuesta, incluir ID, enlaces de contexto, paciente validado por GET y mejoras de vacíos/feedback. Backend tiene prueba de búsqueda por apellido/teléfono/ID y aislamiento.
+- **Validación:** API 47/47; frontend 18/18, lint, typecheck y build correctos. Playwright pasó 3/3 con base aislada e incluye borradores, paciente precargado, cancelación confirmada, estados clínicos neutros, objetivos táctiles de 32 px, alineación de piezas a 1280 px y análisis explícito. Se inspeccionaron capturas de antecedentes y odontograma en 390 px y del odontograma ajustado en 1280 px. `makemigrations --check` sin cambios. En Ultralytics aparecen avisos de permisos del perfil, sin impedir las pruebas.
+- **Despliegue:** antes de usar los antecedentes anulables, respaldar la base de datos y aplicar las migraciones de Django (`python manage.py migrate`). La migración `0022` conserva los booleanos históricos; no demuestra que sus valores se hayan verificado clínicamente. Revisar integraciones y reportes externos que consuman esos campos antes de desplegar.
+
+## Matriz de prioridades
+
+| Prioridad | Problema | Impacto usuario | Esfuerzo | Recomendación |
+|---|---|---|---|---|
+| P0 | UX-01 Antecedentes nuevos negativos por defecto | Riesgo de interpretar falta de entrevista como ausencia de condiciones | L | Diseñar «no preguntado/sí/no», trazabilidad y migración con clínicos. |
+| P0 | UX-02 Odontograma vacío representado sano | Riesgo de interpretar piezas no examinadas como sanas | L | Distinguir «sin valorar», conservar registros históricos y validar con clínicos. |
+| P1 | UX-03 Cambios sin guardar se pierden | Recaptura y posible pérdida de información clínica | M | Aviso de salida y borrador seguro cuando corresponda. |
+| P1 | UX-04 Cancelar/completar cita inmediatamente | Cambio involuntario de agenda | S–M | Confirmar cancelación con contexto o deshacer fiable; evaluar completar. |
+| P1 | UX-05 Autoanálisis al abrir diagnóstico | Consulta visual puede ejecutar y guardar otro resultado | M–L | Separar ver de analizar, acordar conservación de resultados. |
+| P1 | UX-06 Selector no desambigua | Paciente equivocado o búsqueda infructuosa | M–L | Ampliar búsqueda e incluir ID/contacto mínimo autorizado. |
+| P1 | UX-08 Cita/receta sin enlace a paciente | Pérdida de contexto y búsquedas repetidas | S–M | Enlace directo al expediente y retorno contextual. |
+| P1 | UX-14 Actor/consecuencia de consentimiento ambiguos | Aceptación interpretada incorrectamente | M–L | Definir actor, revisión y corrección con responsables clínicos y legales. |
+| P1 | UX-22 Diagnóstico sin paciente visible | Confusión entre estudios | S–M | Mostrar paciente, tipo y fecha disponibles con enlace autorizado. |
+| P2 | UX-07 Listado y búsqueda separados | Navegación extra para tarea frecuente | S–M | Buscador en listado y rutas existentes conservadas. |
+| P2 | UX-09 Cita desde paciente obliga a buscarlo | Repetición y riesgo de homónimos | M | Acción contextual con ID validado y selección manual alternativa. |
+| P2 | UX-10 Inicio/expediente exigen más navegación | Citas y contexto requieren varios clics | M | Enlaces por cita; resumen con datos reales si existen. |
+| P2 | UX-11 «Anulada» frente a «Cancelada» | Duda sobre significado del estado | S | Acordar y unificar etiqueta, conservando código `A`. |
+| P2 | UX-12 Enlaces «Acceder» indistinguibles | Destino poco claro, especialmente con lector de pantalla | S | Nombre de destino en cada enlace o fila completa accesible. |
+| P2 | UX-13 Prerrequisito sin enlace | Dificultad al cargar imagen sin consulta | S–M | Enlazar creación de consulta para el mismo paciente. |
+| P2 | UX-15 Archivo faltante genera registro separado al recargar | Expectativa de recuperación incorrecta | M–L | Explicar resultado; estudiar reparación autorizada y trazable. |
+| P2 | UX-17 Feedback de descarga insuficiente | No se sabe si está preparando/terminó o qué acción está bloqueada | S–M | Estado y etiquetas coherentes; mantener descarga y errores. |
+| P2 | UX-18 Vacíos y errores poco orientadores | Se confunde filtro vacío con error o ausencia real | M | Estado específico con limpiar, crear o reintentar según caso. |
+| P2 | UX-19 Mes y tabla tienen alcances distintos | La agenda parece vacía pese a mostrar otra fecha | S | Etiquetas de alcance; estudiar sincronización sin perder listado completo. |
+| P2 | UX-20 Requisitos y avance poco visibles | Reintentos y carga cognitiva en formularios | M | Señalar obligatorios, explicar formatos y agrupar antecedentes. |
+| P2 | UX-21 Superficies dentales pequeñas | Riesgo de seleccionar una cara vecina | M–L | Medir, probar con clínicos y diseñar selección precisa accesible. |
+| P3 | UX-16 Datos duplicados en ficha | Espacio y lectura repetidos | S | Una presentación por dato, manteniendo todos los campos. |
+
+## Orden de implementación propuesto
+
+1. **Validación clínica de P0 y consentimiento.** Taller con odontólogos, recepción y responsable de datos: definir «desconocido», quién confirma antecedentes, cómo se interpreta el odontograma, aceptación y corrección. Analizar registros históricos, integraciones y reportes. No convertir automáticamente valores existentes a desconocido o confirmado sin reglas aprobadas.
+2. **Protección de trabajo y estados.** UX-03 y UX-04: detectar borradores y definir confirmación/deshacer con cambios de backend si la reversión debe ser confiable. Primero probar interrupción, fallo de red y doble envío.
+3. **Navegación y quick wins.** UX-08, UX-11, UX-12, UX-13 y UX-19; mantener las rutas antiguas. Añadir contexto al diagnóstico UX-22 con datos reales y permisos existentes.
+4. **Búsqueda y eficiencia.** UX-06, UX-07 y UX-09; acordar datos mínimos para distinguir personas, paginación y comportamiento con homónimos; validar en servidor el ID precargado.
+5. **Clínica e IA.** UX-05, UX-14, UX-15, UX-20 y UX-21 tras definición clínica y revisión de trazabilidad. No alterar archivos ni resultados históricos sin política acordada.
+6. **Estados, feedback y refinamiento.** UX-10, UX-16, UX-17 y UX-18; contrastar con tareas de recepción y no agregar métricas o datos inexistentes.
+7. **Validación final y liberación.** Ejecutar la matriz de regresión, revisión clínica, pruebas con participantes reales y revisión de accesibilidad y responsive. Actualizar documentación; decidir con la clínica si los riesgos residuales son aceptables.
+
+## Criterios de aceptación por grupo
+
+| Grupo | Criterios verificables |
+|---|---|
+| Antecedentes | Paciente nuevo muestra no evaluado sin guardar respuestas negativas; sí/no requieren acción explícita según diseño aprobado; datos anteriores y exportaciones se preservan o migran con reglas auditables; dos usuarios y relectura no cambian el significado. |
+| Odontograma | Una superficie sin examinar se distingue de sana; resumen cuenta solo estados conocidos; 52 piezas y cinco superficies siguen disponibles, teclado y táctil funcionan, guardado/limpieza no alteran otra pieza o paciente. |
+| Borradores | Sin cambios no aparece aviso; con cambios se puede seguir o descartar; fallo de guardado mantiene entradas; navegador, navegación interna y cierre se prueban sin prometer capacidades que el navegador no ofrece. |
+| Citas | Cancelación accidental se puede prevenir o revertir según regla aprobada; paciente y fecha son visibles antes de decisión; filtros/estados existentes, API y acciones continúan; transición y errores se prueban con dos citas. |
+| Contexto | Desde cita/receta/diagnóstico se abre el paciente correcto; paciente de otra cuenta sigue denegado; recargar y navegar atrás conservan contexto y filtros relevantes. |
+| Selección | Homónimos, apellido, teléfono e ID se pueden distinguir sin exposición innecesaria; selección por teclado y mensajes vacío/error funcionan; consultas y paginación se prueban con datos suficientes. |
+| IA y archivos | Ver no ejecuta análisis si se aprueba ese cambio; repetir tiene feedback y tratamiento explícito de resultados; falta de archivo ofrece recuperación que no cambia identidad del registro silenciosamente. |
+| Formularios/descargas | Cada campo obligatorio y formato se anuncia antes del envío; errores se asocian a controles; estado de envío y descarga es comprensible y no borra valores. |
+| Accesibilidad/responsive | Revisar teclado, foco visible, lector de pantalla, contraste y objetivos con criterios WCAG aplicables; probar 320, 390, 768 y 1280 px, zoom 200 %, estados llenos/vacíos/error y dispositivos reales. |
+
+## Investigación recomendada antes de cerrar el producto
+
+- Entrevistar y observar al menos a recepción, asistencia y odontología con escenarios habituales y datos sintéticos; registrar variaciones de roles, reglas reales de citas y significado de consentimiento. El número y diversidad de participantes deben acordarse con la clínica; una muestra pequeña no demuestra ausencia de problemas.
+- Pedir tareas sin instrucciones: encontrar homónimo, crear y corregir cita, registrar antecedentes incompletos, revisar odontograma, subir imagen sin consulta, consultar/volver a expediente y recuperar de un error. Registrar éxito, pasos, dudas y errores, sin exponer pacientes reales.
+- Comparar antes/después por tarea: éxito, pasos, tiempo y errores recuperados. No asignar porcentajes de mejora hasta medirlos.
+- Revisar con especialista clínico los dos P0, significado de estados, autoría de registros y resultado de IA. Revisar con responsable de privacidad el mínimo de datos mostrado en resultados y las descargas.
+- Realizar recorrido manual con lector de pantalla y teclado, pruebas con guantes/tacto y condiciones de pantalla reales, contraste y zoom. Completar estados y resoluciones que el recorrido aislado no cubrió.
+
+## Pruebas y evidencias que deben mantenerse
+
+La evaluación actual comprobó alta, abandono de edición, alta/cancelación de cita, 27 rutas y ancho de dos pantallas a 390 px en una base aislada. Las pruebas E2E anteriores cubren más acciones y errores, pero no equivalen a investigación con usuarios. Para cada mejora conservar validación de autenticación, propietario, rutas, consultas, filtros, payloads, descargas, confirmaciones y documentos; agregar pruebas específicas para los riesgos modificados y no marcar una pantalla verificada sin evidencia suficiente.
+
+**Estado del plan:** implementación parcial; quedan verificaciones, hallazgos parciales y decisiones clínicas identificadas arriba. No se declara el trabajo completo hasta resolverlos o acordar explícitamente su alcance.

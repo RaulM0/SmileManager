@@ -30,6 +30,8 @@
     </a>
   </div>
 
+  <form method="post">{% csrf_token %}{% if imagen.resultados %}<input type="hidden" name="force" value="true">{% endif %}<button type="submit" class="btn btn-primary">{% if imagen.resultados %}Analizar nuevamente{% else %}Ejecutar análisis{% endif %}</button></form>
+
   <!-- Información del paciente - Tarjeta mejorada -->
   <div class="card border-0 shadow-sm mb-4">
     <div class="card-header bg-primary text-white py-3 rounded-top">
@@ -213,7 +215,7 @@
     <div class="card-body">
       <div class="d-flex flex-wrap gap-2 align-items-center">
         <a
-          href="{{ imagen.resultados.url }}"
+          href="{% url 'clinical-session-file' 'image' imagen.id 'resultados' %}"
           class="btn btn-primary d-flex align-items-center"
           download
         >
@@ -236,7 +238,7 @@
       prefixUrl: "https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.0/images/",
       tileSources: {
           type: 'image',
-          url: "{{ imagen.imagen.url }}"
+          url: "{% url 'clinical-session-file' 'image' imagen.id 'imagen' %}"
       },
       showNavigator: true,
       defaultZoomLevel: 0,
@@ -261,7 +263,7 @@
       prefixUrl: "https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.0/images/",
       tileSources: {
           type: 'image',
-          url: "{{ imagen.resultados.url }}"
+          url: "{% url 'clinical-session-file' 'image' imagen.id 'resultados' %}"
       },
       showNavigator: true,
       defaultZoomLevel: 0,

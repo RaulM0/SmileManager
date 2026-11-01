@@ -8,7 +8,7 @@ services:
       POSTGRES_USER: smilemanager
       POSTGRES_PASSWORD: smilemanager_local
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - smilemanager_postgres_data:/var/lib/postgresql/data
     healthcheck:

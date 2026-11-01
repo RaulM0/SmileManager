@@ -1,0 +1,7 @@
+# Observabilidad
+
+`RequestLogMiddleware` emite JSON técnico con request_id, nombre de vista, método, estado y duración. No registra ruta con IDs, query string, body, tokens, cookies ni datos clínicos. `REQUEST_LOG_LEVEL` controla el logger `smile.access`. AuditEvent sigue siendo distinto del log operativo. El logger queda fuera de middleware de auditoría para medir también su trabajo; errores previos a este middleware pueden no registrarse. El logging de librerías y excepciones existentes requiere revisión y política de redacción.
+
+`/health` y `/health/` son liveness; `/health/ready` y `/health/ready/` hacen SELECT 1 y devuelven solo estado genérico. No verifican S3, IA, migraciones ni capacidad. Restringir acceso en ingress, limitar frecuencia y configurar timeout de conexión/sonda; no usar como comprobación integral de seguridad. Métricas recomendadas en backend externo existente: latencia HTTP por ruta, tasa 5xx, latencia/conexiones DB, duración/fallos/concurrencia IA, duración/fallos de export y storage, alertas y trazas con request_id. No se añadió backend de métricas ni tracing.
+
+Los timeouts de proxy, DB, S3, SMTP e inferencia requieren **INFRASTRUCTURE VERIFICATION REQUIRED**; no se han medido ni configurado en esta fase. Fallos de IA existentes devuelven mensajes genéricos; storage/SMTP/DB/export pueden producir 500 y deben probarse con DEBUG desactivado en el entorno real. No se garantiza que cada dependencia falle dentro de un tiempo acotado.

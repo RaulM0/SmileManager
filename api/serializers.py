@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.urls import reverse
 
 from Citas.models import Cita
 from Pacientes.models import AntescedentesMedicos, Consentimiento, Consulta, EstudioComparativo, ImagenesClinicas, Odontograma, Paciente
@@ -7,6 +8,23 @@ from .services.patients import create_patient, legacy_age, update_patient
 from .services.consultations import create_consultation
 from .services.appointments import save_appointment
 from .services.clinical_images import create_clinical_image
+from .policies import scoped
+from .upload_policy import validate_upload
+from django.core.exceptions import ValidationError as DjangoValidationError
+from .services.odontogram import validate_odontogram
+
+class UploadValidationMixin:
+    upload_fields = ()
+
+    def to_internal_value(self, data):
+        for field in self.upload_fields:
+            uploaded = data.get(field)
+            if uploaded is not None and hasattr(uploaded, 'read'):
+                try:
+                    validate_upload(uploaded)
+                except DjangoValidationError as exc:
+                    raise serializers.ValidationError({field: exc.messages}) from exc
+        return super().to_internal_value(data)
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -25,8 +43,8 @@ class SessionUserSerializer(serializers.Serializer):
     profile = serializers.SerializerMethodField()
 
     def get_profile(self, user):
-        profile, _ = Perfil.objects.get_or_create(user=user)
-        return ProfileSerializer(profile).data
+        profile = Perfil.objects.filter(user=user).first()
+        return ProfileSerializer(profile).data if profile else None
 
 
 class DashboardPatientSerializer(serializers.ModelSerializer):
@@ -84,7 +102,7 @@ class MedicalHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = AntescedentesMedicos
         exclude = ('medico',)
-        read_only_fields = ('id', 'paciente', 'created', 'updated')
+        read_only_fields = ('id', 'paciente', 'created', 'updated', 'version')
 
 
 class ConsultationSerializer(serializers.ModelSerializer):
@@ -130,21 +148,22 @@ class AppointmentSerializer(serializers.ModelSerializer):
         }
 
     def validate_paciente_id(self, value):
-        if not Paciente.objects.filter(pk=value, medico=self.context['request'].user).exists():
+        if not scoped(self.context['request'].user, Paciente).filter(pk=value).exists():
             raise serializers.ValidationError('Paciente no encontrado.')
         return value
 
     def create(self, validated_data):
-        patient = Paciente.objects.get(pk=validated_data.pop('paciente_id'))
-        return save_appointment(patient=patient, validated_data=validated_data)
+        patient = scoped(self.context['request'].user, Paciente).get(pk=validated_data.pop('paciente_id'))
+        return save_appointment(user=self.context['request'].user, patient=patient, validated_data=validated_data)
 
     def update(self, instance, validated_data):
-        patient_id = validated_data.pop('paciente_id', instance.paciente_id)
-        patient = Paciente.objects.get(pk=patient_id)
-        return save_appointment(appointment=instance, patient=patient, validated_data=validated_data)
+        patient_id = validated_data.pop('paciente_id', None)
+        patient = scoped(self.context['request'].user, Paciente).get(pk=patient_id) if patient_id is not None else None
+        return save_appointment(user=self.context['request'].user, appointment=instance, patient=patient, validated_data=validated_data)
 
 
-class ClinicalImageSerializer(serializers.ModelSerializer):
+class ClinicalImageSerializer(UploadValidationMixin, serializers.ModelSerializer):
+    upload_fields = ('imagen',)
     consulta_id = serializers.IntegerField(write_only=True)
     imagen_url = serializers.SerializerMethodField(read_only=True)
     resultados_url = serializers.SerializerMethodField(read_only=True)
@@ -154,11 +173,11 @@ class ClinicalImageSerializer(serializers.ModelSerializer):
         model = ImagenesClinicas
         fields = (
             'id', 'paciente', 'patient_name', 'consulta', 'consulta_id', 'tipo_imagen',
-            'descripcion', 'imagen', 'imagen_url', 'resultados',
+            'descripcion', 'imagen', 'imagen_url',
             'resultados_url', 'fecha_subida',
         )
         read_only_fields = (
-            'id', 'paciente', 'consulta', 'resultados', 'fecha_subida',
+            'id', 'paciente', 'consulta', 'fecha_subida',
         )
         extra_kwargs = {
             'imagen': {'write_only': True, 'required': True},
@@ -167,10 +186,10 @@ class ClinicalImageSerializer(serializers.ModelSerializer):
         }
 
     def get_imagen_url(self, image):
-        return image.imagen.url if image.imagen else None
+        return reverse('api-clinical-image-file', args=[image.pk]) if image.imagen else None
 
     def get_resultados_url(self, image):
-        return image.resultados.url if image.resultados else None
+        return reverse('api-clinical-image-result-file', args=[image.pk]) if image.resultados else None
 
     def create(self, validated_data):
         return create_clinical_image(
@@ -187,13 +206,24 @@ class OdontogramSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Odontograma
-        fields = ('id', 'denticion_permanente', 'denticion_decidua', 'resumen', 'created', 'updated')
-        read_only_fields = ('id', 'created', 'updated')
+        fields = ('id', 'denticion_permanente', 'denticion_decidua', 'resumen', 'created', 'updated', 'version')
+        read_only_fields = ('id', 'created', 'updated', 'version')
+
+    def to_internal_value(self, data):
+        unknown = set(data) - set(self.fields)
+        if unknown:
+            raise serializers.ValidationError({'detail': 'El odontograma contiene campos desconocidos.'})
+        return super().to_internal_value(data)
+
+    def validate(self, attrs):
+        validate_odontogram(attrs.get('dientes_permanentes', {}), attrs.get('dientes_deciduos', {}), attrs.get('resumen_clinico', {}))
+        return attrs
 
 
 STUDY_IMAGE_FIELDS = ('antes_oclusal_superior','antes_lateral_izquierda','antes_frontal','antes_lateral_derecha','antes_oclusal_inferior','despues_perfil','despues_semiperfil','despues_retrato_frontal','despues_retrato_sonrisa')
 
-class ComparativeStudySerializer(serializers.ModelSerializer):
+class ComparativeStudySerializer(UploadValidationMixin, serializers.ModelSerializer):
+    upload_fields = STUDY_IMAGE_FIELDS
     image_urls = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = EstudioComparativo
@@ -201,7 +231,7 @@ class ComparativeStudySerializer(serializers.ModelSerializer):
         read_only_fields = ('id','paciente','image_urls','fecha_creacion','fecha_actualizacion')
         extra_kwargs = {field: {'write_only': True, 'required': False} for field in STUDY_IMAGE_FIELDS}
     def get_image_urls(self, study):
-        return {field: getattr(study, field).url if getattr(study, field) else None for field in STUDY_IMAGE_FIELDS}
+        return {field: reverse('api-comparative-study-image', args=[study.paciente_id, field]) if getattr(study, field) else None for field in STUDY_IMAGE_FIELDS}
     def validate(self, attrs):
         if self.instance is None:
             missing=[field for field in STUDY_IMAGE_FIELDS[:5] if not attrs.get(field)]
@@ -210,9 +240,11 @@ class ComparativeStudySerializer(serializers.ModelSerializer):
 
 class ConsentSerializer(serializers.ModelSerializer):
     archivo_ine_url=serializers.SerializerMethodField(read_only=True)
+    pdf_generado=serializers.SerializerMethodField()
     class Meta:
         model=Consentimiento
         fields=('id','paciente','texto','fecha_aceptacion','archivo_ine','archivo_ine_url','pdf_generado')
         read_only_fields=('id','paciente','fecha_aceptacion','archivo_ine_url','pdf_generado')
         extra_kwargs={'archivo_ine':{'write_only':True,'required':False},'texto':{'required':False,'allow_blank':True}}
-    def get_archivo_ine_url(self, consent): return consent.archivo_ine.url if consent.archivo_ine else None
+    def get_archivo_ine_url(self, consent): return reverse('api-consent-file', args=[consent.paciente_id]) if consent.archivo_ine else None
+    def get_pdf_generado(self, consent): return reverse('api-consent-pdf', args=[consent.paciente_id]) if consent.pdf_generado else None

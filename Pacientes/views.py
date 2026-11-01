@@ -14,16 +14,50 @@ from django.db.models.functions import Concat
 from django.db.models import Value
 import json
 from .forms import EstudioComparativoForm
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET
+from django.http import FileResponse
 from .PDF import pdf_progreso
 from django.utils import timezone
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
+from api.policies import scoped, owned_or_404, consistent_or_404
+from api.upload_policy import validate_upload
+from api.services.exports import export_patients, export_consultations, export_images
+from django.core.exceptions import ValidationError
+from api.serializers import MedicalHistorySerializer, OdontogramSerializer, PatientSerializer
+from api.services.patients import deactivate_patient
+from api.services.clinical_records import save_record
+from rest_framework.exceptions import APIException
+from api.throttles import limit_legacy, EmailThrottle, ExportThrottle
 
 
 
 
 # Create your views here.
+
+@require_GET
+def clinical_session_file(request, kind, resource_id, field):
+    from django.http import Http404
+    allowed = {
+        'image': (ImagenesClinicas, {'imagen', 'resultados'}),
+        'study': (EstudioComparativo, {'antes_oclusal_superior', 'antes_lateral_izquierda', 'antes_frontal', 'antes_lateral_derecha', 'antes_oclusal_inferior', 'despues_perfil', 'despues_semiperfil', 'despues_retrato_frontal', 'despues_retrato_sonrisa'}),
+        'consent': (Consentimiento, {'archivo_ine', 'pdf_generado'}),
+    }
+    if kind not in allowed or field not in allowed[kind][1]:
+        raise Http404
+    model = allowed[kind][0]
+    obj = owned_or_404(request.user, model, pk=resource_id)
+    file = getattr(obj, field)
+    if not file:
+        raise Http404
+    try:
+        response = FileResponse(file.open('rb'), as_attachment=kind == 'consent', filename=os.path.basename(file.name))
+    except FileNotFoundError:
+        raise Http404
+    response['Cache-Control'] = 'private, no-store'
+    return response
+
 
 def menuPacientes(request):
     return render(request, 'pacientes/menuPacientes.html')
@@ -35,47 +69,17 @@ from .models import Paciente
 
 def registrar_paciente(request):
     if request.method == 'POST':
-        nombre = request.POST.get('nombre').upper()
-        appat = request.POST.get('appat').upper()
-        apmat = request.POST.get('apmat').upper()
-        fecha_nac = request.POST.get('fecha_nacimiento')
-        genero = request.POST.get('genero')
-        tel = request.POST.get('telefono')
-        email = request.POST.get('email').upper()
-        
-        # Validar que el teléfono no exista para este médico
-        if Paciente.objects.filter(telefono=tel, medico=request.user).exists():
-            messages.error(request, "El teléfono ya está registrado para tu consultorio.")
+        serializer = PatientSerializer(data=request.POST, context={'request': request})
+        if not serializer.is_valid():
+            messages.error(request, 'Revisa los datos del paciente.')
             return render(request, 'pacientes/registroPacientes.html')
-        
-        # Validar que el email no exista para este médico
-        if Paciente.objects.filter(email=email, medico=request.user).exists():
-            messages.error(request, "El email ya está registrado para tu consultorio.")
-            return render(request, 'pacientes/registroPacientes.html')
-
-        # Validar que la fecha no esté vacía y sea válida
-        if not fecha_nac:
-            messages.error(request, "La fecha de nacimiento es obligatoria.")
-            return render(request, 'pacientes/registroPacientes.html')
-
         try:
-            # Intentamos convertir la fecha al formato YYYY-MM-DD
-            fecha_nac_obj = datetime.strptime(fecha_nac, '%Y-%m-%d').date()
-        except ValueError:
-            messages.error(request, "Formato de fecha inválido. Usa YYYY-MM-DD.")
+            patient = serializer.save()
+        except APIException:
+            messages.error(request, 'Revisa los datos del paciente.')
             return render(request, 'pacientes/registroPacientes.html')
-
-        # Crear paciente asignando el médico logueado
-        Paciente.objects.create(
-            nombre=nombre,
-            appat=appat,
-            apmat=apmat,
-            fecha_nacimiento=fecha_nac_obj,
-            genero=genero,
-            telefono=tel,
-            email=email,
-            medico=request.user
-        )
+        request.audit_resource_id = patient.pk
+        request.audit_success = True
         messages.success(request, "Registro exitoso de paciente.")
         return redirect('/registroPacientes/registrar_pacientes/')
     
@@ -83,12 +87,12 @@ def registrar_paciente(request):
 
 
 def todos_los_pacientes(request):
-    pacientes = Paciente.objects.filter(medico=request.user).order_by('appat')
+    pacientes = scoped(request.user, Paciente).order_by('appat')
     return render(request, 'pacientes/todosPacientes.html',{'pacientes': pacientes})
 
 def buscar_pacientes(request):
     query = request.GET.get('q', '').strip()
-    pacientes = Paciente.objects.filter(medico=request.user).order_by('appat')
+    pacientes = scoped(request.user, Paciente).order_by('appat')
 
     if query:
         pacientes = pacientes.annotate(
@@ -112,7 +116,7 @@ def buscar_pacientes(request):
     })
     
 def ver_paciente(request, id):
-    paciente = Paciente.objects.filter(id=id, medico= request.user).first()
+    paciente = scoped(request.user, Paciente).filter(id=id).first()
     if not paciente:
         messages.error(request, 'Paciente no encontrado')
         return redirect('buscar_pacientes')
@@ -121,27 +125,22 @@ def ver_paciente(request, id):
         return render(request, 'pacientes/verPaciente.html', {'paciente': paciente, 'edad': edad})
     
 def editar_paciente(request, id):
-    paciente = Paciente.objects.filter(id=id, medico=request.user).first()
+    paciente = scoped(request.user, Paciente).filter(id=id).first()
     if not paciente:
         messages.error(request, 'Paciente no encontrado')
         return redirect('buscar_pacientes')
 
     if request.method == 'POST':
-        paciente.nombre = request.POST.get('nombre').upper()
-        paciente.appat = request.POST.get('appat').upper()
-        paciente.apmat = request.POST.get('apmat').upper()
-        paciente.fecha_nacimiento = request.POST.get('fecha_nacimiento')
-        paciente.genero = request.POST.get('genero')
-        paciente.telefono = request.POST.get('telefono')
-        paciente.email = request.POST.get('email').upper()
-        paciente.estatus = request.POST.get('estatus', 'Activo')
-        
-        # Validación solo dentro del médico actual
-        if Paciente.objects.filter(telefono=paciente.telefono, medico=request.user).exclude(id=id).exists():
-            messages.error(request, "El teléfono ya está registrado para tu consultorio.")
+        serializer = PatientSerializer(paciente, data=request.POST, partial=True, context={'request': request})
+        if not serializer.is_valid():
+            messages.error(request, 'Revisa los datos del paciente.')
             return render(request, 'pacientes/editarPaciente.html', {'paciente': paciente})
-        
-        paciente.save()
+        try:
+            serializer.save()
+        except APIException:
+            messages.error(request, 'Revisa los datos del paciente.')
+            return render(request, 'pacientes/editarPaciente.html', {'paciente': paciente})
+        request.audit_success = True
         messages.success(request, "Paciente actualizado exitosamente.")
         return redirect('buscar_pacientes')
 
@@ -149,14 +148,14 @@ def editar_paciente(request, id):
 
 #la eliminacion ed logica, que el campo estatus cambie a inactivo
 def eliminar_paciente(request, id):
-    paciente = Paciente.objects.filter(id=id, medico = request.user).first()
+    paciente = scoped(request.user, Paciente).filter(id=id).first()
     if not paciente:
         messages.error(request, 'Paciente no encontrado')
         return redirect('buscar_pacientes')
 
     if request.method == 'POST':
-        paciente.estatus = 'I' 
-        paciente.save()
+        deactivate_patient(paciente)
+        request.audit_success = True
         messages.success(request, "Paciente eliminado exitosamente.")
     
     return redirect('buscar_pacientes')
@@ -168,7 +167,7 @@ def menu_historial(request):
 
     if paciente_id:
         try:
-            paciente_seleccionado = Paciente.objects.get(id=paciente_id, medico=request.user)
+            paciente_seleccionado = scoped(request.user, Paciente).get(id=paciente_id)
         except Paciente.DoesNotExist:
             paciente_seleccionado = None
 
@@ -178,10 +177,7 @@ def menu_historial(request):
 
 def buscar_pacientes_ajax(request):
     term = request.GET.get('term', '')
-    pacientes = Paciente.objects.filter(
-        medico=request.user,
-        nombre__icontains=term
-    )[:10]  # Limita resultados para mejor performance
+    pacientes = scoped(request.user, Paciente).filter(nombre__icontains=term)[:10]
 
     results = []
     for p in pacientes:
@@ -192,12 +188,12 @@ def buscar_pacientes_ajax(request):
     return JsonResponse({'results': results})
 
 def antecedentes(request, id):
-    paciente = get_object_or_404(Paciente, id=id, medico=request.user)
+    paciente = owned_or_404(request.user, Paciente, id=id)
     
-    antecedentes, created = AntescedentesMedicos.objects.get_or_create(
-        paciente=paciente,
-        defaults={'medico': request.user}  # Asignamos el médico al crear
-    )
+    antecedentes = consistent_or_404(request.user, AntescedentesMedicos, paciente).first()
+    created = antecedentes is None
+    if antecedentes is None:
+        antecedentes = AntescedentesMedicos(paciente=paciente, medico=request.user)
     
     if request.method == 'POST':
         form_data = request.POST
@@ -213,22 +209,25 @@ def antecedentes(request, id):
             'sangrado_encias'
         ]
 
-        for field in bool_fields:
-            setattr(antecedentes, field, form_data.get(field) == 'True')
-
-        # Campos de texto
-        antecedentes.alergias = form_data.get('alergias_txt', '')
-        antecedentes.medicamentos = form_data.get('medicamentos', '')
-        antecedentes.cirugias_previas = form_data.get('cirugias_previas', '')
-        antecedentes.otros = form_data.get('otros', '')
-
-        # Aseguramos que siempre tenga el médico correcto
-        antecedentes.medico = request.user
-        antecedentes.save()
+        changes = {field: (None if form_data[field] == '' else form_data[field]) for field in bool_fields if field in form_data}
+        for field, source in [('alergias', 'alergias_txt'), ('medicamentos', 'medicamentos'), ('cirugias_previas', 'cirugias_previas'), ('otros', 'otros')]:
+            if source in form_data:
+                changes[field] = form_data[source]
+        serializer = MedicalHistorySerializer(antecedentes, data=changes, partial=True)
+        if not serializer.is_valid():
+            return JsonResponse({'detail': 'Datos de antecedentes inválidos.'}, status=400)
+        try:
+            version = int(form_data.get('version', ''))
+            antecedentes = save_record(user=request.user, patient_id=id, model=AntescedentesMedicos, changes=serializer.validated_data, expected_version=version)
+        except ValueError:
+            return JsonResponse({'detail': 'Versión requerida.'}, status=400)
+        except APIException as exc:
+            return JsonResponse({'detail': str(exc.detail)}, status=exc.status_code)
 
         return JsonResponse({
             'status': 'success',
-            'message': 'Antecedentes creados' if created else 'Antecedentes actualizados'
+            'message': 'Antecedentes creados' if created else 'Antecedentes actualizados',
+            'version': antecedentes.version,
         })
 
     context = {
@@ -239,7 +238,7 @@ def antecedentes(request, id):
 
         
 def consultas(request, id):
-    paciente = get_object_or_404(Paciente, id=id, medico=request.user)
+    paciente = owned_or_404(request.user, Paciente, id=id)
     fecha = datetime.today().date().strftime('%Y-%m-%d')
     
     if request.method == 'POST':
@@ -265,22 +264,22 @@ def consultas(request, id):
 
 
 def receta(request, id):
-    consulta = get_object_or_404(Consulta, id=id, medico=request.user)
+    consulta = owned_or_404(request.user, Consulta, id=id)
     return render(request, 'receta/receta.html', {'consulta': consulta})
 
 def historial_consultas(request, id):
-    paciente = get_object_or_404(Paciente, id=id, medico=request.user)
-    consultas = Consulta.objects.filter(paciente=paciente, medico=request.user).order_by('-fecha_consulta')
+    paciente = owned_or_404(request.user, Paciente, id=id)
+    consultas = scoped(request.user, Consulta).filter(paciente=paciente).order_by('-fecha_consulta')
     return render(request, 'historialMedico/historial_consultas.html', {'consultas': consultas, 'paciente': paciente})
 
 # Vistas para imágenes clínicas
 def imagenes_clinicas(request, id):
-    paciente = get_object_or_404(Paciente, id=id, medico=request.user)
+    paciente = owned_or_404(request.user, Paciente, id=id)
     return render(request, 'imagenes/imagenes_clinicas.html', {'paciente': paciente})
 
 def cargar_imagen(request, id):
-    paciente = get_object_or_404(Paciente, id=id, medico=request.user)
-    consultas = Consulta.objects.filter(paciente=paciente, medico=request.user).order_by('-fecha_consulta')
+    paciente = owned_or_404(request.user, Paciente, id=id)
+    consultas = scoped(request.user, Consulta).filter(paciente=paciente).order_by('-fecha_consulta')
 
     if request.method == 'POST':
         consulta_id = request.POST.get('consulta_id')
@@ -292,6 +291,12 @@ def cargar_imagen(request, id):
             messages.error(request, "Por favor, sube una imagen.")
             return render(request, 'imagenes/cargarImagen.html', {'paciente': paciente, 'consultas': consultas})
 
+        try:
+            validate_upload(imagen)
+        except ValidationError as exc:
+            messages.error(request, exc.messages[0])
+            return render(request, 'imagenes/cargarImagen.html', {'paciente': paciente, 'consultas': consultas}, status=400)
+
         if not tipo_imagen or not descripcion:
             messages.error(request, "Todos los campos son obligatorios.")
             return render(request, 'imagenes/cargarImagen.html', {'paciente': paciente, 'consultas': consultas})
@@ -300,9 +305,9 @@ def cargar_imagen(request, id):
             messages.error(request, "Debes seleccionar una consulta válida.")
             return render(request, 'imagenes/cargarImagen.html', {'paciente': paciente, 'consultas': consultas})
 
-        consulta = get_object_or_404(Consulta, id=consulta_id, paciente=paciente, medico=request.user)
+        consulta = owned_or_404(request.user, Consulta, id=consulta_id, paciente=paciente)
 
-        ImagenesClinicas.objects.create(
+        clinical_image = ImagenesClinicas.objects.create(
             paciente=paciente,
             consulta=consulta,
             medico=request.user,  # Asignamos el médico
@@ -310,6 +315,8 @@ def cargar_imagen(request, id):
             descripcion=descripcion,
             imagen=imagen
         )
+        request.audit_resource_id = clinical_image.pk
+        request.audit_success = True
 
         messages.success(request, "Imagen clínica cargada exitosamente.")
         return redirect('cargar_imagen', paciente.id)
@@ -318,9 +325,9 @@ def cargar_imagen(request, id):
 
 
 def buscar_imagen(request, id):
-    paciente = get_object_or_404(Paciente, id=id, medico=request.user)
-    consultas = Consulta.objects.filter(paciente=paciente, medico=request.user).order_by('-fecha_consulta')
-    imagenes = ImagenesClinicas.objects.filter(paciente=paciente, medico=request.user)
+    paciente = owned_or_404(request.user, Paciente, id=id)
+    consultas = scoped(request.user, Consulta).filter(paciente=paciente).order_by('-fecha_consulta')
+    imagenes = scoped(request.user, ImagenesClinicas).filter(paciente=paciente)
     
     # Obtención mediante GET
     fecha = request.GET.get('fecha')
@@ -338,25 +345,21 @@ def buscar_imagen(request, id):
         'imagenes': imagenes
     })
 
+@require_POST
 def eliminar_imagen(request, imagen_id):
-    imagen = get_object_or_404(ImagenesClinicas, id=imagen_id, medico=request.user)
+    imagen = owned_or_404(request.user, ImagenesClinicas, id=imagen_id)
     paciente_id = imagen.paciente.id  # Para redirigir después
 
-    if request.method == 'POST':
-        try:
-            imagen.delete()
-            messages.success(request, "Imagen clínica eliminada correctamente.")
-        except Exception as e:
-            messages.error(request, f"No se pudo eliminar la imagen: {str(e)}")
-    else:
-        messages.error(request, "Acción no permitida. La eliminación debe hacerse mediante un formulario POST.")
+    imagen.delete()
+    request.audit_success = True
+    messages.success(request, "Imagen clínica eliminada correctamente.")
 
     return redirect('buscar_imagen', paciente_id)
 
 
 def historial_imagenes(request, id):
-    paciente = get_object_or_404(Paciente, id=id, medico=request.user)
-    imagenes = ImagenesClinicas.objects.filter(paciente=paciente, medico=request.user).order_by('-fecha_subida')
+    paciente = owned_or_404(request.user, Paciente, id=id)
+    imagenes = scoped(request.user, ImagenesClinicas).filter(paciente=paciente).order_by('-fecha_subida')
     return render(request, 'imagenes/historial_imagenes.html', {
         'paciente': paciente,
         'imagenes': imagenes
@@ -367,70 +370,19 @@ def historial_imagenes(request, id):
 def exportar_datos(request):
     return render(request, 'pacientes/exportar_datos.html')
 
+@limit_legacy(ExportThrottle, methods=('GET',))
 def exportar_pacientes(request):
-    #Obtener los datos
-    pacientes = Paciente.objects.filter(medico=request.user).values(
-        'id','nombre','appat','apmat','fecha_nacimiento','genero','telefono','email','estatus'
-    )
-    #Convertir a Dataframe
-    df = pd.DataFrame(list(pacientes))
-    # Crear respuesta HTTP con Excel
-    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=Pacientes.xlsx'
-    
-    #Guardar dataframe en el response como archivo Excel
-    with pd.ExcelWriter(response, engine='openpyxl') as writer:
-        df.to_excel(writer, sheet_name= 'Pacientes', index=False)
-        
-    return response
+    return export_patients(request.user)
 
 
+@limit_legacy(ExportThrottle, methods=('GET',))
 def exportar_consultas(request):
-    # Solo consultas de pacientes del médico logueado
-    consultas = Consulta.objects.filter(
-        paciente__medico=request.user
-    ).values(
-        'paciente__nombre', 'paciente__appat', 'paciente__apmat',
-        'fecha_consulta', 'motivo_consulta', 'diagnostico', 
-        'tratamiento', 'observaciones'
-    )
-
-    df = pd.DataFrame(list(consultas))
-    
-    # Quitar la zona horaria si existe
-    for col in df.select_dtypes(include=['datetimetz']):
-        df[col] = df[col].dt.tz_localize(None)
-    
-    response = HttpResponse(
-        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
-    response['Content-Disposition'] = 'attachment; filename=Consultas.xlsx'
-    
-    with pd.ExcelWriter(response, engine='openpyxl') as writer:
-        df.to_excel(writer, sheet_name='Consultas', index=False)
-        
-    return response
+    return export_consultations(request.user)
 
     
+@limit_legacy(ExportThrottle, methods=('GET',))
 def exportar_imagenes(request):
-    imagenes = ImagenesClinicas.objects.filter(
-            paciente__medico=request.user
-        ).values(
-        'paciente', 'consulta', 'tipo_imagen', 'descripcion', 'imagen', 'fecha_subida'
-    )
-
-    df = pd.DataFrame(list(imagenes))
-    
-    for col in df.select_dtypes(include=['datetimetz']):
-        df[col] = df[col].dt.tz_localize(None)
-    
-    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=ImagenesClinicas.xlsx'
-    
-    with pd.ExcelWriter(response, engine='openpyxl') as writer:
-        df.to_excel(writer, sheet_name='ImagenesClinicas', index=False)
-        
-    return response
+    return export_images(request.user)
     
 # Vista para contactar pacientes
 def contactar_pacientes(request):
@@ -439,7 +391,7 @@ def contactar_pacientes(request):
 
     if paciente_id:
         try:
-            paciente_seleccionado = Paciente.objects.get(id=paciente_id, medico=request.user)
+            paciente_seleccionado = scoped(request.user, Paciente).get(id=paciente_id)
         except Paciente.DoesNotExist:
             paciente_seleccionado = None
 
@@ -449,11 +401,12 @@ def contactar_pacientes(request):
 
     
 def contacto(request, id):
-    paciente = get_object_or_404(Paciente, id=id, medico=request.user)
+    paciente = owned_or_404(request.user, Paciente, id=id)
     return render(request, 'pacientes/contacto.html', {'paciente': paciente})
 
 
 # Mandar un mensaje al paciente
+@limit_legacy(EmailThrottle)
 def enviar_mensaje(request):
     if request.method == "POST":
         asunto = request.POST.get("asunto")
@@ -465,7 +418,7 @@ def enviar_mensaje(request):
             return redirect('enviar_mensaje')
 
         # Validar que el paciente exista y pertenezca al médico
-        paciente = get_object_or_404(Paciente, id=paciente_id, medico=request.user)
+        paciente = owned_or_404(request.user, Paciente, id=paciente_id)
         destinatario = paciente.email
 
         # --- versión texto plano ---
@@ -495,12 +448,10 @@ def enviar_mensaje(request):
 
 
 def odontograma(request, id):
-    paciente = get_object_or_404(Paciente, id=id, medico=request.user)
+    paciente = owned_or_404(request.user, Paciente, id=id)
     
     # Tomamos el odontograma más reciente del paciente
-    odontograma_obj = (
-        paciente.odontogramas.order_by('-created').first()
-    )
+    odontograma_obj = consistent_or_404(request.user, Odontograma, paciente).order_by('-created').first()
     
     if odontograma_obj:
         odontograma_data = json.dumps({
@@ -513,45 +464,39 @@ def odontograma(request, id):
     
     context = {
         'paciente': paciente,
-        'odontograma_data': odontograma_data
+        'odontograma_data': odontograma_data,
+        'odontograma_version': odontograma_obj.version if odontograma_obj else 0,
     }
     
     return render(request, 'odontograma/odontograma.html', context)
 
 
 
-@csrf_exempt
+@require_POST
 def guardar_odontograma(request, paciente_id):
-    paciente = get_object_or_404(Paciente, id=paciente_id, medico=request.user)
+    paciente = owned_or_404(request.user, Paciente, id=paciente_id)
+    consistent_or_404(request.user, Odontograma, paciente)
 
     if request.method == 'POST':
-        data = json.loads(request.body)  # JSON enviado desde el frontend
-        dientes_permanentes = data.get('denticion_permanente', {})
-        dientes_deciduos = data.get('denticion_decidua', {})
-        resumen_clinico = data.get('resumen', {})
-
-        # Buscamos si ya existe un odontograma para este paciente
-        odontograma, created = Odontograma.objects.get_or_create(
-            paciente=paciente,
-            medico=request.user,
-            defaults={
-                'dientes_permanentes': dientes_permanentes,
-                'dientes_deciduos': dientes_deciduos,
-                'resumen_clinico': resumen_clinico
-            }
-        )
-
-        if not created:
-            # Si ya existe, hacemos update
-            odontograma.dientes_permanentes = dientes_permanentes
-            odontograma.dientes_deciduos = dientes_deciduos
-            odontograma.resumen_clinico = resumen_clinico
-            odontograma.save()
+        try:
+            data = json.loads(request.body)
+        except (ValueError, UnicodeDecodeError):
+            return JsonResponse({'detail': 'JSON inválido.'}, status=400)
+        if not isinstance(data, dict):
+            return JsonResponse({'detail': 'Odontograma inválido.'}, status=400)
+        serializer = OdontogramSerializer(data=data)
+        if not serializer.is_valid():
+            return JsonResponse({'detail': 'Odontograma inválido.'}, status=400)
+        try:
+            odontograma = save_record(user=request.user, patient_id=paciente_id, model=Odontograma, changes=serializer.validated_data, expected_version=data.get('version'))
+        except APIException as exc:
+            return JsonResponse({'detail': str(exc.detail)}, status=exc.status_code)
 
         return JsonResponse({
             'status': 'ok',
-            'mensaje': 'Odontograma guardado' if created else 'Odontograma actualizado',
-            'id': odontograma.id
+            'mensaje': 'Odontograma guardado',
+            'id': odontograma.id,
+            'version': odontograma.version,
         })
 
     return JsonResponse({'status': 'error', 'mensaje': 'Método no permitido'}, status=405)
@@ -560,8 +505,8 @@ def guardar_odontograma(request, paciente_id):
 #Progreso del paciente (Before & After)
 
 def progreso(request, paciente_id):
-    paciente = get_object_or_404(Paciente, id=paciente_id, medico=request.user)
-    estudio = EstudioComparativo.objects.filter(paciente=paciente).order_by('-fecha_creacion').first()    
+    paciente = owned_or_404(request.user, Paciente, id=paciente_id)
+    estudio = consistent_or_404(request.user, EstudioComparativo, paciente).order_by('-fecha_creacion').first()
     form = EstudioComparativoForm(instance=estudio)
     visualizar_activado = True if estudio else False
     
@@ -576,10 +521,16 @@ def progreso(request, paciente_id):
     return render(request, 'before_after/progreso.html', context)
 
 def estudio_comparativo_view(request, paciente_id):
-    paciente = get_object_or_404(Paciente, id=paciente_id, medico=request.user)
-    estudio = EstudioComparativo.objects.filter(paciente=paciente).first()
+    paciente = owned_or_404(request.user, Paciente, id=paciente_id)
+    estudio = consistent_or_404(request.user, EstudioComparativo, paciente).first()
 
     if request.method == 'POST':
+        try:
+            for uploaded in request.FILES.values():
+                validate_upload(uploaded)
+        except ValidationError as exc:
+            messages.error(request, exc.messages[0])
+            return render(request, 'before_after/estudio_comparativo.html', {'paciente': paciente, 'form': EstudioComparativoForm(instance=estudio), 'estudio': estudio}, status=400)
         form = EstudioComparativoForm(request.POST, request.FILES, instance=estudio)
         if form.is_valid():
             nuevo_estudio = form.save(commit=False)
@@ -602,8 +553,8 @@ def estudio_comparativo_view(request, paciente_id):
     return render(request, 'before_after/estudio_comparativo.html', context)
 
 def visualizar_estudio(request, paciente_id):
-    paciente = get_object_or_404(Paciente, id=paciente_id, medico=request.user)
-    estudio = get_object_or_404(EstudioComparativo, paciente=paciente)
+    paciente = owned_or_404(request.user, Paciente, id=paciente_id)
+    estudio = get_object_or_404(consistent_or_404(request.user, EstudioComparativo, paciente))
 
     # Calcular edad
     edad = None
@@ -627,13 +578,12 @@ def descargar_pdf_estudio(request, paciente_id):
 # Consentimiento Informado
 
 def consentimiento_informado(request, paciente_id):
-    paciente = get_object_or_404(Paciente, id=paciente_id, medico=request.user)
+    paciente = owned_or_404(request.user, Paciente, id=paciente_id)
     
     # Crear o recuperar consentimiento asignando medico
-    consentimiento, created = Consentimiento.objects.get_or_create(
-        paciente=paciente,
-        medico=request.user
-    )
+    consentimiento = consistent_or_404(request.user, Consentimiento, paciente).first()
+    if consentimiento is None:
+        consentimiento = Consentimiento(paciente=paciente, medico=request.user, texto='')
 
     # Verificar si ya fue aceptado
     form_activo = not bool(consentimiento.fecha_aceptacion)
@@ -644,15 +594,10 @@ def consentimiento_informado(request, paciente_id):
 
         # Validación de archivo
         if archivo_ine:
-            max_size = 5 * 1024 * 1024  # 5MB
-            if archivo_ine.size > max_size:
-                messages.error(request, "El archivo no debe superar los 5 MB.")
-                return redirect('consentimiento', paciente_id=paciente.id)
-
-            valid_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.pdf']
-            ext = os.path.splitext(archivo_ine.name)[1].lower()
-            if ext not in valid_extensions:
-                messages.error(request, "Solo se permiten archivos tipo imagen o PDF.")
+            try:
+                validate_upload(archivo_ine, allow_pdf=True)
+            except ValidationError as exc:
+                messages.error(request, exc.messages[0])
                 return redirect('consentimiento', paciente_id=paciente.id)
 
             consentimiento.archivo_ine = archivo_ine

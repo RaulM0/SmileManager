@@ -10,3 +10,24 @@ frontend/playwright-report/
 node_modules/
 .e2e.sqlite3
 .e2e-media/
+.e2e-server.pid
+.e2e-run-*/
+frontend/.e2e-closure-artifacts/
+frontend/.e2e-closure-output/
+.security-tools/
+.pip-audit-closure.json
+.gitleaks-*-redacted.json
+
+# Datos locales y archivos clínicos: las entradas ya rastreadas requieren
+# remediación del índice y del historial por separado.
+db.sqlite3
+*.sqlite3
+*.sqlite3-journal
+*.sqlite3-wal
+*.sqlite3-shm
+media/
+uploads/
+.ux-e2e-*/
+*.env
+.env.*
+!.env.example

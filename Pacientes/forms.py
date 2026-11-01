@@ -40,6 +40,12 @@ class EstudioComparativoForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # ClearableFileInput expone la URL de storage del archivo existente.
+        # Las vistas previas usan exclusivamente endpoints autorizados.
+        for field in ('antes_oclusal_superior', 'antes_lateral_izquierda', 'antes_frontal',
+                      'antes_lateral_derecha', 'antes_oclusal_inferior', 'despues_perfil',
+                      'despues_semiperfil', 'despues_retrato_frontal', 'despues_retrato_sonrisa'):
+            self.fields[field].widget = forms.FileInput()
         
         # Hacer que las imágenes "después" NO sean requeridas
         self.fields['despues_perfil'].required = False

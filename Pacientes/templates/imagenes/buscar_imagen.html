@@ -93,13 +93,13 @@
                 <div class="col-md-6 col-lg-4 col-xl-3">
                     <div class="card h-100 border-0 shadow-sm card-hover">
                         <div class="card-img-top position-relative" style="height: 200px; background-color: #f8f9fa;">
-                            {% if imagen.imagen.url|lower|slice:'-4:' == '.pdf' %}
+                            {% if imagen.imagen.name|lower|slice:'-4:' == '.pdf' %}
                                 <div class="d-flex flex-column align-items-center justify-content-center h-100 text-center p-3">
                                     <i class="bi bi-file-earmark-pdf display-4 text-danger mb-2"></i>
                                     <small class="text-muted">Documento PDF</small>
                                 </div>
                             {% else %}
-                                <img src="{{ imagen.imagen.url }}" class="img-fluid w-100 h-100 object-fit-contain" alt="Imagen clínica" style="background-color: #f8f9fa;">
+                                <img src="{% url 'clinical-session-file' 'image' imagen.id 'imagen' %}" class="img-fluid w-100 h-100 object-fit-contain" alt="Imagen clínica" style="background-color: #f8f9fa;">
                             {% endif %}
                             <span class="position-absolute top-0 start-0 m-2 badge bg-dark bg-opacity-75">{{ imagen.tipo_imagen }}</span>
                         </div>
@@ -114,13 +114,13 @@
                         </div>
                         <div class="card-footer bg-white border-0 pt-0 pb-2">
                             <div class="d-flex justify-content-between gap-1">
-                                <a href="{{ imagen.imagen.url }}" target="_blank" 
+                                <a href="{% url 'clinical-session-file' 'image' imagen.id 'imagen' %}" target="_blank"
                                    class="btn btn-sm btn-outline-primary flex-grow-1" 
                                    data-bs-toggle="tooltip" 
                                    title="Ver imagen">
                                     <i class="bi bi-eye-fill"></i>
                                 </a>
-                                <a href="{{ imagen.imagen.url }}" download 
+                                <a href="{% url 'clinical-session-file' 'image' imagen.id 'imagen' %}" download
                                    class="btn btn-sm btn-outline-secondary flex-grow-1" 
                                    data-bs-toggle="tooltip" 
                                    title="Descargar">

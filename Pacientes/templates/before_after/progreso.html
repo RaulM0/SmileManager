@@ -331,7 +331,7 @@
           <p class="upload-text">...</p>
           <img
             class="image-preview"
-            src="{% if estudio.antes_oclusal_superior %}{{ estudio.antes_oclusal_superior.url }}{% endif %}"
+            src="{% if estudio.antes_oclusal_superior %}{% url 'clinical-session-file' 'study' estudio.id 'antes_oclusal_superior' %}{% endif %}"
             alt="Preview"
           />
           <input
@@ -369,7 +369,7 @@
           <p class="upload-text">...</p>
           <img
             class="image-preview"
-            src="{% if estudio.antes_lateral_izquierda %}{{ estudio.antes_lateral_izquierda.url }}{% endif %}"
+            src="{% if estudio.antes_lateral_izquierda %}{% url 'clinical-session-file' 'study' estudio.id 'antes_lateral_izquierda' %}{% endif %}"
             alt="Preview"
           />
           <input
@@ -407,7 +407,7 @@
           <p class="upload-text">...</p>
           <img
             class="image-preview"
-            src="{% if estudio.antes_frontal %}{{ estudio.antes_frontal.url }}{% endif %}"
+            src="{% if estudio.antes_frontal %}{% url 'clinical-session-file' 'study' estudio.id 'antes_frontal' %}{% endif %}"
             alt="Preview"
           />
           <input
@@ -445,7 +445,7 @@
           <p class="upload-text">...</p>
           <img
             class="image-preview"
-            src="{% if estudio.antes_lateral_derecha %}{{ estudio.antes_lateral_derecha.url }}{% endif %}"
+            src="{% if estudio.antes_lateral_derecha %}{% url 'clinical-session-file' 'study' estudio.id 'antes_lateral_derecha' %}{% endif %}"
             alt="Preview"
           />
           <input
@@ -483,7 +483,7 @@
           <p class="upload-text">...</p>
           <img
             class="image-preview"
-            src="{% if estudio.antes_oclusal_inferior %}{{ estudio.antes_oclusal_inferior.url }}{% endif %}"
+            src="{% if estudio.antes_oclusal_inferior %}{% url 'clinical-session-file' 'study' estudio.id 'antes_oclusal_inferior' %}{% endif %}"
             alt="Preview"
           />
           <input
@@ -526,7 +526,7 @@
           <p class="upload-text">...</p>
           <img
             class="image-preview"
-            src="{% if estudio.despues_perfil %}{{ estudio.despues_perfil.url }}{% endif %}"
+            src="{% if estudio.despues_perfil %}{% url 'clinical-session-file' 'study' estudio.id 'despues_perfil' %}{% endif %}"
             alt="Preview"
           />
           <input
@@ -557,7 +557,7 @@
           <p class="upload-text">...</p>
           <img
             class="image-preview"
-            src="{% if estudio.despues_retrato_frontal %}{{ estudio.despues_retrato_frontal.url }}{% endif %}"
+            src="{% if estudio.despues_retrato_frontal %}{% url 'clinical-session-file' 'study' estudio.id 'despues_retrato_frontal' %}{% endif %}"
             alt="Preview"
           />
           <input
@@ -588,7 +588,7 @@
           <p class="upload-text">...</p>
           <img
             class="image-preview"
-            src="{% if estudio.despues_semiperfil %}{{ estudio.despues_semiperfil.url }}{% endif %}"
+            src="{% if estudio.despues_semiperfil %}{% url 'clinical-session-file' 'study' estudio.id 'despues_semiperfil' %}{% endif %}"
             alt="Preview"
           />
           <input
@@ -619,7 +619,7 @@
           <p class="upload-text">...</p>
           <img
             class="image-preview"
-            src="{% if estudio.despues_retrato_sonrisa %}{{ estudio.despues_retrato_sonrisa.url }}{% endif %}"
+            src="{% if estudio.despues_retrato_sonrisa %}{% url 'clinical-session-file' 'study' estudio.id 'despues_retrato_sonrisa' %}{% endif %}"
             alt="Preview"
           />
           <input
