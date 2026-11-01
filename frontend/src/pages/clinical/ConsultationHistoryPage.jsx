@@ -1,0 +1,66 @@
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { api } from "../../api/client";
+
+export default function ConsultationHistoryPage() {
+  const { id } = useParams();
+  const [items, setItems] = useState(null);
+  useEffect(() => {
+    api(`patients/${id}/consultations/`).then(setItems);
+  }, [id]);
+  return (
+    <div className="container py-4">
+      <div className="d-flex justify-content-between">
+        <h1 className="h2">Historial de consultas</h1>
+        <Link
+          to={`/patients/${id}/consultations/new`}
+          className="btn btn-primary"
+        >
+          Nueva consulta
+        </Link>
+      </div>
+      {!items ? (
+        <div className="page-loader">
+          <div className="spinner-border text-primary" />
+        </div>
+      ) : (
+        <div className="card border-0 shadow-sm mt-4">
+          <div className="table-responsive">
+            <table className="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Motivo</th>
+                  <th>Diagnóstico</th>
+                  <th>Receta</th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((item) => (
+                  <tr key={item.id}>
+                    <td>{new Date(item.fecha_consulta).toLocaleString()}</td>
+                    <td>{item.motivo_consulta}</td>
+                    <td>{item.diagnostico}</td>
+                    <td>
+                      <Link
+                        className="btn btn-sm btn-outline-primary"
+                        to={`/consultations/${item.id}/prescription`}
+                      >
+                        Ver
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {!items.length && (
+            <div className="p-5 text-center text-muted">
+              No hay consultas registradas.
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

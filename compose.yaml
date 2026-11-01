@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: smilemanager-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: smilemanager
+      POSTGRES_USER: smilemanager
+      POSTGRES_PASSWORD: smilemanager_local
+    ports:
+      - "5432:5432"
+    volumes:
+      - smilemanager_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U smilemanager -d smilemanager"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  smilemanager_postgres_data:

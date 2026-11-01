@@ -1,0 +1,72 @@
+import { useState } from "react";
+import { api } from "../../api/client";
+import PatientSelector from "../../components/patients/PatientSelector";
+
+export default function PatientContactPage() {
+  const [patient, setPatient] = useState(null);
+  const [form, setForm] = useState({ asunto: "", mensaje: "" });
+  const [notice, setNotice] = useState("");
+  const [error, setError] = useState("");
+  async function submit(e) {
+    e.preventDefault();
+    setError("");
+    try {
+      const result = await api(`patients/${patient.id}/email/`, {
+        method: "POST",
+        body: JSON.stringify(form),
+      });
+      setNotice(result.detail);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+  return (
+    <div className="container py-4">
+      <h1 className="h2 mb-4">Contactar paciente</h1>
+      {!patient ? (
+        <div className="card border-0 shadow-sm">
+          <div className="card-body p-4">
+            <PatientSelector onSelect={setPatient} />
+          </div>
+        </div>
+      ) : (
+        <form onSubmit={submit} className="card border-0 shadow-sm">
+          <div className="card-body p-4">
+            <div className="alert alert-info">Destinatario: {patient.text}</div>
+            <label htmlFor="subject" className="form-label">
+              Asunto
+            </label>
+            <input
+              id="subject"
+              required
+              className="form-control mb-3"
+              value={form.asunto}
+              onChange={(e) => setForm({ ...form, asunto: e.target.value })}
+            />
+            <label htmlFor="message" className="form-label">
+              Mensaje
+            </label>
+            <textarea
+              id="message"
+              required
+              rows="7"
+              className="form-control"
+              value={form.mensaje}
+              onChange={(e) => setForm({ ...form, mensaje: e.target.value })}
+            />
+            {notice && <div className="alert alert-success mt-3">{notice}</div>}
+            {error && <div className="alert alert-danger mt-3">{error}</div>}
+            <button className="btn btn-primary mt-3">Enviar correo</button>
+            <button
+              type="button"
+              className="btn btn-link mt-3"
+              onClick={() => setPatient(null)}
+            >
+              Cambiar paciente
+            </button>
+          </div>
+        </form>
+      )}
+    </div>
+  );
+}

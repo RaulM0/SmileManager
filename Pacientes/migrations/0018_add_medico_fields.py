@@ -9,35 +9,43 @@ class Migration(migrations.Migration):
         ('Pacientes', '0017_merge_20251123_0037'),
     ]
 
+    # La migración 0016 de la otra rama ya creó estas columnas. Después del
+    # merge, Django necesita incorporarlas al estado de esta rama sin volver a
+    # ejecutar los ALTER TABLE en la base de datos.
     operations = [
-        migrations.AddField(
-            model_name='antescedentesmedicos',
-            name='medico',
-            field=models.ForeignKey(null=True, on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL),
-        ),
-        migrations.AddField(
-            model_name='consulta',
-            name='medico',
-            field=models.ForeignKey(null=True, on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL),
-        ),
-        migrations.AddField(
-            model_name='imagenesclinicas',
-            name='medico',
-            field=models.ForeignKey(null=True, on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL),
-        ),
-        migrations.AddField(
-            model_name='odontograma',
-            name='medico',
-            field=models.ForeignKey(null=True, on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL),
-        ),
-        migrations.AddField(
-            model_name='estudiocomparativo',
-            name='medico',
-            field=models.ForeignKey(null=True, on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL),
-        ),
-        migrations.AddField(
-            model_name='consentimiento',
-            name='medico',
-            field=models.ForeignKey(null=True, on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL),
+        migrations.SeparateDatabaseAndState(
+            database_operations=[],
+            state_operations=[
+                migrations.AddField(
+                    model_name='antescedentesmedicos',
+                    name='medico',
+                    field=models.ForeignKey(null=True, on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL),
+                ),
+                migrations.AddField(
+                    model_name='consulta',
+                    name='medico',
+                    field=models.ForeignKey(null=True, on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL),
+                ),
+                migrations.AddField(
+                    model_name='imagenesclinicas',
+                    name='medico',
+                    field=models.ForeignKey(null=True, on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL),
+                ),
+                migrations.AddField(
+                    model_name='odontograma',
+                    name='medico',
+                    field=models.ForeignKey(null=True, on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL),
+                ),
+                migrations.AddField(
+                    model_name='estudiocomparativo',
+                    name='medico',
+                    field=models.ForeignKey(null=True, on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL),
+                ),
+                migrations.AddField(
+                    model_name='consentimiento',
+                    name='medico',
+                    field=models.ForeignKey(null=True, on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL),
+                ),
+            ],
         ),
     ]
