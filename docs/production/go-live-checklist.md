@@ -1,6 +1,6 @@
 # Go-live: criterios verificables
 
-**Actualización:** el bypass clínico de ModelAdmin se mitigó; falta validar las concesiones reales de permisos. Se agregan como bloqueadores el análisis y remediación compatible de los avisos Python detectados y la ejecución completa de E2E/legacy. Los controles externos de abajo permanecen pendientes.
+**Actualización:** el bypass clínico de ModelAdmin se mitigó; falta validar las concesiones reales de permisos. Las dependencias se actualizaron y los escaneos locales no detectaron avisos conocidos; verificar su instalación y auditoría en CI Linux. La ejecución completa de E2E/legacy y los controles externos de abajo permanecen pendientes.
 
 **NO-GO** hasta cerrar: bypass administrativo de servicios y versiones clínicas; distribución de datos sensibles en Git y copias remotas; prueba de privacidad de storage; restauración conjunta DB/objetos; y validación E2E crítica y controles de acceso en el despliegue. También NO-GO ante DEBUG activo, secreto real expuesto sin rotación, BOLA, archivos públicos, fallo de migración o ausencia de capacidad operativa para responder incidentes.
 

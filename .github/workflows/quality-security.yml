@@ -34,7 +34,9 @@ jobs:
       - run: python manage.py makemigrations --check --dry-run && python manage.py check
         env:
           DJANGO_SETTINGS_MODULE: SmileManager.settings_test
-      - run: python -m pip install pip-audit==2.10.1 && pip-audit -r requirements.txt
+      # Audit the environment installed above, including transitive dependencies,
+      # without creating a second copy of the large Torch/CUDA dependency tree.
+      - run: python -m pip install pip-audit==2.10.1 && python -m pip check && pip-audit
   frontend:
     runs-on: ubuntu-latest
     defaults:

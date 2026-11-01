@@ -15,6 +15,9 @@ node_modules/
 frontend/.e2e-closure-artifacts/
 frontend/.e2e-closure-output/
 .security-tools/
+.security-test-env/
+frontend/.ci-npm-check/
+frontend/.security-e2e-output/
 .pip-audit-closure.json
 .gitleaks-*-redacted.json
 

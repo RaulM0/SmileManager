@@ -40,7 +40,7 @@ export default function DiagnosticResultPage() {
     } finally {
       setRunning(false);
     }
-  }, [id, image?.resultados_url, toast, queryClient]);
+  }, [id, image, toast, queryClient]);
   useEffect(() => {
     imagesService.get(id!).then((result) => {
       setImage(result);

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { ChangeEvent, FormEvent } from "react";
 import { getFormErrors } from "../../api/client";
@@ -32,8 +32,8 @@ export default function PatientForm({
 }: PatientFormProps) {
   const toast = useToast();
   const [values, setValues] = useState<PatientFormValues>({ ...emptyPatient, ...initialValue });
-  const initial = useRef(JSON.stringify(values));
-  const guard = useUnsavedChanges(JSON.stringify(values) !== initial.current);
+  const [initial] = useState(() => JSON.stringify(values));
+  const guard = useUnsavedChanges(JSON.stringify(values) !== initial);
   const navigate = useNavigate();
   const [errors, setErrors] = useState<FieldErrors<PatientField>>({});
   const [saving, setSaving] = useState(false);

@@ -8,7 +8,7 @@ import {
 } from "./server-lifecycle.js";
 
 const root = resolve(import.meta.dirname, "../..");
-const python = resolve(
+const python = process.env.SMILE_E2E_PYTHON || resolve(
   root,
   process.platform === "win32" ? ".venv/Scripts/python.exe" : ".venv/bin/python",
 );

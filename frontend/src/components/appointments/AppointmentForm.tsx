@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { ChangeEvent, FormEvent } from "react";
 import { getFormErrors } from "../../api/client";
@@ -23,8 +23,8 @@ export default function AppointmentForm({
 }: AppointmentFormProps) {
   const toast = useToast();
   const [form, setForm] = useState<AppointmentFormValues>(initialValue);
-  const initial = useRef(JSON.stringify(form));
-  const dirty = JSON.stringify(form) !== initial.current;
+  const [initial] = useState(() => JSON.stringify(form));
+  const dirty = JSON.stringify(form) !== initial;
   const guard = useUnsavedChanges(dirty);
   useEffect(() => { onDirtyChange?.(dirty); }, [dirty, onDirtyChange]);
   const navigate = useNavigate();
