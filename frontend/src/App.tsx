@@ -30,7 +30,8 @@ import ExportsPage from "./pages/exports/ExportsPage";
 import PatientContactPage from "./pages/patients/PatientContactPage";
 import DiagnosticsPage from "./pages/diagnostics/DiagnosticsPage";
 import { BackofficeLayout, BackofficeDashboard, BackofficeUsers, BackofficeUser, BackofficeAudit, BackofficeRuns, BackofficeRun, BackofficeSystem } from "./pages/backoffice/Backoffice";
-import { BackofficePatients, BackofficePatient, BackofficePatientSection, BackofficeAppointments, BackofficeAppointment } from "./pages/backoffice/BackofficeClinical";
+import { BackofficePatients, BackofficePatient, BackofficePatientEdit, BackofficePatientSection, BackofficeAppointments, BackofficeAppointment } from "./pages/backoffice/BackofficeClinical";
+import { BackofficeUserCreate } from "./pages/backoffice/BackofficeUserCreate";
 
 const DiagnosticResultPage = lazy(
   () => import("./pages/diagnostics/DiagnosticResultPage"),
@@ -52,9 +53,13 @@ const router = createBrowserRouter(createRoutesFromElements(
         <Route path="backoffice" element={<BackofficeLayout />}>
           <Route index element={<BackofficeDashboard />} />
           <Route path="users" element={<BackofficeUsers />} />
+          <Route path="users/new" element={<BackofficeUserCreate />} />
           <Route path="users/:id" element={<BackofficeUser />} />
           <Route path="patients" element={<BackofficePatients />} />
           <Route path="patients/:id" element={<BackofficePatient />} />
+          <Route path="patients/:id/edit" element={<BackofficePatientEdit />} />
+          <Route path="patients/:id/edit-history" element={<MedicalHistoryPage administrative />} />
+          <Route path="patients/:id/edit-odontogram" element={<OdontogramPage administrative />} />
           <Route path="patients/:id/:section" element={<BackofficePatientSection />} />
           <Route path="appointments" element={<BackofficeAppointments />} />
           <Route path="appointments/:id" element={<BackofficeAppointment />} />

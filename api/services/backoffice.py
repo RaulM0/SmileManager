@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.shortcuts import get_object_or_404
@@ -11,6 +12,23 @@ from api.policies import can_access_backoffice, has_backoffice_assignment
 
 class AdministrativeAccountProtected(Exception):
     pass
+
+
+@transaction.atomic
+def create_user(*, actor, username, email, first_name, last_name, password, backoffice_access, request_id):
+    if not can_access_backoffice(actor):
+        raise PermissionDenied
+    user = get_user_model().objects.create_user(
+        username=username, email=email, first_name=first_name, last_name=last_name, password=password,
+    )
+    AuditEvent.objects.create(actor=actor, action='USER_CREATED', resource_type='user',
+                              resource_id=str(user.pk), outcome='success', request_id=request_id)
+    if backoffice_access:
+        permission = Permission.objects.get(content_type__app_label='Usuarios', codename='access_system_backoffice')
+        user.user_permissions.add(permission)
+        AuditEvent.objects.create(actor=actor, action='BACKOFFICE_ACCESS_GRANTED', resource_type='user',
+                                  resource_id=str(user.pk), outcome='success', request_id=request_id)
+    return user
 
 
 def set_user_active(*, actor, user_id, active, request_id):
