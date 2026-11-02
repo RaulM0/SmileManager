@@ -1,0 +1,7 @@
+# CI de calidad y seguridad
+
+Actualización: el paso Python audita el entorno ya instalado, incluidas dependencias transitivas, tras ejecutar `pip check`; no instala una segunda copia del árbol Torch/CUDA. El equivalente local informó 0 avisos conocidos. `npm ci`, `npm audit`, pruebas y lint pasaron con el lockfile actualizado. **Requiere verificación en GitHub Actions**, cuyo entorno Linux puede diferir de Windows local.
+
+La URL del remoto identifica GitHub. Se agregó `.github/workflows/quality-security.yml`: instala requirements fijados, prueba Django sobre SQLite aislado y concurrencia PostgreSQL con servicio efímero, comprueba migraciones y `check`; ejecuta frontend con `npm ci`, tests, typecheck, lint, build y auditoría npm; usa pip-audit y Gitleaks sobre historial y árbol con salida redactada. No consume credenciales de producción ni despliega.
+
+El pipeline es nuevo y **no ha sido ejecutado en GitHub**: debe validarse en PR y configurar protección de rama. Los avisos actuales de dependencias pueden fallarlo deliberadamente; no desactivarlos para obtener verde. La instalación pip no es un lock con hashes; terceros, acciones y Go deben fijarse y revisarse por digest/SHA conforme a la política organizacional. La suite E2E de navegador no se ha incorporado aún a CI; requiere tiempo, Chromium y manejo seguro del modelo. Secret scanning de working tree excluye dependencias instaladas, media, DB, artefactos y archivos grandes; no sustituye investigación de datos sensibles en Git.

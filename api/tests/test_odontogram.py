@@ -19,10 +19,11 @@ class OdontogramApiTests(APITestCase):
         self.assertFalse(Odontograma.objects.exists())
 
     def test_put_creates_then_updates_single_legacy_resource(self):
-        payload={'denticion_permanente':{'11':{'oclusal':'caries'}},'denticion_decidua':{},'resumen':{'total_dientes':52}}
+        payload={'denticion_permanente':{'11':{'oclusal':'caries'}},'denticion_decidua':{},'resumen':{'total_dientes':52},'version':0}
         first=self.client.put(reverse('api-odontogram',args=[self.patient.id]),payload,format='json')
         self.assertEqual(first.status_code,200)
         payload['denticion_permanente']['11']['oclusal']='restauracion'
+        payload['version'] = 1
         second=self.client.put(reverse('api-odontogram',args=[self.patient.id]),payload,format='json')
         self.assertEqual(second.data['denticion_permanente']['11']['oclusal'],'restauracion')
         self.assertEqual(Odontograma.objects.filter(paciente=self.patient).count(),1)

@@ -1,0 +1,63 @@
+# Inventario funcional de UI
+
+Inventario derivado de controles, handlers, hooks y endpoints inspeccionados en `frontend/src`. `—` indica que no hay llamada propia/API visible en el componente. Permiso observable: sesión requerida en todo el árbol salvo login; no se encontraron permisos por rol explícitos en el frontend. Estados a nivel de la pantalla: `L` loading, `E` error, `Ø` vacío, `S` éxito. Donde el código omite un estado, se registra como brecha a tratar sin cambiar lógica de negocio.
+
+| ID | Pantalla / componente / ruta | Acciones y API | Inputs, validación y outputs | Estados, navegación, dependencias y responsive | No perder |
+|---|---|---|---|---|---|
+| UI-001 | LoginPage `/login` | Login mediante AuthContext → `auth/session/`, `auth/login/` | Usuario/contraseña; error auth; redirige a `location.state.from` (pathname, search y hash) o `/` | loading submit, error, show/hide password; público | CSRF, sesión, destino previo con parámetros, labels y error |
+| UI-002 | AppLayout todas las rutas protegidas | Nav agrupada Inicio/Citas/Pacientes/Diagnósticos/Exportaciones, PatientWorkspaceNav en expediente, marca, logout `auth/logout/`, link privacidad | usuario autenticado y patient id de URL cuando aplica | activo React Router; drawer responsive con Escape/foco, footer | rutas existentes, logout/redirect `/login`, ruta contextual solo con módulos presentes y navegación responsive |
+| UI-003 | ProtectedRoute | Carga de sesión, bloqueo de ruta | `auth/session/` vía contexto | loading; sin user Navigate `/login` con `state.from` | protección y retorno tras login |
+| UI-004 | DashboardPage `/` | Consultar `dashboard/`; links `/appointments`, `/patients` | recibe `patient_count`, `today[]`, `upcoming[]` | loading/error/empty agenda; datos API | no inventar KPIs; tablas hoy/próximas y navegación |
+| UI-005 | PatientsHubPage `/patients` | Acceso a alta/lista/búsqueda/contacto/expediente según enlaces de página | — | — | conservar cada ruta y flujo del hub |
+| UI-006 | PatientListPage `/patients`, `/patients/list`, `/patients/search` | `GET patients/?search=&page=`; búsqueda y paginación; Ver/Editar | query (`q`) y `page`; listado paginado | loading/error/empty; query string | filtros, URL, anterior/siguiente, status, enlaces y labels icon-only |
+| UI-007 | PatientForm / PatientCreatePage `/patients/new` | `POST patients/`, luego navigate detalle | nombre, apellidos, nacimiento, género, teléfono, email, campos del form; required/validaciones locales | errores/saving; éxito navega a `/patients/:id` | todos los campos, validaciones, payload, destino |
+| UI-008 | PatientEditPage `/patients/:id/edit` + PatientForm | GET/PUT `patients/:id/` | mismo formulario paciente | load y navigate al detalle al guardar | id, valores, validaciones, guardado |
+| UI-009 | PatientDetailPage `/patients/:id` | GET paciente; editar; `POST patients/:id/deactivate/` con confirmación | ID ruta | loading/error; al desactivar va a `/patients/search` | confirmación, disable si `estatus === I`, redirect y datos |
+| UI-010 | PatientSelector componente compartido | `GET patients/autocomplete/?term=` y seleccionar paciente | término texto | resultados, error; selección callback | debounce/consulta actual, selección de paciente y teclado |
+| UI-011 | PatientContactPage `/patients/contact` | elegir paciente y `POST patients/:id/email/` | asunto/mensaje | error/notice éxito; reset selección | paciente, contenido correo, feedback, prevención submits duplicados |
+| UI-012 | ClinicalRecordSelect `/clinical-record` | buscar paciente y navegar `/patients/:id/record` | selección PatientSelector | resultados/autocomplete | destino exacto y contexto de paciente |
+| UI-013 | ClinicalRecordPage `/patients/:id/record` | enlaces a antecedentes, consulta nueva, historial, imágenes, odontograma, estudio, consentimiento | `id` de ruta | enlaces a siete workflows | no inventar secciones; todas las rutas y paciente contextual |
+| UI-014 | MedicalHistoryPage `/patients/:id/medical-history` | GET paciente + historial; PUT historial | 24 respuestas booleanas sí/no y cuatro textos; guardado | loading, notice success; error API no presentado explícitamente | todos los nombres/campos, boolean null/false, payload y persistencia |
+| UI-015 | ConsultationCreatePage `/patients/:id/consultations/new` | GET paciente; POST `patients/:id/consultations/`; navega receta | motivo, diagnóstico, tratamiento | error/save; receta resultante | campos y route destino `/consultations/:id/prescription` |
+| UI-016 | ConsultationHistoryPage `/patients/:id/consultations` | GET `patients/:id/consultations/`; enlace a receta por consulta | paciente id | loading/error/retry/empty; línea temporal con fecha, motivo y diagnóstico; navegación a receta | registros en orden API, mismos datos y enlaces; presentación responsive sin pérdida de acciones |
+| UI-017 | PrescriptionPage `/consultations/:id/prescription` | GET `consultations/:id/`; imprimir `window.print()` | consulta id | loading; estilos print ocultan nav/footer | receta, acción impresión y CSS print |
+| UI-018 | OdontogramPage `/patients/:id/odontogram` | GET/PUT `patients/:id/odontogram/`; elegir estado, tocar superficie; limpiar con confirmación | 6 estados; dentición permanente (32) y decidua (20), cinco superficies; resumen derivado | loading/success notice; sin error visible; limpieza en local hasta guardar | FDI, colores asociados, aria-label por diente/superficie/estado, guardado, resumen y confirmación |
+| UI-019 | ClinicalImagesHub `/patients/:id/images` | enlaces upload/search/history | `id` | navegación contextual | rutas y paciente |
+| UI-020 | ClinicalImageUpload `/patients/:id/images/upload` | GET consultas; POST FormData `patients/:id/clinical-images/`; navega history | consulta requerida, tipo, descripción, archivo imagen; errores server | saving, errors, no consultations disabled + aviso | multipart, límites/validaciones backend, selected files y redirect |
+| UI-021 | ClinicalImageList searchable `/patients/:id/images/search` | GET imágenes con `date`, `consultation_id`; GET consultas; filtros | fecha/consulta | loading/empty; recarga con cambios filtros | parámetros, contexto consulta, datos |
+| UI-022 | ClinicalImageList history `/patients/:id/images/history` | misma API; descargar href; DELETE con confirmación | imagen id | loading/empty; reload tras delete | descarga, eliminación confirmada, endpoint y reload |
+| UI-023 | ComparativeStudy `/patients/:id/comparative-study` | GET/PUT multipart; PDF href `/api/v1/patients/:id/comparative-study/pdf/` | fecha requerida, diagnóstico, observaciones, 5 imágenes antes requeridas al crear, 4 después opcionales | errores de campo, notice; preview existente | nueve campos, required condicional, files, payload, PDF |
+| UI-024 | Consent `/patients/:id/consent` | GET/POST FormData `patients/:id/consent/`; abrir ID | aceptación checkbox y archivo oficial requerido; cláusulas fijas | loading/error/accepted con fecha; url identificación | texto legal, gating checkbox→archivo, formatos/tamaño indicados, output |
+| UI-025 | DiagnosticsPage `/diagnostics` | GET `diagnostics/?patient=&type=&date=`; filtrar; link Analizar | paciente/tipo/fecha | loading y resultados | filtros y query parameters, enlace de cada imagen |
+| UI-026 | DiagnosticResultPage `/diagnostics/:id` | GET clinical image; POST `clinical-images/:id/analyze/`; visor OpenSeadragon | id, botón analizar | loading/running/error, anotaciones y resultado | ejecución IA, overlays/imagen, no duplicar análisis mientras corre |
+| UI-027 | AppointmentsPage `/appointments` | GET `appointments/?status=&search=`; filtros status, search query; acciones POST `appointments/:id/{complete,cancel}/`; ver/editar | status P/C/A, término | load, calendario mensual local + tabla + empty | params URL, estado, acciones condicionales, reload y vínculos |
+| UI-028 | AppointmentCalendar | navegación mes anterior/siguiente/hoy; abrir evento; alternar Agenda/Mes en móvil | datos recibidos (fecha, hora, paciente, motivo, estado) | grid 42 días en desktop y opcional en móvil; agenda móvil agrupada por fecha, ordenada por hora; mensaje vacío mensual | todas las citas enlazadas a detalle, fecha local, filtros del listado y controles nombrados; selector móvil solo cambia presentación |
+| UI-029 | AppointmentForm / create `/appointments/new` | PatientSelector; POST `appointments/`; navegar detalle | paciente, fecha, hora, estatus, motivo, notas/campos existentes; validación local | saving/error | todos los campos/validaciones/payload/redirect |
+| UI-030 | AppointmentEdit `/appointments/:id/edit` | GET/PUT `appointments/:id/`; navigate detalle | campos form existentes | loading y saving | valores/API/ruta y cambios |
+| UI-031 | AppointmentDetail `/appointments/:id` | GET detalle; editar | cita id | loading/error según vista | datos y enlace editar |
+| UI-032 | Exports `/exports` | descarga directa `GET /api/v1/exports/{patients.xlsx,consultations.xlsx,clinical-images.xlsx}` | — | download navegador | nombres/URLs/formato; no convertir a JSON |
+| UI-033 | Privacy `/privacy` | lectura de aviso desde footer | — | contenido estático | contenido legal y acceso |
+| UI-034 | ImageViewer componente | OpenSeadragon instancia/desmontaje | URL de imagen | viewer responsive condicionado por contenedor | zoom/navegación de imagen y cleanup effect |
+
+## Referencias API exactas
+
+`auth/session/`, `auth/login/`, `auth/logout/`, `dashboard/`, `patients/`, `patients/autocomplete/?term=`, `patients/:id/`, `patients/:id/deactivate/`, `patients/:id/email/`, `patients/:id/medical-history/`, `patients/:id/consultations/`, `patients/:id/odontogram/`, `patients/:id/clinical-images/`, `clinical-images/:id/`, `clinical-images/:id/analyze/`, `patients/:id/comparative-study/`, `patients/:id/comparative-study/pdf/`, `patients/:id/consent/`, `consultations/:id/`, `appointments/`, `appointments/:id/`, `appointments/:id/complete/`, `appointments/:id/cancel/`, `diagnostics/`, `exports/{patients,consultations,clinical-images}.xlsx`.
+
+## Brechas de auditoría a seguir
+
+Brechas de error runtime que permanecen: algunas lecturas/acciones del selector de paciente, odontograma, historial de consulta y ciertos detalles todavía pueden carecer de feedback específico. Historia médica, consentimiento, estudio comparativo y carga de imagen muestran estado de error/reintento; sus respuestas de validación ahora quedan asociadas a sus campos. En otras brechas, preservar el mensaje/API original cuando exista y añadir feedback genérico no destructivo solo donde hoy no lo hay.
+
+## Revisión de accesibilidad de formularios (seguimiento)
+
+- UI-001: error de autenticación sigue anunciado como alerta sin marcar usuario/contraseña individualmente, porque la respuesta no identifica cuál credencial falló; el submit duplicado queda bloqueado y el estado de envío tiene nombre accesible.
+- UI-010 / UI-012: resultados de autocomplete quedan en un grupo vivo con botones nativos enfocables; se conservan búsqueda debounceada y selección actual.
+- UI-011: errores de asunto/mensaje se asocian al campo y el detalle general se anuncia; se conservan envío API, selección del paciente y posibilidad de cambiarlo.
+- UI-007 / UI-008: los errores de campo del servidor se vinculan con su input mediante `aria-invalid` y `aria-describedby`; el mensaje general usa `role="alert"`. Se mantiene la validación y payload existentes.
+- UI-029 / UI-030: errores de cada campo se vinculan con el control correspondiente y el error general usa `role="alert"`. El feedback durante guardado conserva texto accesible.
+- UI-014: errores del servidor para respuestas sí/no y notas se vinculan con el grupo/control; se mantiene el estado booleano, campos y payload.
+- UI-015: errores del servidor por motivo, diagnóstico, tratamiento y observaciones se muestran junto al campo, además del error general.
+- UI-020: consulta, tipo, descripción e imagen reciben estado inválido/mensaje asociado cuando el servidor devuelve error.
+- UI-023: los nueve campos de texto/imagen muestran los errores específicos sin retirar requisitos condicionales ni cambiar multipart/PDF.
+- UI-024: el error de identificación se vincula al input y conserva las instrucciones de formato/tamaño; el checkbox continúa controlando acceso al archivo/submit.
+- Playwright simula respuestas 400 en UI-007, UI-011, UI-014, UI-015, UI-020, UI-023, UI-024 y UI-029; valida mensaje/relación de campo y alerta general cuando aplica, reintenta y completa el flujo existente. Las pantallas no quedan marcadas como VERIFIED hasta terminar el recorrido manual completo de estados, roles y tamaños.
+

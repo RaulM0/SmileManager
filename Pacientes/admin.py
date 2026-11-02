@@ -1,27 +1,28 @@
 from django.contrib import admin
+from api.admin_security import ClinicalReadOnlyAdmin
 from .models import EstudioComparativo, Paciente, AntescedentesMedicos, Consulta, ImagenesClinicas, Odontograma, Consentimiento
 
 # Register your models here.
 
-class pacientesAdmin(admin.ModelAdmin):
+class pacientesAdmin(ClinicalReadOnlyAdmin):
     readonly_fields = ('created','updated')
     
-class antecedentesAdmin(admin.ModelAdmin):
+class antecedentesAdmin(ClinicalReadOnlyAdmin):
     readonly_fields = ('created','updated')
     
-class consultaAdmin(admin.ModelAdmin):
+class consultaAdmin(ClinicalReadOnlyAdmin):
     readonly_fields = ('fecha_consulta',)
     
-class imagenesAdmin(admin.ModelAdmin):
+class imagenesAdmin(ClinicalReadOnlyAdmin):
     readonly_fields = ('fecha_subida',)
     
-class odontogramaAdmin(admin.ModelAdmin):
+class odontogramaAdmin(ClinicalReadOnlyAdmin):
     readonly_fields = ('created','updated')
     
-class EstudioComparativoAdmin(admin.ModelAdmin):
+class EstudioComparativoAdmin(ClinicalReadOnlyAdmin):
     readonly_fields = ('fecha_creacion','fecha_actualizacion')
     
-class ConsentimientoAdmin(admin.ModelAdmin):
+class ConsentimientoAdmin(ClinicalReadOnlyAdmin):
     readonly_fields = ('fecha_aceptacion',)
     
 admin.site.register(Paciente, pacientesAdmin)

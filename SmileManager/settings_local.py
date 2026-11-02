@@ -6,7 +6,7 @@ import dj_database_url
 # sustituirla por la configuración local de PostgreSQL.
 os.environ.setdefault(
     "DATABASE_URL",
-    "postgresql://smilemanager:smilemanager_local@localhost:5432/smilemanager",
+    "postgresql://smilemanager:smilemanager_local@127.0.0.1:5433/smilemanager",
 )
 
 from .settings import *
@@ -44,3 +44,5 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 CSRF_COOKIE_SECURE = False
 SESSION_COOKIE_SECURE = False
+SECURE_SSL_REDIRECT = False
+SECURE_HSTS_SECONDS = 0

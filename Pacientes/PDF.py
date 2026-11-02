@@ -6,8 +6,11 @@ from xhtml2pdf import pisa
 from io import BytesIO
 from datetime import date
 import os
+import base64
+import mimetypes
 from urllib.parse import urljoin
 from .models import Paciente, EstudioComparativo
+from api.policies import owned_or_404, consistent_or_404
 
 
 # --- Añade estos imports ---
@@ -46,8 +49,8 @@ def link_callback(uri, rel):
 
 # --- Tu vista, ahora MÁS SIMPLE ---
 def pdf_progreso(request, paciente_id):
-    paciente = get_object_or_404(Paciente, id=paciente_id, medico=request.user)
-    estudio = EstudioComparativo.objects.filter(paciente=paciente).order_by('-fecha_creacion').first()
+    paciente = owned_or_404(request.user, Paciente, id=paciente_id)
+    estudio = consistent_or_404(request.user, EstudioComparativo, paciente).order_by('-fecha_creacion').first()
     
     if not estudio:
         raise Http404(f"No se encontró ningún estudio para {paciente.nombre}.")
@@ -79,6 +82,16 @@ def pdf_progreso(request, paciente_id):
         "despues_retrato_sonrisa": estudio.despues_retrato_sonrisa,
     }
 
+    # Cargar desde el storage autorizado, sin URLs públicas ni peticiones HTTP.
+    for field in ('antes_oclusal_superior', 'antes_lateral_izquierda', 'antes_frontal',
+                  'antes_lateral_derecha', 'antes_oclusal_inferior', 'despues_perfil',
+                  'despues_semiperfil', 'despues_retrato_frontal', 'despues_retrato_sonrisa'):
+        file = context[field]
+        if file:
+            with file.open('rb') as source:
+                encoded = base64.b64encode(source.read()).decode('ascii')
+            mime = mimetypes.guess_type(file.name)[0] or 'application/octet-stream'
+            context[field] = f'data:{mime};base64,{encoded}'
     template = get_template("before_after/formato_estudio.html")
     html = template.render(context)
 

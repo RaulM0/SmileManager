@@ -15,21 +15,50 @@ class ClinicalRecordApiTests(APITestCase):
         )
         self.client.force_authenticate(self.owner)
 
-    def test_get_history_preserves_legacy_get_or_create(self):
+    def test_get_new_history_does_not_create_or_infer_negative_answers(self):
         response = self.client.get(reverse('api-medical-history', args=[self.patient.id]))
         self.assertEqual(response.status_code, 200)
-        history = AntescedentesMedicos.objects.get(paciente=self.patient)
-        self.assertEqual(history.medico, self.owner)
-        self.assertFalse(response.data['problemas_cardiacos'])
+        self.assertFalse(AntescedentesMedicos.objects.filter(paciente=self.patient).exists())
+        self.assertIsNone(response.data['id'])
+        self.assertIsNone(response.data['problemas_cardiacos'])
+        self.assertIsNone(response.data['alergia_medicamentos'])
 
     def test_update_history_preserves_boolean_and_text_fields(self):
         response = self.client.put(
             reverse('api-medical-history', args=[self.patient.id]),
-            {'problemas_cardiacos': True, 'alergias': 'Penicilina'}, format='json',
+            {'problemas_cardiacos': True, 'alergias': 'Penicilina', 'version': 0}, format='json',
         )
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.data['problemas_cardiacos'])
         self.assertEqual(response.data['alergias'], 'Penicilina')
+        self.assertIsNone(response.data['alergia_medicamentos'])
+
+    def test_explicit_negative_and_unknown_round_trip(self):
+        url = reverse('api-medical-history', args=[self.patient.id])
+        response = self.client.put(url, {'problemas_cardiacos': False, 'alergia_medicamentos': None, 'version': 0}, format='json')
+        self.assertEqual(response.status_code, 200)
+        history = self.client.get(url).data
+        self.assertIs(history['problemas_cardiacos'], False)
+        self.assertIsNone(history['alergia_medicamentos'])
+
+    def test_legacy_form_preserves_unanswered_fields(self):
+        self.client.force_authenticate(user=None)
+        self.client.force_login(self.owner)
+        url = reverse('antecedentes', args=[self.patient.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        html = response.content.decode()
+        negative_input = html.split('id="tratamiento_medico-no"', 1)[1].split('/>', 1)[0]
+        self.assertNotIn('checked', negative_input)
+        unknown_input = html.split('id="tratamiento_medico-unknown"', 1)[1].split('/>', 1)[0]
+        self.assertIn('checked', unknown_input)
+        self.client.post(url, {'tratamiento_medico': 'False', 'version': '0'})
+        history = AntescedentesMedicos.objects.get(paciente=self.patient)
+        self.assertIs(history.tratamiento_medico, False)
+        self.assertIsNone(history.problemas_cardiacos)
+        self.client.post(url, {'tratamiento_medico': '', 'version': '1'})
+        history.refresh_from_db()
+        self.assertIsNone(history.tratamiento_medico)
 
     def test_foreign_patient_history_is_hidden(self):
         foreign = Paciente.objects.create(
@@ -55,7 +84,7 @@ class ClinicalRecordApiTests(APITestCase):
             {'motivo_consulta': 'control'}, format='json',
         ).data
         listing = self.client.get(reverse('api-consultations', args=[self.patient.id]))
-        self.assertEqual([item['id'] for item in listing.data], [created['id']])
+        self.assertEqual([item['id'] for item in listing.data['results']], [created['id']])
         detail = self.client.get(reverse('api-consultation-detail', args=[created['id']]))
         self.assertEqual(detail.status_code, 200)
         self.assertEqual(detail.data['paciente']['id'], self.patient.id)

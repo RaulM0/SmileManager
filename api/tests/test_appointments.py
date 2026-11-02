@@ -45,11 +45,11 @@ class AppointmentApiTests(APITestCase):
         own = Cita.objects.create(paciente=self.patient, fecha=timezone.localdate()+timedelta(days=1), hora='10:00', motivo='Control')
         Cita.objects.create(paciente=self.foreign, fecha=timezone.localdate()+timedelta(days=1), hora='11:00', motivo='Ajena')
         listing = self.client.get(reverse('api-appointment-list'), {'search':'ANA','status':'P'})
-        self.assertEqual([item['id'] for item in listing.data], [own.id])
+        self.assertEqual([item['id'] for item in listing.data['results']], [own.id])
         completed = self.client.post(reverse('api-appointment-complete', args=[own.id]))
         self.assertEqual(completed.data['estatus'], 'C')
         cancelled = self.client.post(reverse('api-appointment-cancel', args=[own.id]))
-        self.assertEqual(cancelled.data['estatus'], 'A')
+        self.assertEqual(cancelled.status_code, 409)
 
     def test_foreign_detail_is_hidden(self):
         foreign = Cita.objects.create(paciente=self.foreign, fecha=timezone.localdate(), hora='10:00', motivo='Ajena')

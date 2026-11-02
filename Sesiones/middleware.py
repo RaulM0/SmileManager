@@ -2,6 +2,7 @@ from django.shortcuts import redirect
 
 # Rutas públicas que no requieren login
 EXEMPT_PREFIXES = [
+    '/health/',
     '/sesiones/login/',
     '/sesiones/logout/',
     '/admin/',        # permite todas las rutas del admin
@@ -16,6 +17,9 @@ class LoginRequiredMiddleware:
 
     def __call__(self, request):
         path = request.path
+
+        if path in ('/health', '/health/ready'):
+            return self.get_response(request)
 
         # Si la ruta comienza con alguna ruta exenta, no requerimos login
         for prefix in EXEMPT_PREFIXES:

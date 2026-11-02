@@ -312,7 +312,7 @@
             <div class="imagen-label">Oclusal Superior</div>
             {% if estudio.antes_oclusal_superior %}
             <img
-              src="{{ estudio.antes_oclusal_superior.url }}"
+              src="{% url 'clinical-session-file' 'study' estudio.id 'antes_oclusal_superior' %}"
               alt="Oclusal Superior"
             />
             {% else %}
@@ -328,7 +328,7 @@
             <div class="imagen-label">Lateral Izquierda</div>
             {% if estudio.antes_lateral_izquierda %}
             <img
-              src="{{ estudio.antes_lateral_izquierda.url }}"
+              src="{% url 'clinical-session-file' 'study' estudio.id 'antes_lateral_izquierda' %}"
               alt="Lateral Izquierda"
             />
             {% else %}
@@ -343,7 +343,7 @@
           <div class="imagen-box" data-pos="frontal">
             <div class="imagen-label">Frontal</div>
             {% if estudio.antes_frontal %}
-            <img src="{{ estudio.antes_frontal.url }}" alt="Frontal" />
+            <img src="{% url 'clinical-session-file' 'study' estudio.id 'antes_frontal' %}" alt="Frontal" />
             {% else %}
             <div class="imagen-placeholder">
               <i class="fas fa-image"></i>
@@ -357,7 +357,7 @@
             <div class="imagen-label">Lateral Derecha</div>
             {% if estudio.antes_lateral_derecha %}
             <img
-              src="{{ estudio.antes_lateral_derecha.url }}"
+              src="{% url 'clinical-session-file' 'study' estudio.id 'antes_lateral_derecha' %}"
               alt="Lateral Derecha"
             />
             {% else %}
@@ -373,7 +373,7 @@
             <div class="imagen-label">Oclusal Inferior</div>
             {% if estudio.antes_oclusal_inferior %}
             <img
-              src="{{ estudio.antes_oclusal_inferior.url }}"
+              src="{% url 'clinical-session-file' 'study' estudio.id 'antes_oclusal_inferior' %}"
               alt="Oclusal Inferior"
             />
             {% else %}
@@ -423,7 +423,7 @@
           <div class="imagen-box">
             <div class="imagen-label">Perfil</div>
             {% if estudio.despues_perfil %}
-            <img src="{{ estudio.despues_perfil.url }}" alt="Perfil" />
+            <img src="{% url 'clinical-session-file' 'study' estudio.id 'despues_perfil' %}" alt="Perfil" />
             {% else %}
             <div class="imagen-placeholder">
               <i class="fas fa-image"></i>
@@ -437,7 +437,7 @@
             <div class="imagen-label">Retrato Frontal</div>
             {% if estudio.despues_retrato_frontal %}
             <img
-              src="{{ estudio.despues_retrato_frontal.url }}"
+              src="{% url 'clinical-session-file' 'study' estudio.id 'despues_retrato_frontal' %}"
               alt="Retrato Frontal"
             />
             {% else %}
@@ -452,7 +452,7 @@
           <div class="imagen-box">
             <div class="imagen-label">Semiperfil</div>
             {% if estudio.despues_semiperfil %}
-            <img src="{{ estudio.despues_semiperfil.url }}" alt="Semiperfil" />
+            <img src="{% url 'clinical-session-file' 'study' estudio.id 'despues_semiperfil' %}" alt="Semiperfil" />
             {% else %}
             <div class="imagen-placeholder">
               <i class="fas fa-image"></i>
@@ -466,7 +466,7 @@
             <div class="imagen-label">Retrato Sonrisa</div>
             {% if estudio.despues_retrato_sonrisa %}
             <img
-              src="{{ estudio.despues_retrato_sonrisa.url }}"
+              src="{% url 'clinical-session-file' 'study' estudio.id 'despues_retrato_sonrisa' %}"
               alt="Retrato Sonrisa"
             />
             {% else %}

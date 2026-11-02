@@ -1,0 +1,7 @@
+# Contratos paginados — API v1
+
+Cambio incompatible: `appointments/`, `patients/{id}/consultations/` y `patients/{id}/clinical-images/` devuelven `{count,next,previous,results}` en lugar de arreglo. Autorización se aplica antes del conteo y paginación. `page` comienza en 1; `page_size` por defecto `CLINICAL_PAGE_SIZE=20`, máximo `CLINICAL_MAX_PAGE_SIZE=100`, ambos configurables. Página inválida devuelve 404. Consultas e imágenes ordenan fecha descendente y PK descendente; citas fecha/hora/PK ascendente.
+
+`appointments/?from=YYYY-MM-DD&to=YYYY-MM-DD` usa extremos inclusivos, ambos requeridos si se indica uno; rango inválido, invertido o superior a `APPOINTMENT_MAX_RANGE_DAYS=62` devuelve 400. Sin rango devuelve lista paginada, útil para tabla. El calendario solicita la cuadrícula visible de 42 días, recorre todas las páginas con el mismo filtro y muestra carga o error hasta obtenerlas; no presenta deliberadamente una página parcial. Las páginas pueden variar ante escrituras simultáneas: no son snapshot transaccional. No configurar máximo menor a 42 si se usa el calendario actual. React permite navegar por todas las páginas de consultas/imágenes, incluida la selección de consultas para imágenes. Legacy HTML no consume estos endpoints y conserva sus listados previos, algunos sin paginar.
+
+La paginación acota el payload de primera página; `count` y offset pueden ser costosos a gran escala y las páginas profundas requieren medición. No se introdujo cursor ni índice nuevo.

@@ -54,7 +54,7 @@ class ClinicalImageApiTests(APITestCase):
     def test_list_filters_and_delete_are_owner_scoped(self):
         image = ImagenesClinicas.objects.create(paciente=self.patient,consulta=self.consultation,medico=self.owner,tipo_imagen='RX',descripcion='CONTROL',imagen=self.image_file('owned.gif'))
         listing = self.client.get(reverse('api-clinical-images', args=[self.patient.id]), {'consultation_id':self.consultation.id,'date':timezone.localdate().isoformat()})
-        self.assertEqual([item['id'] for item in listing.data], [image.id])
+        self.assertEqual([item['id'] for item in listing.data['results']], [image.id])
         response = self.client.delete(reverse('api-clinical-image-detail', args=[image.id]))
         self.assertEqual(response.status_code, 204)
         self.assertFalse(ImagenesClinicas.objects.filter(pk=image.id).exists())
