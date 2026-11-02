@@ -8,6 +8,14 @@ test('administración operativa y acceso denegado a usuario normal', async ({ pa
   await page.getByRole('link', { name: 'Administración', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Resumen del sistema' })).toBeVisible();
   await page.getByRole('link', { name: 'Usuarios', exact: true }).click();
+  await page.getByRole('link', { name: 'Crear usuario' }).click();
+  await page.getByLabel('Usuario', { exact: true }).fill('e2e_created_user');
+  await page.getByLabel('Correo electrónico').fill('e2e-created@example.test');
+  await page.getByLabel('Contraseña inicial').fill('ClaveSegura!e2e123');
+  await page.getByRole('button', { name: 'Crear usuario' }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Crear usuario' }).click();
+  await expect(page.getByRole('heading', { name: 'e2e_created_user' })).toBeVisible();
+  await page.getByRole('link', { name: 'Usuarios', exact: true }).click();
   await page.getByLabel('Buscar usuario').fill('e2e_other_doctor');
   await page.getByRole('button', { name: 'Buscar' }).click();
   await page.getByRole('link', { name: 'e2e_other_doctor' }).click();
@@ -16,6 +24,12 @@ test('administración operativa y acceso denegado a usuario normal', async ({ pa
   await expect(page.getByText('Expediente administrativo · Solo lectura')).toBeVisible();
   await page.getByRole('link', { name: 'Consultas', exact: true }).click();
   await expect(page.getByText('Consulta sintética')).toBeVisible();
+  await page.getByRole('link', { name: 'Volver al paciente' }).click();
+  await page.getByRole('link', { name: 'Antecedentes', exact: true }).click();
+  await page.getByRole('link', { name: 'Editar antecedentes' }).click();
+  await page.getByLabel('Alergias', { exact: true }).fill('Datos sintéticos de prueba');
+  await page.getByRole('button', { name: 'Guardar antecedentes' }).click();
+  await expect(page.getByText('Antecedentes actualizados.')).toBeVisible();
   await page.getByRole('link', { name: 'Usuarios', exact: true }).click();
   await page.getByLabel('Buscar usuario').fill('e2e_other_doctor');
   await page.getByRole('button', { name: 'Buscar' }).click();

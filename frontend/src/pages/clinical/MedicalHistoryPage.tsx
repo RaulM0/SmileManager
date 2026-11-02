@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useParams } from "react-router-dom";
-import { getErrorMessage, getFormErrors } from "../../api/client";
+import { api, getErrorMessage, getFormErrors } from "../../api/client";
 import { useToast } from "../../context/ToastContext";
 import type { FieldErrors, MedicalHistory, Patient } from "../../types/domain";
 import { patientsService } from "../../services/patients";
@@ -44,7 +44,7 @@ const questionGroups = [
   { title: "Salud general", items: questions.slice(0, 12) },
   { title: "Salud oral y hábitos", items: questions.slice(12) },
 ];
-export default function MedicalHistoryPage() {
+export default function MedicalHistoryPage({ administrative = false }: { administrative?: boolean }) {
   const toast = useToast();
   const { id } = useParams();
   const [history, setHistory] = useState<MedicalHistory | null>(null);
@@ -57,15 +57,15 @@ export default function MedicalHistoryPage() {
   const [reload, setReload] = useState(0);
   useEffect(() => {
     Promise.all([
-      patientsService.get(id!),
-      clinicalService.medicalHistory(id!),
+      administrative ? api<Patient>(`backoffice/patients/${id}/`) : patientsService.get(id!),
+      administrative ? api<MedicalHistory>(`backoffice/patients/${id}/records/medical-history/`) : clinicalService.medicalHistory(id!),
     ]).then(([p, h]) => {
       setPatient(p);
       setHistory(h);
       setBaseline(JSON.stringify(h));
       setError("");
     }).catch((requestError) => setError(requestError.message));
-  }, [id, reload]);
+  }, [id, reload, administrative]);
   if (!history || !patient)
     return error ? (
       <div className="workspace-page co-mx-auto co-max-w-[1560px]">
@@ -84,7 +84,7 @@ export default function MedicalHistoryPage() {
     setError("");
     setFieldErrors({});
     try {
-      const saved = await clinicalService.saveMedicalHistory(id!, history!);
+      const saved = administrative ? await api<MedicalHistory>(`backoffice/patients/${id}/records/medical-history/`, { method: 'PUT', body: JSON.stringify(history) }) : await clinicalService.saveMedicalHistory(id!, history!);
       setHistory(saved);
       setBaseline(JSON.stringify(saved));
       toast.success("Antecedentes actualizados.");

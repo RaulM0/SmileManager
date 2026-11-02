@@ -62,9 +62,17 @@ def save_appointment(*, user, appointment=None, patient, validated_data):
 
 
 @transaction.atomic
-def transition_appointment(*, user, appointment, target):
+def transition_appointment(*, user, appointment, target, administrative=False):
     from Citas.models import Cita
-    appointment = get_object_or_404(scoped(user, Cita).select_for_update(), pk=appointment.pk)
+    if administrative:
+        from api.policies import can_access_backoffice
+        if not can_access_backoffice(user):
+            from django.core.exceptions import PermissionDenied
+            raise PermissionDenied
+        queryset = Cita.objects.all()
+    else:
+        queryset = scoped(user, Cita)
+    appointment = get_object_or_404(queryset.select_for_update(), pk=appointment.pk)
     if not can_transition(appointment.estatus, target):
         raise InvalidStateTransition()
     if appointment.estatus != target:
