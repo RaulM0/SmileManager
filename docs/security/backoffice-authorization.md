@@ -1,0 +1,15 @@
+# Autorización del backoffice
+
+| Acción | Usuario normal | System Admin con permiso asignado | Superuser Django sin asignación |
+|---|---|---|---|
+| Acceder a backoffice | 403 | Permitido | 403 |
+| Consultar usuarios y metadatos operativos | 403 | Solo lectura y paginado | 403 |
+| Cambiar estado de usuario normal | 403 | Permitido, con confirmación y audit | 403 |
+| Cambiar estado propio, de staff o administrador | 403 | 409 | 403 |
+| Otorgar privilegios o borrar usuarios | 403 | No disponible | No disponible en backoffice |
+| Modificar AuditEvent, ClinicalRevision, AIAnalysisRun | 403 | No disponible | No disponible en backoffice |
+| Acceder a expedientes de terceros | 404 según policy clínica | Lectura global auditada en endpoints de backoffice; 404 en API clínica de propietario | Sin acceso backoffice sin asignación; API clínica mantiene policy de propietario |
+
+La capacidad requiere asignación directa o por grupo de `Usuarios.access_system_backoffice` y usuario activo. La comprobación es deliberadamente explícita y no utiliza el bypass automático de `has_perm` para superusuarios. El frontend solo mejora la navegación; DRF aplica el permiso y usa JWT. Sin autenticación devuelve 401. Los métodos de auditoría e IA son GET; no hay recuperación IA desde la UI. Páginas y API devuelven datos minimizados y cabeceras no-store.
+
+El privilegio de backoffice permite visualizar pacientes y datos clínicos globales, además de metadatos de auditoría y usuarios: asignarlo requiere aprobación organizacional. La administración técnica de permisos y DB puede saltarse estas reglas, por lo que necesita controles y auditoría externos. Roles clínicos, acceso entre clínicas y retención: **BUSINESS/CLINICAL/LEGAL DECISION REQUIRED**. Véase [acceso a datos](backoffice-data-access.md).

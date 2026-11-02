@@ -1,6 +1,7 @@
 """Ámbito único actual: propietario del paciente y relaciones coherentes."""
 from django.db.models import F, Q
 from django.shortcuts import get_object_or_404
+from rest_framework.permissions import BasePermission
 
 from Citas.models import Cita
 from Pacientes.models import (AntescedentesMedicos, Consentimiento, Consulta,
@@ -34,3 +35,20 @@ def consistent_or_404(user, model, patient):
     if all_rows.exclude(pk__in=scoped(user, model).values('pk')).exists():
         raise Http404
     return scoped(user, model).filter(paciente=patient)
+
+
+def has_backoffice_assignment(user):
+    # Django's has_perm grants everything to superusers. This product
+    # capability instead requires an explicit direct or group assignment.
+    from django.contrib.auth.models import Permission
+    from django.db.models import Q
+    return Permission.objects.filter(content_type__app_label='Usuarios', codename='access_system_backoffice').filter(Q(user=user) | Q(group__user=user)).exists()
+
+
+def can_access_backoffice(user):
+    return bool(user and user.is_authenticated and user.is_active and has_backoffice_assignment(user))
+
+
+class IsSystemAdmin(BasePermission):
+    def has_permission(self, request, view):
+        return can_access_backoffice(request.user)

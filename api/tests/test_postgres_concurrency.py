@@ -8,8 +8,12 @@ from django.core.files.base import ContentFile
 from unittest import skipUnless
 
 from django.contrib.auth.models import User
+from django.contrib.auth.models import Permission
 from django.db import close_old_connections, connection
 from django.test import TransactionTestCase
+from django.urls import reverse
+from rest_framework.test import APIClient
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from api.services.clinical_records import ConcurrentModification, save_record
 from api.services.appointments import InvalidStateTransition, transition_appointment
@@ -17,10 +21,49 @@ from Citas.models import Cita
 from Pacientes.models import AntescedentesMedicos, ClinicalRevision, ImagenesClinicas, Paciente
 from DiagnosticosIA.runs import execute
 from DiagnosticosIA.models import AIAnalysisRun
+from api.services.backoffice import set_user_active
 
 
 @skipUnless(connection.vendor == 'postgresql', 'POSTGRESQL CONCURRENCY VERIFICATION REQUIRED')
 class PostgreSQLConcurrencyTests(TransactionTestCase):
+    def test_refresh_racing_deactivation_cannot_survive_reactivation(self):
+        actor = User.objects.create_user('admin-concurrency')
+        actor.user_permissions.add(Permission.objects.get(content_type__app_label='Usuarios', codename='access_system_backoffice'))
+        target = User.objects.create_user('target-concurrency')
+        refresh = str(RefreshToken.for_user(target))
+        barrier = Barrier(2)
+
+        def deactivate():
+            close_old_connections()
+            try:
+                barrier.wait(timeout=10)
+                set_user_active(actor=User.objects.get(pk=actor.pk), user_id=target.pk, active=False, request_id=uuid.uuid4())
+            finally:
+                close_old_connections()
+
+        def rotate():
+            close_old_connections()
+            try:
+                client = APIClient()
+                client.cookies['smile_refresh'] = refresh
+                barrier.wait(timeout=10)
+                response = client.post(reverse('api-refresh'))
+                return response.status_code, response.cookies.get('smile_refresh')
+            finally:
+                close_old_connections()
+
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            first, second = pool.submit(deactivate), pool.submit(rotate)
+            first.result(timeout=20)
+            code, cookie = second.result(timeout=20)
+        self.assertIn(code, (200, 401))
+        target.refresh_from_db()
+        self.assertFalse(target.is_active)
+        set_user_active(actor=actor, user_id=target.pk, active=True, request_id=uuid.uuid4())
+        client = APIClient()
+        client.cookies['smile_refresh'] = cookie.value if code == 200 else refresh
+        self.assertEqual(client.post(reverse('api-refresh')).status_code, 401)
+
     def test_two_requests_only_run_one_analysis(self):
         user = User.objects.create_user('ai-concurrent')
         patient = Paciente.objects.create(nombre='A', appat='A', apmat='A', fecha_nacimiento='1990-01-01', genero='F', telefono='3333333333', email='c@example.test', medico=user)

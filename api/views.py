@@ -162,11 +162,14 @@ class RefreshView(APIView):
             return response
         try:
             with transaction.atomic():
+                # Serialize refresh with backoffice deactivation; never mint a
+                # token from an is_active value read before the row lock.
+                user = get_user_model().objects.select_for_update().get(pk=user.pk, is_active=True)
                 OutstandingToken.objects.select_for_update().get(jti=token['jti'])
                 token = RefreshToken(request.COOKIES[REFRESH_COOKIE])
                 token.blacklist()
                 rotated = RefreshToken.for_user(user)
-        except (TokenError, OutstandingToken.DoesNotExist):
+        except (TokenError, OutstandingToken.DoesNotExist, get_user_model().DoesNotExist):
             response = Response({'detail': 'Sesión expirada.'}, status=status.HTTP_401_UNAUTHORIZED)
             response.delete_cookie(REFRESH_COOKIE, path=REFRESH_COOKIE_PATH)
             return response

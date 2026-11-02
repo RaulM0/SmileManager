@@ -85,7 +85,7 @@ export default function AppLayout() {
   }
 
   function renderNavigation() {
-    return navigation.map((group) => (
+    return [...navigation, ...(user?.can_access_backoffice ? [{ label: "SISTEMA", items: [["Administración", "/backoffice", "bi-shield-lock", false] as [string, string, string, boolean]] }] : [])].map((group) => (
       <div className="workspace-nav-group" key={group.label}>
         <div className="workspace-nav-label">{group.label}</div>
         {group.items.map(([label, to, icon, end]) => (
