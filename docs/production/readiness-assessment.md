@@ -1,6 +1,6 @@
 # Production readiness assessment
 
-**Cierre de aplicación, actualización:** el bypass directo de escritura clínica por Django Admin se mitigó y se probó incluso para superusuario; la lectura requiere permisos Django pero es global para quien los posea. Sigue **NOT READY / NO-GO** por dependencias Python con avisos, paridad legacy/E2E incompleta, almacenamiento/backup/TLS/monitoring no verificados y distribución de Git pendiente. [Admin](admin-security.md), [dependencias](dependency-security.md), [CI](ci-security.md).
+**Cierre de aplicación, actualización:** el bypass directo de escritura clínica por Django Admin se mitigó y se probó incluso para superusuario; la lectura requiere permisos Django pero es global para quien los posea. Las dependencias se actualizaron y los escaneos locales no encontraron avisos conocidos; falta verificar CI en Linux. Sigue **NOT READY / NO-GO** por paridad legacy/E2E incompleta, almacenamiento/backup/TLS/monitoring no verificados y distribución de Git pendiente. [Admin](admin-security.md), [dependencias](dependency-security.md), [CI](ci-security.md).
 
 Validación de cierre: 96 tests Django en SQLite temporal, 3 omitidos allí y ejecutados correctamente con PostgreSQL temporal; 26 tests frontend tras repetirlos aisladamente, typecheck y lint correctos; build correcto sin chunk del laboratorio y sin sourcemaps. Playwright: recorrido UI principal y prueba de seguridad HTTP/navegador pasaron individualmente, no se afirma suite completa conjunta exitosa ni variante E2E PostgreSQL. El primer intento conjunto falló; los resultados y límites están en [E2E](e2e-results.md). `makemigrations --check` y `git diff --check` pasan; `check --deploy` conserva W005/W021. No se usan datos clínicos ni infraestructura real.
 
@@ -22,7 +22,7 @@ Evaluación inicial de la copia de trabajo; no representa certificación clínic
 | IA | PARTIAL | AIAnalysisRun, inferencia síncrona | RUNNING puede quedar indefinido | Recuperación segura y pruebas |
 | Email | INFRASTRUCTURE VERIFICATION REQUIRED | timeout SMTP configurable | Proveedor y entrega no verificados | Ensayo SMTP aislado |
 | Rate limiting / uploads | PARTIAL | Límites y validadores en aplicación | Borde y almacenamiento no verificados | Probar rutas y límites del proxy |
-| Dependencies | FAIL | pip-audit detectó 196 registros de avisos y npm audit 12 moderados de desarrollo | Remediación/compatibilidad pendiente | Evaluar y actualizar con pruebas |
+| Dependencies | PARTIAL | Versiones actualizadas; `pip-audit` del entorno instalado y `npm audit` sin avisos conocidos en la prueba local | Escaneo y compatibilidad Linux/CI pendientes de ejecución en GitHub; lock Python sin hashes | Verificar workflow y mantener vigilancia |
 | CI/CD | PARTIAL | workflow GitHub añadido | Aún no se ejecutó en GitHub ni protege ramas | Validar pipeline y protección de rama |
 | Migrations | PARTIAL | Migraciones y pruebas PostgreSQL aisladas previas | Upgrade y rollback real no verificados | Ensayar desde cero y documentar riesgo |
 | E2E | PARTIAL | Suite Playwright existente | Flujo aislado completo no demostrado | Revisar aislamiento y ejecutar |

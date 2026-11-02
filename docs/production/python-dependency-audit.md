@@ -1,4 +1,6 @@
-﻿# pip-audit: dependencias instaladas
+# pip-audit: dependencias instaladas
+
+**Resultado histórico anterior a la actualización.** El escaneo del entorno actualizado no detectó vulnerabilidades conocidas; ver [dependencias](dependency-security.md).
 
 Salida de pip-audit 2.10.1; los identificadores pueden solaparse entre fuentes. Severidad no proporcionada por esta salida. Los parches indicados son por advisory, no garantizan resolver todos los avisos del paquete.
 

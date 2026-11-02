@@ -112,6 +112,8 @@ export default function OdontogramPage() {
   const [existingRecord, setExistingRecord] = useState(false);
   const [version, setVersion] = useState(0);
   useEffect(() => {
+    // Clear the previous patient's clinical record while the new one loads.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPermanent(null);
     setDeciduous(null);
     clinicalService.odontogram(id!).then((data) => {
