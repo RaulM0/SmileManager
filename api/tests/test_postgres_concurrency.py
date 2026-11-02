@@ -9,6 +9,9 @@ from unittest import skipUnless
 
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Permission
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 from django.db import close_old_connections, connection
 from django.test import TransactionTestCase
 from django.urls import reverse
@@ -22,10 +25,91 @@ from Pacientes.models import AntescedentesMedicos, ClinicalRevision, ImagenesCli
 from DiagnosticosIA.runs import execute
 from DiagnosticosIA.models import AIAnalysisRun
 from api.services.backoffice import set_user_active
+from api.services.password_recovery import confirm_reset, InvalidReset
 
 
 @skipUnless(connection.vendor == 'postgresql', 'POSTGRESQL CONCURRENCY VERIFICATION REQUIRED')
 class PostgreSQLConcurrencyTests(TransactionTestCase):
+    def test_password_reset_wins_against_inflight_session_refresh(self):
+        from api.views import _refresh_user
+        user = User.objects.create_user('session-reset-race', email='session-race@example.test', password='Old password 123!')
+        refresh = str(RefreshToken.for_user(user))
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+        checked, release = Event(), Event()
+
+        def delayed_refresh(request):
+            result = _refresh_user(request)
+            checked.set()
+            if not release.wait(10):
+                raise TimeoutError('synthetic timeout')
+            return result
+
+        def session():
+            close_old_connections()
+            try:
+                client = APIClient()
+                client.cookies['smile_refresh'] = refresh
+                return client.get(reverse('api-session')).data
+            finally:
+                close_old_connections()
+
+        with patch('api.views._refresh_user', side_effect=delayed_refresh), ThreadPoolExecutor(max_workers=1) as pool:
+            future = pool.submit(session)
+            self.assertTrue(checked.wait(10))
+            confirm_reset(uid, token, 'New synthetic password 459!', uuid.uuid4())
+            release.set()
+            self.assertFalse(future.result(timeout=10)['authenticated'])
+
+    def test_password_reset_wins_against_inflight_old_password_login(self):
+        from django.contrib.auth import authenticate
+        user = User.objects.create_user('login-reset-race', email='race@example.test', password='Old valid password 123!')
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+        authenticated, release = Event(), Event()
+
+        def delayed_auth(*args, **kwargs):
+            result = authenticate(*args, **kwargs)
+            authenticated.set()
+            if not release.wait(10):
+                raise TimeoutError('synthetic timeout')
+            return result
+
+        def login():
+            close_old_connections()
+            try:
+                return APIClient().post(reverse('api-login'), {'username': 'login-reset-race', 'password': 'Old valid password 123!'}, format='json').status_code
+            finally:
+                close_old_connections()
+
+        with patch('api.views.authenticate', side_effect=delayed_auth), ThreadPoolExecutor(max_workers=1) as pool:
+            future = pool.submit(login)
+            self.assertTrue(authenticated.wait(10))
+            confirm_reset(uid, token, 'New synthetic password 459!', uuid.uuid4())
+            release.set()
+            self.assertEqual(future.result(timeout=10), 400)
+
+    def test_concurrent_password_reset_only_one_succeeds(self):
+        user = User.objects.create_user('reset-race', email='reset-race@example.test', password='old passphrase 123!')
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+        barrier = Barrier(2)
+
+        def reset():
+            close_old_connections()
+            try:
+                barrier.wait(timeout=10)
+                try:
+                    confirm_reset(uid, token, 'New synthetic password 459!', uuid.uuid4())
+                    return 'success'
+                except InvalidReset:
+                    return 'invalid'
+            finally:
+                close_old_connections()
+
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            results = list(pool.map(lambda _: reset(), range(2)))
+        self.assertCountEqual(results, ['success', 'invalid'])
     def test_refresh_racing_deactivation_cannot_survive_reactivation(self):
         actor = User.objects.create_user('admin-concurrency')
         actor.user_permissions.add(Permission.objects.get(content_type__app_label='Usuarios', codename='access_system_backoffice'))

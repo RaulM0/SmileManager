@@ -107,11 +107,17 @@ class SessionView(APIView):
         token, user = _refresh_user(request)
         if user is None:
             return Response({'authenticated': False})
-        return Response({
-            'authenticated': True,
-            'access': str(token.access_token),
-            'user': SessionUserSerializer(user).data,
-        })
+        try:
+            with transaction.atomic():
+                user = get_user_model().objects.select_for_update().get(pk=user.pk, is_active=True)
+                token = RefreshToken(request.COOKIES[REFRESH_COOKIE])
+                return Response({
+                    'authenticated': True,
+                    'access': str(token.access_token),
+                    'user': SessionUserSerializer(user).data,
+                })
+        except (TokenError, get_user_model().DoesNotExist):
+            return Response({'authenticated': False})
 
 
 @method_decorator(never_cache, name='dispatch')
@@ -136,8 +142,15 @@ class LoginView(APIView):
                 {'detail': 'Usuario o contraseña incorrectos'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        # Recheck the credential while holding the same row lock used by a
+        # password reset: an old-password login cannot mint a post-reset token.
+        with transaction.atomic():
+            user = get_user_model().objects.select_for_update().filter(pk=user.pk, is_active=True).first()
+            if user is None or not user.check_password(serializer.validated_data['password']):
+                request._request.audit_auth_event = ('AUTH_LOGIN_FAILED', None, 'failure')
+                return Response({'detail': 'Usuario o contraseña incorrectos'}, status=status.HTTP_400_BAD_REQUEST)
+            refresh = RefreshToken.for_user(user)
         request._request.audit_auth_event = ('AUTH_LOGIN_SUCCESS', user, 'success')
-        refresh = RefreshToken.for_user(user)
         response = Response({
             'authenticated': True,
             'access': str(refresh.access_token),

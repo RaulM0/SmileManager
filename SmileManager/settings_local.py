@@ -34,7 +34,16 @@ STORAGES = {
     },
 }
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+# Local mail stays in files unless real delivery is deliberately enabled.
+# Production uses the SMTP configuration in settings.py independently.
+DEV_EMAIL_DELIVERY = os.environ.get('DEV_EMAIL_DELIVERY', 'file').strip().lower()
+if DEV_EMAIL_DELIVERY == 'file':
+    EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+    EMAIL_FILE_PATH = os.environ.get('DEV_EMAIL_DIR', str(BASE_DIR / '.local-mail'))
+elif DEV_EMAIL_DELIVERY == 'smtp':
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+else:
+    raise ImproperlyConfigured('DEV_EMAIL_DELIVERY debe ser file o smtp.')
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
