@@ -30,6 +30,33 @@ from api.services.password_recovery import confirm_reset, InvalidReset
 
 @skipUnless(connection.vendor == 'postgresql', 'POSTGRESQL CONCURRENCY VERIFICATION REQUIRED')
 class PostgreSQLConcurrencyTests(TransactionTestCase):
+    def test_two_admins_cannot_overwrite_same_clinical_version(self):
+        doctor = User.objects.create_user('doctor-admin-race')
+        admins = [User.objects.create_user(f'admin-edit-{i}') for i in range(2)]
+        permission = Permission.objects.get(content_type__app_label='Usuarios', codename='access_system_backoffice')
+        for admin in admins:
+            admin.user_permissions.add(permission)
+        patient = Paciente.objects.create(nombre='A', appat='A', apmat='A', fecha_nacimiento='1990-01-01', genero='F', telefono='1234567890', email='admin-race@example.test', medico=doctor)
+        barrier = Barrier(2)
+
+        def update(actor_id):
+            close_old_connections()
+            try:
+                barrier.wait(timeout=10)
+                try:
+                    save_record(user=User.objects.get(pk=actor_id), patient_id=patient.pk, model=AntescedentesMedicos, changes={'alergias': 'sintetico'}, expected_version=0, administrative=True)
+                    return 'saved'
+                except ConcurrentModification:
+                    return 'conflict'
+            finally:
+                close_old_connections()
+
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            results = list(pool.map(update, [admin.pk for admin in admins]))
+        self.assertCountEqual(results, ['saved', 'conflict'])
+        self.assertEqual(ClinicalRevision.objects.filter(patient=patient, version=1).count(), 1)
+        self.assertEqual(AntescedentesMedicos.objects.get(paciente=patient).medico_id, doctor.pk)
+
     def test_password_reset_wins_against_inflight_session_refresh(self):
         from api.views import _refresh_user
         user = User.objects.create_user('session-reset-race', email='session-race@example.test', password='Old password 123!')
