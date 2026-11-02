@@ -29,6 +29,8 @@ import ConsentPage from "./pages/clinical/ConsentPage";
 import ExportsPage from "./pages/exports/ExportsPage";
 import PatientContactPage from "./pages/patients/PatientContactPage";
 import DiagnosticsPage from "./pages/diagnostics/DiagnosticsPage";
+import { BackofficeLayout, BackofficeDashboard, BackofficeUsers, BackofficeUser, BackofficeAudit, BackofficeRuns, BackofficeRun, BackofficeSystem } from "./pages/backoffice/Backoffice";
+import { BackofficePatients, BackofficePatient, BackofficePatientSection, BackofficeAppointments, BackofficeAppointment } from "./pages/backoffice/BackofficeClinical";
 
 const DiagnosticResultPage = lazy(
   () => import("./pages/diagnostics/DiagnosticResultPage"),
@@ -47,6 +49,20 @@ const router = createBrowserRouter(createRoutesFromElements(
     <>
       <Route path="/login" element={<LoginPage />} />
       <Route element={<ProtectedRoute />}>
+        <Route path="backoffice" element={<BackofficeLayout />}>
+          <Route index element={<BackofficeDashboard />} />
+          <Route path="users" element={<BackofficeUsers />} />
+          <Route path="users/:id" element={<BackofficeUser />} />
+          <Route path="patients" element={<BackofficePatients />} />
+          <Route path="patients/:id" element={<BackofficePatient />} />
+          <Route path="patients/:id/:section" element={<BackofficePatientSection />} />
+          <Route path="appointments" element={<BackofficeAppointments />} />
+          <Route path="appointments/:id" element={<BackofficeAppointment />} />
+          <Route path="audit" element={<BackofficeAudit />} />
+          <Route path="ai" element={<BackofficeRuns />} />
+          <Route path="ai/:id" element={<BackofficeRun />} />
+          <Route path="system" element={<BackofficeSystem />} />
+        </Route>
         <Route element={<AppLayout />}>
           <Route index element={<DashboardPage />} />
           <Route path="privacy" element={<PrivacyPage />} />

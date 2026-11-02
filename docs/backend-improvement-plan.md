@@ -1,5 +1,7 @@
 # Plan de evolución priorizado
 
+El backoffice inicial añade solo operaciones de usuario y metadatos operativos, con permiso explícito, auditoría y lecturas paginadas. Roles clínicos, multi-clínica y recuperación durable de IA siguen pendientes de decisión; ver [arquitectura](architecture/backoffice.md).
+
 **Readiness — NO-GO:** priorizar controles administrativos de escritura clínica, contención coordinada de DB/media en Git, privacidad efectiva del bucket, restore DB+storage y validación E2E/IDOR restante. El comando de recuperación de IA es manual y exige detener previamente todos los workers; no garantiza detección automática de un proceso activo. Ver [checklist](production/go-live-checklist.md).
 
 Cada fase necesita responsable, pruebas negativas y criterio de aceptación. Estimaciones son relativas, no plazos. Véanse IDs en [seguridad](security-audit.md) y [backend](backend-audit.md).
@@ -47,3 +49,6 @@ Instrumentar latencias, errores, DB y procesamiento IA, alertas y trazabilidad o
 - Evitar URLs directas expuestas y verificar bloqueo público del bucket; la migración completa de storage puede requerir esfuerzo medio.
 
 No todos los quick wins sustituyen una solución integral: por ejemplo, throttle DRF no reemplaza protección perimetral y ocultar una URL no protege un bucket público.
+# Backoffice: alcance clínico ampliado
+
+Se añadieron listados globales paginados y secciones clínicas de consulta auditada. La revisión organizacional del permiso ampliado, preview protegido de archivos, experiencia clínica especializada y métricas PostgreSQL de las nuevas consultas siguen pendientes; no se declara listo para producción.

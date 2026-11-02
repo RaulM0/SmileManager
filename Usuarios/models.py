@@ -23,3 +23,4 @@ class AuditEvent(models.Model):
 
     class Meta:
         ordering = ['-timestamp', '-id']
+        permissions = [('access_system_backoffice', 'Can access system backoffice')]

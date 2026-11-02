@@ -18,6 +18,7 @@ frontend/.e2e-closure-output/
 .security-test-env/
 frontend/.ci-npm-check/
 frontend/.security-e2e-output/
+frontend/.backoffice-e2e-output/
 .pip-audit-closure.json
 .gitleaks-*-redacted.json
 

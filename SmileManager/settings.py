@@ -117,6 +117,7 @@ EXPORT_MAX_ROWS = max(1, int(os.environ.get('EXPORT_MAX_ROWS', '1000')))
 CLINICAL_PAGE_SIZE = max(1, int(os.environ.get('CLINICAL_PAGE_SIZE', '20')))
 CLINICAL_MAX_PAGE_SIZE = max(CLINICAL_PAGE_SIZE, int(os.environ.get('CLINICAL_MAX_PAGE_SIZE', '100')))
 APPOINTMENT_MAX_RANGE_DAYS = max(1, int(os.environ.get('APPOINTMENT_MAX_RANGE_DAYS', '62')))
+BACKOFFICE_AI_STALE_SECONDS = max(1, int(os.environ.get('BACKOFFICE_AI_STALE_SECONDS', '3600')))
 
 # Dominio S3
 AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
