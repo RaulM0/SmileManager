@@ -5,6 +5,7 @@ export interface SessionUser {
   last_name: string;
   email: string;
   is_staff: boolean;
+  can_access_backoffice?: boolean;
   profile: { clinica_nombre: string; telefono: string; direccion: string; extra: string };
 }
 

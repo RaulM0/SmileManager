@@ -25,17 +25,29 @@ def snapshot(obj):
 
 
 @transaction.atomic
-def save_record(*, user, patient_id, model, changes, expected_version):
+def save_record(*, user, patient_id, model, changes, expected_version, administrative=False):
     if model not in (AntescedentesMedicos, Odontograma):
         raise ValueError('Recurso clínico no soportado')
     if isinstance(expected_version, bool) or not isinstance(expected_version, int) or expected_version < 0:
         raise ValidationError({'version': ['Debe indicar la versión obtenida al consultar el expediente.']})
     # Lock the stable parent even before the first clinical row exists.
-    patient = get_object_or_404(scoped(user, Paciente).select_for_update(), pk=patient_id)
-    rows = list(consistent_or_404(user, model, patient).select_for_update()[:2])
+    if administrative:
+        from django.core.exceptions import PermissionDenied
+        from api.policies import can_access_backoffice
+        if not can_access_backoffice(user):
+            raise PermissionDenied
+        patient = get_object_or_404(Paciente.objects.select_for_update(), pk=patient_id)
+        if patient.medico_id is None or model.objects.filter(paciente=patient).exclude(medico_id=patient.medico_id).exists():
+            raise ClinicalDataConflict('Las relaciones clínicas requieren revisión antes de editar.')
+        rows = list(model.objects.filter(paciente=patient, medico_id=patient.medico_id).select_for_update()[:2])
+        responsible = patient.medico
+    else:
+        patient = get_object_or_404(scoped(user, Paciente).select_for_update(), pk=patient_id)
+        rows = list(consistent_or_404(user, model, patient).select_for_update()[:2])
+        responsible = user
     if len(rows) > 1:
         raise ClinicalDataConflict()
-    obj = rows[0] if rows else model(paciente=patient, medico=user)
+    obj = rows[0] if rows else model(paciente=patient, medico=responsible)
     if obj.version != expected_version:
         raise ConcurrentModification()
     if model is Odontograma and obj.pk:

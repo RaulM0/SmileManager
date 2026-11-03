@@ -17,3 +17,6 @@ Git: `git ls-files` incluye `db.sqlite3` y 276 archivos en categorías de media 
 Health: liveness no consulta dependencias, readiness comprueba DB con `SELECT 1`; la respuesta solo informa estado. Ingress, disponibilidad de DB, degradación y alertas requieren prueba en infraestructura. Los logs estructurados excluyen query string y payload en el middleware revisado; no se ha certificado todo proveedor ni todos los logs.
 
 Reversión de `Pacientes.0023_clinical_revisions` o `DiagnosticosIA.0001_analysis_run` puede destruir historial; **DATA LOSS RISK / IRREVERSIBLE OPERATIONALLY** sin copia restaurable. Ensayar upgrade desde un esquema histórico sintético y verificar backups antes de aplicar; `makemigrations --check` no demuestra seguridad de datos existentes.
+# Ampliación de visibilidad administrativa
+
+Las nuevas lecturas globales se limitan a usuarios con permiso explícito y generan eventos de auditoría sin payload clínico. Las relaciones clínicas incoherentes quedan excluidas. La revisión de roles, pruebas dinámicas ampliadas y controles de acceso de infraestructura siguen pendientes; ver [acceso a datos](../security/backoffice-data-access.md).

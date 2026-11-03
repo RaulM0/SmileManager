@@ -41,6 +41,11 @@ class SessionUserSerializer(serializers.Serializer):
     email = serializers.EmailField()
     is_staff = serializers.BooleanField()
     profile = serializers.SerializerMethodField()
+    can_access_backoffice = serializers.SerializerMethodField()
+
+    def get_can_access_backoffice(self, user):
+        from .policies import can_access_backoffice
+        return can_access_backoffice(user)
 
     def get_profile(self, user):
         profile = Perfil.objects.filter(user=user).first()

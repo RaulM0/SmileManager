@@ -176,6 +176,15 @@ a.clinical-action-primary, a.clinical-action-primary:hover { color: #fff; }
 .workspace-summary-strip > div + div { border-left: 1px solid #e5eaec; }
 .workspace-summary-strip > div > span:first-child { color: #63727a; font-size: 12px; }
 .workspace-summary-strip strong { grid-row: 2; font-size: 20px; font-variant-numeric: tabular-nums; }
+.backoffice-summary-strip { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.backoffice-summary-strip > div { min-width: 0; grid-template-columns: 1fr; }
+.backoffice-summary-strip > div > span:last-child, .backoffice-summary-strip strong { grid-column: 1; grid-row: auto; }
+@media (max-width: 900px) {
+  .backoffice-summary-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .backoffice-summary-strip > div + div { border-left: 0; }
+  .backoffice-summary-strip > div:nth-child(even) { border-left: 1px solid #e5eaec; }
+  .backoffice-summary-strip > div:nth-child(n+3) { border-top: 1px solid #e5eaec; }
+}
 .workspace-summary-strip a, .workspace-summary-strip > div > span:last-child { grid-column: 2; grid-row: 1 / span 2; font-size: 12px; }
 .workspace-section { margin-bottom: 24px; overflow: hidden; border: 1px solid #dce3e6; border-radius: 5px; background: #fff; }
 .workspace-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-bottom: 1px solid #e5eaec; }
