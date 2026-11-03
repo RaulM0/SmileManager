@@ -21,3 +21,8 @@ RPO/RTO: **BUSINESS DECISION REQUIRED**. Retención y correcciones clínicas: **
 - [ ] Aprobar el alcance de lectura global y revisar cada asignación de `access_system_backoffice`.
 - [ ] Validar con clínica/legal los datos accesibles y las reglas de conservación y consulta.
 - [ ] Verificar rendimiento y alertas de auditoría sobre infraestructura aislada representativa.
+# Recuperación de contraseña
+
+- [ ] Verificar URL HTTPS del frontend, remitente, entrega SMTP, SPF/DKIM/DMARC y alertas.
+- [ ] Aprobar mitigación de diferencias temporales y límites por IP/cuenta para la topología real.
+- [ ] Aceptar o cambiar la ventana residual de access JWT y revisar las cuentas con correo duplicado.

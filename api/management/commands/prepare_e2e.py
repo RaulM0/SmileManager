@@ -18,6 +18,7 @@ class Command(BaseCommand):
         for username in ('e2e_doctor', 'e2e_other_doctor', 'e2e_system_admin'):
             user, _ = get_user_model().objects.get_or_create(username=username)
             user.set_password('e2e_password_123')
+            user.email = f'{username}@example.test'
             user.save()
             if username == 'e2e_system_admin':
                 user.user_permissions.add(Permission.objects.get(content_type__app_label='Usuarios', codename='access_system_backoffice'))

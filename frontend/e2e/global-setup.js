@@ -15,6 +15,7 @@ const python = process.env.SMILE_E2E_PYTHON || resolve(
 const manage = resolve(root, "manage.py");
 export default async function globalSetup() {
   const directory = mkdtempSync(join(root, '.e2e-run-'));
+  process.env.SMILE_E2E_MAIL_DIR = join(directory, 'mail');
   const env = { ...process.env, DJANGO_SETTINGS_MODULE: 'SmileManager.settings_e2e', SMILE_E2E_DIR: directory };
   let server;
   const cleanup = async () => {

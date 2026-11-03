@@ -2,6 +2,7 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from . import views
+from . import password_recovery
 from . import backoffice
 from . import backoffice_clinical
 
@@ -31,6 +32,8 @@ urlpatterns = [
     path('backoffice/system/', backoffice.System.as_view(), name='backoffice-system'),
     path('auth/session/', views.SessionView.as_view(), name='api-session'),
     path('auth/login/', views.LoginView.as_view(), name='api-login'),
+    path('auth/password-reset/request/', password_recovery.PasswordResetRequest.as_view(), name='api-password-reset-request'),
+    path('auth/password-reset/confirm/', password_recovery.PasswordResetConfirm.as_view(), name='api-password-reset-confirm'),
     path('auth/refresh/', views.RefreshView.as_view(), name='api-refresh'),
     path('auth/logout/', views.LogoutView.as_view(), name='api-logout'),
     path('dashboard/', views.DashboardView.as_view(), name='api-dashboard'),
