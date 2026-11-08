@@ -7,7 +7,8 @@ from rest_framework.test import APITestCase
 from Citas.models import Cita
 from Pacientes.models import AntescedentesMedicos, ClinicalRevision, Odontograma, Paciente
 from api.services.appointments import can_transition
-from Usuarios.models import AuditEvent
+from api.services.clinical_records import ClinicalDataConflict, save_record
+from Usuarios.models import AuditEvent, Clinic, ClinicMembership
 
 
 class ClinicalIntegrityTests(APITestCase):
@@ -58,6 +59,22 @@ class ClinicalIntegrityTests(APITestCase):
         versions = ClinicalRevision.objects.filter(resource_type='medical_history').order_by('version')
         self.assertEqual([v.snapshot['otros'] for v in versions], ['primero', 'segundo'])
         self.assertEqual(AuditEvent.objects.filter(action='CLINICAL_HISTORY_UPDATE').count(), 2)
+
+    def test_revision_uses_patient_clinic_and_rejects_conflicting_history(self):
+        clinic = Clinic.objects.create(name='A', slug='clinical-a', status='ACTIVE')
+        other = Clinic.objects.create(name='B', slug='clinical-b', status='ACTIVE')
+        self.patient.clinic = clinic
+        self.patient.save(update_fields=['clinic'])
+        ClinicMembership.objects.create(user=self.user, clinic=clinic, role='DOCTOR', status='ACTIVE')
+        history = save_record(user=self.user, clinic_id=clinic.pk, patient_id=self.patient.pk, model=AntescedentesMedicos, changes={'otros': 'sintetico'}, expected_version=0)
+        revision = ClinicalRevision.objects.get(resource_type='medical_history', resource_id=history.pk)
+        self.assertEqual(revision.clinic_id, clinic.pk)
+        revision.clinic = other
+        revision.save(update_fields=['clinic'])
+        with self.assertRaises(ClinicalDataConflict):
+            save_record(user=self.user, clinic_id=clinic.pk, patient_id=self.patient.pk, model=AntescedentesMedicos, changes={'otros': 'cambio'}, expected_version=1)
+        history.refresh_from_db()
+        self.assertEqual(history.version, 1)
 
     def test_odontogram_revisions_conflicts_and_validation(self):
         url = reverse('api-odontogram', args=[self.patient.pk])

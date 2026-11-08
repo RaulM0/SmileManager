@@ -42,10 +42,15 @@ class SessionUserSerializer(serializers.Serializer):
     is_staff = serializers.BooleanField()
     profile = serializers.SerializerMethodField()
     can_access_backoffice = serializers.SerializerMethodField()
+    is_platform_admin = serializers.SerializerMethodField()
 
     def get_can_access_backoffice(self, user):
         from .policies import can_access_backoffice
         return can_access_backoffice(user)
+
+    def get_is_platform_admin(self, user):
+        from .policies import is_platform_admin
+        return is_platform_admin(user)
 
     def get_profile(self, user):
         profile = Perfil.objects.filter(user=user).first()
@@ -100,6 +105,7 @@ class PatientSerializer(serializers.ModelSerializer):
             patient=instance,
             medico=self.context['request'].user,
             validated_data=validated_data,
+            clinic_id=self.context.get('clinic_id'),
         )
 
 
@@ -131,6 +137,7 @@ class ConsultationSerializer(serializers.ModelSerializer):
             patient=self.context['patient'],
             medico=self.context['request'].user,
             validated_data=validated_data,
+            clinic_id=self.context.get('clinic_id'),
         )
 
 
@@ -201,6 +208,7 @@ class ClinicalImageSerializer(UploadValidationMixin, serializers.ModelSerializer
             patient=self.context['patient'],
             medico=self.context['request'].user,
             validated_data=validated_data,
+            clinic_id=self.context.get('clinic_id'),
         )
 
 

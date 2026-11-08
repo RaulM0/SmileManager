@@ -116,9 +116,9 @@ class BackofficeTests(TestCase):
     def test_audit_and_ai_are_paginated_filtered_and_read_only(self):
         self.client.force_authenticate(self.admin)
         for i in range(25):
-            AuditEvent.objects.create(actor=self.admin, action='SYNTHETIC_EVENT', resource_type='test', resource_id=str(i), request_id=uuid.uuid4())
+            AuditEvent.objects.create(actor=self.admin, action='USER_ACTIVATED', resource_type='user', resource_id=str(i), request_id=uuid.uuid4())
             AIAnalysisRun.objects.create(image_reference=i, requested_by=self.admin, started_at=timezone.now(), status='SUCCEEDED', model_name='test', model_version='a'*64, input_hash='b'*64, request_id=uuid.uuid4())
-        events = self.client.get(reverse('backoffice-audit'), {'action': 'SYNTHETIC_EVENT', 'page_size': 3})
+        events = self.client.get(reverse('backoffice-audit'), {'action': 'USER_ACTIVATED', 'page_size': 3})
         self.assertEqual(events.data['count'], 25)
         self.assertEqual(len(events.data['results']), 3)
         runs = self.client.get(reverse('backoffice-ai-runs'), {'status': 'SUCCEEDED', 'page_size': 4})
@@ -129,7 +129,14 @@ class BackofficeTests(TestCase):
         self.assertEqual(self.client.patch(reverse('backoffice-ai-run', args=[runs.data['results'][0]['id']]), {'status': 'FAILED'}).status_code, 405)
         self.assertEqual(self.client.delete(reverse('backoffice-audit-detail', args=[events.data['results'][0]['id']])).status_code, 405)
 
-    def test_global_clinical_views_require_permission_and_are_audited_read_only(self):
+    def test_global_audit_does_not_expose_historical_clinical_events(self):
+        event = AuditEvent.objects.create(actor=self.user, action='PATIENT_VIEWED', resource_type='patient', resource_id='12345', request_id=uuid.uuid4())
+        self.client.force_authenticate(self.admin)
+        response = self.client.get(reverse('backoffice-audit'), {'action': 'PATIENT_VIEWED'})
+        self.assertEqual(response.data['count'], 0)
+        self.assertEqual(self.client.get(reverse('backoffice-audit-detail', args=[event.pk])).status_code, 404)
+
+    def test_global_clinical_views_are_denied_even_for_backoffice_admin(self):
         patient = Paciente.objects.create(nombre='Sintetico', appat='Prueba', apmat='Demo', fecha_nacimiento='1990-01-01', genero='F', telefono='1234567890', email='synthetic@example.test', medico=self.user)
         Consulta.objects.create(paciente=patient, medico=self.user, fecha_consulta=timezone.now(), motivo_consulta='sintetico')
         AntescedentesMedicos.objects.create(paciente=patient, medico=self.user, alergias='sintetico')
@@ -140,31 +147,31 @@ class BackofficeTests(TestCase):
             self.client.force_authenticate(self.user)
             self.assertEqual(self.client.get(path).status_code, 403)
             self.client.force_authenticate(self.admin)
-            self.assertEqual(self.client.get(path).status_code, 200)
-            self.assertEqual(self.client.patch(path, {'is_superuser': True, 'password': 'test'}).status_code, 405)
-        result = self.client.get(reverse('backoffice-patients'), {'doctor': self.user.pk, 'search': 'Sintetico', 'page_size': 1})
-        self.assertEqual(result.data['count'], 1)
-        self.assertNotIn('telefono', result.data['results'][0])
-        self.assertTrue(AuditEvent.objects.filter(actor=self.admin, action='BACKOFFICE_CLINICAL_SECTION_VIEW', resource_id=str(patient.pk)).exists())
+            self.assertEqual(self.client.get(path).status_code, 403)
+            self.assertEqual(self.client.patch(path, {'is_superuser': True, 'password': 'test'}).status_code, 403)
         for section in ('history', 'consultations', 'odontogram', 'images', 'studies', 'consents', 'revisions', 'ai'):
             response = self.client.get(reverse('backoffice-patient-section', args=[patient.pk, section]))
-            self.assertEqual(response.status_code, 200, section)
-            self.assertIn('results', response.data)
+            self.assertEqual(response.status_code, 403, section)
+
+    def test_superuser_with_backoffice_assignment_cannot_read_global_clinical_data(self):
+        root = User.objects.create_superuser('clinical-root', password='test')
+        root.user_permissions.add(Permission.objects.get(content_type__app_label='Usuarios', codename='access_system_backoffice'))
+        self.client.force_authenticate(root)
+        self.assertEqual(self.client.get(reverse('backoffice-patients')).status_code, 403)
+        self.assertEqual(self.client.get(reverse('backoffice-appointments')).status_code, 403)
+        self.assertTrue(AuditEvent.objects.filter(actor=root, action='BACKOFFICE_CLINICAL_ACCESS_DENIED', outcome='failure').exists())
 
     def test_inconsistent_clinical_relationship_is_not_exposed(self):
         patient = Paciente.objects.create(nombre='Sintetico', appat='Prueba', apmat='Demo', fecha_nacimiento='1990-01-01', genero='F', telefono='1234567890', email='synthetic@example.test', medico=self.user)
         AntescedentesMedicos.objects.create(paciente=patient, medico=self.admin, alergias='no revelar')
         self.client.force_authenticate(self.admin)
         response = self.client.get(reverse('backoffice-patient-section', args=[patient.pk, 'history']))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data['count'], 0)
+        self.assertEqual(response.status_code, 403)
 
     def test_global_lists_have_bounded_queries(self):
         for index in range(12):
             patient = Paciente.objects.create(nombre='Sintetico', appat='Prueba', apmat='Demo', fecha_nacimiento='1990-01-01', genero='F', telefono=f'{index:010}', email=f'synthetic{index}@example.test', medico=self.user)
             Cita.objects.create(paciente=patient, fecha='2026-01-01', hora='10:00', motivo='sintetico')
         self.client.force_authenticate(self.admin)
-        with self.assertNumQueries(4):
-            self.assertEqual(self.client.get(reverse('backoffice-patients')).status_code, 200)
-        with self.assertNumQueries(4):
-            self.assertEqual(self.client.get(reverse('backoffice-appointments')).status_code, 200)
+        self.assertEqual(self.client.get(reverse('backoffice-patients')).status_code, 403)
+        self.assertEqual(self.client.get(reverse('backoffice-appointments')).status_code, 403)

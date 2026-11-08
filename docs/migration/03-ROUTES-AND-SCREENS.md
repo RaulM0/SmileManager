@@ -1,5 +1,7 @@
 # Rutas y pantallas legacy
 
+> Inventario histórico: estas rutas HTML y Django Admin fueron retiradas. Consultar [estado actual](../production/legacy-routes.md).
+
 | Prefijo               | Pantallas/operaciones                                                                                                             |
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | `/sesiones/`          | login, logout                                                                                                                     |

@@ -1,0 +1,2522 @@
+{
+  "info": {
+    "name": "SmileManager - endpoints",
+    "description": "API REST y rutas web Django. Revisa la guía incluida antes de ejecutar operaciones que modifican datos.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    },
+    {
+      "key": "username",
+      "value": "TU_USUARIO",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "TU_PASSWORD",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "csrfToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "clinicId",
+      "value": "UUID_DE_CLINICA",
+      "type": "string"
+    },
+    {
+      "key": "membershipId",
+      "value": "UUID_DE_MEMBRESIA",
+      "type": "string"
+    },
+    {
+      "key": "invitationId",
+      "value": "UUID_DE_INVITACION",
+      "type": "string"
+    },
+    {
+      "key": "invitationToken",
+      "value": "TOKEN_DE_INVITACION",
+      "type": "string"
+    },
+    {
+      "key": "patientId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "appointmentId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "appointmentDate",
+      "value": "2030-01-15",
+      "type": "string"
+    },
+    {
+      "key": "consultationId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "imageId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "runId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "auditId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "section",
+      "value": "history",
+      "type": "string"
+    },
+    {
+      "key": "studyField",
+      "value": "antes_frontal",
+      "type": "string"
+    },
+    {
+      "key": "fileKind",
+      "value": "image",
+      "type": "string"
+    },
+    {
+      "key": "resourceId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "fileField",
+      "value": "imagen",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Autenticación API",
+      "item": [
+        {
+          "name": "POST /api/v1/auth/login/",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/auth/login/",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) { const data = pm.response.json(); if (data.access) pm.collectionVariables.set(\"accessToken\", data.access); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/v1/auth/session/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/auth/session/",
+            "description": "Usa la cookie smile_refresh obtenida al iniciar sesión.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) { const data = pm.response.json(); if (data.access) pm.collectionVariables.set(\"accessToken\", data.access); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/v1/auth/refresh/",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/auth/refresh/",
+            "description": "Usa la cookie smile_refresh obtenida al iniciar sesión.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) { const data = pm.response.json(); if (data.access) pm.collectionVariables.set(\"accessToken\", data.access); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/v1/auth/logout/",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/auth/logout/",
+            "description": "Usa la cookie smile_refresh obtenida al iniciar sesión.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Salud y aplicación",
+      "item": [
+        {
+          "name": "GET /health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/health",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /health/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/health/",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /health/ready",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/health/ready",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /health/ready/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/health/ready/",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/",
+            "description": "Redirección o página HTML. /app admite rutas hijas.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /app",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/app",
+            "description": "Redirección o página HTML. /app admite rutas hijas.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /app/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/app/",
+            "description": "Redirección o página HTML. /app admite rutas hijas.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "API general",
+      "item": [
+        {
+          "name": "GET /api/v1/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/",
+            "description": "Raíz del enrutador REST."
+          }
+        },
+        {
+          "name": "GET /api/v1/dashboard/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/dashboard/",
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pacientes API",
+      "item": [
+        {
+          "name": "GET /api/v1/patients/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/patients/",
+            "description": ""
+          }
+        },
+        {
+          "name": "POST /api/v1/patients/",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/patients/",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Ana\",\n  \"appat\": \"Lopez\",\n  \"apmat\": \"Diaz\",\n  \"fecha_nacimiento\": \"1990-01-01\",\n  \"genero\": \"F\",\n  \"telefono\": \"1111111111\",\n  \"email\": \"ana@example.com\",\n  \"estatus\": \"A\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/patients/autocomplete/?term=Ana",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/patients/autocomplete/?term=Ana",
+            "description": ""
+          }
+        },
+        {
+          "name": "GET /api/v1/patients/{{patientId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/patients/{{patientId}}/",
+            "description": ""
+          }
+        },
+        {
+          "name": "PUT /api/v1/patients/{{patientId}}/",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/patients/{{patientId}}/",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Ana\",\n  \"appat\": \"Lopez\",\n  \"apmat\": \"Diaz\",\n  \"fecha_nacimiento\": \"1990-01-01\",\n  \"genero\": \"F\",\n  \"telefono\": \"1111111111\",\n  \"email\": \"ana@example.com\",\n  \"estatus\": \"A\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/v1/patients/{{patientId}}/",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/patients/{{patientId}}/",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Ana María\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /api/v1/patients/{{patientId}}/deactivate/",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/patients/{{patientId}}/deactivate/",
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "Expediente API",
+      "item": [
+        {
+          "name": "GET /api/v1/patients/{{patientId}}/medical-history/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/patients/{{patientId}}/medical-history/",
+            "description": ""
+          }
+        },
+        {
+          "name": "PUT /api/v1/patients/{{patientId}}/medical-history/",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/patients/{{patientId}}/medical-history/",
+            "description": "Para version usa el valor devuelto por GET; 0 corresponde a un registro nuevo.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"problemas_cardiacos\": true,\n  \"alergias\": \"Penicilina\",\n  \"version\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/patients/{{patientId}}/consultations/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/patients/{{patientId}}/consultations/",
+            "description": ""
+          }
+        },
+        {
+          "name": "POST /api/v1/patients/{{patientId}}/consultations/",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/patients/{{patientId}}/consultations/",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"motivo_consulta\": \"Control\",\n  \"diagnostico\": \"Caries\",\n  \"tratamiento\": \"Limpieza\",\n  \"observaciones\": \"Ninguna\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/patients/{{patientId}}/clinical-images/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/patients/{{patientId}}/clinical-images/",
+            "description": ""
+          }
+        },
+        {
+          "name": "GET /api/v1/patients/{{patientId}}/odontogram/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/patients/{{patientId}}/odontogram/",
+            "description": ""
+          }
+        },
+        {
+          "name": "PUT /api/v1/patients/{{patientId}}/odontogram/",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/patients/{{patientId}}/odontogram/",
+            "description": "Para version usa el valor devuelto por GET; 0 corresponde a un registro nuevo.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"denticion_permanente\": {\n    \"11\": {\n      \"oclusal\": \"caries\"\n    }\n  },\n  \"denticion_decidua\": {},\n  \"resumen\": {\n    \"total_dientes\": 52\n  },\n  \"version\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/patients/{{patientId}}/comparative-study/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/patients/{{patientId}}/comparative-study/",
+            "description": ""
+          }
+        },
+        {
+          "name": "GET /api/v1/patients/{{patientId}}/comparative-study/pdf/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/patients/{{patientId}}/comparative-study/pdf/",
+            "description": ""
+          }
+        },
+        {
+          "name": "GET /api/v1/patients/{{patientId}}/comparative-study/media/{{studyField}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/patients/{{patientId}}/comparative-study/media/{{studyField}}/",
+            "description": ""
+          }
+        },
+        {
+          "name": "GET /api/v1/patients/{{patientId}}/consent/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/patients/{{patientId}}/consent/",
+            "description": ""
+          }
+        },
+        {
+          "name": "GET /api/v1/patients/{{patientId}}/consent/file/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/patients/{{patientId}}/consent/file/",
+            "description": ""
+          }
+        },
+        {
+          "name": "GET /api/v1/patients/{{patientId}}/consent/pdf/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/patients/{{patientId}}/consent/pdf/",
+            "description": ""
+          }
+        },
+        {
+          "name": "POST /api/v1/patients/{{patientId}}/email/",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/patients/{{patientId}}/email/",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asunto\": \"Recordatorio\",\n  \"mensaje\": \"Hola, le recordamos su cita.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /api/v1/patients/{{patientId}}/clinical-images/",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/patients/{{patientId}}/clinical-images/",
+            "description": "",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "consulta_id",
+                  "value": "{{consultationId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "tipo_imagen",
+                  "value": "Radiografía",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Imagen clínica",
+                  "type": "text"
+                },
+                {
+                  "key": "imagen",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "PUT /api/v1/patients/{{patientId}}/comparative-study/",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/patients/{{patientId}}/comparative-study/",
+            "description": "Al crear requiere las cinco imágenes anteriores; selecciona archivos en Postman.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "fecha_inicio",
+                  "value": "2026-01-01",
+                  "type": "text"
+                },
+                {
+                  "key": "diagnostico",
+                  "value": "Caso",
+                  "type": "text"
+                },
+                {
+                  "key": "observaciones",
+                  "value": "Notas",
+                  "type": "text"
+                },
+                {
+                  "key": "antes_oclusal_superior",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "antes_lateral_izquierda",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "antes_frontal",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "antes_lateral_derecha",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "antes_oclusal_inferior",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /api/v1/patients/{{patientId}}/consent/",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/patients/{{patientId}}/consent/",
+            "description": "",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "texto",
+                  "value": "Acepto el consentimiento",
+                  "type": "text"
+                },
+                {
+                  "key": "archivo_ine",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/consultations/{{consultationId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/consultations/{{consultationId}}/",
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "Citas API",
+      "item": [
+        {
+          "name": "GET /api/v1/appointments/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/appointments/",
+            "description": ""
+          }
+        },
+        {
+          "name": "POST /api/v1/appointments/",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/appointments/",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paciente_id\": \"{{patientId}}\",\n  \"fecha\": \"{{appointmentDate}}\",\n  \"hora\": \"10:00\",\n  \"motivo\": \"Control\",\n  \"estatus\": \"P\",\n  \"observaciones\": \"Ninguna\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/appointments/{{appointmentId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/appointments/{{appointmentId}}/",
+            "description": ""
+          }
+        },
+        {
+          "name": "PUT /api/v1/appointments/{{appointmentId}}/",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/appointments/{{appointmentId}}/",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paciente_id\": \"{{patientId}}\",\n  \"fecha\": \"{{appointmentDate}}\",\n  \"hora\": \"10:00\",\n  \"motivo\": \"Control\",\n  \"estatus\": \"P\",\n  \"observaciones\": \"Ninguna\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/v1/appointments/{{appointmentId}}/",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/appointments/{{appointmentId}}/",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"motivo\": \"Revisión\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /api/v1/appointments/{{appointmentId}}/complete/",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/appointments/{{appointmentId}}/complete/",
+            "description": ""
+          }
+        },
+        {
+          "name": "POST /api/v1/appointments/{{appointmentId}}/cancel/",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/appointments/{{appointmentId}}/cancel/",
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "Imágenes, diagnóstico y exportación API",
+      "item": [
+        {
+          "name": "GET /api/v1/clinical-images/{{imageId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/clinical-images/{{imageId}}/",
+            "description": ""
+          }
+        },
+        {
+          "name": "DELETE /api/v1/clinical-images/{{imageId}}/",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/clinical-images/{{imageId}}/",
+            "description": ""
+          }
+        },
+        {
+          "name": "GET /api/v1/clinical-images/{{imageId}}/file/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/clinical-images/{{imageId}}/file/",
+            "description": ""
+          }
+        },
+        {
+          "name": "GET /api/v1/clinical-images/{{imageId}}/result-file/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/clinical-images/{{imageId}}/result-file/",
+            "description": ""
+          }
+        },
+        {
+          "name": "POST /api/v1/clinical-images/{{imageId}}/analyze/",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/clinical-images/{{imageId}}/analyze/",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"force\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/clinical-images/{{imageId}}/analysis-runs/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/clinical-images/{{imageId}}/analysis-runs/",
+            "description": ""
+          }
+        },
+        {
+          "name": "GET /api/v1/clinical-images/{{imageId}}/analysis-runs/{{runId}}/file/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/clinical-images/{{imageId}}/analysis-runs/{{runId}}/file/",
+            "description": ""
+          }
+        },
+        {
+          "name": "GET /api/v1/diagnostics/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/diagnostics/",
+            "description": ""
+          }
+        },
+        {
+          "name": "GET /api/v1/exports/patients.xlsx",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/exports/patients.xlsx",
+            "description": ""
+          }
+        },
+        {
+          "name": "GET /api/v1/exports/consultations.xlsx",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/exports/consultations.xlsx",
+            "description": ""
+          }
+        },
+        {
+          "name": "GET /api/v1/exports/clinical-images.xlsx",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/exports/clinical-images.xlsx",
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "Clínicas API",
+      "item": [
+        {
+          "name": "GET /api/v1/clinics/memberships/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/clinics/memberships/",
+            "description": ""
+          }
+        },
+        {
+          "name": "GET /api/v1/clinics/context/",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/context/",
+            "description": ""
+          }
+        },
+        {
+          "name": "PATCH /api/v1/clinics/memberships/{{membershipId}}/",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/memberships/{{membershipId}}/",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"DOCTOR\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/clinics/patients/",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/",
+            "description": ""
+          }
+        },
+        {
+          "name": "POST /api/v1/clinics/patients/",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Ana\",\n  \"appat\": \"Lopez\",\n  \"apmat\": \"Diaz\",\n  \"fecha_nacimiento\": \"1990-01-01\",\n  \"genero\": \"F\",\n  \"telefono\": \"1111111111\",\n  \"email\": \"ana@example.com\",\n  \"estatus\": \"A\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /api/v1/clinics/patients/{{patientId}}/",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/",
+            "description": ""
+          }
+        },
+        {
+          "name": "PUT /api/v1/clinics/patients/{{patientId}}/",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Ana\",\n  \"appat\": \"Lopez\",\n  \"apmat\": \"Diaz\",\n  \"fecha_nacimiento\": \"1990-01-01\",\n  \"genero\": \"F\",\n  \"telefono\": \"1111111111\",\n  \"email\": \"ana@example.com\",\n  \"estatus\": \"A\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/v1/clinics/patients/{{patientId}}/",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Ana María\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /api/v1/clinics/invitations/",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/invitations/",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"invitado@example.com\",\n  \"role\": \"DOCTOR\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /api/v1/clinics/invitations/preview/",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/clinics/invitations/preview/",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{invitationToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /api/v1/clinics/invitations/resolve/",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/clinics/invitations/resolve/",
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{invitationToken}}\",\n  \"action\": \"accept\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /api/v1/clinics/invitations/register/preview/",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/clinics/invitations/register/preview/",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{invitationToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /api/v1/clinics/invitations/register/",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/clinics/invitations/register/",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{invitationToken}}\",\n  \"username\": \"nuevo_usuario\",\n  \"password\": \"Unique$Password987\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /api/v1/clinics/invitations/{{invitationId}}/revoke/",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/invitations/{{invitationId}}/revoke/",
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "Backoffice API",
+      "item": [
+        {
+          "name": "GET /api/v1/backoffice/dashboard/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/dashboard/",
+            "description": "Requiere permisos de backoffice."
+          }
+        },
+        {
+          "name": "GET /api/v1/backoffice/users/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/users/",
+            "description": "Requiere permisos de backoffice."
+          }
+        },
+        {
+          "name": "GET /api/v1/backoffice/users/{{userId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/users/{{userId}}/",
+            "description": "Requiere permisos de backoffice."
+          }
+        },
+        {
+          "name": "GET /api/v1/backoffice/audit/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/audit/",
+            "description": "Requiere permisos de backoffice."
+          }
+        },
+        {
+          "name": "GET /api/v1/backoffice/audit/{{auditId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/audit/{{auditId}}/",
+            "description": "Requiere permisos de backoffice."
+          }
+        },
+        {
+          "name": "GET /api/v1/backoffice/ai-runs/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/ai-runs/",
+            "description": "Requiere permisos de backoffice."
+          }
+        },
+        {
+          "name": "GET /api/v1/backoffice/ai-runs/{{runId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/ai-runs/{{runId}}/",
+            "description": "Requiere permisos de backoffice."
+          }
+        },
+        {
+          "name": "GET /api/v1/backoffice/system/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/system/",
+            "description": "Requiere permisos de backoffice."
+          }
+        },
+        {
+          "name": "GET /api/v1/backoffice/patients/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/patients/",
+            "description": "Las rutas clínicas globales están deshabilitadas por la política actual."
+          }
+        },
+        {
+          "name": "GET /api/v1/backoffice/patients/{{patientId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/patients/{{patientId}}/",
+            "description": "Las rutas clínicas globales están deshabilitadas por la política actual."
+          }
+        },
+        {
+          "name": "GET /api/v1/backoffice/patients/{{patientId}}/{{section}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/patients/{{patientId}}/{{section}}/",
+            "description": "Las rutas clínicas globales están deshabilitadas por la política actual."
+          }
+        },
+        {
+          "name": "GET /api/v1/backoffice/appointments/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/appointments/",
+            "description": "Las rutas clínicas globales están deshabilitadas por la política actual."
+          }
+        },
+        {
+          "name": "GET /api/v1/backoffice/appointments/{{appointmentId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/appointments/{{appointmentId}}/",
+            "description": "Las rutas clínicas globales están deshabilitadas por la política actual."
+          }
+        },
+        {
+          "name": "POST /api/v1/backoffice/users/{{userId}}/activate/",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/users/{{userId}}/activate/",
+            "description": "Requiere permisos de backoffice."
+          }
+        },
+        {
+          "name": "POST /api/v1/backoffice/users/{{userId}}/deactivate/",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/users/{{userId}}/deactivate/",
+            "description": "Requiere permisos de backoffice."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Web Django - Sesión y páginas",
+      "item": [
+        {
+          "name": "GET /sesiones/login/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/sesiones/login/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /home/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/home/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /home/aviso-privacidad/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/home/aviso-privacidad/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /admin/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/admin/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Web Django - Citas",
+      "item": [
+        {
+          "name": "GET /menu_citas/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/menu_citas/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /menu_citas/nueva_cita/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/menu_citas/nueva_cita/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /menu_citas/registrar_cita/{{patientId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/menu_citas/registrar_cita/{{patientId}}/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /menu_citas/buscar_cita/?buscador=Ana",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/menu_citas/buscar_cita/?buscador=Ana",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /menu_citas/editar_cita/{{appointmentId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/menu_citas/editar_cita/{{appointmentId}}/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /menu_citas/citas_pendientes/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/menu_citas/citas_pendientes/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /menu_citas/citas_completadas/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/menu_citas/citas_completadas/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /menu_citas/citas_canceladas/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/menu_citas/citas_canceladas/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /menu_citas/detalle_cita/{{appointmentId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/menu_citas/detalle_cita/{{appointmentId}}/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Web Django - Pacientes",
+      "item": [
+        {
+          "name": "GET /registroPacientes/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/registrar_pacientes/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/registrar_pacientes/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/todosPacientes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/todosPacientes",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/buscar_pacientes/?q=Ana",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/buscar_pacientes/?q=Ana",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/ver_paciente/{{patientId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/ver_paciente/{{patientId}}/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/editar_paciente/{{patientId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/editar_paciente/{{patientId}}/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/menu_historial/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/menu_historial/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/buscar_pacientes_ajax/?term=Ana",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/buscar_pacientes_ajax/?term=Ana",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/antecedentes/{{patientId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/antecedentes/{{patientId}}/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/consultas/{{patientId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/consultas/{{patientId}}/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/receta/{{consultationId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/receta/{{consultationId}}/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/historial_consultas/{{patientId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/historial_consultas/{{patientId}}/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/imagenes_clinicas/{{patientId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/imagenes_clinicas/{{patientId}}/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/cargar_imagen/{{patientId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/cargar_imagen/{{patientId}}/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/buscar_imagen/{{patientId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/buscar_imagen/{{patientId}}/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/historial_imagenes/{{patientId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/historial_imagenes/{{patientId}}/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/exportar_datos/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/exportar_datos/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/exportar_pacientes/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/exportar_pacientes/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/exportar_consultas/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/exportar_consultas/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/exportar_imagenes/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/exportar_imagenes/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/contactar_pacientes/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/contactar_pacientes/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/contacto/{{patientId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/contacto/{{patientId}}/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/enviar_mensaje/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/enviar_mensaje/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/odontograma/{{patientId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/odontograma/{{patientId}}/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/progreso/{{patientId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/progreso/{{patientId}}/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/estudio/{{patientId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/estudio/{{patientId}}/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/estudio/{{patientId}}/visualizar/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/estudio/{{patientId}}/visualizar/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/estudio/{{patientId}}/descargar-pdf/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/estudio/{{patientId}}/descargar-pdf/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/consentimiento/{{patientId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/consentimiento/{{patientId}}/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /registroPacientes/archivos/{{fileKind}}/{{resourceId}}/{{fileField}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/registroPacientes/archivos/{{fileKind}}/{{resourceId}}/{{fileField}}/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Web Django - Diagnósticos",
+      "item": [
+        {
+          "name": "GET /diagnosticos/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/diagnosticos/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /diagnosticos/resultados/{{imageId}}/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/diagnosticos/resultados/{{imageId}}/",
+            "description": "Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Web Django - Formularios",
+      "item": [
+        {
+          "name": "POST /sesiones/login/",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRFToken",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/sesiones/login/",
+            "description": "Requiere cookie de sesión y CSRF; login solo necesita CSRF.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "username",
+                  "value": "{{username}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "{{password}}",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /sesiones/logout/",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRFToken",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/sesiones/logout/",
+            "description": "Requiere cookie de sesión y CSRF; login solo necesita CSRF.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": []
+            }
+          }
+        },
+        {
+          "name": "POST /menu_citas/registrar_cita/{{patientId}}/",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRFToken",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/menu_citas/registrar_cita/{{patientId}}/",
+            "description": "Requiere cookie de sesión y CSRF; login solo necesita CSRF.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "fecha",
+                  "value": "{{appointmentDate}}",
+                  "type": "text"
+                },
+                {
+                  "key": "hora",
+                  "value": "10:00",
+                  "type": "text"
+                },
+                {
+                  "key": "motivo",
+                  "value": "Control",
+                  "type": "text"
+                },
+                {
+                  "key": "estatus",
+                  "value": "P",
+                  "type": "text"
+                },
+                {
+                  "key": "observaciones",
+                  "value": "Ninguna",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /menu_citas/editar_cita/{{appointmentId}}/",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRFToken",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/menu_citas/editar_cita/{{appointmentId}}/",
+            "description": "Requiere cookie de sesión y CSRF; login solo necesita CSRF.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "fecha",
+                  "value": "{{appointmentDate}}",
+                  "type": "text"
+                },
+                {
+                  "key": "hora",
+                  "value": "10:00",
+                  "type": "text"
+                },
+                {
+                  "key": "motivo",
+                  "value": "Control",
+                  "type": "text"
+                },
+                {
+                  "key": "estatus",
+                  "value": "P",
+                  "type": "text"
+                },
+                {
+                  "key": "observaciones",
+                  "value": "Ninguna",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /menu_citas/confirmar_asistencia/{{appointmentId}}/",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRFToken",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/menu_citas/confirmar_asistencia/{{appointmentId}}/",
+            "description": "Requiere cookie de sesión y CSRF; login solo necesita CSRF.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": []
+            }
+          }
+        },
+        {
+          "name": "POST /menu_citas/cancelar_cita/{{appointmentId}}/",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRFToken",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/menu_citas/cancelar_cita/{{appointmentId}}/",
+            "description": "Requiere cookie de sesión y CSRF; login solo necesita CSRF.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": []
+            }
+          }
+        },
+        {
+          "name": "POST /registroPacientes/registrar_pacientes/",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRFToken",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/registroPacientes/registrar_pacientes/",
+            "description": "Requiere cookie de sesión y CSRF; login solo necesita CSRF.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "nombre",
+                  "value": "Ana",
+                  "type": "text"
+                },
+                {
+                  "key": "appat",
+                  "value": "Lopez",
+                  "type": "text"
+                },
+                {
+                  "key": "apmat",
+                  "value": "Diaz",
+                  "type": "text"
+                },
+                {
+                  "key": "fecha_nacimiento",
+                  "value": "1990-01-01",
+                  "type": "text"
+                },
+                {
+                  "key": "genero",
+                  "value": "F",
+                  "type": "text"
+                },
+                {
+                  "key": "telefono",
+                  "value": "1111111111",
+                  "type": "text"
+                },
+                {
+                  "key": "email",
+                  "value": "ana@example.com",
+                  "type": "text"
+                },
+                {
+                  "key": "estatus",
+                  "value": "A",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /registroPacientes/editar_paciente/{{patientId}}/",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRFToken",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/registroPacientes/editar_paciente/{{patientId}}/",
+            "description": "Requiere cookie de sesión y CSRF; login solo necesita CSRF.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "nombre",
+                  "value": "Ana María",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /registroPacientes/eliminar_paciente/{{patientId}}/",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRFToken",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/registroPacientes/eliminar_paciente/{{patientId}}/",
+            "description": "Requiere cookie de sesión y CSRF; login solo necesita CSRF.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": []
+            }
+          }
+        },
+        {
+          "name": "POST /registroPacientes/antecedentes/{{patientId}}/",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRFToken",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/registroPacientes/antecedentes/{{patientId}}/",
+            "description": "Requiere cookie de sesión y CSRF; login solo necesita CSRF.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "problemas_cardiacos",
+                  "value": "True",
+                  "type": "text"
+                },
+                {
+                  "key": "alergias_txt",
+                  "value": "Penicilina",
+                  "type": "text"
+                },
+                {
+                  "key": "version",
+                  "value": "0",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /registroPacientes/consultas/{{patientId}}/",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRFToken",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/registroPacientes/consultas/{{patientId}}/",
+            "description": "Requiere cookie de sesión y CSRF; login solo necesita CSRF.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "motivo_consulta",
+                  "value": "Control",
+                  "type": "text"
+                },
+                {
+                  "key": "diagnostico",
+                  "value": "Caries",
+                  "type": "text"
+                },
+                {
+                  "key": "tratamiento",
+                  "value": "Limpieza",
+                  "type": "text"
+                },
+                {
+                  "key": "observaciones",
+                  "value": "Ninguna",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /registroPacientes/eliminar_imagen/{{imageId}}/",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRFToken",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/registroPacientes/eliminar_imagen/{{imageId}}/",
+            "description": "Requiere cookie de sesión y CSRF; login solo necesita CSRF.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": []
+            }
+          }
+        },
+        {
+          "name": "POST /registroPacientes/enviar_mensaje/",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRFToken",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/registroPacientes/enviar_mensaje/",
+            "description": "Requiere cookie de sesión y CSRF; login solo necesita CSRF.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "paciente_id",
+                  "value": "{{patientId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "asunto",
+                  "value": "Recordatorio",
+                  "type": "text"
+                },
+                {
+                  "key": "mensaje",
+                  "value": "Hola, le recordamos su cita.",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /diagnosticos/resultados/{{imageId}}/",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRFToken",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/diagnosticos/resultados/{{imageId}}/",
+            "description": "Requiere cookie de sesión y CSRF; login solo necesita CSRF.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "force",
+                  "value": "false",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /registroPacientes/odontograma/guardar/{{patientId}}/",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRFToken",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/registroPacientes/odontograma/guardar/{{patientId}}/",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"denticion_permanente\": {\n    \"11\": {\n      \"oclusal\": \"caries\"\n    }\n  },\n  \"denticion_decidua\": {},\n  \"resumen\": {\n    \"total_dientes\": 52\n  },\n  \"version\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /registroPacientes/cargar_imagen/{{patientId}}/",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRFToken",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/registroPacientes/cargar_imagen/{{patientId}}/",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "consulta_id",
+                  "value": "{{consultationId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "tipo",
+                  "value": "Radiografía",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Imagen clínica",
+                  "type": "text"
+                },
+                {
+                  "key": "archivo",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /registroPacientes/estudio/{{patientId}}/",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRFToken",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/registroPacientes/estudio/{{patientId}}/",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "fecha_inicio",
+                  "value": "2026-01-01",
+                  "type": "text"
+                },
+                {
+                  "key": "diagnostico",
+                  "value": "Caso",
+                  "type": "text"
+                },
+                {
+                  "key": "observaciones",
+                  "value": "Notas",
+                  "type": "text"
+                },
+                {
+                  "key": "antes_oclusal_superior",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "antes_lateral_izquierda",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "antes_frontal",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "antes_lateral_derecha",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "antes_oclusal_inferior",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /registroPacientes/consentimiento/{{patientId}}/",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-CSRFToken",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/registroPacientes/consentimiento/{{patientId}}/",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "texto",
+                  "value": "Acepto",
+                  "type": "text"
+                },
+                {
+                  "key": "archivo_ine",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -5,6 +5,7 @@ from django.contrib.auth.models import Permission
 from django.utils import timezone
 from DiagnosticosIA.models import AIAnalysisRun
 from Pacientes.models import Paciente, Consulta
+from Usuarios.models import Clinic, ClinicMembership, PlatformAdmin
 import uuid
 from django.core.management.base import BaseCommand, CommandError
 
@@ -25,4 +26,18 @@ class Command(BaseCommand):
         doctor = get_user_model().objects.get(username='e2e_other_doctor')
         patient, _ = Paciente.objects.get_or_create(medico=doctor, email='backoffice-synthetic@example.test', defaults={'nombre': 'PacienteSintetico', 'appat': 'Prueba', 'apmat': 'Demo', 'fecha_nacimiento': '1990-01-01', 'genero': 'F', 'telefono': '5550001122'})
         Consulta.objects.get_or_create(paciente=patient, medico=doctor, motivo_consulta='Consulta sintética', defaults={'fecha_consulta': timezone.now()})
+        tenant_doctor, _ = get_user_model().objects.get_or_create(username='e2e_tenant_doctor')
+        tenant_admin, _ = get_user_model().objects.get_or_create(username='e2e_tenant_admin')
+        for account in (tenant_doctor, tenant_admin):
+            account.set_password('e2e_password_123')
+            account.save()
+        platform, _ = get_user_model().objects.get_or_create(username='e2e_platform_admin')
+        platform.set_password('e2e_password_123')
+        platform.save()
+        PlatformAdmin.objects.update_or_create(user=platform, defaults={'is_active': True})
+        for index, label in enumerate(('A', 'B'), 1):
+            clinic, _ = Clinic.objects.get_or_create(slug=f'e2e-tenant-{label.lower()}', defaults={'name': f'Clínica E2E {label}', 'status': 'ACTIVE'})
+            ClinicMembership.objects.get_or_create(clinic=clinic, user=tenant_doctor, defaults={'role': 'DOCTOR', 'status': 'ACTIVE'})
+            ClinicMembership.objects.get_or_create(clinic=clinic, user=tenant_admin, defaults={'role': 'CLINIC_ADMIN', 'status': 'ACTIVE'})
+            Paciente.objects.get_or_create(clinic=clinic, medico=tenant_doctor, email=f'tenant-{label.lower()}@example.test', defaults={'nombre': f'SINTETICO{label}', 'appat': 'CLINICA', 'apmat': 'PRUEBA', 'fecha_nacimiento': '1990-01-01', 'genero': 'F', 'telefono': f'555000000{index}'})
         self.stdout.write(self.style.SUCCESS('E2E accounts ready'))

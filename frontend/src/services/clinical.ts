@@ -1,9 +1,20 @@
-import { api } from "../api/client";
+import { api, getClinicContext } from "../api/client";
 import type { ComparativeStudy, Consent, Consultation, MedicalHistory, OdontogramData, Paginated } from "../types/domain";
 
 export const clinicalService = {
   medicalHistory: (patientId: string) => api<MedicalHistory>(`patients/${patientId}/medical-history/`),
-  saveMedicalHistory: (patientId: string, history: MedicalHistory) => api<MedicalHistory>(`patients/${patientId}/medical-history/`, { method: "PUT", body: JSON.stringify(history) }),
+  saveMedicalHistory: (patientId: string, history: MedicalHistory) => {
+    const data = { ...history };
+    if (getClinicContext()) {
+      delete data.paciente;
+      delete data.paciente_id;
+      delete data.medico;
+      delete data.medico_id;
+      delete data.clinic;
+      delete data.clinic_id;
+    }
+    return api<MedicalHistory>(`patients/${patientId}/medical-history/`, { method: "PUT", body: JSON.stringify(data) });
+  },
   consultations: (patientId: string, page = 1) => api<Paginated<Consultation>>(`patients/${patientId}/consultations/?page=${page}`),
   createConsultation: (patientId: string, values: { motivo_consulta: string; diagnostico: string; tratamiento: string; observaciones: string }) => api<Consultation>(`patients/${patientId}/consultations/`, { method: "POST", body: JSON.stringify(values) }),
   odontogram: (patientId: string) => api<OdontogramData>(`patients/${patientId}/odontogram/`),

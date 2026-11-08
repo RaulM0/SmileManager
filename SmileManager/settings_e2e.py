@@ -19,6 +19,7 @@ DATABASES = {
 }
 MEDIA_ROOT = _e2e_root / 'media'
 EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+TENANT_INVITATION_URL = 'https://example.test/app/invitations/accept'
 PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
 # Browser parity exercises many independent screens in one isolated process.
 # Rate limiting itself is tested separately with explicit low limits.

@@ -19,7 +19,9 @@ export default async function globalSetup() {
   let server;
   const cleanup = async () => {
     if (server) await stopE2EServer(server);
-    rmSync(directory, { recursive: true, force: true });
+    // Windows may briefly retain the SQLite file after the server exits.
+    // The directory is the fresh mkdtemp result under the project root.
+    rmSync(directory, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
   };
   try {
   execFileSync(python, [manage, "migrate", "--noinput"], {

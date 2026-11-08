@@ -5,7 +5,7 @@ import { afterEach, expect, it, vi } from "vitest";
 import { apiBlob } from "../api/client";
 import { useProtectedMedia } from "./useProtectedMedia";
 
-vi.mock("../api/client", () => ({ apiBlob: vi.fn() }));
+vi.mock("../api/client", () => ({ apiBlob: vi.fn(), getClinicContext: () => null }));
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
 it("shares an in-flight protected file request in StrictMode and revokes object URLs", async () => {

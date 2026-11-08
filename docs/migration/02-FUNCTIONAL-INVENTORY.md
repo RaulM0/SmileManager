@@ -1,5 +1,7 @@
 # Inventario funcional
 
+> Inventario histórico previo al retiro de las interfaces HTML y Django Admin. Consultar [estado actual](../production/legacy-routes.md).
+
 Los permisos indicados como **médico propietario** significan usuario autenticado y objeto enlazado a ese usuario. Salvo indicación, los errores son 404 por objeto ajeno/inexistente y validación con mensaje. Estado inicial de todo el inventario: `ANALYZED`.
 
 ## Sesión y navegación
@@ -241,6 +243,6 @@ Los permisos indicados como **médico propietario** significan usuario autentica
 
 ### FUNC-042 — Recordatorios de citas por email
 
-- Comando: `python manage.py enviar_recordatorios`; template `emails/recordatorio_cita.html`; SMTP.
+- Comando actual: `python manage.py enviar_recordatorios --clinic-id UUID` simula; añadir `--send` para enviar mediante SMTP. Solo incluye pacientes de esa clínica con médico de membresía activa. La selección actual usa las fechas locales de hoy y de dentro de 24 horas, no una ventana exacta por hora.
 - Regla pretendida: pendientes próximas 24 h con email; mensaje texto+HTML. PRE_EXISTING_BUG: filtra `DateField fecha` con datetimes e ignora `hora`; no hay scheduler en repo.
 - Migración: `Citas.services.send_appointment_reminders` + comando conservado; sin pantalla. Estado: VERIFIED; selección/envío probados preservando BUG-004.

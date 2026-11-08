@@ -6,6 +6,8 @@ import { useToast } from "../context/ToastContext";
 import { getErrorMessage } from "../api/client";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { discardDraftsFor, hasUnsavedChanges } from "../hooks/useUnsavedChanges";
+import type { ClinicOption } from "./ClinicWorkspace";
+import ClinicAdministrationPage from "../pages/ClinicAdministrationPage";
 
 const navigation: Array<{ label: string; items: Array<[string, string, string, boolean]> }> = [
   {
@@ -28,7 +30,7 @@ const navigation: Array<{ label: string; items: Array<[string, string, string, b
   },
 ];
 
-export default function AppLayout() {
+export default function AppLayout({ clinics = [], activeClinic = null, onClinicChange, clinicBusy = false }: { clinics?: ClinicOption[]; activeClinic?: ClinicOption | null; onClinicChange?: (id: string) => void; clinicBusy?: boolean }) {
   const { user, logout } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
@@ -85,7 +87,8 @@ export default function AppLayout() {
   }
 
   function renderNavigation() {
-    return [...navigation, ...(user?.can_access_backoffice ? [{ label: "SISTEMA", items: [["Administración", "/backoffice", "bi-shield-lock", false] as [string, string, string, boolean]] }] : [])].map((group) => (
+    const groups = activeClinic && activeClinic.role !== "DOCTOR" ? [{ label: "CLÍNICA", items: [["Inicio", "/", "bi-grid-1x2", true] as [string, string, string, boolean]] }] : navigation;
+    return [...groups, ...(user?.can_access_backoffice ? [{ label: "SISTEMA", items: [["Administración", "/backoffice", "bi-shield-lock", false] as [string, string, string, boolean]] }] : [])].map((group) => (
       <div className="workspace-nav-group" key={group.label}>
         <div className="workspace-nav-label">{group.label}</div>
         {group.items.map(([label, to, icon, end]) => (
@@ -132,7 +135,7 @@ export default function AppLayout() {
           </span>
           <span>SmileManager</span>
         </NavLink>
-        <div className="workspace-context">Operación clínica</div>
+        <div className="workspace-context">{activeClinic ? <label>Clínica actual <select aria-label="Clínica actual" value={activeClinic.id} disabled={clinicBusy} onChange={(event) => onClinicChange?.(event.target.value)}>{clinics.map((clinic) => <option key={clinic.id} value={clinic.id}>{clinic.name}</option>)}</select></label> : "Operación clínica"}</div>
         <div className="workspace-user">
           <span className="workspace-user-avatar" aria-hidden="true">
             {(user?.username || "U").slice(0, 1).toUpperCase()}
@@ -173,8 +176,8 @@ export default function AppLayout() {
           </div>
         </aside>
         <main id="main-content" className="workspace-main co-min-w-0" tabIndex={-1}>
-          {patientMatch && <PatientWorkspaceNav patientId={patientMatch[1]} />}
-          <Outlet key={location.pathname} />
+          {patientMatch && (!activeClinic || activeClinic.role === "DOCTOR") && <PatientWorkspaceNav patientId={patientMatch[1]} />}
+          {activeClinic?.role === "CLINIC_ADMIN" ? <ClinicAdministrationPage key={activeClinic.id} /> : activeClinic?.role === "STAFF" ? <div className="workspace-page"><h1>Clínica {activeClinic.name}</h1><p>Tu cuenta tiene acceso administrativo limitado. Consulta con la administración de tu clínica para conocer tus funciones.</p></div> : <Outlet key={`${activeClinic?.id ?? "legacy"}:${location.pathname}`} />}
           <footer className="workspace-footer">
             <span>SmileManager</span>
             <NavLink to="/privacy">Aviso de Privacidad</NavLink>

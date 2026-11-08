@@ -37,7 +37,7 @@ Router también proporciona API root y `HEAD`/`OPTIONS` según DRF. No hay esque
 
 ## Rutas HTML y administración
 
-`SmileManager/urls.py` publica, además de API: `/admin/` (autenticación/permisos Django admin), `/home/`, `/registroPacientes/`, `/menu_citas/`, `/diagnosticos/`, `/sesiones/login/`, `/sesiones/logout/`, `/app...`; middleware exige sesión salvo prefijos exentos. `DEBUG` añade `/media/...` con sesión pero sin autorización por archivo. URL completas y nombres concretos están en `Pacientes/urls.py`, `Citas/urls.py`, `DiagnosticosIA/urls.py` y `Home/urls.py`.
+Las interfaces HTML y Django Admin fueron retiradas. Las familias de la tabla siguiente son un inventario histórico y no representan rutas activas. La aplicación publica React bajo `/app/`, DRF bajo `/api/v1/` y salud bajo `/health/`; la raíz redirige a React. Ver [retiro de interfaces](production/legacy-routes.md).
 
 | Familia HTML | Rutas/operaciones importantes | Alcance y riesgo |
 |---|---|---|

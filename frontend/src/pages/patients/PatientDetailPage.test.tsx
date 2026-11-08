@@ -6,7 +6,7 @@ import PatientDetailPage from "./PatientDetailPage";
 import { ToastProvider } from "../../context/ToastContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-vi.mock("../../api/client", () => ({ api: vi.fn() }));
+vi.mock("../../api/client", () => ({ api: vi.fn(), getClinicContext: () => null }));
 
 function SwitchPatient() {
   const navigate = useNavigate();

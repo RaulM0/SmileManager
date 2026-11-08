@@ -1,5 +1,7 @@
 # Arquitectura de datos y autenticación JWT
 
+> Documento histórico: las rutas `/sesiones/` y las interfaces HTML Django fueron retiradas. Consultar [estado actual](../production/legacy-routes.md).
+
 ## Contrato vigente antes de esta fase
 
 - React consultaba `api/v1/auth/session/` para CSRF y enviaba `X-CSRFToken` con cookie de sesión.

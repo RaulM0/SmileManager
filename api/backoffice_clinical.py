@@ -1,9 +1,11 @@
 """Audited, read-only global views for explicitly authorized system administrators."""
+import uuid
 from django.db.models import Exists, F, OuterRef, Q
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from rest_framework import serializers
+from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
 
 from Citas.models import Cita
@@ -12,6 +14,21 @@ from Pacientes.models import (Paciente, AntescedentesMedicos, Consulta, Odontogr
                               ImagenesClinicas, EstudioComparativo, Consentimiento, ClinicalRevision)
 from Usuarios.models import AuditEvent
 from .backoffice import AdminAPIView, Pagination
+
+
+class NoGlobalClinicalAccess(BasePermission):
+    """There is no approved tenant-scoped exceptional-access workflow yet."""
+    message = 'La consulta clínica global está deshabilitada.'
+
+    def has_permission(self, request, view):
+        AuditEvent.objects.create(actor=request.user, action='BACKOFFICE_CLINICAL_ACCESS_DENIED',
+                                  resource_type='clinical_access', outcome='failure',
+                                  request_id=getattr(request._request, 'request_id', uuid.uuid4()))
+        return False
+
+
+class ClinicalAdminAPIView(AdminAPIView):
+    permission_classes = [*AdminAPIView.permission_classes, NoGlobalClinicalAccess]
 
 
 def audit_read(request, action, resource_type, resource_id=''):
@@ -29,7 +46,7 @@ def patient_rows():
         'id', 'nombre', 'appat', 'apmat', 'estatus', 'medico_id', 'medico__username', 'created')
 
 
-class PatientList(AdminAPIView):
+class PatientList(ClinicalAdminAPIView):
     def get(self, request):
         qs = patient_rows().order_by('nombre', 'appat', 'pk')
         search = request.query_params.get('search', '').strip()[:150]
@@ -55,7 +72,7 @@ def patient_data(patient):
             'medico_id': patient.medico_id, 'medico': patient.medico.username if patient.medico_id else None}
 
 
-class PatientDetail(AdminAPIView):
+class PatientDetail(ClinicalAdminAPIView):
     def get(self, request, pk):
         patient = get_object_or_404(patient_rows(), pk=pk)
         data = patient_data(patient)
@@ -66,7 +83,7 @@ class PatientDetail(AdminAPIView):
         return Response(data)
 
 
-class AppointmentList(AdminAPIView):
+class AppointmentList(ClinicalAdminAPIView):
     def get(self, request):
         qs = appointment_rows().order_by('-fecha', '-hora', '-pk')
         for param, field in (('patient', 'paciente_id'), ('doctor', 'paciente__medico_id')):
@@ -94,7 +111,7 @@ def appointment_rows():
         'paciente__appat', 'paciente__medico_id', 'paciente__medico__username')
 
 
-class AppointmentDetail(AdminAPIView):
+class AppointmentDetail(ClinicalAdminAPIView):
     def get(self, request, pk):
         item = get_object_or_404(appointment_rows(), pk=pk)
         audit_read(request, 'BACKOFFICE_APPOINTMENT_VIEW', 'appointment', pk)
@@ -114,7 +131,7 @@ SECTIONS = {
 }
 
 
-class PatientSection(AdminAPIView):
+class PatientSection(ClinicalAdminAPIView):
     def get(self, request, pk, section):
         get_object_or_404(Paciente.objects.only('pk'), pk=pk)
         if section in SECTIONS:

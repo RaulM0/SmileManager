@@ -21,7 +21,6 @@ if not _local_settings:
 
 # Applications
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -31,11 +30,9 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'storages',
     'api',
-    'Home',
     'Pacientes',
     'Citas',
     'DiagnosticosIA',
-    'Sesiones',
     'Usuarios.apps.UsuariosConfig',
 ]
 
@@ -48,7 +45,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'Sesiones.middleware.LoginRequiredMiddleware',
     'api.observability.RequestLogMiddleware',
     'api.audit.AuditMiddleware',
 ]
@@ -159,15 +155,15 @@ EMAIL_PORT = 587
 EMAIL_TIMEOUT = int(os.environ.get('SMTP_TIMEOUT', '30'))
 EMAIL_HOST_USER = os.environ.get('EMAIL_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASS', '')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'webmaster@localhost')
+TENANT_INVITATION_URL = os.environ.get('TENANT_INVITATION_URL', '')
 
 # Session
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 1800
 
 # Login
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'home'
-LOGOUT_REDIRECT_URL = 'login'
+LOGIN_URL = '/app/login'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [

@@ -1,8 +1,10 @@
 import { lazy, Suspense } from "react";
 import { createBrowserRouter, createRoutesFromElements, Navigate, Route, RouterProvider } from "react-router-dom";
-import AppLayout from "./layouts/AppLayout";
+import ClinicWorkspace from "./layouts/ClinicWorkspace";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
+import InvitationPage from "./pages/InvitationPage";
+import InvitationRegisterPage from "./pages/InvitationRegisterPage";
 import DashboardPage from "./pages/DashboardPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import PatientsHubPage from "./pages/patients/PatientsHubPage";
@@ -31,6 +33,7 @@ import PatientContactPage from "./pages/patients/PatientContactPage";
 import DiagnosticsPage from "./pages/diagnostics/DiagnosticsPage";
 import { BackofficeLayout, BackofficeDashboard, BackofficeUsers, BackofficeUser, BackofficeAudit, BackofficeRuns, BackofficeRun, BackofficeSystem } from "./pages/backoffice/Backoffice";
 import { BackofficePatients, BackofficePatient, BackofficePatientSection, BackofficeAppointments, BackofficeAppointment } from "./pages/backoffice/BackofficeClinical";
+import PlatformClinicsPage from "./pages/backoffice/PlatformClinicsPage";
 
 const DiagnosticResultPage = lazy(
   () => import("./pages/diagnostics/DiagnosticResultPage"),
@@ -48,7 +51,9 @@ function RouteLoading() {
 const router = createBrowserRouter(createRoutesFromElements(
     <>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/invitations/register" element={<InvitationRegisterPage />} />
       <Route element={<ProtectedRoute />}>
+        <Route path="invitations/accept" element={<InvitationPage />} />
         <Route path="backoffice" element={<BackofficeLayout />}>
           <Route index element={<BackofficeDashboard />} />
           <Route path="users" element={<BackofficeUsers />} />
@@ -62,8 +67,9 @@ const router = createBrowserRouter(createRoutesFromElements(
           <Route path="ai" element={<BackofficeRuns />} />
           <Route path="ai/:id" element={<BackofficeRun />} />
           <Route path="system" element={<BackofficeSystem />} />
+          <Route path="clinics" element={<PlatformClinicsPage />} />
         </Route>
-        <Route element={<AppLayout />}>
+        <Route element={<ClinicWorkspace />}>
           <Route index element={<DashboardPage />} />
           <Route path="privacy" element={<PrivacyPage />} />
           {DesignSystemLab && <Route path="design-system" element={<Suspense fallback={<RouteLoading />}><DesignSystemLab /></Suspense>} />}

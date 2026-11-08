@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase, override_settings
+from django.test import TestCase, TransactionTestCase, override_settings
 from django.urls import reverse
 from openpyxl import load_workbook
 from PIL import Image
@@ -115,14 +115,6 @@ class FoundationTests(TestCase):
         self.assertEqual(self.client.get(reverse('api-export-patients')).status_code, 200)
         self.assertTrue(AuditEvent.objects.filter(action='CLINICAL_EXPORT', actor=self.a).exists())
 
-    def test_image_download_is_audited(self):
-        image = ImagenesClinicas.objects.create(paciente=self.patient, medico=self.a, tipo_imagen='x', imagen=image_upload())
-        response = self.client.get(reverse('api-clinical-image-file', args=[image.pk]))
-        self.assertEqual(response.status_code, 200)
-        response.close()
-        event = AuditEvent.objects.get(action='CLINICAL_IMAGE_VIEW')
-        self.assertEqual((event.actor_id, event.resource_id), (self.a.pk, str(image.pk)))
-
     def test_upload_validation_rejects_invalid_before_save(self):
         validate_upload(image_upload())
         for upload in (SimpleUploadedFile('bad.png', b'not an image', content_type='image/png'), image_upload('wrong.jpg'), image_upload(mime='image/jpeg'), SimpleUploadedFile('empty.png', b'', content_type='image/png')):
@@ -159,9 +151,17 @@ class FoundationTests(TestCase):
             self.assertEqual(self.client.post(reverse('api-login'), data, format='json').status_code, 400)
             self.assertEqual(self.client.post(reverse('api-login'), data, format='json').status_code, 429)
 
-    def test_legacy_login_does_not_redirect_to_external_host(self):
-        self.client.force_authenticate(None)
-        for destination in ('https://evil.example', '//evil.example', '/%2f%2fevil.example'):
-            self.client.logout()
-            response = self.client.post(reverse('login') + '?next=' + destination, {'username': 'foundation-a', 'password': 'test-password'})
-            self.assertNotIn('evil.example', response.get('Location', ''))
+
+
+class StreamingAuditTests(TransactionTestCase):
+    def test_image_download_is_audited(self):
+        user = User.objects.create_user('streaming-audit')
+        patient = Paciente.objects.create(nombre='A', appat='A', apmat='A', fecha_nacimiento='1990-01-01', genero='F', telefono='1000000000', email='a@sample.test', medico=user)
+        image = ImagenesClinicas.objects.create(paciente=patient, medico=user, tipo_imagen='x', imagen=image_upload())
+        client = APIClient()
+        client.force_authenticate(user)
+        response = client.get(reverse('api-clinical-image-file', args=[image.pk]))
+        self.assertEqual(response.status_code, 200)
+        response.close()
+        event = AuditEvent.objects.get(action='CLINICAL_IMAGE_VIEW')
+        self.assertEqual((event.actor_id, event.resource_id), (user.pk, str(image.pk)))

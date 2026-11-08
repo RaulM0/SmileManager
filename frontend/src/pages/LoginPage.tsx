@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { getErrorMessage } from "../api/client";
@@ -51,6 +51,8 @@ export default function LoginPage() {
           <div className="login-form-inner">
             <h2>Bienvenido de nuevo</h2>
             <p>Ingrese sus credenciales para acceder al sistema</p>
+            {requestedLocation?.pathname === "/invitations/accept" && requestedLocation.hash &&
+              <p>¿Aún no tienes cuenta? <Link to={{ pathname: "/invitations/register", hash: requestedLocation.hash }}>Crear cuenta con la invitación</Link></p>}
             <form onSubmit={submit}>
               <div className="clinical-form-field">
                 <label className="clinical-form-label" htmlFor="username">Usuario</label>
