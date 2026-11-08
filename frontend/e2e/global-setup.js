@@ -1,7 +1,8 @@
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync, readdirSync, unlinkSync } from "node:fs";
 import { join, resolve } from "node:path";
 import process from "node:process";
+import { setTimeout as delay } from "node:timers/promises";
 import {
   startE2EServer,
   stopE2EServer,
@@ -14,6 +15,20 @@ const python = process.env.SMILE_E2E_PYTHON || resolve(
 );
 const manage = resolve(root, "manage.py");
 export default async function globalSetup() {
+  if (process.env.SMILE_E2E_EXTERNAL === '1') {
+    process.env.SMILE_E2E_MAIL_DIR = join(root, '.e2e-browser-mail');
+    for (const name of readdirSync(process.env.SMILE_E2E_MAIL_DIR)) {
+      if (name.endsWith('.log')) unlinkSync(join(process.env.SMILE_E2E_MAIL_DIR, name));
+    }
+    for (let attempt = 0; attempt < 90; attempt += 1) {
+      try {
+        const response = await fetch('http://127.0.0.1:8010/health/ready/', { signal: AbortSignal.timeout(2000) });
+        if (response.ok) return;
+      } catch { /* El operador acaba de arrancar Django y todavía está cargando. */ }
+      await delay(500);
+    }
+    throw new Error('El servicio E2E aislado no estuvo listo dentro del tiempo de espera.');
+  }
   const directory = mkdtempSync(join(root, '.e2e-run-'));
   process.env.SMILE_E2E_MAIL_DIR = join(directory, 'mail');
   const env = { ...process.env, DJANGO_SETTINGS_MODULE: 'SmileManager.settings_e2e', SMILE_E2E_DIR: directory };

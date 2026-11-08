@@ -31,6 +31,8 @@ function clinicPath(path: string): string {
     return `clinics/${path.replace('/result-file/', '/result/file/')}`;
   if (/^patients\/\d+\/consent\/file\/(?:\?|$)/.test(path))
     return `clinics/${path.replace('/consent/file/', '/consent/identity/file/')}`;
+  if (/^patients\/\d+\/consent\/pdf\/(?:\?|$)/.test(path))
+    return `clinics/${path.replace('/consent/pdf/', '/consent/pdf/file/')}`;
   if (/^(dashboard|patients|appointments|consultations|clinical-images|diagnostics|exports)(?:\/|\?|$)/.test(path))
     return `clinics/${path}`;
   return path;

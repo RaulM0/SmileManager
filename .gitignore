@@ -12,6 +12,7 @@ node_modules/
 .e2e-media/
 .e2e-server.pid
 .e2e-run-*/
+.e2e-browser-mail/
 frontend/.e2e-closure-artifacts/
 frontend/.e2e-closure-output/
 .security-tools/

@@ -1,4 +1,5 @@
 from datetime import datetime
+from django.conf import settings
 from django.db import transaction
 
 from rest_framework.exceptions import PermissionDenied, ValidationError
@@ -39,6 +40,8 @@ def create_patient(*, medico, validated_data):
         raise PermissionDenied('La clínica y el médico se asignan desde el contexto autorizado.')
     clinic_id = data.get('clinic_id')
     if clinic_id is None:
+        if not settings.LEGACY_CLINICAL_API_ENABLED:
+            raise PermissionDenied('La creación de pacientes requiere una clínica autorizada.')
         from Usuarios.models import ClinicMembership
         if ClinicMembership.objects.filter(user_id=medico.pk).exists():
             raise PermissionDenied('Selecciona una clínica en una ruta compatible para crear pacientes.')

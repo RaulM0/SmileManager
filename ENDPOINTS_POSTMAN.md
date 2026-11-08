@@ -1,1475 +1,257 @@
-# Endpoints de SmileManager para Postman
-
-La colección importable es `SmileManager.postman_collection.json`. Se generó a partir de las rutas y vistas del proyecto. Las peticiones siguientes usan las mismas variables de colección.
-
-## Preparación
-
-1. Importa el JSON en Postman. En Variables, configura `baseUrl`, `username`, `password` y los ID existentes. La fecha de la cita debe ser futura y el teléfono y correo del paciente deben ser únicos para el médico.
-2. Ejecuta `POST /api/v1/auth/login/`. El script guarda automáticamente el access token en `accessToken`. Postman debe conservar la cookie `smile_refresh` para session, refresh y logout. En refresh también se actualiza `accessToken`.
-3. Para las rutas de clínicas configura `clinicId` con el UUID y usa una cuenta con la membresía y capacidad necesarias. Algunas acciones requieren rol de administrador de clínica o de backoffice. Las rutas clínicas globales del backoffice devuelven acceso denegado por diseño.
-4. Para las rutas web inicia sesión por `/sesiones/login/`: haz GET a esa página, copia la cookie `csrftoken` a `csrfToken`, y después ejecuta el POST de login. Mantén habilitado el almacenamiento de cookies de Postman. Las peticiones web modificadoras incluyen `X-CSRFToken`. La sesión web y el token API son independientes.
-5. En las peticiones de archivos, selecciona archivos reales en Body > form-data. Para historial médico y odontograma primero consulta el recurso y usa su `version` actual; para uno nuevo se usa 0.
-
-Los ID son ejemplos: deben existir y ser accesibles por el usuario. Las rutas web suelen devolver HTML o redirecciones; las exportaciones y archivos devuelven contenido binario. Envíos de correo, cambios de estado, análisis y eliminaciones producen efectos reales. Usa datos de prueba.
-
-Los métodos documentados son los métodos funcionales de cada vista; DRF también puede responder OPTIONS y HEAD en rutas compatibles. Django Admin genera rutas adicionales dinámicamente según los modelos registrados y permisos; `/admin/` permite acceder a ellas. `/app` acepta rutas hijas de la aplicación React.
-
-## Autenticación API
-
-### POST /api/v1/auth/login/
-
-```http
-POST {{baseUrl}}/api/v1/auth/login/
-Content-Type: application/json
-
-{
-  "username": "{{username}}",
-  "password": "{{password}}"
-}
-```
-
-### GET /api/v1/auth/session/
-
-```http
-GET {{baseUrl}}/api/v1/auth/session/
-```
-
-Usa la cookie smile_refresh obtenida al iniciar sesión.
-
-### POST /api/v1/auth/refresh/
-
-```http
-POST {{baseUrl}}/api/v1/auth/refresh/
-```
-
-Usa la cookie smile_refresh obtenida al iniciar sesión.
-
-### POST /api/v1/auth/logout/
-
-```http
-POST {{baseUrl}}/api/v1/auth/logout/
-```
-
-Usa la cookie smile_refresh obtenida al iniciar sesión.
-
-## Salud y aplicación
-
-### GET /health
-
-```http
-GET {{baseUrl}}/health
-```
-
-### GET /health/
-
-```http
-GET {{baseUrl}}/health/
-```
-
-### GET /health/ready
-
-```http
-GET {{baseUrl}}/health/ready
-```
-
-### GET /health/ready/
-
-```http
-GET {{baseUrl}}/health/ready/
-```
-
-### GET /
-
-```http
-GET {{baseUrl}}/
-```
-
-Redirección o página HTML. /app admite rutas hijas.
-
-### GET /app
-
-```http
-GET {{baseUrl}}/app
-```
-
-Redirección o página HTML. /app admite rutas hijas.
-
-### GET /app/
-
-```http
-GET {{baseUrl}}/app/
-```
-
-Redirección o página HTML. /app admite rutas hijas.
-
-## API general
-
-### GET /api/v1/
-
-```http
-GET {{baseUrl}}/api/v1/
-Authorization: Bearer {{accessToken}}
-```
-
-Raíz del enrutador REST.
-
-### GET /api/v1/dashboard/
-
-```http
-GET {{baseUrl}}/api/v1/dashboard/
-Authorization: Bearer {{accessToken}}
-```
-
-## Pacientes API
-
-### GET /api/v1/patients/
-
-```http
-GET {{baseUrl}}/api/v1/patients/
-Authorization: Bearer {{accessToken}}
-```
-
-### POST /api/v1/patients/
-
-```http
-POST {{baseUrl}}/api/v1/patients/
-Authorization: Bearer {{accessToken}}
-Content-Type: application/json
-
-{
-  "nombre": "Ana",
-  "appat": "Lopez",
-  "apmat": "Diaz",
-  "fecha_nacimiento": "1990-01-01",
-  "genero": "F",
-  "telefono": "1111111111",
-  "email": "ana@example.com",
-  "estatus": "A"
-}
-```
-
-### GET /api/v1/patients/autocomplete/?term=Ana
-
-```http
-GET {{baseUrl}}/api/v1/patients/autocomplete/?term=Ana
-Authorization: Bearer {{accessToken}}
-```
-
-### GET /api/v1/patients/{{patientId}}/
-
-```http
-GET {{baseUrl}}/api/v1/patients/{{patientId}}/
-Authorization: Bearer {{accessToken}}
-```
-
-### PUT /api/v1/patients/{{patientId}}/
-
-```http
-PUT {{baseUrl}}/api/v1/patients/{{patientId}}/
-Authorization: Bearer {{accessToken}}
-Content-Type: application/json
-
-{
-  "nombre": "Ana",
-  "appat": "Lopez",
-  "apmat": "Diaz",
-  "fecha_nacimiento": "1990-01-01",
-  "genero": "F",
-  "telefono": "1111111111",
-  "email": "ana@example.com",
-  "estatus": "A"
-}
-```
-
-### PATCH /api/v1/patients/{{patientId}}/
-
-```http
-PATCH {{baseUrl}}/api/v1/patients/{{patientId}}/
-Authorization: Bearer {{accessToken}}
-Content-Type: application/json
-
-{
-  "nombre": "Ana María"
-}
-```
-
-### POST /api/v1/patients/{{patientId}}/deactivate/
-
-```http
-POST {{baseUrl}}/api/v1/patients/{{patientId}}/deactivate/
-Authorization: Bearer {{accessToken}}
-```
-
-## Expediente API
-
-### GET /api/v1/patients/{{patientId}}/medical-history/
-
-```http
-GET {{baseUrl}}/api/v1/patients/{{patientId}}/medical-history/
-Authorization: Bearer {{accessToken}}
-```
-
-### PUT /api/v1/patients/{{patientId}}/medical-history/
-
-```http
-PUT {{baseUrl}}/api/v1/patients/{{patientId}}/medical-history/
-Authorization: Bearer {{accessToken}}
-Content-Type: application/json
-
-{
-  "problemas_cardiacos": true,
-  "alergias": "Penicilina",
-  "version": 0
-}
-```
-
-Para version usa el valor devuelto por GET; 0 corresponde a un registro nuevo.
-
-### GET /api/v1/patients/{{patientId}}/consultations/
-
-```http
-GET {{baseUrl}}/api/v1/patients/{{patientId}}/consultations/
-Authorization: Bearer {{accessToken}}
-```
-
-### POST /api/v1/patients/{{patientId}}/consultations/
-
-```http
-POST {{baseUrl}}/api/v1/patients/{{patientId}}/consultations/
-Authorization: Bearer {{accessToken}}
-Content-Type: application/json
-
-{
-  "motivo_consulta": "Control",
-  "diagnostico": "Caries",
-  "tratamiento": "Limpieza",
-  "observaciones": "Ninguna"
-}
-```
-
-### GET /api/v1/patients/{{patientId}}/clinical-images/
-
-```http
-GET {{baseUrl}}/api/v1/patients/{{patientId}}/clinical-images/
-Authorization: Bearer {{accessToken}}
-```
-
-### GET /api/v1/patients/{{patientId}}/odontogram/
-
-```http
-GET {{baseUrl}}/api/v1/patients/{{patientId}}/odontogram/
-Authorization: Bearer {{accessToken}}
-```
-
-### PUT /api/v1/patients/{{patientId}}/odontogram/
-
-```http
-PUT {{baseUrl}}/api/v1/patients/{{patientId}}/odontogram/
-Authorization: Bearer {{accessToken}}
-Content-Type: application/json
-
-{
-  "denticion_permanente": {
-    "11": {
-      "oclusal": "caries"
-    }
-  },
-  "denticion_decidua": {},
-  "resumen": {
-    "total_dientes": 52
-  },
-  "version": 0
-}
-```
-
-Para version usa el valor devuelto por GET; 0 corresponde a un registro nuevo.
-
-### GET /api/v1/patients/{{patientId}}/comparative-study/
-
-```http
-GET {{baseUrl}}/api/v1/patients/{{patientId}}/comparative-study/
-Authorization: Bearer {{accessToken}}
-```
-
-### GET /api/v1/patients/{{patientId}}/comparative-study/pdf/
-
-```http
-GET {{baseUrl}}/api/v1/patients/{{patientId}}/comparative-study/pdf/
-Authorization: Bearer {{accessToken}}
-```
-
-### GET /api/v1/patients/{{patientId}}/comparative-study/media/{{studyField}}/
-
-```http
-GET {{baseUrl}}/api/v1/patients/{{patientId}}/comparative-study/media/{{studyField}}/
-Authorization: Bearer {{accessToken}}
-```
-
-### GET /api/v1/patients/{{patientId}}/consent/
-
-```http
-GET {{baseUrl}}/api/v1/patients/{{patientId}}/consent/
-Authorization: Bearer {{accessToken}}
-```
-
-### GET /api/v1/patients/{{patientId}}/consent/file/
-
-```http
-GET {{baseUrl}}/api/v1/patients/{{patientId}}/consent/file/
-Authorization: Bearer {{accessToken}}
-```
-
-### GET /api/v1/patients/{{patientId}}/consent/pdf/
-
-```http
-GET {{baseUrl}}/api/v1/patients/{{patientId}}/consent/pdf/
-Authorization: Bearer {{accessToken}}
-```
-
-### POST /api/v1/patients/{{patientId}}/email/
-
-```http
-POST {{baseUrl}}/api/v1/patients/{{patientId}}/email/
-Authorization: Bearer {{accessToken}}
-Content-Type: application/json
-
-{
-  "asunto": "Recordatorio",
-  "mensaje": "Hola, le recordamos su cita."
-}
-```
-
-### POST /api/v1/patients/{{patientId}}/clinical-images/
-
-```http
-POST {{baseUrl}}/api/v1/patients/{{patientId}}/clinical-images/
-Authorization: Bearer {{accessToken}}
-Content-Type: multipart/form-data (seleccionado por Postman)
-
-consulta_id = {{consultationId}}
-tipo_imagen = Radiografía
-descripcion = Imagen clínica
-imagen = [seleccionar archivo]
-```
-
-### PUT /api/v1/patients/{{patientId}}/comparative-study/
-
-```http
-PUT {{baseUrl}}/api/v1/patients/{{patientId}}/comparative-study/
-Authorization: Bearer {{accessToken}}
-Content-Type: multipart/form-data (seleccionado por Postman)
-
-fecha_inicio = 2026-01-01
-diagnostico = Caso
-observaciones = Notas
-antes_oclusal_superior = [seleccionar archivo]
-antes_lateral_izquierda = [seleccionar archivo]
-antes_frontal = [seleccionar archivo]
-antes_lateral_derecha = [seleccionar archivo]
-antes_oclusal_inferior = [seleccionar archivo]
-```
-
-Al crear requiere las cinco imágenes anteriores; selecciona archivos en Postman.
-
-### POST /api/v1/patients/{{patientId}}/consent/
-
-```http
-POST {{baseUrl}}/api/v1/patients/{{patientId}}/consent/
-Authorization: Bearer {{accessToken}}
-Content-Type: multipart/form-data (seleccionado por Postman)
-
-texto = Acepto el consentimiento
-archivo_ine = [seleccionar archivo]
-```
-
-### GET /api/v1/consultations/{{consultationId}}/
-
-```http
-GET {{baseUrl}}/api/v1/consultations/{{consultationId}}/
-Authorization: Bearer {{accessToken}}
-```
-
-## Citas API
-
-### GET /api/v1/appointments/
-
-```http
-GET {{baseUrl}}/api/v1/appointments/
-Authorization: Bearer {{accessToken}}
-```
-
-### POST /api/v1/appointments/
-
-```http
-POST {{baseUrl}}/api/v1/appointments/
-Authorization: Bearer {{accessToken}}
-Content-Type: application/json
-
-{
-  "paciente_id": "{{patientId}}",
-  "fecha": "{{appointmentDate}}",
-  "hora": "10:00",
-  "motivo": "Control",
-  "estatus": "P",
-  "observaciones": "Ninguna"
-}
-```
-
-### GET /api/v1/appointments/{{appointmentId}}/
-
-```http
-GET {{baseUrl}}/api/v1/appointments/{{appointmentId}}/
-Authorization: Bearer {{accessToken}}
-```
-
-### PUT /api/v1/appointments/{{appointmentId}}/
-
-```http
-PUT {{baseUrl}}/api/v1/appointments/{{appointmentId}}/
-Authorization: Bearer {{accessToken}}
-Content-Type: application/json
-
-{
-  "paciente_id": "{{patientId}}",
-  "fecha": "{{appointmentDate}}",
-  "hora": "10:00",
-  "motivo": "Control",
-  "estatus": "P",
-  "observaciones": "Ninguna"
-}
-```
-
-### PATCH /api/v1/appointments/{{appointmentId}}/
-
-```http
-PATCH {{baseUrl}}/api/v1/appointments/{{appointmentId}}/
-Authorization: Bearer {{accessToken}}
-Content-Type: application/json
-
-{
-  "motivo": "Revisión"
-}
-```
-
-### POST /api/v1/appointments/{{appointmentId}}/complete/
-
-```http
-POST {{baseUrl}}/api/v1/appointments/{{appointmentId}}/complete/
-Authorization: Bearer {{accessToken}}
-```
-
-### POST /api/v1/appointments/{{appointmentId}}/cancel/
-
-```http
-POST {{baseUrl}}/api/v1/appointments/{{appointmentId}}/cancel/
-Authorization: Bearer {{accessToken}}
-```
-
-## Imágenes, diagnóstico y exportación API
-
-### GET /api/v1/clinical-images/{{imageId}}/
-
-```http
-GET {{baseUrl}}/api/v1/clinical-images/{{imageId}}/
-Authorization: Bearer {{accessToken}}
-```
-
-### DELETE /api/v1/clinical-images/{{imageId}}/
-
-```http
-DELETE {{baseUrl}}/api/v1/clinical-images/{{imageId}}/
-Authorization: Bearer {{accessToken}}
-```
-
-### GET /api/v1/clinical-images/{{imageId}}/file/
-
-```http
-GET {{baseUrl}}/api/v1/clinical-images/{{imageId}}/file/
-Authorization: Bearer {{accessToken}}
-```
-
-### GET /api/v1/clinical-images/{{imageId}}/result-file/
-
-```http
-GET {{baseUrl}}/api/v1/clinical-images/{{imageId}}/result-file/
-Authorization: Bearer {{accessToken}}
-```
-
-### POST /api/v1/clinical-images/{{imageId}}/analyze/
-
-```http
-POST {{baseUrl}}/api/v1/clinical-images/{{imageId}}/analyze/
-Authorization: Bearer {{accessToken}}
-Content-Type: application/json
-
-{
-  "force": false
-}
-```
-
-### GET /api/v1/clinical-images/{{imageId}}/analysis-runs/
-
-```http
-GET {{baseUrl}}/api/v1/clinical-images/{{imageId}}/analysis-runs/
-Authorization: Bearer {{accessToken}}
-```
-
-### GET /api/v1/clinical-images/{{imageId}}/analysis-runs/{{runId}}/file/
-
-```http
-GET {{baseUrl}}/api/v1/clinical-images/{{imageId}}/analysis-runs/{{runId}}/file/
-Authorization: Bearer {{accessToken}}
-```
-
-### GET /api/v1/diagnostics/
-
-```http
-GET {{baseUrl}}/api/v1/diagnostics/
-Authorization: Bearer {{accessToken}}
-```
-
-### GET /api/v1/exports/patients.xlsx
-
-```http
-GET {{baseUrl}}/api/v1/exports/patients.xlsx
-Authorization: Bearer {{accessToken}}
-```
-
-### GET /api/v1/exports/consultations.xlsx
-
-```http
-GET {{baseUrl}}/api/v1/exports/consultations.xlsx
-Authorization: Bearer {{accessToken}}
-```
-
-### GET /api/v1/exports/clinical-images.xlsx
-
-```http
-GET {{baseUrl}}/api/v1/exports/clinical-images.xlsx
-Authorization: Bearer {{accessToken}}
-```
-
-## Clínicas API
-
-### GET /api/v1/clinics/memberships/
-
-```http
-GET {{baseUrl}}/api/v1/clinics/memberships/
-Authorization: Bearer {{accessToken}}
-```
-
-### GET /api/v1/clinics/context/
-
-```http
-GET {{baseUrl}}/api/v1/clinics/context/
-Authorization: Bearer {{accessToken}}
-X-Clinic-ID: {{clinicId}}
-```
-
-### PATCH /api/v1/clinics/memberships/{{membershipId}}/
-
-```http
-PATCH {{baseUrl}}/api/v1/clinics/memberships/{{membershipId}}/
-Authorization: Bearer {{accessToken}}
-X-Clinic-ID: {{clinicId}}
-Content-Type: application/json
-
-{
-  "role": "DOCTOR"
-}
-```
-
-### GET /api/v1/clinics/patients/
-
-```http
-GET {{baseUrl}}/api/v1/clinics/patients/
-Authorization: Bearer {{accessToken}}
-X-Clinic-ID: {{clinicId}}
-```
-
-### POST /api/v1/clinics/patients/
-
-```http
-POST {{baseUrl}}/api/v1/clinics/patients/
-Authorization: Bearer {{accessToken}}
-X-Clinic-ID: {{clinicId}}
-Content-Type: application/json
-
-{
-  "nombre": "Ana",
-  "appat": "Lopez",
-  "apmat": "Diaz",
-  "fecha_nacimiento": "1990-01-01",
-  "genero": "F",
-  "telefono": "1111111111",
-  "email": "ana@example.com",
-  "estatus": "A"
-}
-```
-
-### GET /api/v1/clinics/patients/{{patientId}}/
-
-```http
-GET {{baseUrl}}/api/v1/clinics/patients/{{patientId}}/
-Authorization: Bearer {{accessToken}}
-X-Clinic-ID: {{clinicId}}
-```
-
-### PUT /api/v1/clinics/patients/{{patientId}}/
-
-```http
-PUT {{baseUrl}}/api/v1/clinics/patients/{{patientId}}/
-Authorization: Bearer {{accessToken}}
-X-Clinic-ID: {{clinicId}}
-Content-Type: application/json
-
-{
-  "nombre": "Ana",
-  "appat": "Lopez",
-  "apmat": "Diaz",
-  "fecha_nacimiento": "1990-01-01",
-  "genero": "F",
-  "telefono": "1111111111",
-  "email": "ana@example.com",
-  "estatus": "A"
-}
-```
-
-### PATCH /api/v1/clinics/patients/{{patientId}}/
-
-```http
-PATCH {{baseUrl}}/api/v1/clinics/patients/{{patientId}}/
-Authorization: Bearer {{accessToken}}
-X-Clinic-ID: {{clinicId}}
-Content-Type: application/json
-
-{
-  "nombre": "Ana María"
-}
-```
-
-### POST /api/v1/clinics/invitations/
-
-```http
-POST {{baseUrl}}/api/v1/clinics/invitations/
-Authorization: Bearer {{accessToken}}
-X-Clinic-ID: {{clinicId}}
-Content-Type: application/json
-
-{
-  "email": "invitado@example.com",
-  "role": "DOCTOR"
-}
-```
-
-### POST /api/v1/clinics/invitations/preview/
-
-```http
-POST {{baseUrl}}/api/v1/clinics/invitations/preview/
-Authorization: Bearer {{accessToken}}
-Content-Type: application/json
-
-{
-  "token": "{{invitationToken}}"
-}
-```
-
-### POST /api/v1/clinics/invitations/resolve/
-
-```http
-POST {{baseUrl}}/api/v1/clinics/invitations/resolve/
-Authorization: Bearer {{accessToken}}
-Content-Type: application/json
-
-{
-  "token": "{{invitationToken}}",
-  "action": "accept"
-}
-```
-
-### POST /api/v1/clinics/invitations/register/preview/
-
-```http
-POST {{baseUrl}}/api/v1/clinics/invitations/register/preview/
-Content-Type: application/json
-
-{
-  "token": "{{invitationToken}}"
-}
-```
-
-### POST /api/v1/clinics/invitations/register/
-
-```http
-POST {{baseUrl}}/api/v1/clinics/invitations/register/
-Content-Type: application/json
-
-{
-  "token": "{{invitationToken}}",
-  "username": "nuevo_usuario",
-  "password": "Unique$Password987"
-}
-```
-
-### POST /api/v1/clinics/invitations/{{invitationId}}/revoke/
-
-```http
-POST {{baseUrl}}/api/v1/clinics/invitations/{{invitationId}}/revoke/
-Authorization: Bearer {{accessToken}}
-X-Clinic-ID: {{clinicId}}
-```
-
-## Backoffice API
-
-### GET /api/v1/backoffice/dashboard/
-
-```http
-GET {{baseUrl}}/api/v1/backoffice/dashboard/
-Authorization: Bearer {{accessToken}}
-```
-
-Requiere permisos de backoffice.
-
-### GET /api/v1/backoffice/users/
-
-```http
-GET {{baseUrl}}/api/v1/backoffice/users/
-Authorization: Bearer {{accessToken}}
-```
-
-Requiere permisos de backoffice.
-
-### GET /api/v1/backoffice/users/{{userId}}/
-
-```http
-GET {{baseUrl}}/api/v1/backoffice/users/{{userId}}/
-Authorization: Bearer {{accessToken}}
-```
-
-Requiere permisos de backoffice.
-
-### GET /api/v1/backoffice/audit/
-
-```http
-GET {{baseUrl}}/api/v1/backoffice/audit/
-Authorization: Bearer {{accessToken}}
-```
-
-Requiere permisos de backoffice.
-
-### GET /api/v1/backoffice/audit/{{auditId}}/
-
-```http
-GET {{baseUrl}}/api/v1/backoffice/audit/{{auditId}}/
-Authorization: Bearer {{accessToken}}
-```
-
-Requiere permisos de backoffice.
-
-### GET /api/v1/backoffice/ai-runs/
-
-```http
-GET {{baseUrl}}/api/v1/backoffice/ai-runs/
-Authorization: Bearer {{accessToken}}
-```
-
-Requiere permisos de backoffice.
-
-### GET /api/v1/backoffice/ai-runs/{{runId}}/
-
-```http
-GET {{baseUrl}}/api/v1/backoffice/ai-runs/{{runId}}/
-Authorization: Bearer {{accessToken}}
-```
-
-Requiere permisos de backoffice.
-
-### GET /api/v1/backoffice/system/
-
-```http
-GET {{baseUrl}}/api/v1/backoffice/system/
-Authorization: Bearer {{accessToken}}
-```
-
-Requiere permisos de backoffice.
-
-### GET /api/v1/backoffice/patients/
-
-```http
-GET {{baseUrl}}/api/v1/backoffice/patients/
-Authorization: Bearer {{accessToken}}
-```
-
-Las rutas clínicas globales están deshabilitadas por la política actual.
-
-### GET /api/v1/backoffice/patients/{{patientId}}/
-
-```http
-GET {{baseUrl}}/api/v1/backoffice/patients/{{patientId}}/
-Authorization: Bearer {{accessToken}}
-```
-
-Las rutas clínicas globales están deshabilitadas por la política actual.
-
-### GET /api/v1/backoffice/patients/{{patientId}}/{{section}}/
-
-```http
-GET {{baseUrl}}/api/v1/backoffice/patients/{{patientId}}/{{section}}/
-Authorization: Bearer {{accessToken}}
-```
-
-Las rutas clínicas globales están deshabilitadas por la política actual.
-
-### GET /api/v1/backoffice/appointments/
-
-```http
-GET {{baseUrl}}/api/v1/backoffice/appointments/
-Authorization: Bearer {{accessToken}}
-```
-
-Las rutas clínicas globales están deshabilitadas por la política actual.
-
-### GET /api/v1/backoffice/appointments/{{appointmentId}}/
-
-```http
-GET {{baseUrl}}/api/v1/backoffice/appointments/{{appointmentId}}/
-Authorization: Bearer {{accessToken}}
-```
-
-Las rutas clínicas globales están deshabilitadas por la política actual.
-
-### POST /api/v1/backoffice/users/{{userId}}/activate/
-
-```http
-POST {{baseUrl}}/api/v1/backoffice/users/{{userId}}/activate/
-Authorization: Bearer {{accessToken}}
-```
-
-Requiere permisos de backoffice.
-
-### POST /api/v1/backoffice/users/{{userId}}/deactivate/
-
-```http
-POST {{baseUrl}}/api/v1/backoffice/users/{{userId}}/deactivate/
-Authorization: Bearer {{accessToken}}
-```
-
-Requiere permisos de backoffice.
-
-## Web Django - Sesión y páginas
-
-### GET /sesiones/login/
-
-```http
-GET {{baseUrl}}/sesiones/login/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /home/
-
-```http
-GET {{baseUrl}}/home/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /home/aviso-privacidad/
-
-```http
-GET {{baseUrl}}/home/aviso-privacidad/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /admin/
-
-```http
-GET {{baseUrl}}/admin/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-## Web Django - Citas
-
-### GET /menu_citas/
-
-```http
-GET {{baseUrl}}/menu_citas/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /menu_citas/nueva_cita/
-
-```http
-GET {{baseUrl}}/menu_citas/nueva_cita/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /menu_citas/registrar_cita/{{patientId}}/
-
-```http
-GET {{baseUrl}}/menu_citas/registrar_cita/{{patientId}}/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /menu_citas/buscar_cita/?buscador=Ana
-
-```http
-GET {{baseUrl}}/menu_citas/buscar_cita/?buscador=Ana
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /menu_citas/editar_cita/{{appointmentId}}/
-
-```http
-GET {{baseUrl}}/menu_citas/editar_cita/{{appointmentId}}/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /menu_citas/citas_pendientes/
-
-```http
-GET {{baseUrl}}/menu_citas/citas_pendientes/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /menu_citas/citas_completadas/
-
-```http
-GET {{baseUrl}}/menu_citas/citas_completadas/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /menu_citas/citas_canceladas/
-
-```http
-GET {{baseUrl}}/menu_citas/citas_canceladas/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /menu_citas/detalle_cita/{{appointmentId}}/
-
-```http
-GET {{baseUrl}}/menu_citas/detalle_cita/{{appointmentId}}/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-## Web Django - Pacientes
-
-### GET /registroPacientes/
-
-```http
-GET {{baseUrl}}/registroPacientes/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/registrar_pacientes/
-
-```http
-GET {{baseUrl}}/registroPacientes/registrar_pacientes/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/todosPacientes
-
-```http
-GET {{baseUrl}}/registroPacientes/todosPacientes
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/buscar_pacientes/?q=Ana
-
-```http
-GET {{baseUrl}}/registroPacientes/buscar_pacientes/?q=Ana
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/ver_paciente/{{patientId}}/
-
-```http
-GET {{baseUrl}}/registroPacientes/ver_paciente/{{patientId}}/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/editar_paciente/{{patientId}}/
-
-```http
-GET {{baseUrl}}/registroPacientes/editar_paciente/{{patientId}}/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/menu_historial/
-
-```http
-GET {{baseUrl}}/registroPacientes/menu_historial/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/buscar_pacientes_ajax/?term=Ana
-
-```http
-GET {{baseUrl}}/registroPacientes/buscar_pacientes_ajax/?term=Ana
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/antecedentes/{{patientId}}/
-
-```http
-GET {{baseUrl}}/registroPacientes/antecedentes/{{patientId}}/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/consultas/{{patientId}}/
-
-```http
-GET {{baseUrl}}/registroPacientes/consultas/{{patientId}}/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/receta/{{consultationId}}/
-
-```http
-GET {{baseUrl}}/registroPacientes/receta/{{consultationId}}/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/historial_consultas/{{patientId}}/
-
-```http
-GET {{baseUrl}}/registroPacientes/historial_consultas/{{patientId}}/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/imagenes_clinicas/{{patientId}}/
-
-```http
-GET {{baseUrl}}/registroPacientes/imagenes_clinicas/{{patientId}}/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/cargar_imagen/{{patientId}}/
-
-```http
-GET {{baseUrl}}/registroPacientes/cargar_imagen/{{patientId}}/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/buscar_imagen/{{patientId}}/
-
-```http
-GET {{baseUrl}}/registroPacientes/buscar_imagen/{{patientId}}/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/historial_imagenes/{{patientId}}/
-
-```http
-GET {{baseUrl}}/registroPacientes/historial_imagenes/{{patientId}}/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/exportar_datos/
-
-```http
-GET {{baseUrl}}/registroPacientes/exportar_datos/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/exportar_pacientes/
-
-```http
-GET {{baseUrl}}/registroPacientes/exportar_pacientes/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/exportar_consultas/
-
-```http
-GET {{baseUrl}}/registroPacientes/exportar_consultas/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/exportar_imagenes/
-
-```http
-GET {{baseUrl}}/registroPacientes/exportar_imagenes/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/contactar_pacientes/
-
-```http
-GET {{baseUrl}}/registroPacientes/contactar_pacientes/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/contacto/{{patientId}}/
-
-```http
-GET {{baseUrl}}/registroPacientes/contacto/{{patientId}}/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/enviar_mensaje/
-
-```http
-GET {{baseUrl}}/registroPacientes/enviar_mensaje/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/odontograma/{{patientId}}/
-
-```http
-GET {{baseUrl}}/registroPacientes/odontograma/{{patientId}}/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/progreso/{{patientId}}/
-
-```http
-GET {{baseUrl}}/registroPacientes/progreso/{{patientId}}/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/estudio/{{patientId}}/
-
-```http
-GET {{baseUrl}}/registroPacientes/estudio/{{patientId}}/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/estudio/{{patientId}}/visualizar/
-
-```http
-GET {{baseUrl}}/registroPacientes/estudio/{{patientId}}/visualizar/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/estudio/{{patientId}}/descargar-pdf/
-
-```http
-GET {{baseUrl}}/registroPacientes/estudio/{{patientId}}/descargar-pdf/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/consentimiento/{{patientId}}/
-
-```http
-GET {{baseUrl}}/registroPacientes/consentimiento/{{patientId}}/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /registroPacientes/archivos/{{fileKind}}/{{resourceId}}/{{fileField}}/
-
-```http
-GET {{baseUrl}}/registroPacientes/archivos/{{fileKind}}/{{resourceId}}/{{fileField}}/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-## Web Django - Diagnósticos
-
-### GET /diagnosticos/
-
-```http
-GET {{baseUrl}}/diagnosticos/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-### GET /diagnosticos/resultados/{{imageId}}/
-
-```http
-GET {{baseUrl}}/diagnosticos/resultados/{{imageId}}/
-```
-
-Vista web: utiliza sesión Django; puede responder HTML, redirección o archivo.
-
-## Web Django - Formularios
-
-### POST /sesiones/login/
-
-```http
-POST {{baseUrl}}/sesiones/login/
-X-CSRFToken: {{csrfToken}}
-Content-Type: application/x-www-form-urlencoded
-
-username = {{username}}
-password = {{password}}
-```
-
-Requiere cookie de sesión y CSRF; login solo necesita CSRF.
-
-### POST /sesiones/logout/
-
-```http
-POST {{baseUrl}}/sesiones/logout/
-X-CSRFToken: {{csrfToken}}
-Content-Type: application/x-www-form-urlencoded
-
-```
-
-Requiere cookie de sesión y CSRF; login solo necesita CSRF.
-
-### POST /menu_citas/registrar_cita/{{patientId}}/
-
-```http
-POST {{baseUrl}}/menu_citas/registrar_cita/{{patientId}}/
-X-CSRFToken: {{csrfToken}}
-Content-Type: application/x-www-form-urlencoded
-
-fecha = {{appointmentDate}}
-hora = 10:00
-motivo = Control
-estatus = P
-observaciones = Ninguna
-```
-
-Requiere cookie de sesión y CSRF; login solo necesita CSRF.
-
-### POST /menu_citas/editar_cita/{{appointmentId}}/
-
-```http
-POST {{baseUrl}}/menu_citas/editar_cita/{{appointmentId}}/
-X-CSRFToken: {{csrfToken}}
-Content-Type: application/x-www-form-urlencoded
-
-fecha = {{appointmentDate}}
-hora = 10:00
-motivo = Control
-estatus = P
-observaciones = Ninguna
-```
-
-Requiere cookie de sesión y CSRF; login solo necesita CSRF.
-
-### POST /menu_citas/confirmar_asistencia/{{appointmentId}}/
-
-```http
-POST {{baseUrl}}/menu_citas/confirmar_asistencia/{{appointmentId}}/
-X-CSRFToken: {{csrfToken}}
-Content-Type: application/x-www-form-urlencoded
-
-```
-
-Requiere cookie de sesión y CSRF; login solo necesita CSRF.
-
-### POST /menu_citas/cancelar_cita/{{appointmentId}}/
-
-```http
-POST {{baseUrl}}/menu_citas/cancelar_cita/{{appointmentId}}/
-X-CSRFToken: {{csrfToken}}
-Content-Type: application/x-www-form-urlencoded
-
-```
-
-Requiere cookie de sesión y CSRF; login solo necesita CSRF.
-
-### POST /registroPacientes/registrar_pacientes/
-
-```http
-POST {{baseUrl}}/registroPacientes/registrar_pacientes/
-X-CSRFToken: {{csrfToken}}
-Content-Type: application/x-www-form-urlencoded
-
-nombre = Ana
-appat = Lopez
-apmat = Diaz
-fecha_nacimiento = 1990-01-01
-genero = F
-telefono = 1111111111
-email = ana@example.com
-estatus = A
-```
-
-Requiere cookie de sesión y CSRF; login solo necesita CSRF.
-
-### POST /registroPacientes/editar_paciente/{{patientId}}/
-
-```http
-POST {{baseUrl}}/registroPacientes/editar_paciente/{{patientId}}/
-X-CSRFToken: {{csrfToken}}
-Content-Type: application/x-www-form-urlencoded
-
-nombre = Ana María
-```
-
-Requiere cookie de sesión y CSRF; login solo necesita CSRF.
-
-### POST /registroPacientes/eliminar_paciente/{{patientId}}/
-
-```http
-POST {{baseUrl}}/registroPacientes/eliminar_paciente/{{patientId}}/
-X-CSRFToken: {{csrfToken}}
-Content-Type: application/x-www-form-urlencoded
-
-```
-
-Requiere cookie de sesión y CSRF; login solo necesita CSRF.
-
-### POST /registroPacientes/antecedentes/{{patientId}}/
-
-```http
-POST {{baseUrl}}/registroPacientes/antecedentes/{{patientId}}/
-X-CSRFToken: {{csrfToken}}
-Content-Type: application/x-www-form-urlencoded
-
-problemas_cardiacos = True
-alergias_txt = Penicilina
-version = 0
-```
-
-Requiere cookie de sesión y CSRF; login solo necesita CSRF.
-
-### POST /registroPacientes/consultas/{{patientId}}/
-
-```http
-POST {{baseUrl}}/registroPacientes/consultas/{{patientId}}/
-X-CSRFToken: {{csrfToken}}
-Content-Type: application/x-www-form-urlencoded
-
-motivo_consulta = Control
-diagnostico = Caries
-tratamiento = Limpieza
-observaciones = Ninguna
-```
-
-Requiere cookie de sesión y CSRF; login solo necesita CSRF.
-
-### POST /registroPacientes/eliminar_imagen/{{imageId}}/
-
-```http
-POST {{baseUrl}}/registroPacientes/eliminar_imagen/{{imageId}}/
-X-CSRFToken: {{csrfToken}}
-Content-Type: application/x-www-form-urlencoded
-
-```
-
-Requiere cookie de sesión y CSRF; login solo necesita CSRF.
-
-### POST /registroPacientes/enviar_mensaje/
-
-```http
-POST {{baseUrl}}/registroPacientes/enviar_mensaje/
-X-CSRFToken: {{csrfToken}}
-Content-Type: application/x-www-form-urlencoded
-
-paciente_id = {{patientId}}
-asunto = Recordatorio
-mensaje = Hola, le recordamos su cita.
-```
-
-Requiere cookie de sesión y CSRF; login solo necesita CSRF.
-
-### POST /diagnosticos/resultados/{{imageId}}/
-
-```http
-POST {{baseUrl}}/diagnosticos/resultados/{{imageId}}/
-X-CSRFToken: {{csrfToken}}
-Content-Type: application/x-www-form-urlencoded
-
-force = false
-```
-
-Requiere cookie de sesión y CSRF; login solo necesita CSRF.
-
-### POST /registroPacientes/odontograma/guardar/{{patientId}}/
-
-```http
-POST {{baseUrl}}/registroPacientes/odontograma/guardar/{{patientId}}/
-X-CSRFToken: {{csrfToken}}
-Content-Type: application/json
-
-{
-  "denticion_permanente": {
-    "11": {
-      "oclusal": "caries"
-    }
-  },
-  "denticion_decidua": {},
-  "resumen": {
-    "total_dientes": 52
-  },
-  "version": 0
-}
-```
-
-### POST /registroPacientes/cargar_imagen/{{patientId}}/
-
-```http
-POST {{baseUrl}}/registroPacientes/cargar_imagen/{{patientId}}/
-X-CSRFToken: {{csrfToken}}
-Content-Type: multipart/form-data (seleccionado por Postman)
-
-consulta_id = {{consultationId}}
-tipo = Radiografía
-descripcion = Imagen clínica
-archivo = [seleccionar archivo]
-```
-
-### POST /registroPacientes/estudio/{{patientId}}/
-
-```http
-POST {{baseUrl}}/registroPacientes/estudio/{{patientId}}/
-X-CSRFToken: {{csrfToken}}
-Content-Type: multipart/form-data (seleccionado por Postman)
-
-fecha_inicio = 2026-01-01
-diagnostico = Caso
-observaciones = Notas
-antes_oclusal_superior = [seleccionar archivo]
-antes_lateral_izquierda = [seleccionar archivo]
-antes_frontal = [seleccionar archivo]
-antes_lateral_derecha = [seleccionar archivo]
-antes_oclusal_inferior = [seleccionar archivo]
-```
-
-### POST /registroPacientes/consentimiento/{{patientId}}/
-
-```http
-POST {{baseUrl}}/registroPacientes/consentimiento/{{patientId}}/
-X-CSRFToken: {{csrfToken}}
-Content-Type: multipart/form-data (seleccionado por Postman)
-
-texto = Acepto
-archivo_ine = [seleccionar archivo]
-```
+# Colección Postman — Core multitenant
+
+Importa `SmileManager.postman_collection.json` y, opcionalmente,
+`SmileManager.local.postman_environment.json`. Usa Postman Desktop o el Desktop
+Agent para acceder a localhost. No requiere conectar una cuenta de Postman.
+
+## Preparación local
+
+```bash
+docker --context default compose up -d
+docker --context default compose exec backend python manage.py seed_local
+```
+
+En Postman selecciona el entorno local y ejecuta **solo la carpeta 00**, en orden,
+con Collection Runner. Hace login de médico, administrador de clínica y plataforma,
+guarda sus tokens por separado, descubre la clínica y crea paciente, antecedentes,
+odontograma, consulta y cita sintéticos. Cada petición verifica el código HTTP y
+captura IDs/versiones automáticamente. Repetir 00 crea otro paciente de prueba.
+Las contraseñas locales iniciales son `Admin123`; cambia la variable si las cambiaste.
+Los tokens e IDs se guardan en variables de colección: no crees variables de entorno
+con esos nombres porque tendrían prioridad y bloquearían la captura automática.
+
+## Uso por módulos
+
+Las carpetas 01–12 son un catálogo manual, no una secuencia para ejecutar completa.
+Cada request incluye su rol, headers, body, prueba HTTP y requisitos. El médico usa
+`tokenDoctor`, el administrador de clínica `tokenAdmin` y smile `tokenPlatform`.
+Las rutas clínicas llevan `X-Clinic-ID`. Cambiar `clinicId` requiere una membresía
+autorizada; ser administrador de plataforma no concede acceso a expedientes.
+
+- Primero ejecuta 00; si caducan tokens repite solo sus tres logins.
+- Antes de PUT de antecedentes/odontograma ejecuta el GET correspondiente para
+  capturar la versión actual. Un conflicto de edición devuelve 409.
+- Completar y cancelar son transiciones alternativas; la carpeta Agenda crea
+  una segunda cita para probar cancelación.
+- Cargas: selecciona archivos en Body > form-data. El estudio nuevo requiere las
+  cinco fotos `antes_*`; consentimiento requiere identificación sintética.
+- IA: sube imagen, analiza y consulta historial. HTTP 202 significa en curso;
+  los archivos de resultado requieren SUCCEEDED. Vacía `idempotencyKey` al cambiar
+  de imagen. Una clave se conserva para reintentar la misma operación.
+- Los detalles de usuarios requieren crear primero el usuario de prueba. Auditoría
+  e IA requieren ejecutar antes sus listas y que existan eventos/ejecuciones.
+- La carpeta final archiva/desactiva datos de prueba. No ejecutar antes de los
+  módulos de consulta; no borra los datos de PostgreSQL.
+
+## Cookies, correo e invitaciones
+
+Mantén activo el cookie jar. `session`, `refresh` y `logout` usan `smile_refresh`
+del último login (smile al terminar 00). `cookieRole` indica qué token actualizar.
+Las otras peticiones usan tokens Bearer independientes.
+
+Los tokens de invitación y recuperación solo están en los correos; no se extraen
+de respuestas API. Lee el correo local y copia `invitationToken` o `resetUid` y
+`resetToken` en las variables de colección:
+
+```bash
+docker --context default compose exec backend ls -lt /var/lib/smilemanager/mail
+docker --context default compose exec backend sh -c 'cat /var/lib/smilemanager/mail/*'
+```
+
+**Invitaciones:** HTTPS es obligatorio en producción. En desarrollo se admite
+HTTP únicamente para localhost/127.0.0.1/::1 con el permiso local explícito. El
+compose local funciona con Vite HTTP. El destinatario existente debe iniciar sesión
+en el request de Invitaciones para obtener `tokenInvitee`.
+
+Para probar recepción, invita una cuenta con rol STAFF, regístrala y configura
+`staffUsername` y `staffPassword`. El seed conserva sus tres cuentas originales.
+La carpeta 11 usa `tokenStaff` y el mismo `clinicId`; recepción solo puede consultar
+el directorio mínimo de pacientes y operar citas de su clínica.
+
+La recuperación confirma un cambio real de contraseña: ejecútala manualmente.
+Los archivos sin cargar o resultados aún no generados pueden responder 404.
+
+## Alcance
+
+Incluye salud, autenticación, recuperación, contexto de clínicas, pacientes,
+expediente, consultas, agenda, imágenes, IA, consentimientos, estudios, reportes,
+exportaciones, miembros, invitaciones y backoffice administrativo. Excluye rutas
+HTML retiradas, API global de compatibilidad y backoffice clínico global denegado.
+HEAD y OPTIONS no se repiten. Regenera con `python3 generar_coleccion_postman.py`.
+
+## Catálogo
+
+
+### 00 · Inicio rápido — ejecutar esta carpeta en orden
+
+| Petición | Método | Ruta |
+|---|---|---|
+| 01 · Salud y conexión PostgreSQL | GET | `{{baseUrl}}/health/ready/` |
+| 02 · Login Doctor | POST | `{{baseUrl}}/api/v1/auth/login/` |
+| 03 · Login Admin | POST | `{{baseUrl}}/api/v1/auth/login/` |
+| 04 · Login Platform | POST | `{{baseUrl}}/api/v1/auth/login/` |
+| 05 · Descubrir clínica del médico | GET | `{{baseUrl}}/api/v1/clinics/memberships/` |
+| 06 · Validar contexto clínico | GET | `{{baseUrl}}/api/v1/clinics/context/` |
+| 07 · Crear paciente sintético (guarda patientId) | POST | `{{baseUrl}}/api/v1/clinics/patients/` |
+| 08 · Consultar paciente creado | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/` |
+| 09 · Leer antecedentes y versión | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/medical-history/` |
+| 10 · Guardar antecedentes | PUT | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/medical-history/` |
+| 11 · Leer odontograma y versión | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/odontogram/` |
+| 12 · Guardar odontograma | PUT | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/odontogram/` |
+| 13 · Crear consulta (guarda consultationId) | POST | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/consultations/` |
+| 14 · Crear cita pendiente (guarda appointmentId) | POST | `{{baseUrl}}/api/v1/clinics/appointments/` |
+| 15 · Dashboard del médico | GET | `{{baseUrl}}/api/v1/clinics/dashboard/` |
+| 16 · Dashboard administrador de clínica | GET | `{{baseUrl}}/api/v1/clinics/admin/dashboard/` |
+| 17 · Ver clínicas en backoffice | GET | `{{baseUrl}}/api/v1/backoffice/clinics/` |
+
+### 01 · Sesión y recuperación de contraseña
+
+| Petición | Método | Ruta |
+|---|---|---|
+| session/ | GET | `{{baseUrl}}/api/v1/auth/session/` |
+| refresh/ | POST | `{{baseUrl}}/api/v1/auth/refresh/` |
+| Solicitar recuperación por correo | POST | `{{baseUrl}}/api/v1/auth/password-reset/request/` |
+| Confirmar recuperación — requiere enlace del correo | POST | `{{baseUrl}}/api/v1/auth/password-reset/confirm/` |
+
+### 02 · Pacientes
+
+| Petición | Método | Ruta |
+|---|---|---|
+| Listar / buscar | GET | `{{baseUrl}}/api/v1/clinics/patients/?search=Postman&page=1` |
+| Autocompletar | GET | `{{baseUrl}}/api/v1/clinics/patients/autocomplete/?term=Postman` |
+| Detalle | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/` |
+| Actualizar completo | PUT | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/` |
+| Actualizar nombre | PATCH | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/` |
+| Enviar correo al paciente | POST | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/email/` |
+
+### 03 · Expediente y consultas
+
+| Petición | Método | Ruta |
+|---|---|---|
+| Leer medical-history/ | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/medical-history/` |
+| Guardar medical-history/ | PUT | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/medical-history/` |
+| Leer odontogram/ | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/odontogram/` |
+| Guardar odontogram/ | PUT | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/odontogram/` |
+| Listar consultas del paciente | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/consultations/` |
+| Detalle consulta | GET | `{{baseUrl}}/api/v1/clinics/consultations/{{consultationId}}/` |
+
+### 04 · Agenda
+
+| Petición | Método | Ruta |
+|---|---|---|
+| Listar citas | GET | `{{baseUrl}}/api/v1/clinics/appointments/?status=P` |
+| Detalle cita | GET | `{{baseUrl}}/api/v1/clinics/appointments/{{appointmentId}}/` |
+| Actualizar cita completa | PUT | `{{baseUrl}}/api/v1/clinics/appointments/{{appointmentId}}/` |
+| Actualizar observaciones | PATCH | `{{baseUrl}}/api/v1/clinics/appointments/{{appointmentId}}/` |
+| Completar cita pendiente | POST | `{{baseUrl}}/api/v1/clinics/appointments/{{appointmentId}}/complete/` |
+| Crear otra cita para cancelar | POST | `{{baseUrl}}/api/v1/clinics/appointments/` |
+| Cancelar segunda cita | POST | `{{baseUrl}}/api/v1/clinics/appointments/{{cancelAppointmentId}}/cancel/` |
+
+### 05 · Imágenes y diagnóstico IA — seleccionar archivo
+
+| Petición | Método | Ruta |
+|---|---|---|
+| Subir imagen (guarda imageId) | POST | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/clinical-images/` |
+| Listar imágenes | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/clinical-images/` |
+| Detalle imagen | GET | `{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/` |
+| Descargar original | GET | `{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/original/file/` |
+| Diagnósticos | GET | `{{baseUrl}}/api/v1/clinics/diagnostics/` |
+| Analizar imagen (guarda runId) | POST | `{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/analyze/` |
+| Historial IA | GET | `{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/analysis-runs/` |
+| Descargar resultado actual | GET | `{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/result/file/` |
+| Descargar resultado de ejecución | GET | `{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/analysis-runs/{{runId}}/file/` |
+
+### 06 · Consentimiento y estudio comparativo — archivos manuales
+
+| Petición | Método | Ruta |
+|---|---|---|
+| Consultar consentimiento | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/consent/` |
+| Aceptar consentimiento con identificación | POST | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/consent/` |
+| Descargar consentimiento identity | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/consent/identity/file/` |
+| Descargar consentimiento pdf | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/consent/pdf/file/` |
+| Consultar estudio comparativo | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/` |
+| Crear / actualizar estudio comparativo | PUT | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/` |
+| Descargar PDF del estudio | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/pdf/` |
+| Descargar foto antes_oclusal_superior | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/antes_oclusal_superior/` |
+| Descargar foto antes_lateral_izquierda | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/antes_lateral_izquierda/` |
+| Descargar foto antes_frontal | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/antes_frontal/` |
+| Descargar foto antes_lateral_derecha | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/antes_lateral_derecha/` |
+| Descargar foto antes_oclusal_inferior | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/antes_oclusal_inferior/` |
+| Descargar foto despues_perfil | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/despues_perfil/` |
+| Descargar foto despues_semiperfil | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/despues_semiperfil/` |
+| Descargar foto despues_retrato_frontal | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/despues_retrato_frontal/` |
+| Descargar foto despues_retrato_sonrisa | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/despues_retrato_sonrisa/` |
+
+### 07 · Reportes y exportaciones
+
+| Petición | Método | Ruta |
+|---|---|---|
+| Exportar patients XLSX | GET | `{{baseUrl}}/api/v1/clinics/exports/patients.xlsx` |
+| Exportar consultations XLSX | GET | `{{baseUrl}}/api/v1/clinics/exports/consultations.xlsx` |
+| Exportar clinical-images XLSX | GET | `{{baseUrl}}/api/v1/clinics/exports/clinical-images.xlsx` |
+
+### 08 · Administración de clínica
+
+| Petición | Método | Ruta |
+|---|---|---|
+| Dashboard | GET | `{{baseUrl}}/api/v1/clinics/admin/dashboard/` |
+| Miembros (guarda membershipId del médico) | GET | `{{baseUrl}}/api/v1/clinics/admin/memberships/` |
+| Invitaciones | GET | `{{baseUrl}}/api/v1/clinics/admin/invitations/` |
+| Auditoría | GET | `{{baseUrl}}/api/v1/clinics/admin/audit/` |
+| Actualizar membresía del médico | PATCH | `{{baseUrl}}/api/v1/clinics/memberships/{{membershipId}}/` |
+| Invitar médico por correo | POST | `{{baseUrl}}/api/v1/clinics/invitations/` |
+| Revocar invitación | POST | `{{baseUrl}}/api/v1/clinics/invitations/{{invitationId}}/revoke/` |
+
+### 09 · Invitaciones — requieren token del correo
+
+| Petición | Método | Ruta |
+|---|---|---|
+| preview/ | POST | `{{baseUrl}}/api/v1/clinics/invitations/preview/` |
+| register/preview/ | POST | `{{baseUrl}}/api/v1/clinics/invitations/register/preview/` |
+| Aceptar invitación con cuenta existente | POST | `{{baseUrl}}/api/v1/clinics/invitations/resolve/` |
+| Registrar nueva cuenta invitada | POST | `{{baseUrl}}/api/v1/clinics/invitations/register/` |
+| Login destinatario existente | POST | `{{baseUrl}}/api/v1/auth/login/` |
+
+### 10 · Backoffice de plataforma
+
+| Petición | Método | Ruta |
+|---|---|---|
+| Dashboard | GET | `{{baseUrl}}/api/v1/backoffice/dashboard/` |
+| Clínicas | GET | `{{baseUrl}}/api/v1/backoffice/clinics/` |
+| Usuarios | GET | `{{baseUrl}}/api/v1/backoffice/users/` |
+| Detalle usuario | GET | `{{baseUrl}}/api/v1/backoffice/users/{{userId}}/` |
+| Auditoría (guarda auditId) | GET | `{{baseUrl}}/api/v1/backoffice/audit/` |
+| Detalle evento | GET | `{{baseUrl}}/api/v1/backoffice/audit/{{auditId}}/` |
+| Ejecuciones IA globales | GET | `{{baseUrl}}/api/v1/backoffice/ai-runs/` |
+| Detalle ejecución IA | GET | `{{baseUrl}}/api/v1/backoffice/ai-runs/{{backofficeRunId}}/` |
+| Estado del sistema | GET | `{{baseUrl}}/api/v1/backoffice/system/` |
+| Crear usuario de prueba (guarda userId) | POST | `{{baseUrl}}/api/v1/backoffice/users/create/` |
+| deactivate usuario de prueba | POST | `{{baseUrl}}/api/v1/backoffice/users/{{userId}}/deactivate/` |
+| activate usuario de prueba | POST | `{{baseUrl}}/api/v1/backoffice/users/{{userId}}/activate/` |
+| Crear clínica e invitar administrador (guarda managedClinicId) | POST | `{{baseUrl}}/api/v1/backoffice/clinics/` |
+| Cambiar estado de clínica creada | POST | `{{baseUrl}}/api/v1/backoffice/clinics/{{managedClinicId}}/status/` |
+| Listar invitaciones iniciales | GET | `{{baseUrl}}/api/v1/backoffice/clinics/{{managedClinicId}}/initial-admin/` |
+| Revocar invitación inicial | POST | `{{baseUrl}}/api/v1/backoffice/clinics/{{managedClinicId}}/initial-admin/{{initialInvitationId}}/revoke/` |
+| Reenviar invitación inicial | POST | `{{baseUrl}}/api/v1/backoffice/clinics/{{managedClinicId}}/initial-admin/` |
+
+### 11 · Recepción STAFF — requiere aceptar invitación con rol STAFF
+
+| Petición | Método | Ruta |
+|---|---|---|
+| Login recepción | POST | `{{baseUrl}}/api/v1/auth/login/` |
+| Clínicas de recepción | GET | `{{baseUrl}}/api/v1/clinics/memberships/` |
+| Buscar pacientes para agenda | GET | `{{baseUrl}}/api/v1/clinics/staff/patients/?term=Postman` |
+| Listar agenda de recepción | GET | `{{baseUrl}}/api/v1/clinics/staff/appointments/` |
+| Crear cita desde recepción | POST | `{{baseUrl}}/api/v1/clinics/staff/appointments/` |
+| Detalle de cita de recepción | GET | `{{baseUrl}}/api/v1/clinics/staff/appointments/{{staffAppointmentId}}/` |
+| Reprogramar desde recepción | PATCH | `{{baseUrl}}/api/v1/clinics/staff/appointments/{{staffAppointmentId}}/` |
+| complete desde recepción | POST | `{{baseUrl}}/api/v1/clinics/staff/appointments/{{staffAppointmentId}}/complete/` |
+| cancel desde recepción | POST | `{{baseUrl}}/api/v1/clinics/staff/appointments/{{staffAppointmentId}}/cancel/` |
+
+### 12 · Operaciones finales — ejecutar manualmente
+
+| Petición | Método | Ruta |
+|---|---|---|
+| Archivar imagen | DELETE | `{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/` |
+| Desactivar paciente de prueba | POST | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/deactivate/` |
+| Cerrar última sesión de cookies | POST | `{{baseUrl}}/api/v1/auth/logout/` |

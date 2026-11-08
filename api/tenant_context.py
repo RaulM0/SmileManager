@@ -1,4 +1,4 @@
-"""Foundation only: context validation is not yet enforced on clinical routes."""
+"""Live clinic membership and capability boundaries for organizational APIs."""
 from uuid import UUID
 
 from django.contrib.auth import get_user_model
