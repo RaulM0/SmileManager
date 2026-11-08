@@ -22,6 +22,28 @@ class AccountThrottle(SimpleRateThrottle):
         return self.cache_format % {'scope': self.scope, 'ident': digest}
 
 
+class PasswordResetIPThrottle(AddressThrottle):
+    scope = 'password_reset_ip'
+
+
+class PasswordResetAccountThrottle(SimpleRateThrottle):
+    scope = 'password_reset_account'
+
+    def get_cache_key(self, request, view):
+        raw = request.data.get('email', '') if isinstance(request.data, dict) else ''
+        if not isinstance(raw, str):
+            return None
+        email = raw.strip().casefold()[:254]
+        if not email:
+            return None
+        digest = hmac.new(settings.SECRET_KEY.encode(), email.encode(), hashlib.sha256).hexdigest()
+        return self.cache_format % {'scope': self.scope, 'ident': digest}
+
+
+class PasswordResetConfirmThrottle(AddressThrottle):
+    scope = 'password_reset_confirm'
+
+
 class UserThrottle(SimpleRateThrottle):
     scope = None
 

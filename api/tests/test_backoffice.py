@@ -7,7 +7,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.utils import timezone
 from DiagnosticosIA.models import AIAnalysisRun
 from Citas.models import Cita
-from Pacientes.models import Paciente, Consulta, AntescedentesMedicos
+from Pacientes.models import Paciente, Consulta, AntescedentesMedicos, ClinicalRevision, Odontograma
 import uuid
 from unittest.mock import patch
 
@@ -32,6 +32,46 @@ class BackofficeTests(TestCase):
             self.assertEqual(self.client.get(reverse(name)).status_code, 200, name)
         self.client.force_authenticate(self.user)
         self.assertEqual(self.client.post(reverse('backoffice-user-action', args=[self.admin.pk, 'deactivate'])).status_code, 403)
+
+    def test_create_user_requires_admin_and_audits_without_credentials(self):
+        url = reverse('backoffice-user-create')
+        payload = {'username': 'synthetic-new', 'email': 'new@example.test', 'password': 'unrelated strong phrase 987!'}
+        self.client.force_authenticate(None)
+        self.assertEqual(self.client.post(url, payload, format='json').status_code, 401)
+        self.client.force_authenticate(self.user)
+        self.assertEqual(self.client.post(url, payload, format='json').status_code, 403)
+        self.client.force_authenticate(self.admin)
+        response = self.client.post(url, payload, format='json')
+        self.assertEqual(response.status_code, 201)
+        self.assertNotIn('password', response.data)
+        created = User.objects.get(username='synthetic-new')
+        self.assertTrue(created.check_password(payload['password']))
+        self.assertFalse(created.is_staff)
+        self.assertFalse(created.is_superuser)
+        self.assertTrue(AuditEvent.objects.filter(actor=self.admin, action='USER_CREATED', resource_id=str(created.pk)).exists())
+        self.assertFalse(AuditEvent.objects.filter(action__icontains=payload['password']).exists())
+
+    def test_create_user_rejects_extra_privileges_and_validates_password(self):
+        self.client.force_authenticate(self.admin)
+        url = reverse('backoffice-user-create')
+        payload = {'username': 'synthetic-new', 'email': 'new@example.test', 'password': 'unrelated strong phrase 987!', 'is_superuser': True}
+        self.assertEqual(self.client.post(url, payload, format='json').status_code, 400)
+        del payload['is_superuser']
+        self.assertEqual(self.client.post(url, {**payload, 'password': '123'}, format='json').status_code, 400)
+        response = self.client.post(url, {**payload, 'backoffice_access': True}, format='json')
+        self.assertEqual(response.status_code, 201)
+        created = User.objects.get(username='synthetic-new')
+        self.assertTrue(created.user_permissions.filter(codename='access_system_backoffice').exists())
+        self.assertTrue(AuditEvent.objects.filter(actor=self.admin, action='BACKOFFICE_ACCESS_GRANTED', resource_id=str(created.pk)).exists())
+        self.assertEqual(self.client.post(url, payload, format='json').status_code, 400)
+
+    def test_create_user_audit_failure_rolls_back(self):
+        self.client.force_authenticate(self.admin)
+        self.client.raise_request_exception = False
+        with patch('api.services.backoffice.AuditEvent.objects.create', side_effect=RuntimeError('synthetic')):
+            response = self.client.post(reverse('backoffice-user-create'), {'username': 'rollback-user', 'email': 'rollback@example.test', 'password': 'unrelated strong phrase 987!'}, format='json')
+        self.assertEqual(response.status_code, 500)
+        self.assertFalse(User.objects.filter(username='rollback-user').exists())
 
     def test_activation_is_explicit_audited_and_protects_admins(self):
         old_refresh = str(RefreshToken.for_user(self.user))
@@ -175,3 +215,23 @@ class BackofficeTests(TestCase):
         self.client.force_authenticate(self.admin)
         self.assertEqual(self.client.get(reverse('backoffice-patients')).status_code, 403)
         self.assertEqual(self.client.get(reverse('backoffice-appointments')).status_code, 403)
+
+    def test_global_clinical_writes_remain_denied_after_integration(self):
+        patient = Paciente.objects.create(nombre='A', appat='B', apmat='C', fecha_nacimiento='1990-01-01', genero='F', telefono='1234567890', email='blocked@example.test', medico=self.user)
+        appointment = Cita.objects.create(paciente=patient, fecha='2030-01-01', hora='10:00', motivo='synthetic')
+        self.client.force_authenticate(self.admin)
+        self.assertEqual(self.client.patch(reverse('backoffice-patient', args=[patient.pk]), {'nombre': 'Changed'}, format='json').status_code, 403)
+        for record in ('medical-history', 'odontogram'):
+            url = reverse('backoffice-patient-record', args=[patient.pk, record])
+            self.assertEqual(self.client.get(url).status_code, 403)
+            self.assertEqual(self.client.put(url, {'version': 0}, format='json').status_code, 403)
+        for operation in ('complete', 'cancel'):
+            url = reverse('backoffice-appointment-transition', args=[appointment.pk, operation])
+            self.assertEqual(self.client.post(url, {}, format='json').status_code, 403)
+        patient.refresh_from_db()
+        appointment.refresh_from_db()
+        self.assertEqual(patient.nombre, 'A')
+        self.assertEqual(appointment.estatus, 'P')
+        self.assertFalse(AntescedentesMedicos.objects.filter(paciente=patient).exists())
+        self.assertFalse(Odontograma.objects.filter(paciente=patient).exists())
+        self.assertFalse(ClinicalRevision.objects.filter(patient=patient).exists())

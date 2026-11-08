@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import { useParams } from "react-router-dom";
-import { getErrorMessage } from "../../api/client";
+import { api, getErrorMessage } from "../../api/client";
+import type { OdontogramData } from "../../types/domain";
 import { useToast } from "../../context/ToastContext";
 import { clinicalService } from "../../services/clinical";
 import { useUnsavedChanges } from "../../hooks/useUnsavedChanges";
@@ -98,7 +99,7 @@ function Dentition({ title, groups, data, onSurface }: { title: string; groups: 
   );
 }
 
-export default function OdontogramPage() {
+export default function OdontogramPage({ administrative = false }: { administrative?: boolean }) {
   const toast = useToast();
   const { id } = useParams();
   const [active, setActive] = useState("sano");
@@ -116,7 +117,7 @@ export default function OdontogramPage() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setPermanent(null);
     setDeciduous(null);
-    clinicalService.odontogram(id!).then((data) => {
+    (administrative ? api<OdontogramData>(`backoffice/patients/${id}/records/odontogram/`) : clinicalService.odontogram(id!)).then((data) => {
       const permanentResult = fullDentition(permanent, data.denticion_permanente);
       const deciduousResult = fullDentition(deciduous, data.denticion_decidua);
       setPermanent(permanentResult);
@@ -126,7 +127,7 @@ export default function OdontogramPage() {
       setVersion(data.version ?? 0);
       setError("");
     }).catch((requestError) => setError(requestError.message));
-  }, [id, loadVersion]);
+  }, [id, loadVersion, administrative]);
   const summary = useMemo(() => {
     if (!permanentData || !deciduousData) return {};
     const all = [
@@ -174,12 +175,13 @@ export default function OdontogramPage() {
     setSaving(true);
     setError("");
     try {
-      const saved = await clinicalService.saveOdontogram(id!, {
+      const values = {
           denticion_permanente: recordedDentition(permanentData!),
           denticion_decidua: recordedDentition(deciduousData!),
           resumen: summary as Record<string, number>,
           version,
-      });
+      };
+      const saved = administrative ? await api<OdontogramData>(`backoffice/patients/${id}/records/odontogram/`, { method: 'PUT', body: JSON.stringify(values) }) : await clinicalService.saveOdontogram(id!, values);
       setVersion(saved.version ?? version + 1);
       setBaseline(JSON.stringify([permanentData, deciduousData]));
       toast.success("Odontograma guardado correctamente.");

@@ -3,6 +3,7 @@ import { createBrowserRouter, createRoutesFromElements, Navigate, Route, RouterP
 import ClinicWorkspace from "./layouts/ClinicWorkspace";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
+import { ForgotPasswordPage, ResetPasswordPage } from "./pages/PasswordRecovery";
 import InvitationPage from "./pages/InvitationPage";
 import InvitationRegisterPage from "./pages/InvitationRegisterPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -32,7 +33,8 @@ import ExportsPage from "./pages/exports/ExportsPage";
 import PatientContactPage from "./pages/patients/PatientContactPage";
 import DiagnosticsPage from "./pages/diagnostics/DiagnosticsPage";
 import { BackofficeLayout, BackofficeDashboard, BackofficeUsers, BackofficeUser, BackofficeAudit, BackofficeRuns, BackofficeRun, BackofficeSystem } from "./pages/backoffice/Backoffice";
-import { BackofficePatients, BackofficePatient, BackofficePatientSection, BackofficeAppointments, BackofficeAppointment } from "./pages/backoffice/BackofficeClinical";
+import { BackofficePatients, BackofficePatient, BackofficePatientEdit, BackofficePatientSection, BackofficeAppointments, BackofficeAppointment } from "./pages/backoffice/BackofficeClinical";
+import { BackofficeUserCreate } from "./pages/backoffice/BackofficeUserCreate";
 import PlatformClinicsPage from "./pages/backoffice/PlatformClinicsPage";
 
 const DiagnosticResultPage = lazy(
@@ -51,15 +53,21 @@ function RouteLoading() {
 const router = createBrowserRouter(createRoutesFromElements(
     <>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/invitations/register" element={<InvitationRegisterPage />} />
       <Route element={<ProtectedRoute />}>
         <Route path="invitations/accept" element={<InvitationPage />} />
         <Route path="backoffice" element={<BackofficeLayout />}>
           <Route index element={<BackofficeDashboard />} />
           <Route path="users" element={<BackofficeUsers />} />
+          <Route path="users/new" element={<BackofficeUserCreate />} />
           <Route path="users/:id" element={<BackofficeUser />} />
           <Route path="patients" element={<BackofficePatients />} />
           <Route path="patients/:id" element={<BackofficePatient />} />
+          <Route path="patients/:id/edit" element={<BackofficePatientEdit />} />
+          <Route path="patients/:id/edit-history" element={<MedicalHistoryPage administrative />} />
+          <Route path="patients/:id/edit-odontogram" element={<OdontogramPage administrative />} />
           <Route path="patients/:id/:section" element={<BackofficePatientSection />} />
           <Route path="appointments" element={<BackofficeAppointments />} />
           <Route path="appointments/:id" element={<BackofficeAppointment />} />

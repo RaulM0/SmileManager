@@ -149,14 +149,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Email
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_USE_TLS = True
-EMAIL_PORT = 587
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'true').lower() == 'true'
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
 EMAIL_TIMEOUT = int(os.environ.get('SMTP_TIMEOUT', '30'))
 EMAIL_HOST_USER = os.environ.get('EMAIL_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASS', '')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'webmaster@localhost')
 TENANT_INVITATION_URL = os.environ.get('TENANT_INVITATION_URL', '')
+FRONTEND_URL = os.environ.get('FRONTEND_URL', '')
+PASSWORD_RESET_TIMEOUT = max(1, int(os.environ.get('PASSWORD_RESET_TIMEOUT', '1800')))
 
 # Session
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
@@ -175,6 +177,9 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'authentication': os.environ.get('THROTTLE_AUTH', '30/min'),
         'authentication_account': os.environ.get('THROTTLE_ACCOUNT', '10/min'),
+        'password_reset_ip': os.environ.get('THROTTLE_PASSWORD_RESET_IP', '10/hour'),
+        'password_reset_account': os.environ.get('THROTTLE_PASSWORD_RESET_ACCOUNT', '3/hour'),
+        'password_reset_confirm': os.environ.get('THROTTLE_PASSWORD_RESET_CONFIRM', '20/hour'),
         'expensive': os.environ.get('THROTTLE_EXPENSIVE', '10/min'),
         'email': os.environ.get('THROTTLE_EMAIL', '10/min'),
         'export': os.environ.get('THROTTLE_EXPORT', '10/min'),

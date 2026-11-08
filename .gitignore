@@ -19,6 +19,8 @@ frontend/.e2e-closure-output/
 frontend/.ci-npm-check/
 frontend/.security-e2e-output/
 frontend/.backoffice-e2e-output/
+frontend/.password-recovery-e2e-output/
+.local-mail/
 .pip-audit-closure.json
 .gitleaks-*-redacted.json
 

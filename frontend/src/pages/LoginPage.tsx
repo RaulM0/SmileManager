@@ -90,6 +90,7 @@ export default function LoginPage() {
                   </button>
                 </div>
               </div>
+              <p className="co-mt-3"><Link to="/forgot-password">¿Olvidaste tu contraseña?</Link></p>
               <button disabled={submitting} className="clinical-form-submit co-mt-5 co-w-full">
                 {submitting ? <><span className="clinical-form-spinner" aria-hidden="true" />Iniciando sesión…</> : <><i className="bi bi-box-arrow-in-right" aria-hidden="true" />Iniciar sesión</>}
               </button>

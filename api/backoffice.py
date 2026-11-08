@@ -3,7 +3,9 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.db import DatabaseError, connection
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
+from django.db import DatabaseError, IntegrityError, connection
 from django.db.models import Count, Q
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -18,7 +20,7 @@ from Citas.models import Cita
 from Pacientes.models import Paciente
 from Usuarios.models import AuditEvent
 from .policies import IsSystemAdmin, has_backoffice_assignment, has_platform_assignment
-from .services.backoffice import AdministrativeAccountProtected, set_user_active
+from .services.backoffice import AdministrativeAccountProtected, create_user, set_user_active
 from .throttles import ExpensiveThrottle
 
 User = get_user_model()
@@ -36,6 +38,39 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'username', 'email', 'is_active', 'is_staff', 'date_joined', 'last_login')
         read_only_fields = fields
+
+
+class UserCreateSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=150)
+    email = serializers.EmailField()
+    first_name = serializers.CharField(max_length=150, required=False, allow_blank=True, default='')
+    last_name = serializers.CharField(max_length=150, required=False, allow_blank=True, default='')
+    password = serializers.CharField(write_only=True, trim_whitespace=False, max_length=128)
+    backoffice_access = serializers.BooleanField(default=False)
+
+    def to_internal_value(self, data):
+        if hasattr(data, 'keys'):
+            unknown = set(data.keys()) - set(self.fields)
+            if unknown:
+                raise serializers.ValidationError({'detail': 'Se enviaron campos no permitidos.'})
+        return super().to_internal_value(data)
+
+    def validate_username(self, value):
+        try:
+            User._meta.get_field('username').run_validators(value)
+        except DjangoValidationError as exc:
+            raise serializers.ValidationError(exc.messages) from exc
+        if User.objects.filter(username=value).exists():
+            raise serializers.ValidationError('Ya existe un usuario con este nombre.')
+        return value
+
+    def validate(self, attrs):
+        candidate = User(username=attrs['username'], email=attrs['email'], first_name=attrs['first_name'], last_name=attrs['last_name'])
+        try:
+            validate_password(attrs['password'], user=candidate)
+        except DjangoValidationError as exc:
+            raise serializers.ValidationError({'password': exc.messages}) from exc
+        return attrs
 
 
 class UserDetailSerializer(UserSerializer):
@@ -105,7 +140,7 @@ class Dashboard(AdminAPIView):
         patients = Paciente.objects.filter(estatus='A').count()
         today = timezone.localdate()
         appointments = Cita.objects.aggregate(today=Count('id', filter=Q(fecha=today)), upcoming=Count('id', filter=Q(fecha__gt=today, estatus='P')))
-        recent = AuditEvent.objects.filter(action__in=('USER_ACTIVATED', 'USER_DEACTIVATED')).select_related('actor').only('id', 'timestamp', 'actor_id', 'actor__username', 'action', 'resource_type', 'resource_id', 'outcome', 'request_id').order_by('-timestamp', '-pk')[:5]
+        recent = AuditEvent.objects.filter(action__in=('USER_CREATED', 'BACKOFFICE_ACCESS_GRANTED', 'USER_ACTIVATED', 'USER_DEACTIVATED', 'BACKOFFICE_PATIENT_UPDATE', 'BACKOFFICE_HISTORY_UPDATE', 'BACKOFFICE_ODONTOGRAM_UPDATE', 'BACKOFFICE_APPOINTMENT_COMPLETED', 'BACKOFFICE_APPOINTMENT_CANCELLED')).select_related('actor').only('id', 'timestamp', 'actor_id', 'actor__username', 'action', 'resource_type', 'resource_id', 'outcome', 'request_id').order_by('-timestamp', '-pk')[:5]
         return Response({'users': users, 'ai': runs, 'patients_active': patients, 'appointments': appointments, 'recent_admin_events': AuditSerializer(recent, many=True).data})
 
 
@@ -120,6 +155,19 @@ class Users(AdminList):
         if state not in ('', 'active', 'inactive'):
             raise serializers.ValidationError({'state': 'Estado no válido.'})
         return qs.filter(is_active=state == 'active') if state else qs
+
+
+class CreateUser(AdminAPIView):
+    throttle_classes = [ExpensiveThrottle]
+
+    def post(self, request):
+        serializer = UserCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            user = create_user(actor=request.user, request_id=request._request.request_id, **serializer.validated_data)
+        except IntegrityError:
+            raise serializers.ValidationError({'username': ['No fue posible crear el usuario con ese nombre.']})
+        return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
 
 
 @method_decorator(never_cache, name='dispatch')

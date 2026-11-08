@@ -1,6 +1,7 @@
 """Audited, read-only global views for explicitly authorized system administrators."""
 import uuid
 from django.db.models import Exists, F, OuterRef, Q
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
@@ -14,6 +15,11 @@ from Pacientes.models import (Paciente, AntescedentesMedicos, Consulta, Odontogr
                               ImagenesClinicas, EstudioComparativo, Consentimiento, ClinicalRevision)
 from Usuarios.models import AuditEvent
 from .backoffice import AdminAPIView, Pagination
+from .services.appointments import transition_appointment
+from .services.patients import update_patient
+from .serializers import PatientSerializer, MedicalHistorySerializer, OdontogramSerializer
+from .services.clinical_records import save_record
+from .throttles import ExpensiveThrottle
 
 
 class NoGlobalClinicalAccess(BasePermission):
@@ -74,13 +80,36 @@ def patient_data(patient):
 
 class PatientDetail(ClinicalAdminAPIView):
     def get(self, request, pk):
-        patient = get_object_or_404(patient_rows(), pk=pk)
+        patient = get_object_or_404(patient_rows().only('id', 'nombre', 'appat', 'apmat', 'estatus', 'medico_id', 'medico__username', 'created', 'updated', 'fecha_nacimiento', 'genero', 'telefono', 'email'), pk=pk)
         data = patient_data(patient)
+        data.update({'updated': patient.updated, 'fecha_nacimiento': patient.fecha_nacimiento, 'genero': patient.genero, 'telefono': patient.telefono, 'email': patient.email})
         data['appointments_count'] = Cita.objects.filter(paciente_id=pk).count()
         data['consultations_count'] = Consulta.objects.filter(paciente_id=pk, medico_id=F('paciente__medico_id')).count()
         data['images_count'] = ImagenesClinicas.objects.filter(paciente_id=pk, medico_id=F('paciente__medico_id')).filter(Q(consulta__isnull=True) | Q(consulta__paciente_id=F('paciente_id'), consulta__medico_id=F('medico_id'))).count()
         audit_read(request, 'BACKOFFICE_PATIENT_VIEW', 'patient', pk)
         return Response(data)
+
+    @transaction.atomic
+    def patch(self, request, pk):
+        allowed = {'nombre', 'appat', 'apmat', 'fecha_nacimiento', 'genero', 'telefono', 'email', 'estatus', 'expected_updated'}
+        if not isinstance(request.data, dict) or set(request.data) - allowed:
+            raise serializers.ValidationError({'detail': 'Se enviaron campos no permitidos.'})
+        if 'expected_updated' not in request.data:
+            raise serializers.ValidationError({'expected_updated': 'Se requiere la fecha de actualización del registro.'})
+        expected = serializers.DateTimeField().run_validation(request.data['expected_updated'])
+        patient = get_object_or_404(Paciente.objects.select_for_update(), pk=pk)
+        if patient.updated != expected:
+            return Response({'detail': 'Este paciente fue actualizado desde otra sesión. Recarga la información.'}, status=409)
+        if patient.medico_id is None:
+            return Response({'detail': 'El paciente no tiene un médico responsable; se requiere resolver la asignación.'}, status=409)
+        changes = {key: value for key, value in request.data.items() if key != 'expected_updated'}
+        if not changes:
+            raise serializers.ValidationError({'detail': 'Indica al menos un dato para actualizar.'})
+        serializer = PatientSerializer(patient, data=changes, partial=True)
+        serializer.is_valid(raise_exception=True)
+        patient = update_patient(patient=patient, medico=patient.medico, validated_data=serializer.validated_data)
+        audit_read(request, 'BACKOFFICE_PATIENT_UPDATE', 'patient', pk)
+        return Response(PatientSerializer(patient).data)
 
 
 class AppointmentList(ClinicalAdminAPIView):
@@ -121,6 +150,23 @@ class AppointmentDetail(ClinicalAdminAPIView):
                          'fecha': item.fecha, 'hora': item.hora, 'estatus': item.estatus})
 
 
+class AppointmentTransition(ClinicalAdminAPIView):
+    throttle_classes = [ExpensiveThrottle]
+
+    @transaction.atomic
+    def post(self, request, pk, operation):
+        if request.data:
+            raise serializers.ValidationError({'detail': 'Esta acción no acepta campos adicionales.'})
+        target = {'complete': 'C', 'cancel': 'A'}.get(operation)
+        if not target:
+            from django.http import Http404
+            raise Http404
+        appointment = get_object_or_404(Cita, pk=pk)
+        appointment = transition_appointment(user=request.user, appointment=appointment, target=target)
+        audit_read(request, 'BACKOFFICE_APPOINTMENT_COMPLETED' if target == 'C' else 'BACKOFFICE_APPOINTMENT_CANCELLED', 'appointment', pk)
+        return Response({'id': appointment.pk, 'estatus': appointment.estatus})
+
+
 SECTIONS = {
     'history': (AntescedentesMedicos, ('id', 'version', 'updated', 'tratamiento_medico', 'problemas_cardiacos', 'problemas_coagulacion', 'epilepsia', 'gastritis', 'hipertension', 'anemia', 'embarazo', 'alergia_medicamentos', 'alergia_especifica', 'discapacidad', 'fuma', 'respiracion_bucal', 'morder_unas', 'chupar_dedo', 'rechinar_dientes', 'sobremordida_vertical', 'sobremordida_horizontal', 'mordida_cruzada', 'mordida_abierta', 'desgaste', 'problemas_atm', 'consumo_citricos', 'sangrado_encias', 'alergias', 'medicamentos', 'cirugias_previas', 'otros'), '-updated'),
     'odontogram': (Odontograma, ('id', 'version', 'updated', 'dientes_permanentes', 'dientes_deciduos', 'resumen_clinico'), '-updated'),
@@ -155,3 +201,40 @@ class PatientSection(ClinicalAdminAPIView):
         result = list(result)
         audit_read(request, 'BACKOFFICE_CLINICAL_SECTION_VIEW', 'patient', pk)
         return paginator.get_paginated_response(result)
+
+
+class PatientRecord(ClinicalAdminAPIView):
+    throttle_classes = [ExpensiveThrottle]
+
+    def configuration(self, record):
+        if record == 'medical-history':
+            return AntescedentesMedicos, MedicalHistorySerializer
+        if record == 'odontogram':
+            return Odontograma, OdontogramSerializer
+        from django.http import Http404
+        raise Http404
+
+    def get(self, request, pk, record):
+        model, serializer_class = self.configuration(record)
+        patient = get_object_or_404(Paciente, pk=pk)
+        if patient.medico_id is None or model.objects.filter(paciente=patient).exclude(medico_id=patient.medico_id).exists():
+            return Response({'detail': 'Las relaciones clínicas requieren revisión.'}, status=409)
+        obj = model.objects.filter(paciente=patient, medico_id=patient.medico_id).order_by('-pk').first() or model(paciente=patient, medico_id=patient.medico_id)
+        audit_read(request, 'BACKOFFICE_CLINICAL_RECORD_VIEW', 'patient', pk)
+        return Response(serializer_class(obj).data)
+
+    @transaction.atomic
+    def put(self, request, pk, record):
+        model, serializer_class = self.configuration(record)
+        if not isinstance(request.data, dict):
+            raise serializers.ValidationError({'detail': 'Se requiere un objeto con datos clínicos.'})
+        patient = get_object_or_404(Paciente, pk=pk)
+        obj = model.objects.filter(paciente=patient, medico_id=patient.medico_id).first() or model(paciente=patient, medico_id=patient.medico_id)
+        serializer = serializer_class(obj, data=request.data, partial=record == 'medical-history')
+        unknown = set(request.data) - set(serializer.fields)
+        if unknown:
+            raise serializers.ValidationError({'detail': 'Se enviaron campos no permitidos.'})
+        serializer.is_valid(raise_exception=True)
+        obj = save_record(user=request.user, patient_id=pk, model=model, changes=serializer.validated_data, expected_version=request.data.get('version'))
+        audit_read(request, 'BACKOFFICE_HISTORY_UPDATE' if record == 'medical-history' else 'BACKOFFICE_ODONTOGRAM_UPDATE', 'patient', pk)
+        return Response(serializer_class(obj).data)

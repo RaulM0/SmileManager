@@ -2,6 +2,7 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from . import views
+from . import password_recovery
 from . import backoffice
 from . import backoffice_clinical
 from . import tenant_views
@@ -64,15 +65,18 @@ urlpatterns = [
     path('clinics/invitations/<uuid:invitation_id>/revoke/', tenant_views.InvitationRevoke.as_view(), name='clinic-invitation-revoke'),
     path('backoffice/patients/', backoffice_clinical.PatientList.as_view(), name='backoffice-patients'),
     path('backoffice/patients/<int:pk>/', backoffice_clinical.PatientDetail.as_view(), name='backoffice-patient'),
+    path('backoffice/patients/<int:pk>/records/<str:record>/', backoffice_clinical.PatientRecord.as_view(), name='backoffice-patient-record'),
     path('backoffice/patients/<int:pk>/<str:section>/', backoffice_clinical.PatientSection.as_view(), name='backoffice-patient-section'),
     path('backoffice/appointments/', backoffice_clinical.AppointmentList.as_view(), name='backoffice-appointments'),
     path('backoffice/appointments/<int:pk>/', backoffice_clinical.AppointmentDetail.as_view(), name='backoffice-appointment'),
+    path('backoffice/appointments/<int:pk>/<str:operation>/', backoffice_clinical.AppointmentTransition.as_view(), name='backoffice-appointment-transition'),
     path('backoffice/dashboard/', backoffice.Dashboard.as_view(), name='backoffice-dashboard'),
     path('backoffice/clinics/', platform_clinics.PlatformClinics.as_view(), name='platform-clinics'),
     path('backoffice/clinics/<uuid:clinic_id>/status/', platform_clinics.PlatformClinicStatus.as_view(), name='platform-clinic-status'),
     path('backoffice/clinics/<uuid:clinic_id>/initial-admin/', platform_clinics.PlatformInitialAdministrator.as_view(), name='platform-clinic-initial-admin'),
     path('backoffice/clinics/<uuid:clinic_id>/initial-admin/<uuid:invitation_id>/revoke/', platform_clinics.PlatformInitialAdministratorRevoke.as_view(), name='platform-clinic-initial-admin-revoke'),
     path('backoffice/users/', backoffice.Users.as_view(), name='backoffice-users'),
+    path('backoffice/users/create/', backoffice.CreateUser.as_view(), name='backoffice-user-create'),
     path('backoffice/users/<int:pk>/', backoffice.UserDetail.as_view(), name='backoffice-user'),
     path('backoffice/users/<int:pk>/<str:operation>/', backoffice.UserActivation.as_view(), name='backoffice-user-action'),
     path('backoffice/audit/', backoffice.AuditList.as_view(), name='backoffice-audit'),
@@ -82,6 +86,8 @@ urlpatterns = [
     path('backoffice/system/', backoffice.System.as_view(), name='backoffice-system'),
     path('auth/session/', views.SessionView.as_view(), name='api-session'),
     path('auth/login/', views.LoginView.as_view(), name='api-login'),
+    path('auth/password-reset/request/', password_recovery.PasswordResetRequest.as_view(), name='api-password-reset-request'),
+    path('auth/password-reset/confirm/', password_recovery.PasswordResetConfirm.as_view(), name='api-password-reset-confirm'),
     path('auth/refresh/', views.RefreshView.as_view(), name='api-refresh'),
     path('auth/logout/', views.LogoutView.as_view(), name='api-logout'),
     path('dashboard/', views.DashboardView.as_view(), name='api-dashboard'),
