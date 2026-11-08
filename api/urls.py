@@ -1,5 +1,5 @@
+from django.conf import settings
 from django.urls import include, path
-from rest_framework.routers import DefaultRouter
 
 from . import views
 from . import password_recovery
@@ -17,14 +17,14 @@ from . import tenant_reporting
 from . import tenant_studies
 from . import platform_clinics
 from . import tenant_admin
-
-router = DefaultRouter()
-router.register('patients', views.PatientViewSet, basename='api-patient')
-router.register('appointments', views.AppointmentViewSet, basename='api-appointment')
-router.register('clinical-images', views.ClinicalImageViewSet, basename='api-clinical-image')
-
+from . import tenant_contact
+from . import tenant_staff
 
 urlpatterns = [
+    path('clinics/staff/patients/', tenant_staff.StaffPatients.as_view(), name='tenant-staff-patients'),
+    path('clinics/staff/appointments/', tenant_staff.StaffAppointments.as_view(), name='tenant-staff-appointments'),
+    path('clinics/staff/appointments/<int:pk>/', tenant_staff.StaffAppointmentDetail.as_view(), name='tenant-staff-appointment-detail'),
+    path('clinics/staff/appointments/<int:pk>/<str:operation>/', tenant_staff.StaffAppointmentTransition.as_view(), name='tenant-staff-appointment-transition'),
     path('clinics/memberships/', tenant_views.MembershipList.as_view(), name='clinic-memberships'),
     path('clinics/context/', tenant_views.ValidateClinicContext.as_view(), name='clinic-context'),
     path('clinics/dashboard/', tenant_reporting.TenantDoctorDashboard.as_view(), name='tenant-doctor-dashboard'),
@@ -37,6 +37,7 @@ urlpatterns = [
     path('clinics/patients/autocomplete/', tenant_patients.TenantPatientAutocomplete.as_view(), name='tenant-patient-autocomplete'),
     path('clinics/patients/<int:pk>/', tenant_patients.TenantPatientDetail.as_view(), name='tenant-patient-detail'),
     path('clinics/patients/<int:pk>/deactivate/', tenant_patients.TenantPatientDeactivate.as_view(), name='tenant-patient-deactivate'),
+    path('clinics/patients/<int:patient_id>/email/', tenant_contact.TenantPatientEmail.as_view(), name='tenant-patient-email'),
     path('clinics/patients/<int:patient_id>/medical-history/', tenant_clinical_records.TenantMedicalHistory.as_view(), name='tenant-medical-history'),
     path('clinics/patients/<int:patient_id>/odontogram/', tenant_clinical_records.TenantOdontogram.as_view(), name='tenant-odontogram'),
     path('clinics/patients/<int:patient_id>/consultations/', tenant_consultations.TenantConsultations.as_view(), name='tenant-consultations'),
@@ -90,23 +91,8 @@ urlpatterns = [
     path('auth/password-reset/confirm/', password_recovery.PasswordResetConfirm.as_view(), name='api-password-reset-confirm'),
     path('auth/refresh/', views.RefreshView.as_view(), name='api-refresh'),
     path('auth/logout/', views.LogoutView.as_view(), name='api-logout'),
-    path('dashboard/', views.DashboardView.as_view(), name='api-dashboard'),
-    path('patients/<int:patient_id>/medical-history/', views.MedicalHistoryView.as_view(), name='api-medical-history'),
-    path('patients/<int:patient_id>/consultations/', views.ConsultationListCreateView.as_view(), name='api-consultations'),
-    path('patients/<int:patient_id>/clinical-images/', views.ClinicalImageListCreateView.as_view(), name='api-clinical-images'),
-    path('patients/<int:patient_id>/odontogram/', views.OdontogramView.as_view(), name='api-odontogram'),
-    path('patients/<int:patient_id>/comparative-study/', views.ComparativeStudyView.as_view(), name='api-comparative-study'),
-    path('patients/<int:patient_id>/comparative-study/pdf/', views.ComparativeStudyPdfView.as_view(), name='api-comparative-study-pdf'),
-    path('patients/<int:patient_id>/comparative-study/media/<str:field>/', views.ComparativeStudyImageView.as_view(), name='api-comparative-study-image'),
-    path('patients/<int:patient_id>/consent/', views.ConsentView.as_view(), name='api-consent'),
-    path('patients/<int:patient_id>/consent/file/', views.ConsentFileView.as_view(), name='api-consent-file'),
-    path('patients/<int:patient_id>/consent/pdf/', views.ConsentPdfView.as_view(), name='api-consent-pdf'),
-    path('patients/<int:patient_id>/email/', views.PatientEmailView.as_view(), name='api-patient-email'),
-    path('exports/patients.xlsx', views.PatientExportView.as_view(), name='api-export-patients'),
-    path('exports/consultations.xlsx', views.ConsultationExportView.as_view(), name='api-export-consultations'),
-    path('exports/clinical-images.xlsx', views.ClinicalImageExportView.as_view(), name='api-export-images'),
-    path('diagnostics/', views.DiagnosticsView.as_view(), name='api-diagnostics'),
-    path('consultations/<int:consultation_id>/', views.ConsultationDetailView.as_view(), name='api-consultation-detail'),
-    path('clinical-images/<int:image_id>/analysis-runs/<int:run_id>/file/', views.AnalysisRunFileView.as_view(), name='api-analysis-run-file'),
-    path('', include(router.urls)),
 ]
+
+# Historical contracts are available only in explicitly isolated regression settings.
+if settings.LEGACY_CLINICAL_API_ENABLED:
+    urlpatterns += [path("", include("api.legacy_urls"))]

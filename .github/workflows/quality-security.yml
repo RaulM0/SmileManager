@@ -27,13 +27,26 @@ jobs:
       - run: python manage.py test --noinput
         env:
           DJANGO_SETTINGS_MODULE: SmileManager.settings_test
-      - run: python manage.py test api.tests.test_postgres_concurrency --noinput
+      # Run the complete suite on PostgreSQL so membership, invitation, consent,
+      # backfill and reception locking tests cannot silently stay skipped.
+      - run: python manage.py test --noinput
         env:
           DJANGO_SETTINGS_MODULE: SmileManager.settings_postgres_test
           PHASE2_TEST_DATABASE_URL: postgresql://ci:ci-only-test-password@127.0.0.1:5432/postgres
       - run: python manage.py makemigrations --check --dry-run && python manage.py check
         env:
           DJANGO_SETTINGS_MODULE: SmileManager.settings_test
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci && npm run build && npx playwright install --with-deps chromium
+        working-directory: frontend
+      - run: npx playwright test
+        working-directory: frontend
+        env:
+          SMILE_E2E_PYTHON: python
       # Audit the environment installed above, including transitive dependencies,
       # without creating a second copy of the large Torch/CUDA dependency tree.
       - run: python -m pip install pip-audit==2.10.1 && python -m pip check && pip-audit

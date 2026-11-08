@@ -80,7 +80,11 @@ class InvitationUnavailable(APIException):
 def invitation_delivery_url():
     url = getattr(settings, 'TENANT_INVITATION_URL', '')
     parts = urlsplit(url)
-    if parts.scheme != 'https' or not parts.netloc or parts.query or parts.fragment or parts.username or parts.password:
+    local_http = (
+        settings.DEBUG and getattr(settings, 'ALLOW_LOCAL_HTTP_INVITATIONS', False)
+        and parts.scheme == 'http' and parts.hostname in ('localhost', '127.0.0.1', '::1')
+    )
+    if (parts.scheme != 'https' and not local_http) or not parts.netloc or parts.query or parts.fragment or parts.username or parts.password:
         raise InvitationUnavailable()
     return url
 

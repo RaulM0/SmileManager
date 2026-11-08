@@ -88,6 +88,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
     page.getByLabel("Usuario"),
     page.getByLabel("Contraseña", { exact: true }),
     page.getByRole("button", { name: "Mostrar contraseña" }),
+    page.getByRole("link", { name: "¿Olvidaste tu contraseña?" }),
     page.getByRole("button", { name: "Iniciar sesión" }),
   ]);
   await page.getByLabel("Usuario").fill("e2e_doctor");
@@ -101,7 +102,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   await captureFormVariants(page, "redesign-privacy");
 
   let failDashboardOnce = true;
-  await page.route("**/api/v1/dashboard/", async (route) => {
+  await page.route("**/api/v1/clinics/dashboard/", async (route) => {
     if (failDashboardOnce) {
       failDashboardOnce = false;
       await route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ detail: "Agenda temporalmente no disponible." }) });
@@ -113,7 +114,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   await expect(page.getByRole("alert")).toContainText("Agenda temporalmente no disponible.");
   await page.getByRole("button", { name: "Reintentar" }).click();
   await expect(page.getByRole("heading", { name: /Bienvenido, Dr. E2E_DOCTOR/ })).toBeVisible();
-  await page.unroute("**/api/v1/dashboard/");
+  await page.unroute("**/api/v1/clinics/dashboard/");
 
   await page
     .getByRole("link", { name: /Pacientes/ })
@@ -140,7 +141,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
     .fill(`${name.toLowerCase()}@example.com`);
   await expectResponsiveWidths(page);
   let rejectPatientCreate = true;
-  await page.route("**/api/v1/patients/", async (route) => {
+  await page.route("**/api/v1/clinics/patients/", async (route) => {
     if (route.request().method() === "POST" && rejectPatientCreate) {
       rejectPatientCreate = false;
       await route.fulfill({
@@ -162,13 +163,13 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   await expect(page.locator("#telefono-error")).toHaveText("El teléfono no está disponible.");
   await expect(page.getByRole("alert")).toHaveText("Revisa los datos del paciente.");
   await page.getByRole("button", { name: "Registrar paciente" }).click();
-  await page.unroute("**/api/v1/patients/");
+  await page.unroute("**/api/v1/clinics/patients/");
   await expect(
     page.getByRole("heading", { name: new RegExp(name) }),
   ).toBeVisible();
   const patientId = page.url().match(/patients\/(\d+)/)?.[1];
   expect(patientId).toBeTruthy();
-  await page.route(`**/api/v1/patients/${patientId}/`, async (route) => {
+  await page.route(`**/api/v1/clinics/patients/${patientId}/`, async (route) => {
     if (route.request().method() === "GET") {
       await route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ detail: "Paciente temporalmente no disponible." }) });
       return;
@@ -177,7 +178,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   });
   await page.reload();
   await expect(page.getByRole("alert")).toHaveText("Paciente temporalmente no disponible.");
-  await page.unroute(`**/api/v1/patients/${patientId}/`);
+  await page.unroute(`**/api/v1/clinics/patients/${patientId}/`);
   await page.getByRole("button", { name: "Reintentar" }).click();
   await expect(page.getByRole("heading", { name: new RegExp(name) })).toBeVisible();
   await expectResponsiveWidths(page);
@@ -230,7 +231,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   }
   await page.setViewportSize({ width: 1280, height: 720 });
 
-  await page.route(`**/api/v1/patients/${patientId}/`, async (route) => {
+  await page.route(`**/api/v1/clinics/patients/${patientId}/`, async (route) => {
     if (route.request().method() === "GET") {
       await route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ detail: "No se pudo cargar la edición." }) });
       return;
@@ -239,7 +240,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   });
   await page.goto(`/app/patients/${patientId}/edit`);
   await expect(page.getByRole("alert")).toHaveText("No se pudo cargar la edición.");
-  await page.unroute(`**/api/v1/patients/${patientId}/`);
+  await page.unroute(`**/api/v1/clinics/patients/${patientId}/`);
   await page.getByRole("button", { name: "Reintentar" }).click();
   await expect(page.getByRole("heading", { name: "Editar paciente" })).toBeVisible();
   await page.getByLabel("Nombre", { exact: true }).fill("BORRADOR");
@@ -286,7 +287,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   }
   await captureFormVariants(page, "redesign-medical-history");
   let rejectHistorySave = true;
-  await page.route(`**/api/v1/patients/${patientId}/medical-history/`, async (route) => {
+  await page.route(`**/api/v1/clinics/patients/${patientId}/medical-history/`, async (route) => {
     if (route.request().method() === "PUT" && rejectHistorySave) {
       rejectHistorySave = false;
       await route.fulfill({
@@ -309,7 +310,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   await expect(page.locator("#tratamiento_medico-error")).toHaveText("Confirma la respuesta al antecedente.");
   await expect(page.getByLabel("Alergias")).toHaveValue("NINGUNA");
   await page.getByRole("button", { name: "Guardar antecedentes" }).click();
-  await page.unroute(`**/api/v1/patients/${patientId}/medical-history/`);
+  await page.unroute(`**/api/v1/clinics/patients/${patientId}/medical-history/`);
   await expect(page.getByText("Antecedentes actualizados")).toBeVisible();
 
   await page.goto(`/app/patients/${patientId}/consultations/new`);
@@ -324,7 +325,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   await expectResponsiveWidths(page);
   await captureFormVariants(page, "redesign-consultation-form");
   let rejectConsultationCreate = true;
-  await page.route(`**/api/v1/patients/${patientId}/consultations/**`, async (route) => {
+  await page.route(`**/api/v1/clinics/patients/${patientId}/consultations/**`, async (route) => {
     if (route.request().method() === "POST" && rejectConsultationCreate) {
       rejectConsultationCreate = false;
       await route.fulfill({
@@ -346,7 +347,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   await expect(page.locator("#motivo_consulta-error")).toHaveText("Revisa el motivo de consulta.");
   await expect(page.getByRole("alert")).toHaveText("No se pudo guardar la consulta.");
   await page.getByRole("button", { name: "Registrar consulta" }).click();
-  await page.unroute(`**/api/v1/patients/${patientId}/consultations/**`);
+  await page.unroute(`**/api/v1/clinics/patients/${patientId}/consultations/**`);
   await expect(
     page.getByRole("heading", { name: "Receta médica" }),
   ).toBeVisible();
@@ -380,7 +381,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   await expectResponsiveWidths(page);
   await captureFormVariants(page, "redesign-clinical-image-upload");
   let rejectImageUpload = true;
-  await page.route(`**/api/v1/patients/${patientId}/clinical-images/`, async (route) => {
+  await page.route(`**/api/v1/clinics/patients/${patientId}/clinical-images/`, async (route) => {
     if (route.request().method() === "POST" && rejectImageUpload) {
       rejectImageUpload = false;
       await route.fulfill({
@@ -399,7 +400,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   await expect(page.locator("#imagen-error")).toHaveText("El formato de imagen no es válido.");
   await expect(page.getByRole("alert")).toHaveText("No se pudo guardar la imagen.");
   await page.getByRole("button", { name: "Cargar imagen" }).click();
-  await page.unroute(`**/api/v1/patients/${patientId}/clinical-images/`);
+  await page.unroute(`**/api/v1/clinics/patients/${patientId}/clinical-images/`);
   await page.waitForURL(new RegExp(`patients/${patientId}/images/history$`));
   await expect(page.getByText("IMAGEN E2E")).toBeVisible();
   const uploadedDate = (await page.locator(".clinical-image-list time").getAttribute("datetime")).slice(0, 10);
@@ -414,7 +415,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
     page.getByRole("heading", { name: "Imágenes clínicas" }),
   ).toBeVisible();
   let failConsultationFilterOnce = true;
-  await page.route(`**/api/v1/patients/${patientId}/consultations/**`, async (route) => {
+  await page.route(`**/api/v1/clinics/patients/${patientId}/consultations/**`, async (route) => {
     if (failConsultationFilterOnce) {
       failConsultationFilterOnce = false;
       await route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ detail: "Consultas no disponibles." }) });
@@ -430,7 +431,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.getByRole("button", { name: "Reintentar consultas" }).click();
   await expect(page.getByLabel("Consulta").locator("option")).toHaveCount(2);
-  await page.unroute(`**/api/v1/patients/${patientId}/consultations/**`);
+  await page.unroute(`**/api/v1/clinics/patients/${patientId}/consultations/**`);
   await page.getByLabel("Fecha").fill(uploadedDate);
   await expect(page.getByText("IMAGEN E2E")).toBeVisible();
   await page.getByLabel("Consulta").selectOption({ index: 1 });
@@ -443,7 +444,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   await page.getByRole("button", { name: "Caries", exact: true }).click();
   await page.getByRole("button", { name: "18 oclusal sin registrar" }).click();
   let failOdontogramSaveOnce = true;
-  await page.route(`**/api/v1/patients/${patientId}/odontogram/`, async (route) => {
+  await page.route(`**/api/v1/clinics/patients/${patientId}/odontogram/`, async (route) => {
     if (route.request().method() === "PUT" && failOdontogramSaveOnce) {
       failOdontogramSaveOnce = false;
       await route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ detail: "No se pudo guardar el odontograma." }) });
@@ -454,7 +455,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   await page.getByRole("button", { name: "Guardar odontograma" }).click();
   await expect(page.getByRole("alert")).toContainText("No se pudo guardar el odontograma.");
   await page.getByRole("button", { name: "Guardar odontograma" }).click();
-  await page.unroute(`**/api/v1/patients/${patientId}/odontogram/`);
+  await page.unroute(`**/api/v1/clinics/patients/${patientId}/odontogram/`);
   await expect(
     page.getByText("Odontograma guardado correctamente."),
   ).toBeVisible();
@@ -509,7 +510,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   await captureFormVariants(page, "redesign-comparative-study");
   await expect(page.getByRole("alert")).toHaveCount(0);
   let rejectStudySave = true;
-  await page.route(`**/api/v1/patients/${patientId}/comparative-study/`, async (route) => {
+  await page.route(`**/api/v1/clinics/patients/${patientId}/comparative-study/`, async (route) => {
     if (route.request().method() === "PUT" && rejectStudySave) {
       rejectStudySave = false;
       await route.fulfill({
@@ -528,7 +529,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   await expect(page.locator("#antes_frontal-error")).toHaveText("La imagen frontal no es válida.");
   await expect(page.getByRole("alert")).toHaveText("No se pudo guardar el estudio.");
   await page.getByRole("button", { name: "Guardar estudio" }).click();
-  await page.unroute(`**/api/v1/patients/${patientId}/comparative-study/`);
+  await page.unroute(`**/api/v1/clinics/patients/${patientId}/comparative-study/`);
   await expect(page.getByText("Estudio guardado correctamente.")).toBeVisible();
   const pdfPromise = page.waitForEvent("download");
   await page.getByRole("link", { name: /Descargar PDF/ }).click();
@@ -544,7 +545,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   await expectResponsiveWidths(page);
   await captureFormVariants(page, "redesign-consent-form");
   let rejectConsentSave = true;
-  await page.route(`**/api/v1/patients/${patientId}/consent/`, async (route) => {
+  await page.route(`**/api/v1/clinics/patients/${patientId}/consent/`, async (route) => {
     if (route.request().method() === "POST" && rejectConsentSave) {
       rejectConsentSave = false;
       await route.fulfill({
@@ -562,13 +563,13 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   await expect(identityInput).toHaveAttribute("aria-describedby", "ine-help ine-error");
   await expect(page.locator("#ine-error")).toHaveText("La identificación no se pudo validar.");
   await page.getByRole("button", { name: "Aceptar y guardar" }).click();
-  await page.unroute(`**/api/v1/patients/${patientId}/consent/`);
+  await page.unroute(`**/api/v1/clinics/patients/${patientId}/consent/`);
   await expect(
     page.getByRole("heading", { name: "Consentimiento aceptado" }),
   ).toBeVisible();
 
   let rejectDiagnosticsList = true;
-  await page.route("**/api/v1/diagnostics/**", async (route) => {
+  await page.route("**/api/v1/clinics/diagnostics/**", async (route) => {
     if (rejectDiagnosticsList) {
       rejectDiagnosticsList = false;
       await route.fulfill({
@@ -584,7 +585,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   await expect(page.getByRole("alert")).toContainText("Diagnósticos temporalmente no disponibles.");
   await page.getByRole("button", { name: "Reintentar" }).click();
   await expect(page.getByLabel("Paciente")).toBeVisible();
-  await page.unroute("**/api/v1/diagnostics/**");
+  await page.unroute("**/api/v1/clinics/diagnostics/**");
   await page.getByLabel("Paciente").fill(name);
   await page.getByLabel("Tipo").fill("RADIOGRAFIA");
   await page.getByLabel("Fecha").fill(uploadedDate);
@@ -603,7 +604,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   const diagnosticLink = page.getByRole("link", { name: "Analizar" });
   const diagnosticImageId = (await diagnosticLink.getAttribute("href")).match(/diagnostics\/(\d+)/)?.[1];
   let failDiagnosticImageLoadOnce = true;
-  await page.route(`**/api/v1/clinical-images/${diagnosticImageId}/`, async (route) => {
+  await page.route(`**/api/v1/clinics/clinical-images/${diagnosticImageId}/`, async (route) => {
     if (failDiagnosticImageLoadOnce) {
       failDiagnosticImageLoadOnce = false;
       await route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ detail: "Imagen temporalmente no disponible." }) });
@@ -618,19 +619,19 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   ).toBeVisible();
   await expect(page.getByRole("alert")).toContainText("Imagen temporalmente no disponible.");
   await page.getByRole("button", { name: "Reintentar" }).click();
-  await page.unroute(`**/api/v1/clinical-images/${diagnosticImageId}/`);
+  await page.unroute(`**/api/v1/clinics/clinical-images/${diagnosticImageId}/`);
   await page.getByRole("button", { name: "Analizar imagen" }).click();
   await expect(page.getByText("Procesando imagen con YOLO…")).toBeHidden({
     timeout: 30_000,
   });
   await expect(page.getByText("Imagen analizada")).toBeVisible();
   await expect(page.getByRole("alert")).toHaveCount(0);
-  await page.route(`**/api/v1/clinical-images/${diagnosticImageId}/analyze/`, async (route) => {
+  await page.route(`**/api/v1/clinics/clinical-images/${diagnosticImageId}/analyze/`, async (route) => {
     await route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ detail: "El análisis no está disponible." }) });
   });
   await page.getByRole("button", { name: "Analizar nuevamente" }).click();
   await expect(page.getByRole("alert")).toContainText("El análisis no está disponible.");
-  await page.unroute(`**/api/v1/clinical-images/${diagnosticImageId}/analyze/`);
+  await page.unroute(`**/api/v1/clinics/clinical-images/${diagnosticImageId}/analyze/`);
   await page.getByRole("button", { name: "Analizar nuevamente" }).click();
   await expect(page.getByText("Procesando imagen con YOLO…")).toBeHidden({ timeout: 30_000 });
   await expect(page.locator("#main-content [role='alert']")).toHaveCount(0);
@@ -670,7 +671,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   ]);
 
   await page.goto(`/app/patients/${patientId}/images/history`);
-  await page.route(`**/api/v1/clinical-images/${diagnosticImageId}/`, async (route) => {
+  await page.route(`**/api/v1/clinics/clinical-images/${diagnosticImageId}/`, async (route) => {
     if (route.request().method() === "DELETE") {
       await route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ detail: "El borrado no está disponible." }) });
       return;
@@ -681,7 +682,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   await page.getByRole("button", { name: "Eliminar" }).click();
   await expect(page.getByRole("alert")).toContainText("No se pudo eliminar la imagen.");
   await expect(page.getByText("IMAGEN E2E")).toBeVisible();
-  await page.unroute(`**/api/v1/clinical-images/${diagnosticImageId}/`);
+  await page.unroute(`**/api/v1/clinics/clinical-images/${diagnosticImageId}/`);
   page.once("dialog", (dialog) => dialog.accept());
   await page.getByRole("button", { name: "Eliminar" }).click();
   await expect(page.getByText("No hay imágenes clínicas.")).toBeVisible();
@@ -722,7 +723,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Cambiar paciente" })).toBeVisible();
   await captureFormVariants(page, "redesign-patient-contact");
   let rejectEmail = true;
-  await page.route(`**/api/v1/patients/${patientId}/email/`, async (route) => {
+  await page.route(`**/api/v1/clinics/patients/${patientId}/email/`, async (route) => {
     if (route.request().method() === "POST" && rejectEmail) {
       rejectEmail = false;
       await route.fulfill({
@@ -744,8 +745,8 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   await expect(page.locator("#subject-error")).toHaveText("Revisa el asunto del correo.");
   await expect(page.getByRole("alert")).toHaveText("No se pudo enviar el mensaje.");
   await page.getByRole("button", { name: "Enviar correo" }).click();
-  await page.unroute(`**/api/v1/patients/${patientId}/email/`);
-  await expect(page.getByText(/Correo enviado exitosamente/)).toBeVisible();
+  await page.unroute(`**/api/v1/clinics/patients/${patientId}/email/`);
+  await expect(page.getByText(/Correo enviado correctamente/)).toBeVisible();
 
   await page.getByRole("link", { name: /Citas/ }).click();
   await page.getByRole("link", { name: /Nueva cita/ }).click();
@@ -772,7 +773,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   ]);
   await expectResponsiveWidths(page);
   let rejectAppointmentCreate = true;
-  await page.route("**/api/v1/appointments/", async (route) => {
+  await page.route("**/api/v1/clinics/appointments/", async (route) => {
     if (route.request().method() === "POST" && rejectAppointmentCreate) {
       rejectAppointmentCreate = false;
       await route.fulfill({
@@ -794,7 +795,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   await expect(page.locator("#fecha-error")).toHaveText("La fecha no está disponible.");
   await expect(page.getByRole("alert").filter({ hasText: "Revisa la programación." })).toBeVisible();
   await page.getByRole("button", { name: "Registrar cita" }).click();
-  await page.unroute("**/api/v1/appointments/");
+  await page.unroute("**/api/v1/clinics/appointments/");
   await expect(
     page.getByRole("heading", { name: /Detalle de cita/ }),
   ).toBeVisible();
@@ -802,7 +803,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   const appointmentId = page.url().match(/appointments\/(\d+)/)?.[1];
 
   let failAppointmentEditLoadOnce = true;
-  await page.route(`**/api/v1/appointments/${appointmentId}/`, async (route) => {
+  await page.route(`**/api/v1/clinics/appointments/${appointmentId}/`, async (route) => {
     if (route.request().method() === "GET" && failAppointmentEditLoadOnce) {
       failAppointmentEditLoadOnce = false;
       await route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ detail: "Cita temporalmente no disponible." }) });
@@ -814,7 +815,7 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   await expect(page.getByRole("alert")).toContainText("Cita temporalmente no disponible.");
   await page.getByRole("button", { name: "Reintentar" }).click();
   await expect(page.getByRole("heading", { name: "Editar cita" })).toBeVisible();
-  await page.unroute(`**/api/v1/appointments/${appointmentId}/`);
+  await page.unroute(`**/api/v1/clinics/appointments/${appointmentId}/`);
   await page.getByLabel("Motivo").fill("Control E2E editado");
   await expectResponsiveWidths(page);
   await page.getByRole("button", { name: "Guardar cambios" }).click();
@@ -841,9 +842,9 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   await expect(page.getByRole("dialog", { name: "Cancelar cita" })).toBeVisible();
   await page.getByRole("button", { name: "Sí, cancelar cita" }).click();
   await expect(page.getByText("Cancelada").last()).toBeVisible();
-  await page.route("**/api/v1/appointments/**", async (route) => {
+  await page.route("**/api/v1/clinics/appointments/**", async (route) => {
     const requestUrl = new URL(route.request().url());
-    if (route.request().method() === "GET" && requestUrl.pathname === "/api/v1/appointments/" && requestUrl.searchParams.get("status") === "A") {
+    if (route.request().method() === "GET" && requestUrl.pathname === "/api/v1/clinics/appointments/" && requestUrl.searchParams.get("status") === "A") {
       await route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ detail: "No se pudieron actualizar las citas." }) });
       return;
     }
@@ -852,8 +853,11 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   await page.getByRole("button", { name: "Canceladas" }).click();
   const appointmentError = page.getByRole("alert").filter({ hasText: "No se pudieron actualizar las citas." });
   await expect(appointmentError).toBeVisible();
-  await page.unroute("**/api/v1/appointments/**");
+  await page.unroute("**/api/v1/clinics/appointments/**");
   await appointmentError.getByRole("button", { name: "Reintentar" }).click();
+  // List and calendar are independent queries with their own retry controls.
+  const calendarError = page.getByRole("alert").filter({ hasText: "No se pudo cargar el calendario." });
+  await calendarError.getByRole("button", { name: "Reintentar" }).click();
   await expect(page.locator("#main-content [role='alert']")).toHaveCount(0);
   await page.goto(`/app/appointments?status=A&search=${encodeURIComponent(name)}`);
   await expect(page.getByRole("button", { name: "Canceladas" })).toHaveAttribute("aria-pressed", "true");
@@ -884,13 +888,13 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   await expect(page.getByText("No se encontraron pacientes.")).toBeVisible();
 
   await page.goto(`/app/patients/${patientId}`);
-  await page.route(`**/api/v1/patients/${patientId}/deactivate/`, async (route) => {
+  await page.route(`**/api/v1/clinics/patients/${patientId}/deactivate/`, async (route) => {
     await route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ detail: "No se pudo desactivar al paciente." }) });
   });
   page.once("dialog", (dialog) => dialog.accept());
   await page.getByRole("button", { name: "Desactivar" }).click();
   await expect(page.getByRole("alert").filter({ hasText: "No se pudo desactivar al paciente." })).toBeVisible();
-  await page.unroute(`**/api/v1/patients/${patientId}/deactivate/`);
+  await page.unroute(`**/api/v1/clinics/patients/${patientId}/deactivate/`);
   page.once("dialog", (dialog) => dialog.accept());
   await page.getByRole("button", { name: "Desactivar" }).click();
   await expect(page).toHaveURL(/patients\/search/);
@@ -911,14 +915,15 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   await page.getByRole("button", { name: "Iniciar sesión" }).click();
   await expect(page.locator(".workspace-user-name")).toHaveText("e2e_other_doctor");
   await page.goto("/app/patients/list");
-  await expect(page.getByText("No se encontraron pacientes.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Todos los pacientes" })).toBeVisible();
+  await expect(page.getByText(name, { exact: false })).toHaveCount(0);
   await page.goto(`/app/patients/${patientId}`);
   await expect(page.getByRole("alert")).toBeVisible();
   await expect(page.getByRole("heading", { name: new RegExp(name) })).toHaveCount(0);
   await expect(page.getByRole("navigation", { name: "Secciones del expediente" })).not.toContainText(name);
 });
 
-test("navegación móvil conserva el menú legacy", async ({ page }) => {
+test("navegación móvil conserva el menú clínico", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("login");
   for (const width of [390, 768]) {
@@ -978,10 +983,17 @@ test("el listado de pacientes informa el error y permite reintentar", async ({ p
   await page.getByRole("button", { name: "Iniciar sesión" }).click();
   await expect(page.getByRole("heading", { name: "Bienvenido, Dr. E2E_DOCTOR" })).toBeVisible();
 
+  // This scenario must not depend on a patient created by a previous test.
+  const session = await (await page.request.get('/api/v1/auth/session/')).json();
+  const memberships = await (await page.request.get('/api/v1/clinics/memberships/', { headers: { Authorization: `Bearer ${session.access}` } })).json();
+  const unique = String(Date.now()).slice(-8);
+  const created = await page.request.post('/api/v1/clinics/patients/', { headers: { Authorization: `Bearer ${session.access}`, 'X-Clinic-ID': memberships[0].id }, data: { nombre: 'REINTENTO', appat: 'PRUEBA', apmat: 'DEMO', fecha_nacimiento: '1990-01-01', genero: 'F', telefono: `44${unique}`, email: `retry-${unique}@example.test` } });
+  expect(created.status()).toBe(201);
+
   let shouldFail = true;
-  await page.route("**/api/v1/patients/**", async (route) => {
+  await page.route("**/api/v1/clinics/patients/**", async (route) => {
     const requestUrl = new URL(route.request().url());
-    if (shouldFail && requestUrl.pathname === "/api/v1/patients/") {
+    if (shouldFail && requestUrl.pathname === "/api/v1/clinics/patients/") {
       await route.fulfill({
         status: 503,
         contentType: "application/json",

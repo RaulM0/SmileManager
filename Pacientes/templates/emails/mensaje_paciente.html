@@ -78,7 +78,7 @@
   <body>
     <div class="container">
       <div class="header">
-        <h1>Clínica Dental {{user.perfil.clinica_nombre}}🦷</h1>
+        <h1>{{ clinic_name }}</h1>
       </div>
 
       <div class="content">
@@ -95,7 +95,6 @@
       </div>
 
       <div class="footer">
-        <p>📍 {{user.perfil.direccion}}</p>
         <p>
           📞 {{user.perfil.telefono}} | ✉️
           <a href="mailto:{{user.email}}">{{user.email}}</a>

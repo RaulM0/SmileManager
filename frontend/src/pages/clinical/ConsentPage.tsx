@@ -90,6 +90,7 @@ export default function ConsentPage() {
             <div className="workspace-inline-success" role="status" aria-live="polite">
               <h2 className="clinical-consent-accepted-title">Consentimiento aceptado</h2>
               <p>{new Date(consent.fecha_aceptacion).toLocaleString("es-MX")}</p>
+              {consent.pdf_generado && <button type="button" className="clinical-action-outline clinical-action-compact" disabled={Boolean(downloadActive)} onClick={() => void download("consent-pdf", `patients/${id}/consent/pdf/`, `Consentimiento_${id}.pdf`)}>Descargar consentimiento PDF</button>}
               {consent.archivo_ine_url && (
                 <a
                   href={consent.archivo_ine_url}

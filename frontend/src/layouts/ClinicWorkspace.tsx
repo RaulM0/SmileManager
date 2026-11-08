@@ -27,6 +27,16 @@ export default function ClinicWorkspace() {
       const prior = rows.find((row) => row.id === getClinicContext());
       if (prior) setActive(prior);
       else if (getClinicContext()) { setClinicContext(null); queryClient.clear(); }
+      else if (rows.length === 1) {
+        // A sole membership has no ambiguous selection; still authorize it on
+        // the server before rendering any clinical screen.
+        void api<ClinicOption>("clinics/context/", { headers: { "X-Clinic-ID": rows[0].id } }).then((verified) => {
+          if (!live) return;
+          setClinicContext(verified.id);
+          queryClient.clear();
+          setActive(verified);
+        }).catch((reason) => { if (live) setError(getErrorMessage(reason)); });
+      }
     }).catch((reason) => { if (live) setError(getErrorMessage(reason)); });
     return () => { live = false; };
   }, [reload]);

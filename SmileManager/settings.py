@@ -46,6 +46,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'api.observability.RequestLogMiddleware',
+    'api.legacy_boundary.LegacyClinicalAPIMiddleware',
     'api.audit.AuditMiddleware',
 ]
 
@@ -157,6 +158,10 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASS', '')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'webmaster@localhost')
 TENANT_INVITATION_URL = os.environ.get('TENANT_INVITATION_URL', '')
+ALLOW_LOCAL_HTTP_INVITATIONS = False
+# Compatibility code is retained for migration regression tests, not published
+# as a second clinical API in application environments.
+LEGACY_CLINICAL_API_ENABLED = False
 FRONTEND_URL = os.environ.get('FRONTEND_URL', '')
 PASSWORD_RESET_TIMEOUT = max(1, int(os.environ.get('PASSWORD_RESET_TIMEOUT', '1800')))
 

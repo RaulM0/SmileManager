@@ -91,10 +91,12 @@ it("routes clinical requests and protected files through the selected clinic API
   await api("clinical-images/9/file/");
   await api("clinical-images/9/result-file/");
   await api("patients/5/consent/file/");
+  await api("patients/5/consent/pdf/");
   expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
     "/api/v1/clinics/patients/5/",
     "/api/v1/clinics/clinical-images/9/original/file/",
     "/api/v1/clinics/clinical-images/9/result/file/",
     "/api/v1/clinics/patients/5/consent/identity/file/",
+    "/api/v1/clinics/patients/5/consent/pdf/file/",
   ]);
 });

@@ -1,24 +1,75 @@
-# Estado de preparación multitenant
+# Estado de implementación multitenant
 
-**NOT READY.** No habilitar clínicas independientes en producción hasta cerrar y verificar las brechas siguientes. Las pruebas existentes no demuestran cobertura integral de todas las rutas ni sustituyen la validación operacional.
+Actualización del cierre en `dev`: **core implementado y validado; integridad
+local correcta**. El estado de producción depende además de las
+comprobaciones del entorno de despliegue descritas abajo. No confundir merge,
+pruebas de aplicación y autorización de puesta en producción.
 
-## Implementado
+## Alcance implementado
 
-- Clínicas, membresías, roles, invitaciones, selección de contexto en la API y administración explícita de plataforma. La membresía y el estado de la clínica se comprueban en cada operación protegida.
-- APIs organizacionales para pacientes, citas, antecedentes, odontograma, consultas, imágenes, consentimientos, estudios, IA, métricas y exportaciones. Las políticas clínicas también comprueban la asignación al profesional.
-- Listas administrativas por clínica de membresías, invitaciones y auditoría; la auditoría global expone solamente acciones administrativas clasificadas explícitamente. El acceso clínico global del backoffice se deniega y Django Admin no está publicado.
-- Nuevos archivos privados con rutas por clínica, revisiones y eventos con contexto, servicios transaccionales, idempotencia de IA por clínica, recordatorios con alcance explícito e inventario y validación de asignaciones históricas.
-- El frontend ofrece selección explícita validada en servidor, cancela o descarta respuestas atrasadas y limpia la caché al cambiar de clínica. Las pantallas clínicas usan las APIs organizacionales en contexto de médico; existe un panel inicial de administración de clínica para miembros, invitaciones y actividad.
-- El backoffice de plataforma incluye una pantalla para crear clínicas inactivas, cambiar su estado y gestionar la invitación del administrador inicial. Los endpoints comprueban el rol explícito de plataforma; el permiso de backoffice heredado no lo concede.
-- Al navegar, el frontend vuelve a validar el contexto antes de mostrar la pantalla; si falla, descarta la caché. Un escenario Playwright con datos sintéticos comprueba cambio de clínica, intento de acceso cruzado y suspensión de membresía usando el servidor real y una base SQLite temporal. Esto no reemplaza el E2E completo ni las pruebas de concurrencia en PostgreSQL.
+- Clínicas, membresías, roles DOCTOR/CLINIC_ADMIN/STAFF, invitaciones, selección y
+  validación de contexto y administración explícita de plataforma.
+- APIs organizacionales para pacientes, antecedentes, odontograma, consultas,
+  agenda, imágenes, IA, consentimiento/PDF, estudios, reportes y exportaciones.
+- Contacto de pacientes asignados por clínica: solo asunto/mensaje; el destinatario
+  se obtiene del registro autorizado, con auditoría y respuesta controlada ante
+  fallo de correo. El envío SMTP no es transaccional respecto al commit de BD.
+- Recepción STAFF: directorio mínimo y agenda de su clínica; crear, reprogramar,
+  completar y anular citas. No accede a antecedentes, diagnóstico ni archivos.
+  No puede agendar pacientes de otra clínica ni de médicos inactivos/suspendidos.
+- Consentimiento: aceptación única, identificación privada y generación de PDF
+  sin recursos externos; limpieza de ambos archivos ante fallo transaccional.
+- Invitaciones locales HTTP solo con DEBUG, habilitación local y host loopback;
+  HTTPS obligatorio en producción. El token solo se entrega por correo.
+- HTML legacy retirado. APIs clínicas globales retiradas con HTTP 410, incluidos
+  métodos alternativos y sufijos de formato. El URLConf normal ya no monta la API
+  de compatibilidad. El código histórico se conserva únicamente para pruebas de
+  regresión aisladas, que habilitan esa compatibilidad expresamente.
+- Las escrituras por servicios requieren contexto clínico autorizado. Los datos
+  históricos sin clínica permanecen inaccesibles por la API normal; no se asignan
+  ni eliminan automáticamente. `check_tenant_integrity` permite detectar y bloquear
+  el cierre de datos con procedencia pendiente de conciliación.
+- Caché por contexto, cancelación de solicitudes y descarte de respuestas
+  atrasadas. Una sola membresía se valida y selecciona automáticamente; con varias
+  se solicita selección. Cuentas sin clínica no abren pantallas clínicas.
 
-## Bloqueos para producción
+## Evidencia de la implementación
 
-- Falta verificar de extremo a extremo todos los contratos y flujos clínicos del frontend, completar las funciones operativas de personal y la administración de plataforma más allá del alta y estado de clínicas, y cubrir accesibilidad y cambios de clínica en navegador real.
-- Las interfaces HTML heredadas se retiraron. Falta completar la auditoría de las APIs DRF de compatibilidad, servicios, comandos, relaciones y accesos directos; las protecciones actuales no prueban que no exista ninguna vía de omisión.
-- Existe un comando de backfill controlado por manifiesto, pero falta aplicarlo y reconciliarlo con asignaciones verificadas en un entorno autorizado, así como establecer las restricciones definitivas. No se ha atribuido ningún paciente histórico automáticamente. La migración de contactos por clínica y médico debe validarse en staging antes de aplicarse.
-- No hay RLS. Véase [tenant-rls.md](../database/tenant-rls.md) para los requisitos de implementación y validación.
-- Falta ejecutar la matriz adversarial y de concurrencia completa, y E2E con dos clínicas, incluyendo archivos, revocaciones y cambios de contexto. Una ejecución correcta de pruebas parciales o de la suite actual no acredita esos escenarios ausentes.
-- Falta validación en staging de configuración, migraciones, correo, almacenamiento, recuperación, respaldo y observabilidad con las credenciales y roles reales de despliegue.
+- Suite completa sobre PostgreSQL temporal: **248 pruebas correctas, 0 omitidas**,
+  incluyendo carreras entre recepción/médico y revocación durante espera de lock.
+- Frontend: **52 pruebas correctas**; tipos y lint correctos.
+- Sin migraciones de modelos pendientes en la comprobación `makemigrations`.
+- Playwright: **10 escenarios verificados**. Última ejecución completa: 9 correctos
+  y un fallo de selector al confundir el estado del formulario con la notificación
+  de login. Se corrigió el selector y se repitió ese escenario: 1 correcto. Incluye
+  flujo clínico completo, móvil, errores/reintentos, cambio de clínica y revocación,
+  alta de clínicas, recuperación de credenciales y aislamiento por propietario.
+- El escenario final comprobó archivos privados, consentimiento/PDF, estudio/PDF,
+  inferencia IA real, exportaciones, correo, agenda STAFF y cambio de clínica.
+  No fue necesario otro build: las últimas correcciones afectaron pruebas y
+  configuración exclusiva de SQLite E2E (transacciones IMMEDIATE).
 
-Las APIs DRF de compatibilidad que usan la política compartida bloquean recursos asignados a clínicas y no muestran registros históricos a usuarios que tienen o tuvieron membresías; durante la transición pueden devolver listas vacías o 404. Las rutas que no usan esa política requieren revisión individual.
+## Cierre de datos locales
+
+El operador completó el build y recreó E2E. El navegador se validó contra ese
+servidor aislado en 8010, con datos sintéticos separados de PostgreSQL local.
+
+Por instrucción explícita del usuario se eliminó el paciente local #1 (sin clínica,
+médico `smile`), sus dos consultas, antecedentes, odontograma y tres revisiones,
+en una transacción. Se registró `LOCAL_LEGACY_PATIENT_PURGED` en auditoría. No se
+reasignó ningún registro ni se eliminaron usuarios, clínicas o membresías.
+
+Después de la eliminación, `check_tenant_integrity` terminó correctamente: todos
+los contadores de procedencia y relaciones están en cero. El cierre técnico local
+queda completado; las verificaciones del despliegue siguen siendo independientes.
+
+El procedimiento y comandos están en [docker-local.md](../operations/docker-local.md).
+La decisión de aislamiento de BD está en [tenant-rls.md](../database/tenant-rls.md).
+
+## Puesta en producción
+
+Antes de habilitar clínicas reales: verificar migración/asignación de datos del
+entorno, HTTPS, correo, storage privado y permisos efectivos, roles de PostgreSQL,
+backup restaurable, observabilidad y recorridos en staging. Son verificaciones
+operativas que no se acreditan ejecutando pruebas locales. No se ha desplegado ni
+modificado infraestructura de producción como parte de este cierre.

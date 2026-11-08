@@ -1,5 +1,6 @@
 """Ámbito único actual: propietario del paciente y relaciones coherentes."""
 from django.db.models import Exists, F, Q
+from django.conf import settings
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import BasePermission
 
@@ -33,6 +34,8 @@ def scoped(user, model):
     """
     from Usuarios.models import ClinicMembership
 
+    if not settings.LEGACY_CLINICAL_API_ENABLED:
+        return model.objects.none()
     queryset = _doctor_scoped(user, model)
     if not user.is_authenticated or not user.is_active:
         return queryset
@@ -46,8 +49,8 @@ def scoped(user, model):
 def clinic_clinical_queryset(user, clinic_id, model):
     """Clinical access requires a live doctor membership and patient assignment.
 
-    This policy is not yet wired into legacy routes. Callers must also use
-    validated tenant context for writes and enforce relational consistency.
+    Callers must also use validated tenant context for writes and enforce
+    relational consistency. Retired routes cannot grant tenant access.
     """
     from api.tenant_context import require_clinic_capability
     from Usuarios.models import Clinic, ClinicMembership
