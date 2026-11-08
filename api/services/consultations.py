@@ -1,9 +1,13 @@
 from django.utils import timezone
+from django.db import transaction
 
 from Pacientes.models import Consulta
+from .clinical_access import lock_authorized_patient
 
 
-def create_consultation(*, patient, medico, validated_data):
+@transaction.atomic
+def create_consultation(*, patient, medico, validated_data, clinic_id=None):
+    patient = lock_authorized_patient(user=medico, patient_id=patient.pk, clinic_id=clinic_id)
     return Consulta.objects.create(
         paciente=patient,
         medico=medico,

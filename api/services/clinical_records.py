@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import APIException, ValidationError
 
 from Pacientes.models import AntescedentesMedicos, ClinicalRevision, Odontograma, Paciente
-from api.policies import consistent_or_404, scoped
+from api.policies import clinic_clinical_queryset, consistent_or_404, scoped
 from api.services.odontogram import validate_odontogram
 
 
@@ -25,29 +25,18 @@ def snapshot(obj):
 
 
 @transaction.atomic
-def save_record(*, user, patient_id, model, changes, expected_version, administrative=False):
+def save_record(*, user, patient_id, model, changes, expected_version, clinic_id=None):
     if model not in (AntescedentesMedicos, Odontograma):
         raise ValueError('Recurso clínico no soportado')
     if isinstance(expected_version, bool) or not isinstance(expected_version, int) or expected_version < 0:
         raise ValidationError({'version': ['Debe indicar la versión obtenida al consultar el expediente.']})
     # Lock the stable parent even before the first clinical row exists.
-    if administrative:
-        from django.core.exceptions import PermissionDenied
-        from api.policies import can_access_backoffice
-        if not can_access_backoffice(user):
-            raise PermissionDenied
-        patient = get_object_or_404(Paciente.objects.select_for_update(), pk=patient_id)
-        if patient.medico_id is None or model.objects.filter(paciente=patient).exclude(medico_id=patient.medico_id).exists():
-            raise ClinicalDataConflict('Las relaciones clínicas requieren revisión antes de editar.')
-        rows = list(model.objects.filter(paciente=patient, medico_id=patient.medico_id).select_for_update()[:2])
-        responsible = patient.medico
-    else:
-        patient = get_object_or_404(scoped(user, Paciente).select_for_update(), pk=patient_id)
-        rows = list(consistent_or_404(user, model, patient).select_for_update()[:2])
-        responsible = user
+    patients = clinic_clinical_queryset(user, clinic_id, Paciente) if clinic_id is not None else scoped(user, Paciente)
+    patient = get_object_or_404(patients.select_for_update(of=('self',)), pk=patient_id)
+    rows = list(consistent_or_404(user, model, patient, clinic_id=clinic_id).select_for_update(of=('self',))[:2])
     if len(rows) > 1:
         raise ClinicalDataConflict()
-    obj = rows[0] if rows else model(paciente=patient, medico=responsible)
+    obj = rows[0] if rows else model(paciente=patient, medico=user)
     if obj.version != expected_version:
         raise ConcurrentModification()
     if model is Odontograma and obj.pk:
@@ -56,13 +45,16 @@ def save_record(*, user, patient_id, model, changes, expected_version, administr
         except ValidationError as exc:
             raise ClinicalDataConflict('El odontograma previo requiere revisión o migración antes de editarse.') from exc
     resource_type = 'medical_history' if model is AntescedentesMedicos else 'odontogram'
+    if obj.pk and ClinicalRevision.objects.filter(resource_type=resource_type, resource_id=obj.pk).exclude(
+            patient_id=patient.pk, clinic_id=patient.clinic_id).exists():
+        raise ClinicalDataConflict('El historial de versiones requiere conciliación antes de editarse.')
     if obj.pk:
         ClinicalRevision.objects.get_or_create(resource_type=resource_type, resource_id=obj.pk, version=obj.version,
-                                               defaults={'patient': patient, 'actor': None, 'snapshot': snapshot(obj)})
+                                               defaults={'patient': patient, 'clinic_id': patient.clinic_id, 'actor': None, 'snapshot': snapshot(obj)})
     for key, value in changes.items():
         setattr(obj, key, value)
     obj.version += 1
     obj.save()
     ClinicalRevision.objects.create(resource_type=resource_type, resource_id=obj.pk, version=obj.version,
-                                    patient=patient, actor=user, snapshot=snapshot(obj))
+                                    patient=patient, clinic_id=patient.clinic_id, actor=user, snapshot=snapshot(obj))
     return obj

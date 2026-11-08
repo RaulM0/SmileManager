@@ -22,6 +22,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = _e2e_root / 'mail'
 FRONTEND_URL = 'http://127.0.0.1:8010/app'
 DEFAULT_FROM_EMAIL = 'smile-e2e@example.test'
+TENANT_INVITATION_URL = 'http://127.0.0.1:8010/app/invitations/accept'
 PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
 # Browser parity exercises many independent screens in one isolated process.
 # Rate limiting itself is tested separately with explicit low limits.

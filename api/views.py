@@ -25,11 +25,12 @@ from rest_framework.views import APIView
 
 from Citas.models import Cita
 from Pacientes.models import AntescedentesMedicos, Consentimiento, Consulta, EstudioComparativo, ImagenesClinicas, Odontograma, Paciente
-from Pacientes.PDF import pdf_progreso
+from Pacientes.PDF import render_pdf_progreso
 from DiagnosticosIA.services import ClinicalImageMissingError, analyze_clinical_image
 from DiagnosticosIA.services import ClinicalImageChangedError
 from DiagnosticosIA.runs import execute as execute_analysis
 from DiagnosticosIA.runs import AnalysisKeyConflict
+from DiagnosticosIA.runs import AnalysisClinicConflict
 from DiagnosticosIA.models import AIAnalysisRun
 from django.core.files.storage import default_storage
 
@@ -263,7 +264,7 @@ class PatientViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def deactivate(self, request, pk=None):
-        patient = deactivate_patient(self.get_object())
+        patient = deactivate_patient(patient=self.get_object(), user=request.user)
         return Response(self.get_serializer(patient).data)
 
     @action(detail=False, methods=['get'], pagination_class=None)
@@ -462,6 +463,8 @@ class ClinicalImageViewSet(viewsets.GenericViewSet):
             return Response({'detail': 'La imagen cambió durante el análisis. Vuelve a intentarlo.'}, status=409)
         except AnalysisKeyConflict:
             return Response({'detail': 'La clave ya corresponde a otro análisis.'}, status=409)
+        except AnalysisClinicConflict:
+            return Response({'detail': 'El historial del análisis requiere conciliación antes de continuar.'}, status=409)
         except Exception:
             logger.error('Fallo de análisis de imagen clínica id=%s request_id=%s', image.pk, request._request.request_id)
             return Response({'detail':'No se pudo analizar la imagen. Inténtalo de nuevo.'},status=500)
@@ -475,7 +478,7 @@ class ClinicalImageViewSet(viewsets.GenericViewSet):
     @action(detail=True, methods=['get'], url_path='analysis-runs')
     def analysis_runs(self, request, pk=None):
         image = self.get_object()
-        runs = image.analysis_runs.order_by('-requested_at', '-pk')
+        runs = image.analysis_runs.filter(clinic_id=image.paciente.clinic_id).order_by('-requested_at', '-pk')
         paginator = ClinicalPagination()
         page = paginator.paginate_queryset(runs, request, view=self)
         return paginator.get_paginated_response([{'id': r.pk, 'status': r.status, 'requested_by': r.requested_by_id, 'requested_at': r.requested_at, 'started_at': r.started_at, 'completed_at': r.completed_at, 'model_name': r.model_name, 'model_version': r.model_version, 'explicit_reanalysis': r.explicit_reanalysis, 'failure_category': r.failure_category, 'has_result': bool(r.result_name)} for r in page])
@@ -485,7 +488,7 @@ class ClinicalImageViewSet(viewsets.GenericViewSet):
 class AnalysisRunFileView(APIView):
     def get(self, request, image_id, run_id):
         image = owned_or_404(request.user, ImagenesClinicas, pk=image_id)
-        run = get_object_or_404(AIAnalysisRun, image=image, pk=run_id, status=AIAnalysisRun.SUCCEEDED)
+        run = get_object_or_404(AIAnalysisRun, image=image, clinic_id=image.paciente.clinic_id, pk=run_id, status=AIAnalysisRun.SUCCEEDED)
         if not run.result_name:
             return Response({'detail': 'Resultado no disponible.'}, status=404)
         try:
@@ -532,7 +535,10 @@ class ComparativeStudyView(OwnedPatientMixin, APIView):
         return Response({'exists':True,**serializer.data})
 
 class ComparativeStudyPdfView(OwnedPatientMixin, APIView):
-    def get(self,request,patient_id): self.patient(request,patient_id); return pdf_progreso(request,patient_id)
+    def get(self, request, patient_id):
+        patient = self.patient(request, patient_id)
+        study = consistent_or_404(request.user, EstudioComparativo, patient).order_by('-fecha_creacion').first()
+        return render_pdf_progreso(patient, study)
 
 
 @method_decorator(never_cache, name='dispatch')

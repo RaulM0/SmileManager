@@ -1,0 +1,3 @@
+# PostgreSQL RLS
+
+RLS no está implementado ni activo. Las políticas ORM existentes filtran por médico y no ofrecen aislamiento por clínica. Antes de habilitarlo hay que probar políticas por tabla y relaciones, un rol de aplicación sin propiedad ni BYPASSRLS, FORCE ROW LEVEL SECURITY, SET LOCAL dentro de transacciones, pooling, migraciones, mantenimiento, procesos asíncronos y rutas de administración. Deben existir pruebas adversariales directas en PostgreSQL, incluida reutilización de conexiones y fallos de transacción. Las operaciones globales requieren una vía separada y auditada; no conceder una excepción general a la aplicación.

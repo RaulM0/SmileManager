@@ -27,23 +27,6 @@ EVENTS = {
     ('api-export-patients', 'GET'): ('CLINICAL_EXPORT', 'patients'),
     ('api-export-consultations', 'GET'): ('CLINICAL_EXPORT', 'consultations'),
     ('api-export-images', 'GET'): ('CLINICAL_EXPORT', 'images'),
-    ('ver_paciente', 'GET'): ('PATIENT_VIEW', 'patient'),
-    ('registrar_pacientes', 'POST'): ('PATIENT_CREATE', 'patient'),
-    ('editar_paciente', 'POST'): ('PATIENT_UPDATE', 'patient'),
-    ('eliminar_paciente', 'POST'): ('PATIENT_DEACTIVATE', 'patient'),
-    ('cargar_imagen', 'POST'): ('CLINICAL_IMAGE_UPLOAD', 'image'),
-    ('eliminar_imagen', 'POST'): ('CLINICAL_IMAGE_DELETE', 'image'),
-    ('antecedentes', 'POST'): ('CLINICAL_HISTORY_UPDATE', 'patient'),
-    ('guardar_odontograma', 'POST'): ('ODONTOGRAM_UPDATE', 'patient'),
-    ('registrar_cita', 'POST'): ('APPOINTMENT_CREATE', 'patient'),
-    ('editar_cita', 'POST'): ('APPOINTMENT_UPDATE', 'appointment'),
-    ('confirmar_asistencia', 'POST'): ('APPOINTMENT_TRANSITION', 'appointment'),
-    ('cancelar_cita', 'POST'): ('APPOINTMENT_TRANSITION', 'appointment'),
-    ('clinical-session-file', 'GET'): ('CLINICAL_FILE_VIEW', 'clinical_file'),
-    ('consentimiento', 'GET'): ('CONSENT_VIEW', 'patient'),
-    ('exportar_pacientes', 'GET'): ('CLINICAL_EXPORT', 'patients'),
-    ('exportar_consultas', 'GET'): ('CLINICAL_EXPORT', 'consultations'),
-    ('exportar_imagenes', 'GET'): ('CLINICAL_EXPORT', 'images'),
 }
 
 
@@ -80,8 +63,7 @@ class AuditMiddleware:
         if auth_event and (auth_event[2] == 'failure' or 200 <= response.status_code < 400):
             action, actor, outcome = auth_event
             AuditEvent.objects.create(action=action, actor=actor, outcome=outcome, request_id=request.request_id)
-        legacy_appointment = match and match.url_name in ('registrar_cita', 'editar_cita', 'confirmar_asistencia', 'cancelar_cita', 'registrar_pacientes', 'editar_paciente', 'eliminar_paciente', 'cargar_imagen', 'eliminar_imagen')
-        success = getattr(request, 'audit_success', False) if legacy_appointment else 200 <= response.status_code < 300
+        success = 200 <= response.status_code < 300
         if not event or not success:
             return
         user = request.user if request.user.is_authenticated else None

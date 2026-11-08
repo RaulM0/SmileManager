@@ -17,7 +17,7 @@ from django.utils import timezone
 from rest_framework.test import APIClient
 
 from Pacientes.models import Consulta, EstudioComparativo, ImagenesClinicas, Paciente
-from Usuarios.models import AuditEvent
+from Usuarios.models import AuditEvent, Clinic
 from DiagnosticosIA.models import AIAnalysisRun
 
 GIF = b'GIF87a\x01\x00\x01\x00\x80\x01\x00\x00\x00\x00ccc,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;'
@@ -29,7 +29,7 @@ class StorageAuditTests(TestCase):
             name = default_storage.save('resultados/historical.png', ContentFile(b'synthetic'))
             AIAnalysisRun.objects.create(image_reference=1, requested_at=timezone.now(), started_at=timezone.now(), status=AIAnalysisRun.SUCCEEDED, model_name='test', model_version='a'*64, input_hash='b'*64, request_id=uuid.uuid4(), result_name=name)
             output = io.StringIO()
-            call_command('audit_storage_consistency', include_orphans=True, stdout=output)
+            call_command('audit_storage_consistency', all_clinics=True, include_orphans=True, stdout=output)
             self.assertIn('orphans=0', output.getvalue())
             self.assertTrue(default_storage.exists(name))
 
@@ -98,7 +98,7 @@ class StorageAuditTests(TestCase):
             image = ImagenesClinicas.objects.create(paciente=patient, medico=user, tipo_imagen='RX', imagen='imagenes_clinicas/missing.png')
             default_storage.save('imagenes_clinicas/orphan.png', ContentFile(b'synthetic'))
             output = io.StringIO()
-            call_command('audit_storage_consistency', include_orphans=True, stdout=output)
+            call_command('audit_storage_consistency', all_clinics=True, include_orphans=True, stdout=output)
             self.assertIn(f'MISSING category=ImagenesClinicas.imagen id={image.pk}', output.getvalue())
             self.assertIn('orphans=1', output.getvalue())
             self.assertNotIn('orphan.png', output.getvalue())
@@ -110,4 +110,33 @@ class StorageAuditTests(TestCase):
         ImagenesClinicas.objects.bulk_create([ImagenesClinicas(paciente=patient, medico=user, tipo_imagen='RX', imagen=f'imagenes_clinicas/{i}.png') for i in range(2)])
         with patch('api.management.commands.audit_storage_consistency.default_storage.exists', return_value=False):
             with self.assertRaises(CommandError):
-                call_command('audit_storage_consistency', include_orphans=True, max_references=1, stdout=io.StringIO())
+                call_command('audit_storage_consistency', all_clinics=True, include_orphans=True, max_references=1, stdout=io.StringIO())
+
+    def test_clinic_scope_only_reports_that_clinics_references(self):
+        with TemporaryDirectory() as root, override_settings(MEDIA_ROOT=root):
+            user = User.objects.create_user('storage-tenant')
+            clinics = [Clinic.objects.create(name=name, slug=f'storage-{name.lower()}', status='ACTIVE') for name in ('A', 'B')]
+            images = []
+            for index, clinic in enumerate(clinics):
+                patient = Paciente.objects.create(nombre='A', appat='B', apmat='C', fecha_nacimiento='1990-01-01', genero='F', telefono=f'{index:010}', email=f'{index}@example.test', medico=user, clinic=clinic)
+                images.append(ImagenesClinicas.objects.create(paciente=patient, medico=user, tipo_imagen='RX', imagen=f'tenants/{clinic.pk}/patients/{patient.pk}/images/missing.png'))
+            output = io.StringIO()
+            call_command('audit_storage_consistency', clinic_id=str(clinics[0].pk), include_orphans=True, stdout=output)
+            self.assertIn(f'ImagenesClinicas.imagen id={images[0].pk}', output.getvalue())
+            self.assertNotIn(f'ImagenesClinicas.imagen id={images[1].pk}', output.getvalue())
+            self.assertIn('tenant_prefix_only=true', output.getvalue())
+
+    def test_clinic_orphan_scan_preserves_detached_and_cross_linked_references(self):
+        with TemporaryDirectory() as root, override_settings(MEDIA_ROOT=root):
+            user = User.objects.create_user('storage-cross-reference')
+            a = Clinic.objects.create(name='A', slug='storage-cross-a', status='ACTIVE')
+            b = Clinic.objects.create(name='B', slug='storage-cross-b', status='ACTIVE')
+            patient = Paciente.objects.create(nombre='A', appat='B', apmat='C', fecha_nacimiento='1990-01-01', genero='F', telefono='1234567890', email='cross@example.test', medico=user, clinic=b)
+            shared = default_storage.save(f'tenants/{a.pk}/patients/1/images/shared.png', ContentFile(b'synthetic'))
+            detached = default_storage.save(f'tenants/{a.pk}/patients/1/ai-results/detached.png', ContentFile(b'synthetic'))
+            ImagenesClinicas.objects.create(paciente=patient, medico=user, tipo_imagen='RX', imagen=shared)
+            AIAnalysisRun.objects.create(clinic=a, image=None, image_reference=99, started_at=timezone.now(), status='SUCCEEDED', model_name='test', model_version='a'*64, input_hash='b'*64, result_name=detached, request_id=uuid.uuid4())
+            output = io.StringIO()
+            call_command('audit_storage_consistency', clinic_id=str(a.pk), include_orphans=True, stdout=output)
+            self.assertIn('orphans=0', output.getvalue())
+            self.assertNotIn('POTENTIAL_ORPHAN', output.getvalue())

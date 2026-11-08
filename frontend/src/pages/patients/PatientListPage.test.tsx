@@ -5,7 +5,7 @@ import { api } from "../../api/client";
 import PatientListPage from "./PatientListPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-vi.mock("../../api/client", () => ({ api: vi.fn() }));
+vi.mock("../../api/client", () => ({ api: vi.fn(), getClinicContext: () => null }));
 
 beforeEach(() => vi.clearAllMocks());
 

@@ -6,6 +6,7 @@ export interface SessionUser {
   email: string;
   is_staff: boolean;
   can_access_backoffice?: boolean;
+  is_platform_admin?: boolean;
   profile: { clinica_nombre: string; telefono: string; direccion: string; extra: string };
 }
 

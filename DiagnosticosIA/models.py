@@ -3,6 +3,7 @@ from django.conf import settings
 from django.db.models import Q
 
 class AIAnalysisRun(models.Model):
+    clinic = models.ForeignKey('Usuarios.Clinic', null=True, blank=True, on_delete=models.PROTECT, related_name='ai_runs')
     RUNNING = 'RUNNING'
     SUCCEEDED = 'SUCCEEDED'
     FAILED = 'FAILED'

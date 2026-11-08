@@ -1,4 +1,3 @@
-from django.shortcuts import get_object_or_404
 from django.http import Http404, HttpResponse
 from django.template.loader import get_template
 from django.conf import settings
@@ -8,9 +7,6 @@ from datetime import date
 import os
 import base64
 import mimetypes
-from urllib.parse import urljoin
-from .models import Paciente, EstudioComparativo
-from api.policies import owned_or_404, consistent_or_404
 
 
 # --- Añade estos imports ---
@@ -47,11 +43,7 @@ def link_callback(uri, rel):
     return path
 
 
-# --- Tu vista, ahora MÁS SIMPLE ---
-def pdf_progreso(request, paciente_id):
-    paciente = owned_or_404(request.user, Paciente, id=paciente_id)
-    estudio = consistent_or_404(request.user, EstudioComparativo, paciente).order_by('-fecha_creacion').first()
-    
+def render_pdf_progreso(paciente, estudio):
     if not estudio:
         raise Http404(f"No se encontró ningún estudio para {paciente.nombre}.")
     

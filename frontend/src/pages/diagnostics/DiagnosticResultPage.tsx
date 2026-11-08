@@ -32,7 +32,7 @@ export default function DiagnosticResultPage() {
       queryClient.setQueryData(queryKeys.resource(`clinical-images/${id}/`), result.image);
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.diagnostics }),
-        queryClient.invalidateQueries({ queryKey: ["protected-media", `clinical-images/${id}/result-file/`] }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.protectedMedia(`clinical-images/${id}/result-file/`) }),
       ]);
     } catch (err) {
       setSourceMissing(err instanceof ApiError && err.payload?.code === "source_image_missing");

@@ -18,6 +18,7 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from Usuarios.models import Clinic, ClinicMembership
 from api.services.clinical_records import ConcurrentModification, save_record
 from api.services.appointments import InvalidStateTransition, transition_appointment
 from Citas.models import Cita
@@ -30,13 +31,11 @@ from api.services.password_recovery import confirm_reset, InvalidReset
 
 @skipUnless(connection.vendor == 'postgresql', 'POSTGRESQL CONCURRENCY VERIFICATION REQUIRED')
 class PostgreSQLConcurrencyTests(TransactionTestCase):
-    def test_two_admins_cannot_overwrite_same_clinical_version(self):
-        doctor = User.objects.create_user('doctor-admin-race')
-        admins = [User.objects.create_user(f'admin-edit-{i}') for i in range(2)]
-        permission = Permission.objects.get(content_type__app_label='Usuarios', codename='access_system_backoffice')
-        for admin in admins:
-            admin.user_permissions.add(permission)
-        patient = Paciente.objects.create(nombre='A', appat='A', apmat='A', fecha_nacimiento='1990-01-01', genero='F', telefono='1234567890', email='admin-race@example.test', medico=doctor)
+    def test_two_clinic_sessions_cannot_overwrite_same_clinical_version(self):
+        doctor = User.objects.create_user('doctor-clinic-race')
+        clinic = Clinic.objects.create(name='Concurrency clinic', slug='concurrency-clinic', status='ACTIVE')
+        ClinicMembership.objects.create(user=doctor, clinic=clinic, role='DOCTOR', status='ACTIVE')
+        patient = Paciente.objects.create(nombre='A', appat='A', apmat='A', fecha_nacimiento='1990-01-01', genero='F', telefono='1234567890', email='clinic-race@example.test', medico=doctor, clinic=clinic)
         barrier = Barrier(2)
 
         def update(actor_id):
@@ -44,7 +43,7 @@ class PostgreSQLConcurrencyTests(TransactionTestCase):
             try:
                 barrier.wait(timeout=10)
                 try:
-                    save_record(user=User.objects.get(pk=actor_id), patient_id=patient.pk, model=AntescedentesMedicos, changes={'alergias': 'sintetico'}, expected_version=0, administrative=True)
+                    save_record(user=User.objects.get(pk=actor_id), patient_id=patient.pk, model=AntescedentesMedicos, changes={'alergias': 'sintetico'}, expected_version=0, clinic_id=clinic.pk)
                     return 'saved'
                 except ConcurrentModification:
                     return 'conflict'
@@ -52,7 +51,7 @@ class PostgreSQLConcurrencyTests(TransactionTestCase):
                 close_old_connections()
 
         with ThreadPoolExecutor(max_workers=2) as pool:
-            results = list(pool.map(update, [admin.pk for admin in admins]))
+            results = list(pool.map(update, [doctor.pk, doctor.pk]))
         self.assertCountEqual(results, ['saved', 'conflict'])
         self.assertEqual(ClinicalRevision.objects.filter(patient=patient, version=1).count(), 1)
         self.assertEqual(AntescedentesMedicos.objects.get(paciente=patient).medico_id, doctor.pk)

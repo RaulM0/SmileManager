@@ -4,13 +4,17 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
-from api.policies import scoped
+from api.policies import clinic_clinical_queryset, scoped
 from Pacientes.models import ImagenesClinicas
 from Usuarios.models import AuditEvent
 from .models import AIAnalysisRun
 from .services import ClinicalImageMissingError, ClinicalImageChangedError, model_version
 
 class AnalysisKeyConflict(Exception):
+    pass
+
+
+class AnalysisClinicConflict(Exception):
     pass
 
 
@@ -26,11 +30,16 @@ def input_digest(image):
 
 
 def audit(user, request_id, action, run, outcome='success'):
-    AuditEvent.objects.create(actor=user, request_id=request_id, action=action, outcome=outcome, resource_type='ai_run', resource_id=str(run.pk))
+    AuditEvent.objects.create(actor=user, clinic_id=run.clinic_id, request_id=request_id, action=action, outcome=outcome, resource_type='ai_run', resource_id=str(run.pk))
 
 
-def execute(*, user, image_id, request_id, force, analyzer, idempotency_key=None):
-    image = get_object_or_404(scoped(user, ImagenesClinicas), pk=image_id)
+def execute(*, user, image_id, request_id, force, analyzer, idempotency_key=None, clinic_id=None):
+    def authorized_images():
+        return clinic_clinical_queryset(user, clinic_id, ImagenesClinicas) if clinic_id is not None else scoped(user, ImagenesClinicas)
+
+    image = get_object_or_404(authorized_images(), pk=image_id)
+    if AIAnalysisRun.objects.filter(image=image).exclude(clinic_id=image.paciente.clinic_id).exists():
+        raise AnalysisClinicConflict
     if not image.imagen:
         raise ClinicalImageMissingError
     input_hash = input_digest(image)
@@ -41,7 +50,9 @@ def execute(*, user, image_id, request_id, force, analyzer, idempotency_key=None
         candidate = AIAnalysisRun.objects.filter(image=image, model_version=version, input_hash=input_hash, status=AIAnalysisRun.SUCCEEDED).order_by('-pk').first()
         candidate_exists = bool(candidate and candidate.result_name and image.resultados.name == candidate.result_name and image.resultados.storage.exists(candidate.result_name))
     with transaction.atomic():
-        image = get_object_or_404(scoped(user, ImagenesClinicas).select_for_update(of=('self',)), pk=image_id)
+        image = get_object_or_404(authorized_images().select_for_update(of=('self',)), pk=image_id)
+        if AIAnalysisRun.objects.filter(image=image).exclude(clinic_id=image.paciente.clinic_id).exists():
+            raise AnalysisClinicConflict
         if idempotency_key:
             previous = AIAnalysisRun.objects.filter(image=image, requested_by=user, idempotency_key=idempotency_key).first()
             if previous:
@@ -57,7 +68,7 @@ def execute(*, user, image_id, request_id, force, analyzer, idempotency_key=None
             if candidate and image.resultados.name == candidate.result_name:
                 audit(user, request_id, 'AI_ANALYSIS_REUSED', candidate)
                 return candidate, 'reused'
-        run = AIAnalysisRun.objects.create(image=image, image_reference=image.pk, requested_by=user, started_at=timezone.now(), status=AIAnalysisRun.RUNNING, model_name='YOLO', model_version=version, input_hash=input_hash, request_id=request_id, explicit_reanalysis=force, idempotency_key=idempotency_key)
+        run = AIAnalysisRun.objects.create(image=image, clinic_id=image.paciente.clinic_id, image_reference=image.pk, requested_by=user, started_at=timezone.now(), status=AIAnalysisRun.RUNNING, model_name='YOLO', model_version=version, input_hash=input_hash, request_id=request_id, explicit_reanalysis=force, idempotency_key=idempotency_key)
         audit(user, request_id, 'AI_REANALYSIS_REQUESTED' if force else 'AI_ANALYSIS_REQUESTED', run)
     try:
         detections = analyzer(image, expected_hash=input_hash)

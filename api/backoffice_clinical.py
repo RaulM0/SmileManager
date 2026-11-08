@@ -1,10 +1,12 @@
 """Audited, read-only global views for explicitly authorized system administrators."""
+import uuid
 from django.db.models import Exists, F, OuterRef, Q
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from rest_framework import serializers
+from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
 
 from Citas.models import Cita
@@ -18,6 +20,21 @@ from .services.patients import update_patient
 from .serializers import PatientSerializer, MedicalHistorySerializer, OdontogramSerializer
 from .services.clinical_records import save_record
 from .throttles import ExpensiveThrottle
+
+
+class NoGlobalClinicalAccess(BasePermission):
+    """There is no approved tenant-scoped exceptional-access workflow yet."""
+    message = 'La consulta clínica global está deshabilitada.'
+
+    def has_permission(self, request, view):
+        AuditEvent.objects.create(actor=request.user, action='BACKOFFICE_CLINICAL_ACCESS_DENIED',
+                                  resource_type='clinical_access', outcome='failure',
+                                  request_id=getattr(request._request, 'request_id', uuid.uuid4()))
+        return False
+
+
+class ClinicalAdminAPIView(AdminAPIView):
+    permission_classes = [*AdminAPIView.permission_classes, NoGlobalClinicalAccess]
 
 
 def audit_read(request, action, resource_type, resource_id=''):
@@ -35,7 +52,7 @@ def patient_rows():
         'id', 'nombre', 'appat', 'apmat', 'estatus', 'medico_id', 'medico__username', 'created')
 
 
-class PatientList(AdminAPIView):
+class PatientList(ClinicalAdminAPIView):
     def get(self, request):
         qs = patient_rows().order_by('nombre', 'appat', 'pk')
         search = request.query_params.get('search', '').strip()[:150]
@@ -61,7 +78,7 @@ def patient_data(patient):
             'medico_id': patient.medico_id, 'medico': patient.medico.username if patient.medico_id else None}
 
 
-class PatientDetail(AdminAPIView):
+class PatientDetail(ClinicalAdminAPIView):
     def get(self, request, pk):
         patient = get_object_or_404(patient_rows().only('id', 'nombre', 'appat', 'apmat', 'estatus', 'medico_id', 'medico__username', 'created', 'updated', 'fecha_nacimiento', 'genero', 'telefono', 'email'), pk=pk)
         data = patient_data(patient)
@@ -95,7 +112,7 @@ class PatientDetail(AdminAPIView):
         return Response(PatientSerializer(patient).data)
 
 
-class AppointmentList(AdminAPIView):
+class AppointmentList(ClinicalAdminAPIView):
     def get(self, request):
         qs = appointment_rows().order_by('-fecha', '-hora', '-pk')
         for param, field in (('patient', 'paciente_id'), ('doctor', 'paciente__medico_id')):
@@ -123,7 +140,7 @@ def appointment_rows():
         'paciente__appat', 'paciente__medico_id', 'paciente__medico__username')
 
 
-class AppointmentDetail(AdminAPIView):
+class AppointmentDetail(ClinicalAdminAPIView):
     def get(self, request, pk):
         item = get_object_or_404(appointment_rows(), pk=pk)
         audit_read(request, 'BACKOFFICE_APPOINTMENT_VIEW', 'appointment', pk)
@@ -133,7 +150,7 @@ class AppointmentDetail(AdminAPIView):
                          'fecha': item.fecha, 'hora': item.hora, 'estatus': item.estatus})
 
 
-class AppointmentTransition(AdminAPIView):
+class AppointmentTransition(ClinicalAdminAPIView):
     throttle_classes = [ExpensiveThrottle]
 
     @transaction.atomic
@@ -145,7 +162,7 @@ class AppointmentTransition(AdminAPIView):
             from django.http import Http404
             raise Http404
         appointment = get_object_or_404(Cita, pk=pk)
-        appointment = transition_appointment(user=request.user, appointment=appointment, target=target, administrative=True)
+        appointment = transition_appointment(user=request.user, appointment=appointment, target=target)
         audit_read(request, 'BACKOFFICE_APPOINTMENT_COMPLETED' if target == 'C' else 'BACKOFFICE_APPOINTMENT_CANCELLED', 'appointment', pk)
         return Response({'id': appointment.pk, 'estatus': appointment.estatus})
 
@@ -160,7 +177,7 @@ SECTIONS = {
 }
 
 
-class PatientSection(AdminAPIView):
+class PatientSection(ClinicalAdminAPIView):
     def get(self, request, pk, section):
         get_object_or_404(Paciente.objects.only('pk'), pk=pk)
         if section in SECTIONS:
@@ -186,7 +203,7 @@ class PatientSection(AdminAPIView):
         return paginator.get_paginated_response(result)
 
 
-class PatientRecord(AdminAPIView):
+class PatientRecord(ClinicalAdminAPIView):
     throttle_classes = [ExpensiveThrottle]
 
     def configuration(self, record):
@@ -218,6 +235,6 @@ class PatientRecord(AdminAPIView):
         if unknown:
             raise serializers.ValidationError({'detail': 'Se enviaron campos no permitidos.'})
         serializer.is_valid(raise_exception=True)
-        obj = save_record(user=request.user, patient_id=pk, model=model, changes=serializer.validated_data, expected_version=request.data.get('version'), administrative=True)
+        obj = save_record(user=request.user, patient_id=pk, model=model, changes=serializer.validated_data, expected_version=request.data.get('version'))
         audit_read(request, 'BACKOFFICE_HISTORY_UPDATE' if record == 'medical-history' else 'BACKOFFICE_ODONTOGRAM_UPDATE', 'patient', pk)
         return Response(serializer_class(obj).data)

@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from "vitest";
-import { api, getAccessToken, setAccessToken } from "./client";
+import { api, getAccessToken, setAccessToken, setClinicContext } from "./client";
 
 afterEach(() => {
   setAccessToken(null);
@@ -62,4 +62,39 @@ it("does not share reads across access-token changes or requests with options", 
   expect(fetchMock).toHaveBeenCalledTimes(3);
   resolvers.forEach((resolve) => resolve(Response.json({ id: 5 })));
   await Promise.all([first, second, third]);
+});
+
+it("cancels and ignores late responses after changing clinics", async () => {
+  const resolvers: Array<(response: Response) => void> = [];
+  const fetchMock = vi.fn().mockImplementation(() => new Promise<Response>((resolve) => { resolvers.push(resolve); }));
+  vi.stubGlobal("fetch", fetchMock);
+  setClinicContext("clinic-a");
+  const first = api("clinics/patients/");
+  const rejected = expect(first).rejects.toMatchObject({ name: "AbortError" });
+  const firstOptions = fetchMock.mock.calls[0][1] as RequestInit;
+  expect(new Headers(firstOptions.headers).get("X-Clinic-ID")).toBe("clinic-a");
+  setClinicContext("clinic-b");
+  expect(firstOptions.signal?.aborted).toBe(true);
+  const second = api("clinics/patients/");
+  expect(new Headers(fetchMock.mock.calls[1][1].headers).get("X-Clinic-ID")).toBe("clinic-b");
+  resolvers[0](Response.json({ clinic: "a" }));
+  resolvers[1](Response.json({ clinic: "b" }));
+  await rejected;
+  await expect(second).resolves.toEqual({ clinic: "b" });
+});
+
+it("routes clinical requests and protected files through the selected clinic API", async () => {
+  const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(Response.json({})));
+  vi.stubGlobal("fetch", fetchMock);
+  setClinicContext("clinic-a");
+  await api("patients/5/");
+  await api("clinical-images/9/file/");
+  await api("clinical-images/9/result-file/");
+  await api("patients/5/consent/file/");
+  expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+    "/api/v1/clinics/patients/5/",
+    "/api/v1/clinics/clinical-images/9/original/file/",
+    "/api/v1/clinics/clinical-images/9/result/file/",
+    "/api/v1/clinics/patients/5/consent/identity/file/",
+  ]);
 });

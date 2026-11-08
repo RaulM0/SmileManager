@@ -1,5 +1,7 @@
 # Decisiones de diseño
 
+> Decisiones históricas: las interfaces HTML Django y `/sesiones/` fueron retiradas. Consultar [estado actual](../production/legacy-routes.md).
+
 ## UX-DEC-001 — La navegación actual define el shell
 
 Problema: navbar solo expone cuatro de varios módulos y las páginas clínicas se navegan por enlaces contextuales.
