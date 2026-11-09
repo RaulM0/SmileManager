@@ -637,3 +637,42 @@ a.clinical-action-primary, a.clinical-action-primary:hover { color: #fff; }
   .clinical-action-danger:active, .clinical-icon-action:active, .clinical-form-submit:active { transform: none; }
   .patient-workspace-links a:active { transform: none; }
 }
+
+/* Administration reuses the clinical workspace surfaces and responsive controls. */
+.admin-form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); align-items: end; gap: 16px; }
+.admin-form-grid > label { min-width: 0; margin-bottom: 0; }
+.admin-form-grid > button { align-self: end; }
+.admin-summary-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.admin-summary-strip > div { min-width: 0; }
+.admin-summary-strip > div:nth-child(3n + 1) { border-left: 0; }
+.admin-summary-strip > div:nth-child(n + 4) { border-top: 1px solid var(--clinical-line); }
+.admin-table-actions { min-width: 240px; }
+.admin-table-actions > button { margin: 3px 6px 3px 0; }
+.admin-activity-list { list-style: none; padding: 0; margin: 0; }
+.admin-activity-list > li { padding: 16px; overflow-wrap: anywhere; font-size: 13px; line-height: 1.7; }
+.admin-activity-list > li + li { border-top: 1px solid var(--clinical-line); }
+.admin-activity-list > li > button { margin-left: 12px; }
+.admin-detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 20px; padding: 20px; }
+.admin-detail-grid dt { margin-bottom: 5px; color: var(--clinical-muted); font-size: 12px; }
+.admin-detail-grid dd { margin: 0; font-size: 14px; font-weight: 550; overflow-wrap: anywhere; }
+@media (max-width: 640px) {
+  .admin-summary-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .admin-summary-strip > div + div { border-left: 0; }
+  .admin-summary-strip > div:nth-child(even) { border-left: 1px solid var(--clinical-line); }
+  .admin-summary-strip > div:nth-child(n + 3) { border-top: 1px solid var(--clinical-line); }
+  .admin-table-actions { min-width: 0; }
+  .admin-form-grid > button { width: 100%; }
+}
+
+.workspace-clinic-context { min-width: 0; }
+.workspace-clinic-selector { position: relative; display: flex; align-items: center; gap: 10px; width: clamp(210px, 24vw, 320px); max-width: 100%; padding: 5px 10px; border: 1px solid #cbdcde; border-radius: 6px; background: #f4f9f9; color: var(--dental-primary); cursor: pointer; transition: border-color 150ms, background-color 150ms; }
+.workspace-clinic-selector:hover { border-color: #719da2; background: #edf5f5; }
+.workspace-clinic-selector:focus-within { border-color: var(--dental-primary); box-shadow: 0 0 0 2px #176b781a; }
+.workspace-clinic-selector > .bi-building { font-size: 17px; flex-shrink: 0; }
+.workspace-clinic-selector-field { display: grid; flex: 1; min-width: 0; }
+.workspace-clinic-selector-label { font-size: 10px; line-height: 14px; font-weight: 500; color: var(--clinical-muted); }
+.clinical-form-control.workspace-clinic-select { appearance: none; min-height: 22px; padding: 0 22px 0 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; font-size: 13px; line-height: 22px; font-weight: 600; color: var(--dental-dark); cursor: pointer; text-overflow: ellipsis; }
+.workspace-clinic-select:focus-visible { outline-offset: 1px; }
+.clinical-form-control.workspace-clinic-select:disabled { background: transparent; color: var(--clinical-muted); cursor: wait; }
+.workspace-clinic-chevron { position: absolute; right: 11px; bottom: 10px; font-size: 11px; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .workspace-clinic-selector { transition: none; } }

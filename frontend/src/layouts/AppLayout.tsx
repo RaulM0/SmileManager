@@ -136,7 +136,18 @@ export default function AppLayout({ clinics = [], activeClinic = null, onClinicC
           </span>
           <span>SmileManager</span>
         </NavLink>
-        <div className="workspace-context">{activeClinic ? <label>Clínica actual <select aria-label="Clínica actual" value={activeClinic.id} disabled={clinicBusy} onChange={(event) => onClinicChange?.(event.target.value)}>{clinics.map((clinic) => <option key={clinic.id} value={clinic.id}>{clinic.name}</option>)}</select></label> : "Operación clínica"}</div>
+        <div className="workspace-context workspace-clinic-context">
+          {activeClinic ? <label className="workspace-clinic-selector">
+            <i className="bi bi-building" aria-hidden="true" />
+            <span className="workspace-clinic-selector-field">
+              <span className="workspace-clinic-selector-label">Clínica actual</span>
+              <select className="clinical-form-control workspace-clinic-select" aria-label="Clínica actual" value={activeClinic.id} disabled={clinicBusy} onChange={(event) => onClinicChange?.(event.target.value)}>
+                {clinics.map((clinic) => <option key={clinic.id} value={clinic.id}>{clinic.name}</option>)}
+              </select>
+            </span>
+            <i className={`bi ${clinicBusy ? "bi-hourglass-split" : "bi-chevron-down"} workspace-clinic-chevron`} aria-hidden="true" />
+          </label> : "Operación clínica"}
+        </div>
         <div className="workspace-user">
           <span className="workspace-user-avatar" aria-hidden="true">
             {(user?.username || "U").slice(0, 1).toUpperCase()}
