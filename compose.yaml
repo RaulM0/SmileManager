@@ -1,73 +1,51 @@
+name: smilemanager
+
 services:
-  backend:
-    build: .
-    init: true
+  db:
+    image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      DJANGO_SETTINGS_MODULE: SmileManager.settings_local
-      DATABASE_URL: postgresql://smilemanager:smilemanager_local@db:5432/smilemanager
-      FRONTEND_URL: http://localhost:5173
-      TENANT_INVITATION_URL: http://localhost:5173/invitations/accept
-      DEV_EMAIL_DELIVERY: file
-      DEV_EMAIL_DIR: /var/lib/smilemanager/mail
-    ports:
-      - "127.0.0.1:8000:8000"
+      POSTGRES_DB: ${POSTGRES_DB:-smilemanager}
+      POSTGRES_USER: ${POSTGRES_USER:-smilemanager}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Define POSTGRES_PASSWORD in .env}
     volumes:
-      - .:/app:ro
-      - smilemanager_media:/app/media
-      - smilemanager_mail:/var/lib/smilemanager/mail
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-smilemanager} -d ${POSTGRES_DB:-smilemanager}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    networks: [backend]
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    init: true
     depends_on:
       db:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready/', timeout=5)"]
-      interval: 15s
-      timeout: 10s
-      start_period: 90s
-      retries: 5
-
-  e2e:
-    profiles: [e2e]
-    image: smilemanager-backend
-    init: true
+    env_file: .env
     environment:
-      DJANGO_SETTINGS_MODULE: SmileManager.settings_e2e
-      SMILE_E2E_DIR: /tmp/smilemanager-e2e-browser
-      SMILE_E2E_MAIL_PATH: /e2e-mail
-    command: [sh, -c, 'mkdir -p /tmp/smilemanager-e2e-browser && python manage.py migrate --noinput && python manage.py prepare_e2e && exec python manage.py runserver 0.0.0.0:8010 --noreload']
-    ports:
-      - "127.0.0.1:8010:8010"
+      DJANGO_SETTINGS_MODULE: SmileManager.settings_local
+      DATABASE_URL: postgresql://${POSTGRES_USER:-smilemanager}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-smilemanager}
     volumes:
-      - .:/app:ro
-      - ./.e2e-browser-mail:/e2e-mail
-    tmpfs:
-      - /tmp:uid=1000,gid=1000,mode=1777
-    healthcheck:
-      test: [CMD, python, -c, 'import urllib.request; urllib.request.urlopen("http://127.0.0.1:8010/health/ready/", timeout=5)']
-      interval: 5s
-      timeout: 10s
-      start_period: 60s
-      retries: 12
-
-  db:
-    image: postgres:16-alpine
-    container_name: smilemanager-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: smilemanager
-      POSTGRES_USER: smilemanager
-      POSTGRES_PASSWORD: smilemanager_local
+      - media_data:/app/media
     ports:
-      - "127.0.0.1:5433:5432"
-    volumes:
-      - smilemanager_postgres_data:/var/lib/postgresql/data
+      - "127.0.0.1:${APP_PORT:-8000}:8000"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U smilemanager -d smilemanager"]
-      interval: 5s
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health/ready/"]
+      interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 12
+      start_period: 30s
+    networks: [backend]
 
 volumes:
-  smilemanager_postgres_data:
-  smilemanager_media:
-  smilemanager_mail:
+  postgres_data:
+  media_data:
+
+networks:
+  backend:
+    driver: bridge

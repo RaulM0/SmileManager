@@ -26,6 +26,7 @@ class Clinic(models.Model):
     name = models.CharField(max_length=150)
     slug = models.SlugField(max_length=150, unique=True)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.INACTIVE)
+    ai_enabled = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

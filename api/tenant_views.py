@@ -16,11 +16,15 @@ from .tenant_context import resolve_clinic_membership
 from .services.memberships import change_membership
 from .services.invitations import create_invitation, preview_invitation, preview_registration, register_with_invitation, resolve_invitation, revoke_invitation
 from .throttles import EmailThrottle, AddressThrottle
+from .features import ai_enabled_for_clinic, ai_globally_enabled
 
 
 def membership_data(membership):
     return {'id': str(membership.clinic_id), 'name': membership.clinic.name,
-            'slug': membership.clinic.slug, 'role': membership.role}
+            'slug': membership.clinic.slug, 'role': membership.role,
+            'ai_enabled': membership.clinic.ai_enabled,
+            'ai_effective': ai_enabled_for_clinic(membership.clinic),
+            'ai_globally_enabled': ai_globally_enabled()}
 
 
 @method_decorator(never_cache, name='dispatch')

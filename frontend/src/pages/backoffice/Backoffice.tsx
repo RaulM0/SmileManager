@@ -55,7 +55,8 @@ type Run = {
 };
 type Dashboard = {
   users: { active: number; inactive: number };
-  ai: { running: number; failed: number; stale: number };
+  ai: { running: number; failed: number; stale: number } | null;
+  ai_enabled: boolean;
   patients_active?: number;
   appointments?: { today: number; upcoming: number };
   recent_admin_events: Event[];
@@ -232,7 +233,7 @@ export function BackofficeLayout() {
             <div className="workspace-nav-group">
               <div className="workspace-nav-label">ADMINISTRACIÓN</div>
               {[
-                ...nav,
+                ...nav.filter(([, url]) => url !== "/backoffice/ai" || user.ai_globally_enabled),
                 ...(user.is_platform_admin
                   ? [["Clínicas", "/backoffice/clinics", "bi-building"]]
                   : []),
@@ -310,9 +311,7 @@ export function BackofficeDashboard() {
                 ["Pacientes activos", d.patients_active ?? "—"],
                 ["Citas hoy", d.appointments?.today ?? "—"],
                 ["Próximas citas", d.appointments?.upcoming ?? "—"],
-                ["IA en curso", d.ai.running],
-                ["IA fallida", d.ai.failed],
-                ["IA posiblemente detenida", d.ai.stale],
+                ...(d.ai ? [["IA en curso", d.ai.running], ["IA fallida", d.ai.failed], ["IA posiblemente detenida", d.ai.stale]] : []),
               ].map(([label, count]) => (
                 <div key={label}>
                   <span>{label}</span>

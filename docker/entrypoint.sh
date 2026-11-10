@@ -1,9 +1,5 @@
 #!/bin/sh
 set -eu
-
-if [ "${1:-}" = "runserver" ]; then
-    python manage.py migrate --noinput
-    exec python manage.py "$@"
-fi
-
+python manage.py migrate --noinput
+python manage.py collectstatic --noinput
 exec "$@"

@@ -105,7 +105,8 @@ AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
 if not _local_settings and (not os.environ.get('DATABASE_URL') or not AWS_STORAGE_BUCKET_NAME):
     raise ImproperlyConfigured('Producción requiere DATABASE_URL y AWS_STORAGE_BUCKET_NAME.')
-AWS_S3_REGION_NAME = 'us-east-2'
+AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME', 'us-east-2')
+AWS_S3_ENDPOINT_URL = os.environ.get('AWS_S3_ENDPOINT_URL') or None
 AWS_S3_CLIENT_CONFIG = Config(connect_timeout=int(os.environ.get('S3_CONNECT_TIMEOUT', '10')), read_timeout=int(os.environ.get('S3_READ_TIMEOUT', '60')))
 CLINICAL_UPLOAD_MAX_BYTES = int(os.environ.get('CLINICAL_UPLOAD_MAX_BYTES', str(5 * 1024 * 1024)))
 CLINICAL_UPLOAD_MAX_PIXELS = int(os.environ.get('CLINICAL_UPLOAD_MAX_PIXELS', '20000000'))
@@ -115,6 +116,7 @@ CLINICAL_PAGE_SIZE = max(1, int(os.environ.get('CLINICAL_PAGE_SIZE', '20')))
 CLINICAL_MAX_PAGE_SIZE = max(CLINICAL_PAGE_SIZE, int(os.environ.get('CLINICAL_MAX_PAGE_SIZE', '100')))
 APPOINTMENT_MAX_RANGE_DAYS = max(1, int(os.environ.get('APPOINTMENT_MAX_RANGE_DAYS', '62')))
 BACKOFFICE_AI_STALE_SECONDS = max(1, int(os.environ.get('BACKOFFICE_AI_STALE_SECONDS', '3600')))
+FEATURE_AI_ENABLED = os.environ.get('FEATURE_AI_ENABLED', 'false').strip().lower() in ('1', 'true', 'yes', 'on')
 
 # Dominio S3
 AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
@@ -129,7 +131,12 @@ AWS_DEFAULT_ACL = None
 AWS_QUERYSTRING_AUTH = True
 
 # URL pública de media
-MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
+AWS_S3_PUBLIC_ENDPOINT = os.environ.get('AWS_S3_PUBLIC_ENDPOINT', '').rstrip('/')
+MEDIA_URL = (
+    f'{AWS_S3_PUBLIC_ENDPOINT}/{AWS_STORAGE_BUCKET_NAME}/'
+    if AWS_S3_PUBLIC_ENDPOINT
+    else f'https://{AWS_S3_CUSTOM_DOMAIN}/'
+)
 
 # ============================================
 # STORAGES - Configuración moderna de Django
