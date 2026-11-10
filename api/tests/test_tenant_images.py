@@ -16,13 +16,14 @@ from Pacientes.models import Consulta, ImagenesClinicas, Paciente
 from Usuarios.models import AuditEvent, Clinic, ClinicMembership
 
 
+@override_settings(FEATURE_AI_ENABLED=True)
 class TenantImageTests(APITestCase):
     def setUp(self):
         media = self.enterContext(TemporaryDirectory())
         self.enterContext(override_settings(MEDIA_ROOT=media))
         self.doctor = User.objects.create_user('tenant-image-doctor')
-        self.a = Clinic.objects.create(name='A', slug='image-clinic-a', status='ACTIVE')
-        self.b = Clinic.objects.create(name='B', slug='image-clinic-b', status='ACTIVE')
+        self.a = Clinic.objects.create(name='A', slug='image-clinic-a', status='ACTIVE', ai_enabled=True)
+        self.b = Clinic.objects.create(name='B', slug='image-clinic-b', status='ACTIVE', ai_enabled=True)
         self.membership = ClinicMembership.objects.create(user=self.doctor, clinic=self.a, role='DOCTOR', status='ACTIVE')
         ClinicMembership.objects.create(user=self.doctor, clinic=self.b, role='DOCTOR', status='ACTIVE')
         self.patient_a = self.patient(self.a, '1111111111')

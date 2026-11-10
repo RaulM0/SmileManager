@@ -11,16 +11,26 @@ from rest_framework.views import APIView
 from Usuarios.models import AuditEvent, Clinic, ClinicInvitation, ClinicMembership
 from .backoffice import Pagination
 from .policies import IsPlatformAdmin
-from .services.platform_clinics import change_clinic_status, create_clinic, invite_initial_administrator, revoke_initial_invitation
+from .services.platform_clinics import change_clinic_ai, change_clinic_status, create_clinic, invite_initial_administrator, revoke_initial_invitation
+from .features import ai_enabled_for_clinic, ai_globally_enabled
 from .tenant_views import deliver_invitation, invitation_delivery_url
 from .throttles import EmailThrottle
 
 
 class ClinicSerializer(serializers.ModelSerializer):
+    ai_effective = serializers.SerializerMethodField()
+    ai_globally_enabled = serializers.SerializerMethodField()
+
     class Meta:
         model = Clinic
-        fields = ('id', 'name', 'slug', 'status', 'created_at', 'updated_at')
+        fields = ('id', 'name', 'slug', 'status', 'ai_enabled', 'ai_effective', 'ai_globally_enabled', 'created_at', 'updated_at')
         read_only_fields = fields
+
+    def get_ai_effective(self, clinic):
+        return ai_enabled_for_clinic(clinic)
+
+    def get_ai_globally_enabled(self, clinic):
+        return ai_globally_enabled()
 
 
 class ClinicCreateInput(serializers.Serializer):
@@ -74,6 +84,26 @@ class PlatformClinicStatus(APIView):
                                           request_id=request._request.request_id)
         except DjangoValidationError as exc:
             raise serializers.ValidationError({'status': exc.messages}) from exc
+        return Response(ClinicSerializer(clinic).data)
+
+
+class ClinicAIInput(serializers.Serializer):
+    enabled = serializers.BooleanField()
+
+
+@method_decorator(never_cache, name='dispatch')
+class PlatformClinicAI(APIView):
+    permission_classes = [IsPlatformAdmin]
+
+    def post(self, request, clinic_id):
+        data = ClinicAIInput(data=request.data)
+        data.is_valid(raise_exception=True)
+        clinic = change_clinic_ai(
+            actor=request.user,
+            clinic_id=clinic_id,
+            enabled=data.validated_data['enabled'],
+            request_id=request._request.request_id,
+        )
         return Response(ClinicSerializer(clinic).data)
 
 

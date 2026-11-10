@@ -6,7 +6,7 @@ import { discardDraftsFor, hasUnsavedChanges } from "../hooks/useUnsavedChanges"
 import { queryClient } from "../query/client";
 import AppLayout from "./AppLayout";
 
-export interface ClinicOption { id: string; name: string; slug: string; role: "DOCTOR" | "CLINIC_ADMIN" | "STAFF" }
+export interface ClinicOption { id: string; name: string; slug: string; role: "DOCTOR" | "CLINIC_ADMIN" | "STAFF"; ai_enabled: boolean; ai_effective: boolean; ai_globally_enabled: boolean }
 
 export default function ClinicWorkspace() {
   const navigate = useNavigate();

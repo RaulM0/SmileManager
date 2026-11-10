@@ -1,4 +1,5 @@
 import { lazy, Suspense } from "react";
+import type { ReactNode } from "react";
 import { createBrowserRouter, createRoutesFromElements, Navigate, Route, RouterProvider } from "react-router-dom";
 import ClinicWorkspace from "./layouts/ClinicWorkspace";
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -36,6 +37,7 @@ import { BackofficeLayout, BackofficeDashboard, BackofficeUsers, BackofficeUser,
 import { BackofficePatients, BackofficePatient, BackofficePatientEdit, BackofficePatientSection, BackofficeAppointments, BackofficeAppointment } from "./pages/backoffice/BackofficeClinical";
 import { BackofficeUserCreate } from "./pages/backoffice/BackofficeUserCreate";
 import PlatformClinicsPage from "./pages/backoffice/PlatformClinicsPage";
+import { useAuth } from "./context/AuthContext";
 
 const DiagnosticResultPage = lazy(
   () => import("./pages/diagnostics/DiagnosticResultPage"),
@@ -48,6 +50,11 @@ function RouteLoading() {
       <div className="workspace-loader-spinner" />
     </div>
   );
+}
+
+function GlobalAIFeatureRoute({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  return user?.ai_globally_enabled ? children : <Navigate to="/backoffice" replace />;
 }
 
 const router = createBrowserRouter(createRoutesFromElements(
@@ -72,8 +79,8 @@ const router = createBrowserRouter(createRoutesFromElements(
           <Route path="appointments" element={<BackofficeAppointments />} />
           <Route path="appointments/:id" element={<BackofficeAppointment />} />
           <Route path="audit" element={<BackofficeAudit />} />
-          <Route path="ai" element={<BackofficeRuns />} />
-          <Route path="ai/:id" element={<BackofficeRun />} />
+          <Route path="ai" element={<GlobalAIFeatureRoute><BackofficeRuns /></GlobalAIFeatureRoute>} />
+          <Route path="ai/:id" element={<GlobalAIFeatureRoute><BackofficeRun /></GlobalAIFeatureRoute>} />
           <Route path="system" element={<BackofficeSystem />} />
           <Route path="clinics" element={<PlatformClinicsPage />} />
         </Route>
