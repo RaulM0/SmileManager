@@ -22,8 +22,9 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 - `_initial_invitation` — línea 28.
 - `create_clinic` — línea 56.
 - `change_clinic_status` — línea 75.
-- `invite_initial_administrator` — línea 89.
-- `revoke_initial_invitation` — línea 98.
+- `change_clinic_ai` — línea 89.
+- `invite_initial_administrator` — línea 109.
+- `revoke_initial_invitation` — línea 118.
 
 ## Dependencias internas
 

@@ -42,7 +42,7 @@ const roles: Array<[Role, string]> = [
 const roleLabel = (role: Role) =>
   roles.find(([value]) => value === role)?.[1] ?? role;
 
-export default function ClinicAdministrationPage() {
+export default function ClinicAdministrationPage({ aiEnabled = false }: { aiEnabled?: boolean }) {
   const clinic = getClinicContext();
   const client = useQueryClient();
   const [email, setEmail] = useState("");
@@ -133,8 +133,7 @@ export default function ClinicAdministrationPage() {
               ["Citas hoy", dashboard.data.appointments.today],
               ["Médicos", dashboard.data.members.doctors],
               ["Personal", dashboard.data.members.staff],
-              ["Análisis de IA", dashboard.data.ai.total],
-              ["Fallos de IA", dashboard.data.ai.failed],
+              ...(aiEnabled ? [["Análisis de IA", dashboard.data.ai.total], ["Fallos de IA", dashboard.data.ai.failed]] : []),
             ].map(([label, value]) => (
               <div key={label}>
                 <span>{label}</span>

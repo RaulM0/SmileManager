@@ -21,6 +21,7 @@ from .serializers import ClinicalImageSerializer
 from .tenant_consultations import patient_for
 from .tenant_patients import TenantClinicalContextMixin
 from .views import ClinicalPagination, PatientPagination
+from .features import TenantAIFeatureMixin, ai_enabled_for_clinic, require_ai_enabled
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +36,7 @@ class TenantClinicalImageSerializer(ClinicalImageSerializer):
         return reverse('tenant-clinical-image-file', args=[image.pk, 'original']) if image.imagen else None
 
     def get_resultados_url(self, image):
-        valid = image.resultados and getattr(image, 'tenant_has_result', False)
+        valid = ai_enabled_for_clinic(image.paciente.clinic) and image.resultados and getattr(image, 'tenant_has_result', False)
         return reverse('tenant-clinical-image-file', args=[image.pk, 'result']) if valid else None
 
 
@@ -112,6 +113,8 @@ class TenantClinicalImageDetail(TenantClinicalContextMixin, APIView):
 @method_decorator(never_cache, name='dispatch')
 class TenantClinicalImageFile(TenantClinicalContextMixin, APIView):
     def get(self, request, image_id, kind):
+        if kind == 'result':
+            require_ai_enabled(self.membership.clinic)
         image = image_for(request, self.membership.clinic_id, image_id)
         if kind == 'original':
             file = image.imagen
@@ -136,7 +139,7 @@ class TenantClinicalImageFile(TenantClinicalContextMixin, APIView):
 
 
 @method_decorator(never_cache, name='dispatch')
-class TenantDiagnostics(TenantClinicalContextMixin, APIView):
+class TenantDiagnostics(TenantAIFeatureMixin, TenantClinicalContextMixin, APIView):
     def get(self, request):
         images = image_rows(request, self.membership.clinic_id).order_by('-fecha_subida', '-pk')
         patient = request.query_params.get('patient', '').strip()[:150]

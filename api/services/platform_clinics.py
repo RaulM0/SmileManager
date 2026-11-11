@@ -86,6 +86,26 @@ def change_clinic_status(*, actor, clinic_id, target, request_id):
 
 
 @transaction.atomic
+def change_clinic_ai(*, actor, clinic_id, enabled, request_id):
+    if not is_platform_admin(actor):
+        raise PermissionDenied('Operación no autorizada.')
+    clinic = get_object_or_404(Clinic.objects.select_for_update(), pk=clinic_id)
+    actor = _locked_platform_actor(actor)
+    if clinic.ai_enabled != enabled:
+        clinic.ai_enabled = enabled
+        clinic.save(update_fields=['ai_enabled', 'updated_at'])
+        AuditEvent.objects.create(
+            clinic=clinic,
+            actor=actor,
+            action='PLATFORM_CLINIC_AI_ENABLED' if enabled else 'PLATFORM_CLINIC_AI_DISABLED',
+            resource_type='clinic',
+            resource_id=str(clinic.pk),
+            request_id=request_id,
+        )
+    return clinic
+
+
+@transaction.atomic
 def invite_initial_administrator(*, actor, clinic_id, email, request_id):
     if not is_platform_admin(actor):
         raise PermissionDenied('Operación no autorizada.')

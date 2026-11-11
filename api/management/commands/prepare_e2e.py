@@ -72,5 +72,8 @@ class Command(BaseCommand):
             })
         doctor = get_user_model().objects.get(username='e2e_doctor')
         for clinic in Clinic.objects.filter(slug__startswith='e2e-'):
+            if not clinic.ai_enabled:
+                clinic.ai_enabled = True
+                clinic.save(update_fields=['ai_enabled'])
             if not clinic.privacynotice_set.exists():
                 publish_documents(clinic, doctor)

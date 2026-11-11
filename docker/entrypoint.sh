@@ -1,9 +1,15 @@
 #!/bin/sh
 set -eu
 
-if [ "${1:-}" = "runserver" ]; then
-    python manage.py migrate --noinput
-    exec python manage.py "$@"
-fi
+case "${1:-}" in
+    runserver)
+        python manage.py migrate --noinput
+        set -- python manage.py "$@"
+        ;;
+    gunicorn)
+        python manage.py migrate --noinput
+        python manage.py collectstatic --noinput
+        ;;
+esac
 
 exec "$@"

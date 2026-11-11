@@ -18,19 +18,22 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `ClinicSerializer` — línea 19.
-- `ClinicCreateInput` — línea 26.
-- `PlatformClinics` — línea 34.
-- `ClinicStatusInput` — línea 61.
-- `PlatformClinicStatus` — línea 66.
-- `InitialAdministratorInput` — línea 80.
-- `PlatformInitialAdministrator` — línea 85.
-- `PlatformInitialAdministratorRevoke` — línea 113.
+- `ClinicSerializer` — línea 20.
+- `ClinicCreateInput` — línea 36.
+- `PlatformClinics` — línea 44.
+- `ClinicStatusInput` — línea 71.
+- `PlatformClinicStatus` — línea 76.
+- `ClinicAIInput` — línea 90.
+- `PlatformClinicAI` — línea 95.
+- `InitialAdministratorInput` — línea 110.
+- `PlatformInitialAdministrator` — línea 115.
+- `PlatformInitialAdministratorRevoke` — línea 143.
 
 ## Dependencias internas
 
 - [[docs/mapa/archivos/Usuarios_2Fmodels.py|Usuarios/models.py]]
 - [[docs/mapa/archivos/api_2Fbackoffice.py|api/backoffice.py]]
+- [[docs/mapa/archivos/api_2Ffeatures.py|api/features.py]]
 - [[docs/mapa/archivos/api_2Fpolicies.py|api/policies.py]]
 - [[docs/mapa/archivos/api_2Fservices_2Fplatform_clinics.py|api/services/platform_clinics.py]]
 - [[docs/mapa/archivos/api_2Ftenant_views.py|api/tenant_views.py]]

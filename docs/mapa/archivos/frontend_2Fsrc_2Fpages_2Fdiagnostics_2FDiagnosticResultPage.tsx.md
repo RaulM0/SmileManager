@@ -18,13 +18,14 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `DiagnosticResultPage` — línea 11.
+- `DiagnosticResultPage` — línea 12.
 
 ## Dependencias internas
 
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fapi_2Fclient.ts|frontend/src/api/client.ts]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fcomponents_2Fimages_2FProtectedImageViewer.tsx|frontend/src/components/images/ProtectedImageViewer.tsx]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fcontext_2FToastContext.tsx|frontend/src/context/ToastContext.tsx]]
+- [[docs/mapa/archivos/frontend_2Fsrc_2Flayouts_2FClinicWorkspace.tsx|frontend/src/layouts/ClinicWorkspace.tsx]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fquery_2Fkeys.ts|frontend/src/query/keys.ts]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fservices_2Fimages.ts|frontend/src/services/images.ts]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Ftypes_2Fdomain.ts|frontend/src/types/domain.ts]]

@@ -62,9 +62,15 @@ test('platform administrator onboards and activates a synthetic clinic', async (
   await page.getByRole('button', { name: 'Crear y enviar invitación' }).click();
   const clinicRow = page.getByRole('row').filter({ hasText: 'Clínica E2E Nueva' });
   await expect(clinicRow).toContainText('Inactiva');
-  await clinicRow.getByRole('button', { name: 'Activar' }).click();
+  await clinicRow.getByRole('button', { name: 'Activar', exact: true }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Confirmar cambio' }).click();
-  await expect(clinicRow).toContainText('Activa');
+  await expect(clinicRow.locator('td[data-label="Estado"]')).toContainText('Activa');
+  await expect(clinicRow.locator('td[data-label="IA"]')).toContainText('Desactivada');
+  await clinicRow.getByRole('button', { name: 'Activar IA', exact: true }).click();
+  await expect(clinicRow.locator('td[data-label="IA"]')).toContainText('Activa');
+  await clinicRow.getByRole('button', { name: 'Desactivar IA', exact: true }).click();
+  await expect(clinicRow.locator('td[data-label="IA"]')).toContainText('Desactivada');
+  await expect(clinicRow.locator('td[data-label="Estado"]')).toContainText('Activa');
   await clinicRow.getByRole('button', { name: 'Administración inicial' }).click();
   await expect(page.getByText('synthetic-admin@example.test')).toBeVisible();
 });

@@ -18,11 +18,12 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `DiagnosticsPage` — línea 11.
+- `DiagnosticsPage` — línea 12.
 
 ## Dependencias internas
 
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fcomponents_2Fimages_2FProtectedImage.tsx|frontend/src/components/images/ProtectedImage.tsx]]
+- [[docs/mapa/archivos/frontend_2Fsrc_2Flayouts_2FClinicWorkspace.tsx|frontend/src/layouts/ClinicWorkspace.tsx]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fquery_2Fkeys.ts|frontend/src/query/keys.ts]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fquery_2FlatestCachedData.ts|frontend/src/query/latestCachedData.ts]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fservices_2Fdiagnostics.ts|frontend/src/services/diagnostics.ts]]

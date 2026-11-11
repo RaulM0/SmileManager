@@ -18,7 +18,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `TenantImageTests` — línea 19.
+- `TenantImageTests` — línea 20.
 
 ## Dependencias internas
 

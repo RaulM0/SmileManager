@@ -18,9 +18,9 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `TenantAnalyzeImage` — línea 27.
-- `TenantAnalysisRuns` — línea 74.
-- `TenantAnalysisRunFile` — línea 90.
+- `TenantAnalyzeImage` — línea 28.
+- `TenantAnalysisRuns` — línea 75.
+- `TenantAnalysisRunFile` — línea 91.
 
 ## Dependencias internas
 
@@ -28,6 +28,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 - [[docs/mapa/archivos/DiagnosticosIA_2Fruns.py|DiagnosticosIA/runs.py]]
 - [[docs/mapa/archivos/DiagnosticosIA_2Fservices.py|DiagnosticosIA/services.py]]
 - [[docs/mapa/archivos/DiagnosticosIA_2Ftenant_runs.py|DiagnosticosIA/tenant_runs.py]]
+- [[docs/mapa/archivos/api_2Ffeatures.py|api/features.py]]
 - [[docs/mapa/archivos/api_2Ftenant_images.py|api/tenant_images.py]]
 - [[docs/mapa/archivos/api_2Ftenant_patients.py|api/tenant_patients.py]]
 - [[docs/mapa/archivos/api_2Fthrottles.py|api/throttles.py]]

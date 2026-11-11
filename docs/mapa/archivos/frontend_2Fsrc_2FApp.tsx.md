@@ -18,14 +18,16 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `DiagnosticResultPage` — línea 42.
-- `DesignSystemLab` — línea 45.
-- `RouteLoading` — línea 47.
-- `router` — línea 55.
-- `App` — línea 165.
+- `DiagnosticResultPage` — línea 44.
+- `DesignSystemLab` — línea 47.
+- `RouteLoading` — línea 49.
+- `GlobalAIFeatureRoute` — línea 57.
+- `router` — línea 62.
+- `App` — línea 172.
 
 ## Dependencias internas
 
+- [[docs/mapa/archivos/frontend_2Fsrc_2Fcontext_2FAuthContext.tsx|frontend/src/context/AuthContext.tsx]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fdesign-system_2FDesignSystemLab.tsx|frontend/src/design-system/DesignSystemLab.tsx]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Flayouts_2FClinicWorkspace.tsx|frontend/src/layouts/ClinicWorkspace.tsx]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fpages_2FCompliancePage.tsx|frontend/src/pages/CompliancePage.tsx]]

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, Navigate, useOutletContext, useParams } from "react-router-dom";
+import type { ClinicOption } from "../../layouts/ClinicWorkspace";
 import { ApiError, getErrorMessage } from "../../api/client";
 import ProtectedImageViewer from "../../components/images/ProtectedImageViewer";
 import type { ClinicalImage, Detection } from "../../types/domain";
@@ -9,6 +10,8 @@ import { queryKeys } from "../../query/keys";
 import { imagesService } from "../../services/images";
 
 export default function DiagnosticResultPage() {
+  const outlet = useOutletContext<{ activeClinic?: ClinicOption } | null>();
+  const activeClinic = outlet?.activeClinic;
   const toast = useToast();
   const queryClient = useQueryClient();
   const { id } = useParams();
@@ -42,11 +45,13 @@ export default function DiagnosticResultPage() {
     }
   }, [id, image, toast, queryClient]);
   useEffect(() => {
+    if (activeClinic?.ai_effective === false) return;
     imagesService.get(id!).then((result) => {
       setImage(result);
       setLoadError("");
     }).catch((requestError) => setLoadError(requestError.message));
-  }, [id, reload]);
+  }, [id, reload, activeClinic?.ai_effective]);
+  if (activeClinic?.ai_effective === false) return <Navigate to="/" replace />;
   return (
     <div className="workspace-page co-mx-auto co-max-w-[1560px]">
       <div className="workspace-page-header">

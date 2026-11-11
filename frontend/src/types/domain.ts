@@ -8,6 +8,7 @@ export interface SessionUser {
   can_access_backoffice?: boolean;
   is_platform_admin?: boolean;
   mfa_enabled?: boolean;
+  ai_globally_enabled?: boolean;
   profile: { clinica_nombre: string; telefono: string; direccion: string; extra: string };
 }
 

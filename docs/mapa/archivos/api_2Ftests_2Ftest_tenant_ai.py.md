@@ -19,8 +19,8 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 ## Símbolos principales
 
 - `detached_analyzer` — línea 22.
-- `TenantAITests` — línea 26.
-- `TenantAIConcurrencyTests` — línea 140.
+- `TenantAITests` — línea 27.
+- `TenantAIConcurrencyTests` — línea 154.
 
 ## Dependencias internas
 

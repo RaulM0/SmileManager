@@ -19,26 +19,26 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 ## Símbolos principales
 
 - `SessionUser` — línea 1.
-- `SessionResponse` — línea 14.
-- `LoginResult` — línea 20.
-- `PatientSummary` — línea 27.
-- `Patient` — línea 36.
-- `PatientFormValues` — línea 47.
-- `Appointment` — línea 58.
-- `AppointmentFormValues` — línea 69.
-- `Paginated` — línea 77.
-- `ClinicalImage` — línea 84.
-- `Consultation` — línea 95.
-- `PatientOption` — línea 110.
-- `ComparativeStudy` — línea 112.
-- `Dashboard` — línea 120.
-- `DiagnosticsPageData` — línea 127.
-- `Detection` — línea 131.
-- `AnalysisResult` — línea 137.
-- `MedicalHistory` — línea 139.
-- `OdontogramData` — línea 143.
-- `Consent` — línea 150.
-- `FieldErrors` — línea 158.
+- `SessionResponse` — línea 15.
+- `LoginResult` — línea 21.
+- `PatientSummary` — línea 28.
+- `Patient` — línea 37.
+- `PatientFormValues` — línea 48.
+- `Appointment` — línea 59.
+- `AppointmentFormValues` — línea 70.
+- `Paginated` — línea 78.
+- `ClinicalImage` — línea 85.
+- `Consultation` — línea 96.
+- `PatientOption` — línea 111.
+- `ComparativeStudy` — línea 113.
+- `Dashboard` — línea 121.
+- `DiagnosticsPageData` — línea 128.
+- `Detection` — línea 132.
+- `AnalysisResult` — línea 138.
+- `MedicalHistory` — línea 140.
+- `OdontogramData` — línea 144.
+- `Consent` — línea 151.
+- `FieldErrors` — línea 159.
 
 ## Dependencias internas
 

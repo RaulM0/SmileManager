@@ -71,6 +71,21 @@ class PlatformClinicTests(APITestCase):
         self.role.save(update_fields=['is_active'])
         self.assertEqual(self.client.get(reverse('platform-clinics')).status_code, 403)
 
+    @override_settings(FEATURE_AI_ENABLED=True)
+    def test_platform_controls_ai_per_clinic(self):
+        clinic = Clinic.objects.create(name='Feature clinic', slug='feature-clinic', status='ACTIVE')
+        url = reverse('platform-clinic-ai', args=[clinic.pk])
+        response = self.client.post(url, {'enabled': True}, format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.data['ai_enabled'])
+        self.assertTrue(response.data['ai_effective'])
+        self.assertTrue(AuditEvent.objects.filter(clinic=clinic, action='PLATFORM_CLINIC_AI_ENABLED').exists())
+        with override_settings(FEATURE_AI_ENABLED=False):
+            response = self.client.get(reverse('platform-clinics'))
+        item = next(row for row in response.data['results'] if row['id'] == str(clinic.pk))
+        self.assertTrue(item['ai_enabled'])
+        self.assertFalse(item['ai_effective'])
+
     @patch('api.tenant_views.send_mail', return_value=0)
     def test_delivery_failure_rolls_back_clinic_and_audit(self, _send):
         response = self.client.post(reverse('platform-clinics'), self.payload(), format='json')

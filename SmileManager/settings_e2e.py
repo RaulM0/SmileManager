@@ -33,3 +33,6 @@ PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
 # Browser parity exercises many independent screens in one isolated process.
 # Rate limiting itself is tested separately with explicit low limits.
 REST_FRAMEWORK['DEFAULT_THROTTLE_RATES'] = {key: '10000/min' for key in REST_FRAMEWORK['DEFAULT_THROTTLE_RATES']}  # noqa: F405
+
+# Isolated browser fixtures explicitly exercise the opt-in AI workflows.
+FEATURE_AI_ENABLED = True

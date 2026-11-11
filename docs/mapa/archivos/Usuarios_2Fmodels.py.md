@@ -23,15 +23,15 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 - `MFACredential` — línea 33.
 - `MFAChallenge` — línea 41.
 - `Clinic` — línea 52.
-- `ClinicMembership` — línea 72.
-- `ClinicInvitation` — línea 101.
-- `InvitationEmailLock` — línea 127.
-- `Perfil` — línea 131.
-- `AppendOnlyAuditQuerySet` — línea 142.
-- `AuditEvent` — línea 153.
-- `AuditDelivery` — línea 183.
-- `FileInspection` — línea 189.
-- `OperationalStatus` — línea 200.
+- `ClinicMembership` — línea 73.
+- `ClinicInvitation` — línea 102.
+- `InvitationEmailLock` — línea 128.
+- `Perfil` — línea 132.
+- `AppendOnlyAuditQuerySet` — línea 143.
+- `AuditEvent` — línea 154.
+- `AuditDelivery` — línea 184.
+- `FileInspection` — línea 190.
+- `OperationalStatus` — línea 201.
 
 ## Dependencias internas
 

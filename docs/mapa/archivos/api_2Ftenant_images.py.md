@@ -18,19 +18,20 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `TenantClinicalImageSerializer` — línea 28.
-- `image_rows` — línea 42.
-- `image_for` — línea 51.
-- `TenantClinicalImages` — línea 56.
-- `TenantClinicalImageDetail` — línea 94.
-- `TenantClinicalImageFile` — línea 113.
-- `TenantDiagnostics` — línea 139.
+- `TenantClinicalImageSerializer` — línea 29.
+- `image_rows` — línea 43.
+- `image_for` — línea 52.
+- `TenantClinicalImages` — línea 57.
+- `TenantClinicalImageDetail` — línea 95.
+- `TenantClinicalImageFile` — línea 114.
+- `TenantDiagnostics` — línea 142.
 
 ## Dependencias internas
 
 - [[docs/mapa/archivos/DiagnosticosIA_2Fmodels.py|DiagnosticosIA/models.py]]
 - [[docs/mapa/archivos/Pacientes_2Fmodels.py|Pacientes/models.py]]
 - [[docs/mapa/archivos/Usuarios_2Fmodels.py|Usuarios/models.py]]
+- [[docs/mapa/archivos/api_2Ffeatures.py|api/features.py]]
 - [[docs/mapa/archivos/api_2Fpolicies.py|api/policies.py]]
 - [[docs/mapa/archivos/api_2Fserializers.py|api/serializers.py]]
 - [[docs/mapa/archivos/api_2Ftenant_consultations.py|api/tenant_consultations.py]]

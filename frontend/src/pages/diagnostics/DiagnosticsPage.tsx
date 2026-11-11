@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useOutletContext, useSearchParams } from "react-router-dom";
+import type { ClinicOption } from "../../layouts/ClinicWorkspace";
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { DiagnosticsPageData } from "../../types/domain";
 import { ProtectedThumbnail } from "../../components/images/ProtectedImage";
@@ -9,6 +10,8 @@ import { queryKeys } from "../../query/keys";
 import { latestCachedData } from "../../query/latestCachedData";
 
 export default function DiagnosticsPage() {
+  const outlet = useOutletContext<{ activeClinic?: ClinicOption } | null>();
+  const activeClinic = outlet?.activeClinic;
   const queryClient = useQueryClient();
   const [params, setParams] = useSearchParams();
   const [filters, setFilters] = useState({
@@ -16,7 +19,7 @@ export default function DiagnosticsPage() {
     type: params.get("type") || "",
     date: params.get("date") || "",
   });
-  const listing = useQuery({ queryKey: queryKeys.diagnosticList(params.toString()), queryFn: () => diagnosticsService.list(params.toString()), placeholderData: keepPreviousData });
+  const listing = useQuery({ queryKey: queryKeys.diagnosticList(params.toString()), queryFn: () => diagnosticsService.list(params.toString()), placeholderData: keepPreviousData, enabled: activeClinic?.ai_effective !== false });
   const data: DiagnosticsPageData | undefined = listing.data ?? latestCachedData<DiagnosticsPageData>(queryClient, [...queryKeys.diagnostics, "list"]);
   const error = listing.error?.message ?? "";
   function submit(e: FormEvent<HTMLFormElement>) {
@@ -25,6 +28,7 @@ export default function DiagnosticsPage() {
       Object.fromEntries(Object.entries(filters).filter(([, value]) => value)),
     );
   }
+  if (activeClinic?.ai_effective === false) return <Navigate to="/" replace />;
   return (
     <div className="workspace-page co-mx-auto co-max-w-[1560px]">
       <div className="workspace-page-header"><div><h1>Diagnósticos con IA</h1><p className="clinical-page-description">Revisa resultados y procesa estudios pendientes</p></div></div>

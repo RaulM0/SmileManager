@@ -13,7 +13,7 @@ import { useAuth } from "../../context/AuthContext";
 import type { Paginated } from "../../types/domain";
 
 type ClinicStatus = "ACTIVE" | "INACTIVE" | "SUSPENDED";
-type Clinic = { id: string; name: string; slug: string; status: ClinicStatus };
+type Clinic = { id: string; name: string; slug: string; status: ClinicStatus; ai_enabled: boolean; ai_effective: boolean; ai_globally_enabled: boolean };
 type Invitation = { id: string; email: string; expires_at: string };
 const labels: Record<ClinicStatus, string> = {
   ACTIVE: "Activa",
@@ -114,6 +114,11 @@ export default function PlatformClinicsPage() {
           {message}
         </div>
       )}
+      {clinics.data?.results[0]?.ai_globally_enabled === false && (
+        <div className="workspace-inline-warning co-mb-4" role="status">
+          IA está apagada para todo el sistema. Puedes preparar clínicas individuales, pero no tendrán acceso hasta activar <code>FEATURE_AI_ENABLED</code>.
+        </div>
+      )}
       <AdminSection
         title="Crear clínica"
         description="Registra la organización e invita a la persona responsable de administrarla."
@@ -177,6 +182,7 @@ export default function PlatformClinicsPage() {
                   <th>Clínica</th>
                   <th>Identificador</th>
                   <th>Estado</th>
+                  <th>IA</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
@@ -191,7 +197,24 @@ export default function PlatformClinicsPage() {
                         label={labels[clinic.status]}
                       />
                     </td>
+                    <td data-label="IA">
+                      <AdminStatus
+                        value={clinic.ai_effective ? "ACTIVE" : "INACTIVE"}
+                        label={clinic.ai_effective ? "Activa" : clinic.ai_enabled ? "Preparada; apagada globalmente" : "Desactivada"}
+                      />
+                    </td>
                     <td data-label="Acciones" className="admin-table-actions">
+                      <button
+                        type="button"
+                        className="clinical-action-outline"
+                        disabled={mutation.isPending}
+                        onClick={() => mutation.mutate({
+                          path: `backoffice/clinics/${clinic.id}/features/ai/`,
+                          body: { enabled: !clinic.ai_enabled },
+                        })}
+                      >
+                        {clinic.ai_enabled ? "Desactivar IA" : "Activar IA"}
+                      </button>
                       <button
                         type="button"
                         className="clinical-action-outline"

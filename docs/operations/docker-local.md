@@ -165,3 +165,10 @@ directorio reservado a la prueba. No arranca ni detiene contenedores automática
 La configuración original de Playwright continúa disponible para equipos con
 Python/dependencias instalados: sin `SMILE_E2E_EXTERNAL`, crea su entorno temporal
 y controla su propio servidor de prueba.
+
+
+## Imagen integrada y control de IA
+
+El Dockerfile conserva dos destinos: `development` (usado por Compose local con Vite) y `fullstack` (React compilado y Gunicorn en la misma imagen). Ambos usan Python 3.13 y las dependencias fijadas; `docker build --target fullstack -t smilemanager-fullstack .` prepara la imagen integrada. Su ejecución requiere configurar explícitamente base, claves, servicios de seguridad y almacenamiento. El destino integrado por sí solo no constituye un despliegue aprobado.
+
+La IA está deshabilitada por defecto. Para probarla localmente, configura `FEATURE_AI_ENABLED=true` al arrancar Compose y habilita también `ai_enabled` en la clínica desde la administración de plataforma. El entorno E2E habilita ambos indicadores únicamente para sus clínicas sintéticas.

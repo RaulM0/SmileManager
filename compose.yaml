@@ -1,6 +1,8 @@
 services:
   backend:
-    build: .
+    build:
+      context: .
+      target: development
     init: true
     restart: unless-stopped
     environment:
@@ -12,6 +14,7 @@ services:
       AUDIT_INGEST_TOKEN: ${AUDIT_INGEST_TOKEN:?Missing collector token}
       AUDIT_COLLECTOR_URL: http://audit-collector:8080
       CLAMAV_HOST: clamav
+      FEATURE_AI_ENABLED: ${FEATURE_AI_ENABLED:-false}
       FRONTEND_URL: http://localhost:5173
       TENANT_INVITATION_URL: http://localhost:5173/invitations/accept
       DEV_EMAIL_DELIVERY: file
@@ -88,6 +91,7 @@ services:
       AUDIT_INGEST_TOKEN: ${AUDIT_INGEST_TOKEN:?Missing collector token}
       AUDIT_COLLECTOR_URL: http://audit-collector:8080
       CLAMAV_HOST: clamav
+      FEATURE_AI_ENABLED: ${FEATURE_AI_ENABLED:-false}
     volumes:
       - .:/app:ro
       - /dev/null:/app/.local-ops.env:ro

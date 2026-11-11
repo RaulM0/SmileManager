@@ -22,21 +22,21 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 - `Event` — línea 33.
 - `Run` — línea 43.
 - `Dashboard` — línea 56.
-- `System` — línea 63.
-- `nav` — línea 65.
-- `date` — línea 72.
-- `Load` — línea 75.
-- `useAdmin` — línea 89.
-- `Pages` — línea 97.
-- `BackofficeLayout` — línea 129.
-- `BackofficeDashboard` — línea 287.
-- `Events` — línea 349.
-- `BackofficeUsers` — línea 371.
-- `BackofficeUser` — línea 479.
-- `BackofficeAudit` — línea 581.
-- `BackofficeRuns` — línea 654.
-- `BackofficeRun` — línea 760.
-- `BackofficeSystem` — línea 804.
+- `System` — línea 64.
+- `nav` — línea 66.
+- `date` — línea 73.
+- `Load` — línea 76.
+- `useAdmin` — línea 90.
+- `Pages` — línea 98.
+- `BackofficeLayout` — línea 130.
+- `BackofficeDashboard` — línea 288.
+- `Events` — línea 348.
+- `BackofficeUsers` — línea 370.
+- `BackofficeUser` — línea 478.
+- `BackofficeAudit` — línea 580.
+- `BackofficeRuns` — línea 653.
+- `BackofficeRun` — línea 759.
+- `BackofficeSystem` — línea 803.
 
 ## Dependencias internas
 

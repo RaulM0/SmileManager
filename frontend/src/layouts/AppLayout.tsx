@@ -89,7 +89,8 @@ export default function AppLayout({ clinics = [], activeClinic = null, onClinicC
 
   function renderNavigation() {
     const groups = !activeClinic || activeClinic.role !== "DOCTOR" ? [{ label: "CLÍNICA", items: [["Inicio", "/", "bi-grid-1x2", true] as [string, string, string, boolean]] }] : navigation;
-    return [...groups, ...(user?.can_access_backoffice ? [{ label: "SISTEMA", items: [["Administración", "/backoffice", "bi-shield-lock", false] as [string, string, string, boolean]] }] : [])].map((group) => (
+    const visibleGroups = groups.map((group) => ({ ...group, items: group.items.filter(([, to]) => to !== "/diagnostics" || activeClinic?.ai_effective) })).filter((group) => group.items.length);
+    return [...visibleGroups, ...(user?.can_access_backoffice ? [{ label: "SISTEMA", items: [["Administración", "/backoffice", "bi-shield-lock", false] as [string, string, string, boolean]] }] : [])].map((group) => (
       <div className="workspace-nav-group" key={group.label}>
         <div className="workspace-nav-label">{group.label}</div>
         {group.items.map(([label, to, icon, end]) => (
@@ -190,7 +191,7 @@ export default function AppLayout({ clinics = [], activeClinic = null, onClinicC
         </aside>
         <main id="main-content" className="workspace-main co-min-w-0" tabIndex={-1}>
           {patientMatch && (!activeClinic || activeClinic.role === "DOCTOR") && <PatientWorkspaceNav patientId={patientMatch[1]} />}
-          {!activeClinic ? <section className="workspace-page"><h1>Bienvenido, {user?.username}</h1><p>No tienes clínicas activas asignadas. Solicita una invitación a la administración de tu clínica.</p>{user?.can_access_backoffice && <NavLink to="/backoffice">Abrir administración de plataforma</NavLink>}</section> : activeClinic.role === "CLINIC_ADMIN" ? <ClinicAdministrationPage key={activeClinic.id} /> : activeClinic.role === "STAFF" ? <StaffAgendaPage key={activeClinic.id} /> : <Outlet key={`${activeClinic.id}:${location.pathname}`} />}
+          {!activeClinic ? <section className="workspace-page"><h1>Bienvenido, {user?.username}</h1><p>No tienes clínicas activas asignadas. Solicita una invitación a la administración de tu clínica.</p>{user?.can_access_backoffice && <NavLink to="/backoffice">Abrir administración de plataforma</NavLink>}</section> : activeClinic.role === "CLINIC_ADMIN" ? <ClinicAdministrationPage key={activeClinic.id} aiEnabled={activeClinic.ai_effective} /> : activeClinic.role === "STAFF" ? <StaffAgendaPage key={activeClinic.id} /> : <Outlet key={`${activeClinic.id}:${location.pathname}`} context={{ activeClinic }} />}
           <footer className="workspace-footer">
             <span>SmileManager</span>
             <NavLink to="/privacy">Aviso de Privacidad</NavLink>

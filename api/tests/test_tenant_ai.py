@@ -23,6 +23,7 @@ def detached_analyzer(image, *, expected_hash):
     return ([{'clase': 'synthetic', 'confianza': 0.9, 'coordenadas': [0, 0, 1, 1]}], 'result.png', b'synthetic-result')
 
 
+@override_settings(FEATURE_AI_ENABLED=True)
 class TenantAITests(TestCase):
     def setUp(self):
         cache.clear()
@@ -30,8 +31,8 @@ class TenantAITests(TestCase):
         self.addCleanup(self.media.cleanup)
         self.enterContext(override_settings(MEDIA_ROOT=self.media.name))
         self.doctor = User.objects.create_user('tenant-ai-doctor')
-        self.a = Clinic.objects.create(name='A', slug='tenant-ai-a', status='ACTIVE')
-        self.b = Clinic.objects.create(name='B', slug='tenant-ai-b', status='ACTIVE')
+        self.a = Clinic.objects.create(name='A', slug='tenant-ai-a', status='ACTIVE', ai_enabled=True)
+        self.b = Clinic.objects.create(name='B', slug='tenant-ai-b', status='ACTIVE', ai_enabled=True)
         self.member = ClinicMembership.objects.create(user=self.doctor, clinic=self.a, role='DOCTOR', status='ACTIVE')
         ClinicMembership.objects.create(user=self.doctor, clinic=self.b, role='DOCTOR', status='ACTIVE')
         self.image_a = self.make_image(self.a, '1111111111')
@@ -48,6 +49,19 @@ class TenantAITests(TestCase):
         if key:
             headers['HTTP_IDEMPOTENCY_KEY'] = str(key)
         return self.client.post(reverse('tenant-analyze-image', args=[image.pk]), {'force': bool(key)}, format='json', **headers)
+
+    def test_feature_requires_global_and_clinic_flags(self):
+        self.a.ai_enabled = False
+        self.a.save(update_fields=['ai_enabled'])
+        response = self.analyze(self.image_a, self.a)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.data['detail'].code, 'ai_feature_disabled')
+        self.a.ai_enabled = True
+        self.a.save(update_fields=['ai_enabled'])
+        with override_settings(FEATURE_AI_ENABLED=False):
+            response = self.analyze(self.image_a, self.a)
+        self.assertEqual(response.status_code, 404)
+        self.assertFalse(AIAnalysisRun.objects.exists())
 
     @patch('DiagnosticosIA.tenant_runs.model_version', return_value='a'*64)
     @patch('api.tenant_ai.analyze_clinical_image_detached', side_effect=detached_analyzer)
@@ -140,9 +154,9 @@ class TenantAITests(TestCase):
 class TenantAIConcurrencyTests(TransactionTestCase):
     def test_two_requests_share_one_running_analysis(self):
         cache.clear()
-        with TemporaryDirectory() as media, override_settings(MEDIA_ROOT=media):
+        with TemporaryDirectory() as media, override_settings(MEDIA_ROOT=media, FEATURE_AI_ENABLED=True):
             doctor = User.objects.create_user('tenant-ai-concurrent')
-            clinic = Clinic.objects.create(name='A', slug='tenant-ai-concurrent', status='ACTIVE')
+            clinic = Clinic.objects.create(name='A', slug='tenant-ai-concurrent', status='ACTIVE', ai_enabled=True)
             ClinicMembership.objects.create(user=doctor, clinic=clinic, role='DOCTOR', status='ACTIVE')
             patient = Paciente.objects.create(nombre='A', appat='B', apmat='C', fecha_nacimiento='2000-01-01', genero='F', telefono='1234567890', email='concurrent@example.test', medico=doctor, clinic=clinic)
             image = ImagenesClinicas.objects.create(paciente=patient, medico=doctor, tipo_imagen='RX', imagen=SimpleUploadedFile('synthetic.png', b'synthetic-source'))

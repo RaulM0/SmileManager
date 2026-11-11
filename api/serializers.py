@@ -44,6 +44,7 @@ class SessionUserSerializer(serializers.Serializer):
     can_access_backoffice = serializers.SerializerMethodField()
     is_platform_admin = serializers.SerializerMethodField()
     mfa_enabled = serializers.SerializerMethodField()
+    ai_globally_enabled = serializers.SerializerMethodField()
 
     def get_mfa_enabled(self, user):
         from Usuarios.models import MFACredential
@@ -56,6 +57,10 @@ class SessionUserSerializer(serializers.Serializer):
     def get_is_platform_admin(self, user):
         from .policies import is_platform_admin
         return is_platform_admin(user)
+
+    def get_ai_globally_enabled(self, user):
+        from .features import ai_globally_enabled
+        return ai_globally_enabled()
 
     def get_profile(self, user):
         profile = Perfil.objects.filter(user=user).first()

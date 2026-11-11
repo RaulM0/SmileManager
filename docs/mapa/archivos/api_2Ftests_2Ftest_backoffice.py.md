@@ -18,7 +18,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `BackofficeTests` — línea 17.
+- `BackofficeTests` — línea 18.
 
 ## Dependencias internas
 

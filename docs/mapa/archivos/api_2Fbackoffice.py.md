@@ -18,26 +18,26 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `Pagination` — línea 30.
-- `UserSerializer` — línea 36.
-- `UserCreateSerializer` — línea 43.
-- `UserDetailSerializer` — línea 76.
-- `AuditSerializer` — línea 94.
-- `RunSerializer` — línea 102.
-- `stale_cutoff` — línea 113.
-- `date_filters` — línea 117.
-- `AdminAPIView` — línea 126.
-- `AdminList` — línea 131.
-- `Dashboard` — línea 136.
-- `Users` — línea 147.
-- `CreateUser` — línea 160.
-- `UserDetail` — línea 174.
-- `UserActivation` — línea 180.
-- `AuditList` — línea 204.
-- `AuditDetail` — línea 221.
-- `Runs` — línea 227.
-- `RunDetail` — línea 238.
-- `System` — línea 244.
+- `Pagination` — línea 31.
+- `UserSerializer` — línea 37.
+- `UserCreateSerializer` — línea 44.
+- `UserDetailSerializer` — línea 77.
+- `AuditSerializer` — línea 95.
+- `RunSerializer` — línea 103.
+- `stale_cutoff` — línea 114.
+- `date_filters` — línea 118.
+- `AdminAPIView` — línea 127.
+- `AdminList` — línea 132.
+- `Dashboard` — línea 137.
+- `Users` — línea 149.
+- `CreateUser` — línea 162.
+- `UserDetail` — línea 176.
+- `UserActivation` — línea 182.
+- `AuditList` — línea 206.
+- `AuditDetail` — línea 223.
+- `Runs` — línea 229.
+- `RunDetail` — línea 240.
+- `System` — línea 246.
 
 ## Dependencias internas
 
@@ -45,6 +45,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 - [[docs/mapa/archivos/DiagnosticosIA_2Fmodels.py|DiagnosticosIA/models.py]]
 - [[docs/mapa/archivos/Pacientes_2Fmodels.py|Pacientes/models.py]]
 - [[docs/mapa/archivos/Usuarios_2Fmodels.py|Usuarios/models.py]]
+- [[docs/mapa/archivos/api_2Ffeatures.py|api/features.py]]
 - [[docs/mapa/archivos/api_2Fpolicies.py|api/policies.py]]
 - [[docs/mapa/archivos/api_2Fservices_2Fbackoffice.py|api/services/backoffice.py]]
 - [[docs/mapa/archivos/api_2Fthrottles.py|api/throttles.py]]

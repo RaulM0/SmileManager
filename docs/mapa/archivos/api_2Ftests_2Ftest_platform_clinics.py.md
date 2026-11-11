@@ -19,7 +19,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 ## Símbolos principales
 
 - `PlatformClinicTests` — línea 20.
-- `PlatformRoleConcurrencyTests` — línea 123.
+- `PlatformRoleConcurrencyTests` — línea 138.
 
 ## Dependencias internas
 

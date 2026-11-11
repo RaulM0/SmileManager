@@ -21,22 +21,23 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 - `UploadValidationMixin` — línea 16.
 - `ProfileSerializer` — línea 30.
 - `SessionUserSerializer` — línea 36.
-- `DashboardPatientSerializer` — línea 65.
-- `DashboardAppointmentSerializer` — línea 76.
-- `PatientSerializer` — línea 87.
-- `MedicalHistorySerializer` — línea 117.
-- `ConsultationSerializer` — línea 124.
-- `AppointmentSerializer` — línea 166.
-- `ClinicalImageSerializer` — línea 199.
-- `OdontogramSerializer` — línea 237.
-- `ComparativeStudySerializer` — línea 260.
-- `ConsentSerializer` — línea 276.
+- `DashboardPatientSerializer` — línea 70.
+- `DashboardAppointmentSerializer` — línea 81.
+- `PatientSerializer` — línea 92.
+- `MedicalHistorySerializer` — línea 122.
+- `ConsultationSerializer` — línea 129.
+- `AppointmentSerializer` — línea 171.
+- `ClinicalImageSerializer` — línea 204.
+- `OdontogramSerializer` — línea 242.
+- `ComparativeStudySerializer` — línea 265.
+- `ConsentSerializer` — línea 281.
 
 ## Dependencias internas
 
 - [[docs/mapa/archivos/Citas_2Fmodels.py|Citas/models.py]]
 - [[docs/mapa/archivos/Pacientes_2Fmodels.py|Pacientes/models.py]]
 - [[docs/mapa/archivos/Usuarios_2Fmodels.py|Usuarios/models.py]]
+- [[docs/mapa/archivos/api_2Ffeatures.py|api/features.py]]
 - [[docs/mapa/archivos/api_2Fpolicies.py|api/policies.py]]
 - [[docs/mapa/archivos/api_2Fservices_2Fappointments.py|api/services/appointments.py]]
 - [[docs/mapa/archivos/api_2Fservices_2Fclinical_images.py|api/services/clinical_images.py]]

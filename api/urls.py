@@ -92,6 +92,7 @@ urlpatterns = [
     path('backoffice/dashboard/', backoffice.Dashboard.as_view(), name='backoffice-dashboard'),
     path('backoffice/clinics/', platform_clinics.PlatformClinics.as_view(), name='platform-clinics'),
     path('backoffice/clinics/<uuid:clinic_id>/status/', platform_clinics.PlatformClinicStatus.as_view(), name='platform-clinic-status'),
+    path('backoffice/clinics/<uuid:clinic_id>/features/ai/', platform_clinics.PlatformClinicAI.as_view(), name='platform-clinic-ai'),
     path('backoffice/clinics/<uuid:clinic_id>/initial-admin/', platform_clinics.PlatformInitialAdministrator.as_view(), name='platform-clinic-initial-admin'),
     path('backoffice/clinics/<uuid:clinic_id>/initial-admin/<uuid:invitation_id>/revoke/', platform_clinics.PlatformInitialAdministratorRevoke.as_view(), name='platform-clinic-initial-admin-revoke'),
     path('backoffice/users/', backoffice.Users.as_view(), name='backoffice-users'),

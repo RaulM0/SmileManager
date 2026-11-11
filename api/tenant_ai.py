@@ -19,12 +19,13 @@ from .tenant_images import TenantClinicalImageSerializer, image_for
 from .tenant_patients import TenantClinicalContextMixin
 from .throttles import ExpensiveThrottle
 from .views import ClinicalPagination
+from .features import TenantAIFeatureMixin
 
 logger = logging.getLogger(__name__)
 
 
 @method_decorator(never_cache, name='dispatch')
-class TenantAnalyzeImage(TenantClinicalContextMixin, APIView):
+class TenantAnalyzeImage(TenantAIFeatureMixin, TenantClinicalContextMixin, APIView):
     throttle_classes = [ExpensiveThrottle]
 
     def post(self, request, image_id):
@@ -71,7 +72,7 @@ class TenantAnalyzeImage(TenantClinicalContextMixin, APIView):
 
 
 @method_decorator(never_cache, name='dispatch')
-class TenantAnalysisRuns(TenantClinicalContextMixin, APIView):
+class TenantAnalysisRuns(TenantAIFeatureMixin, TenantClinicalContextMixin, APIView):
     def get(self, request, image_id):
         image = image_for(request, self.membership.clinic_id, image_id)
         rows = image.analysis_runs.filter(clinic_id=self.membership.clinic_id).order_by('-requested_at', '-pk')
@@ -87,7 +88,7 @@ class TenantAnalysisRuns(TenantClinicalContextMixin, APIView):
 
 
 @method_decorator(never_cache, name='dispatch')
-class TenantAnalysisRunFile(TenantClinicalContextMixin, APIView):
+class TenantAnalysisRunFile(TenantAIFeatureMixin, TenantClinicalContextMixin, APIView):
     def get(self, request, image_id, run_id):
         image = image_for(request, self.membership.clinic_id, image_id)
         if image.analysis_runs.exclude(clinic_id=self.membership.clinic_id).exists():

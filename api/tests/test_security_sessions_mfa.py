@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.management import call_command, CommandError
 from io import StringIO
-from django.test import TestCase, Client
+from django.test import TestCase, Client, override_settings
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework_simplejwt.tokens import RefreshToken as UnboundRefreshToken
@@ -144,3 +144,14 @@ class SessionAndMFATests(TestCase):
         self.assertFalse(self.admin.check_password('Strong admin phrase 459!'))
         self.assertFalse(MFACredential.objects.filter(user=self.admin).exists())
         self.assertEqual(self.client.get(reverse('api-dashboard'), HTTP_AUTHORIZATION=f"Bearer {result['access']}").status_code, 401)
+
+
+    @override_settings(FEATURE_AI_ENABLED=True)
+    def test_mfa_session_retains_ai_feature_metadata_after_integration(self):
+        _, data, _ = self.enroll()
+        self.assertTrue(data['user']['mfa_enabled'])
+        self.assertTrue(data['user']['ai_globally_enabled'])
+        response = self.client.get(reverse('api-session'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()['user']['mfa_enabled'])
+        self.assertTrue(response.json()['user']['ai_globally_enabled'])
