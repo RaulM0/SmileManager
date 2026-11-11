@@ -1,10 +1,12 @@
 import { expect, test } from '@playwright/test';
+import { completeMFA } from './mfa-helper.js';
 
 async function login(page, username) {
   await page.goto('/app/login');
   await page.getByLabel('Usuario').fill(username);
   await page.getByLabel('Contraseña', { exact: true }).fill('e2e_password_123');
   await page.getByRole('button', { name: 'Iniciar sesión' }).click();
+  if (username.includes('admin')) await completeMFA(page, username);
 }
 
 async function navigateWithinApp(page, path) {
@@ -96,11 +98,14 @@ test('core multitenant covers records, private files, exports and reception with
   expect(analyze.status()).toBe(200);
   const run = (await analyze.json()).run_id;
   expect((await request.get(`/api/v1/clinics/clinical-images/${imageId}/analysis-runs/${run}/file/`, { headers })).status()).toBe(200);
-  const consent = await request.post(base + 'consent/', { headers, multipart: { texto: 'Consentimiento sintético', archivo_ine: image } });
-  expect(consent.status()).toBe(200);
-  const pdf = await request.get(base + 'consent/pdf/file/', { headers });
-  expect(pdf.status()).toBe(200);
-  expect((await pdf.body()).subarray(0, 5).toString()).toBe('%PDF-');
+  const templates = (await (await request.get(base + 'consent/', { headers })).json()).templates;
+  const signedPDF = { name: 'signed-synthetic.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4\nsynthetic\n%%EOF') };
+  const consent = await request.post(base + 'consent/', { headers, multipart: { template_id: String(templates[0].id), signer_name: 'Paciente Sintético', signer_role: 'PATIENT', signed_on: '2026-01-01', attested: 'true', signed_document: signedPDF } });
+  expect(consent.status()).toBe(201);
+  const evidenceId = (await consent.json()).id;
+  const pdf = await request.get(base + `consent/records/${evidenceId}/file/`, { headers });
+  expect(pdf.status()).toBe(423);
+  expect((await pdf.json()).detail).toContain('cuarentena');
   const fields = ['antes_oclusal_superior', 'antes_lateral_izquierda', 'antes_frontal', 'antes_lateral_derecha', 'antes_oclusal_inferior'];
   const study = await request.put(base + 'comparative-study/', { headers, multipart: { fecha_inicio: '2030-01-15', diagnostico: 'Prueba', ...Object.fromEntries(fields.map(field => [field, image])) } });
   expect(study.status()).toBe(200);

@@ -1,6 +1,8 @@
 # Remediación de datos sensibles en Git
 
-Estado: **PARTIALLY RESOLVED**. `.gitignore` previene nuevas incorporaciones ordinarias; no elimina entradas ya rastreadas ni el historial. El índice Git es de solo lectura en este entorno: no se ejecutó `git rm --cached`, ni se modificaron archivos locales o historial.
+Estado actualizado, 2026-11-08: **CONTENCIÓN DEL ÍNDICE IMPLEMENTADA; HISTORIAL Y CLASIFICACIÓN PENDIENTES**. Con aprobación se ejecutó `git rm -r --cached -- db.sqlite3 media`: 277 entradas retiradas del índice (276 archivos y una base vacía), con las 277 copias locales conservadas. Las bajas están preparadas para el siguiente commit; no se creó commit ni se publicó. No se reescribió historial. No se inspeccionó contenido para declarar que los archivos sean reales o sintéticos.
+
+`python scripts/check_sensitive_tracking.py` verifica el índice sin imprimir nombres o contenido. El job CI `sensitive-files` rechaza categorías clínicas, bases locales, archivos de entorno y claves privadas incluso si fueron añadidos con `git add -f`. Su eficacia requiere que el job sea obligatorio en la protección de ramas. No detecta datos copiados dentro de archivos fuente con nombres permitidos; complementar con clasificación, revisión y escaneo de secretos.
 
 El inventario por categorías de `git ls-files` detectó: `db.sqlite3` (1), `media/consentimientos` (10), `media/detecciones` (110), `media/estudios` (39), `media/imagenes_clinicas` (29), `media/resultados` (88). Los nombres completos pueden consultarse localmente con `git ls-files -- db.sqlite3 media/`; no se reproduce contenido. Su naturaleza real y exposición no se verificaron. Pueden existir datos adicionales en historial, ramas, artefactos y backups.
 

@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { completeMFA } from './mfa-helper.js';
 import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import process from 'node:process';
@@ -47,6 +48,7 @@ for (const username of ['e2e_doctor', 'e2e_system_admin']) {
     await expect(page.getByText('Usuario o contraseña incorrectos')).toBeVisible();
     await page.getByLabel('Contraseña', { exact: true }).fill('Nuevas credenciales seguras 459!');
     await page.getByRole('button', { name: 'Iniciar sesión' }).click();
+    if (username === 'e2e_system_admin') await completeMFA(page, username, 'Nuevas credenciales seguras 459!');
     await expect(page.getByRole('heading', { name: /Bienvenido/ })).toBeVisible();
     if (username === 'e2e_system_admin') await expect(page.getByRole('link', { name: 'Administración', exact: true })).toBeVisible();
     // Restore the shared synthetic account through the same public contract so

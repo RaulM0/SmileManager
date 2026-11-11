@@ -7,6 +7,7 @@ export interface SessionUser {
   is_staff: boolean;
   can_access_backoffice?: boolean;
   is_platform_admin?: boolean;
+  mfa_enabled?: boolean;
   profile: { clinica_nombre: string; telefono: string; direccion: string; extra: string };
 }
 
@@ -14,6 +15,13 @@ export interface SessionResponse {
   authenticated: boolean;
   access?: string;
   user?: SessionUser;
+}
+
+export interface LoginResult extends Partial<SessionResponse> {
+  mfa_required?: boolean;
+  enrollment_required?: boolean;
+  challenge?: string;
+  recovery_codes?: string[];
 }
 
 export interface PatientSummary {
@@ -92,6 +100,11 @@ export interface Consultation {
   diagnostico: string;
   tratamiento: string;
   observaciones: string;
+  status?: 'DRAFT' | 'CLOSED' | 'LEGACY';
+  author_name?: string;
+  closed_at?: string | null;
+  integrity?: 'verified' | 'invalid' | 'draft' | 'legacy_unsealed';
+  addenda?: Array<{ id: number; text: string; author_name: string; created_at: string; integrity: string }>;
 }
 
 export interface PatientOption { id: number; text: string }

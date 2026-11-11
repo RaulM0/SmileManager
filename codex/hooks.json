@@ -1,0 +1,18 @@
+{
+  "description": "Actualiza el mapa de Obsidian antes de los commits realizados por Codex en SmileManager.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "^Bash$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/scripts/codex_obsidian_hook.py\"",
+            "timeout": 30,
+            "statusMessage": "Preparando actualización del mapa de Obsidian"
+          }
+        ]
+      }
+    ]
+  }
+}

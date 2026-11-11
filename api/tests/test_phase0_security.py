@@ -2,13 +2,14 @@ import json
 import os
 import subprocess
 import sys
+from cryptography.fernet import Fernet
 
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, SimpleTestCase, TestCase
 from django.urls import reverse
-from rest_framework_simplejwt.tokens import RefreshToken
+from api.authentication import SessionRefreshToken as RefreshToken
 
 from Pacientes.models import AntescedentesMedicos, Consentimiento, EstudioComparativo, ImagenesClinicas, Paciente
 
@@ -16,7 +17,7 @@ from Pacientes.models import AntescedentesMedicos, Consentimiento, EstudioCompar
 class ProductionConfigurationTests(SimpleTestCase):
     def test_production_requires_secret_and_explicit_hosts(self):
         env = os.environ.copy()
-        env.update(DJANGO_SETTINGS_MODULE='SmileManager.settings', DJANGO_DEBUG='False', DATABASE_URL='sqlite:///:memory:', AWS_STORAGE_BUCKET_NAME='example-invalid', PYTHONDONTWRITEBYTECODE='1')
+        env.update(DJANGO_SETTINGS_MODULE='SmileManager.settings', DJANGO_DEBUG='False', DATABASE_URL='postgresql://test:test@example.invalid/test', AWS_STORAGE_BUCKET_NAME='example-invalid', PYTHONDONTWRITEBYTECODE='1', THROTTLE_REDIS_URL='redis://127.0.0.1:6379/15')
         for key in ('SECRET_KEY', 'ALLOWED_HOSTS'):
             env.pop(key, None)
         command = [sys.executable, '-B', '-c', 'import SmileManager.settings']
@@ -25,7 +26,24 @@ class ProductionConfigurationTests(SimpleTestCase):
         env['ALLOWED_HOSTS'] = '*'
         self.assertNotEqual(subprocess.run(command, env=env, capture_output=True).returncode, 0)
         env['ALLOWED_HOSTS'] = 'example.invalid'
+        env['MFA_ENCRYPTION_KEYS'] = Fernet.generate_key().decode()
+        env['AUDIT_SIGNING_KEYS'] = __import__('secrets').token_urlsafe(32)
+        env['FILE_SCAN_KEYS'] = __import__('secrets').token_urlsafe(32)
+        env['DOCUMENT_SEAL_KEYS'] = __import__('secrets').token_urlsafe(32)
         self.assertEqual(subprocess.run(command, env=env, capture_output=True).returncode, 0)
+        for setting in ('MFA_ENCRYPTION_KEYS', 'DOCUMENT_SEAL_KEYS', 'AUDIT_SIGNING_KEYS', 'FILE_SCAN_KEYS'):
+            previous = env.pop(setting)
+            self.assertNotEqual(subprocess.run(command, env=env, capture_output=True).returncode, 0)
+            env[setting] = previous
+        env['DATABASE_URL'] = 'sqlite:///:memory:'
+        self.assertNotEqual(subprocess.run(command, env=env, capture_output=True).returncode, 0)
+        env['DATABASE_URL'] = 'postgresql://test:test@example.invalid/test'
+        env.pop('THROTTLE_REDIS_URL')
+        self.assertNotEqual(subprocess.run(command, env=env, capture_output=True).returncode, 0)
+        env['THROTTLE_REDIS_URL'] = 'redis://127.0.0.1:6379/15'
+        for proxies in ('0.0.0.0/0', '::/0', 'not-a-network'):
+            env['THROTTLE_TRUSTED_PROXIES'] = proxies
+            self.assertNotEqual(subprocess.run(command, env=env, capture_output=True).returncode, 0)
 
 
 class PhaseZeroTests(TestCase):

@@ -89,4 +89,8 @@ class PatientApiTests(APITestCase):
         for term in ('LÓPEZ', '1111111111', str(own.id)):
             result = self.client.get(url, {'term': term}).data['results']
             self.assertEqual([item['id'] for item in result], [own.id])
-        self.assertEqual(self.client.get(url, {'term': str(foreign.id)}).data['results'], [])
+        # Numeric search also matches phone substrings; a PostgreSQL sequence
+        # can make the foreign ID coincide with the owner's telephone digits.
+        result = self.client.get(url, {'term': str(foreign.id)}).data['results']
+        self.assertNotIn(foreign.id, [item['id'] for item in result])
+        self.assertTrue(all(item['id'] == own.id for item in result))

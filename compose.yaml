@@ -6,6 +6,12 @@ services:
     environment:
       DJANGO_SETTINGS_MODULE: SmileManager.settings_local
       DATABASE_URL: postgresql://smilemanager:smilemanager_local@db:5432/smilemanager
+      THROTTLE_REDIS_URL: redis://redis:6379/0
+      AUDIT_SIGNING_KEYS: ${AUDIT_SIGNING_KEYS:?Run python3 scripts/setup_dev_security.py and use --env-file .local-ops.env}
+      FILE_SCAN_KEYS: ${FILE_SCAN_KEYS:?Missing file inspection keys}
+      AUDIT_INGEST_TOKEN: ${AUDIT_INGEST_TOKEN:?Missing collector token}
+      AUDIT_COLLECTOR_URL: http://audit-collector:8080
+      CLAMAV_HOST: clamav
       FRONTEND_URL: http://localhost:5173
       TENANT_INVITATION_URL: http://localhost:5173/invitations/accept
       DEV_EMAIL_DELIVERY: file
@@ -14,6 +20,7 @@ services:
       - "127.0.0.1:8000:8000"
     volumes:
       - .:/app:ro
+      - /dev/null:/app/.local-ops.env:ro
       - smilemanager_media:/app/media
       - smilemanager_mail:/var/lib/smilemanager/mail
     depends_on:
@@ -25,6 +32,69 @@ services:
       timeout: 10s
       start_period: 90s
       retries: 5
+
+  redis:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    command: [redis-server, --save, '', --appendonly, 'no']
+
+  clamav:
+    image: clamav/clamav:stable
+    restart: unless-stopped
+    volumes:
+      - clamav_signatures:/var/lib/clamav
+    mem_limit: 4g
+
+  audit-init:
+    image: smilemanager-backend
+    user: '0:0'
+    entrypoint: [sh, -c, 'chown 1000:1000 /journal && chmod 700 /journal']
+    volumes:
+      - audit_journal:/journal
+
+  audit-collector:
+    image: smilemanager-backend
+    init: true
+    restart: unless-stopped
+    entrypoint: [python, /app/docker/audit_collector.py]
+    depends_on:
+      audit-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: [CMD, python, -c, 'import urllib.request; urllib.request.urlopen("http://127.0.0.1:8080/health", timeout=5)']
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    environment:
+      AUDIT_SIGNING_KEYS: ${AUDIT_SIGNING_KEYS:?Missing audit keys}
+      AUDIT_INGEST_TOKEN: ${AUDIT_INGEST_TOKEN:?Missing collector token}
+    volumes:
+      - .:/app:ro
+      - /dev/null:/app/.local-ops.env:ro
+      - audit_journal:/journal
+    tmpfs:
+      - /tmp:uid=1000,gid=1000,mode=1777
+
+  security-worker:
+    image: smilemanager-backend
+    init: true
+    restart: unless-stopped
+    entrypoint: [python, manage.py, run_security_jobs]
+    environment:
+      DJANGO_SETTINGS_MODULE: SmileManager.settings_local
+      DATABASE_URL: postgresql://smilemanager:smilemanager_local@db:5432/smilemanager
+      AUDIT_SIGNING_KEYS: ${AUDIT_SIGNING_KEYS:?Missing audit keys}
+      FILE_SCAN_KEYS: ${FILE_SCAN_KEYS:?Missing file inspection keys}
+      AUDIT_INGEST_TOKEN: ${AUDIT_INGEST_TOKEN:?Missing collector token}
+      AUDIT_COLLECTOR_URL: http://audit-collector:8080
+      CLAMAV_HOST: clamav
+    volumes:
+      - .:/app:ro
+      - /dev/null:/app/.local-ops.env:ro
+      - smilemanager_media:/app/media:ro
+    depends_on:
+      backend:
+        condition: service_healthy
 
   e2e:
     profiles: [e2e]
@@ -39,6 +109,7 @@ services:
       - "127.0.0.1:8010:8010"
     volumes:
       - .:/app:ro
+      - /dev/null:/app/.local-ops.env:ro
       - ./.e2e-browser-mail:/e2e-mail
     tmpfs:
       - /tmp:uid=1000,gid=1000,mode=1777
@@ -71,3 +142,5 @@ volumes:
   smilemanager_postgres_data:
   smilemanager_media:
   smilemanager_mail:
+  audit_journal:
+  clamav_signatures:

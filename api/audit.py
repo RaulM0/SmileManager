@@ -54,6 +54,10 @@ class AuditMiddleware:
         else:
             response = self.get_response(request)
             self.record(request, response, match, event)
+        if match and request.path_info.startswith('/api/') and response.status_code in (401, 403, 429):
+            # Persist after any rolled-back business transaction. Never copy paths,
+            # identifiers supplied by denied requests, headers or request bodies.
+            AuditEvent.objects.create(action='ACCESS_DENIED', resource_type='api', outcome='failure', request_id=request.request_id)
         response['X-Request-ID'] = str(request.request_id)
         return response
 

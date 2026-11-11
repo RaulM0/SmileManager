@@ -11,6 +11,7 @@ def create_consultation(*, patient, medico, validated_data, clinic_id=None):
     return Consulta.objects.create(
         paciente=patient,
         medico=medico,
+        author_name=medico.get_full_name().strip(),
         fecha_consulta=timezone.now(),
         motivo_consulta=validated_data.get('motivo_consulta', '').upper(),
         diagnostico=validated_data.get('diagnostico', 'Ninguno').upper(),

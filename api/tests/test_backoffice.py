@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.core.cache import cache
 from django.urls import reverse
 from rest_framework.test import APIClient
-from rest_framework_simplejwt.tokens import RefreshToken
+from api.authentication import SessionRefreshToken as RefreshToken
 from django.utils import timezone
 from DiagnosticosIA.models import AIAnalysisRun
 from Citas.models import Cita
@@ -134,7 +134,13 @@ class BackofficeTests(TestCase):
 
     def test_login_returns_capability_from_backend(self):
         login = self.client.post(reverse('api-login'), {'username': 'system-admin', 'password': 'test'}, format='json')
-        self.assertTrue(login.data['user']['can_access_backoffice'])
+        self.assertTrue(login.data['mfa_required'])
+        self.assertNotIn('access', login.data)
+        setup = self.client.post(reverse('auth-mfa-setup'), {'challenge': login.data['challenge']}, format='json')
+        from api.services.mfa import totp
+        import time
+        verified = self.client.post(reverse('auth-mfa-verify'), {'challenge': login.data['challenge'], 'code': totp(setup.data['secret'], int(time.time()) // 30)}, format='json')
+        self.assertTrue(verified.data['user']['can_access_backoffice'])
         normal = self.client.post(reverse('api-login'), {'username': 'ordinary', 'password': 'test'}, format='json')
         self.assertFalse(normal.data['user']['can_access_backoffice'])
 

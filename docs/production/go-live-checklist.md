@@ -25,4 +25,4 @@ RPO/RTO: **BUSINESS DECISION REQUIRED**. Retención y correcciones clínicas: **
 
 - [ ] Verificar URL HTTPS del frontend, remitente, entrega SMTP, SPF/DKIM/DMARC y alertas.
 - [ ] Aprobar mitigación de diferencias temporales y límites por IP/cuenta para la topología real.
-- [ ] Aceptar o cambiar la ventana residual de access JWT y revisar las cuentas con correo duplicado.
+- [ ] Verificar revocación de sesiones y access JWT, transición de tokens antiguos, enrolamiento MFA y recuperación operativa; revisar las cuentas con correo duplicado. Ver [etapa 2](../security/etapa-2-resultados.md).

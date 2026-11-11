@@ -1,4 +1,5 @@
 import { auditActionLabel } from "../utils/auditLabels";
+import { Link } from 'react-router-dom';
 import {
   AdminSection,
   AdminState,
@@ -103,6 +104,7 @@ export default function ClinicAdministrationPage() {
       <div className="workspace-page-header">
         <div>
           <h1>Administración de la clínica</h1>
+          <Link to="/compliance">Configurar privacidad y consentimientos</Link>
           <p className="clinical-page-description">
             Personal, invitaciones y actividad de la organización
           </p>

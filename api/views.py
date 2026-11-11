@@ -8,9 +8,8 @@ from django.utils import timezone
 from django.utils.dateparse import parse_date
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
-from urllib.parse import urlsplit
 from rest_framework_simplejwt.exceptions import TokenError
-from rest_framework_simplejwt.tokens import RefreshToken
+from .authentication import SessionRefreshToken as RefreshToken, lock_session, requires_mfa
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
 from django.db import transaction
 from django.shortcuts import get_object_or_404
@@ -22,6 +21,7 @@ from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.exceptions import AuthenticationFailed
 
 from Citas.models import Cita
 from Pacientes.models import AntescedentesMedicos, Consentimiento, Consulta, EstudioComparativo, ImagenesClinicas, Odontograma, Paciente
@@ -72,7 +72,6 @@ def _auth_origin_allowed(request):
     origin = request.headers.get('Origin')
     if not origin:
         return True
-    parsed = urlsplit(origin)
     own_origin = f'{request.scheme}://{request.get_host()}'
     return origin == own_origin or origin in settings.CSRF_TRUSTED_ORIGINS
 
@@ -105,6 +104,8 @@ class SessionView(APIView):
     throttle_classes = [AddressThrottle]
 
     def get(self, request):
+        if not _auth_origin_allowed(request):
+            return Response({'detail': 'Origen no permitido.'}, status=403)
         token, user = _refresh_user(request)
         if user is None:
             return Response({'authenticated': False})
@@ -112,12 +113,13 @@ class SessionView(APIView):
             with transaction.atomic():
                 user = get_user_model().objects.select_for_update().get(pk=user.pk, is_active=True)
                 token = RefreshToken(request.COOKIES[REFRESH_COOKIE])
+                lock_session(user, token.get('sid'))
                 return Response({
                     'authenticated': True,
                     'access': str(token.access_token),
                     'user': SessionUserSerializer(user).data,
                 })
-        except (TokenError, get_user_model().DoesNotExist):
+        except (TokenError, get_user_model().DoesNotExist, AuthenticationFailed):
             return Response({'authenticated': False})
 
 
@@ -150,6 +152,13 @@ class LoginView(APIView):
             if user is None or not user.check_password(serializer.validated_data['password']):
                 request._request.audit_auth_event = ('AUTH_LOGIN_FAILED', None, 'failure')
                 return Response({'detail': 'Usuario o contraseña incorrectos'}, status=status.HTTP_400_BAD_REQUEST)
+            from Usuarios.models import MFACredential
+            from .services.mfa import new_challenge
+            enrolled = MFACredential.objects.filter(user=user).exists()
+            if requires_mfa(user) or enrolled:
+                return Response({'authenticated': False, 'mfa_required': True,
+                                 'enrollment_required': not enrolled,
+                                 'challenge': new_challenge(user, enrollment=not enrolled)})
             refresh = RefreshToken.for_user(user)
         request._request.audit_auth_event = ('AUTH_LOGIN_SUCCESS', user, 'success')
         response = Response({
@@ -179,11 +188,12 @@ class RefreshView(APIView):
                 # Serialize refresh with backoffice deactivation; never mint a
                 # token from an is_active value read before the row lock.
                 user = get_user_model().objects.select_for_update().get(pk=user.pk, is_active=True)
+                session = lock_session(user, token.get('sid'))
                 OutstandingToken.objects.select_for_update().get(jti=token['jti'])
                 token = RefreshToken(request.COOKIES[REFRESH_COOKIE])
                 token.blacklist()
-                rotated = RefreshToken.for_user(user)
-        except (TokenError, OutstandingToken.DoesNotExist, get_user_model().DoesNotExist):
+                rotated = RefreshToken.for_user(user, session=session)
+        except (TokenError, OutstandingToken.DoesNotExist, get_user_model().DoesNotExist, AuthenticationFailed):
             response = Response({'detail': 'Sesión expirada.'}, status=status.HTTP_401_UNAUTHORIZED)
             response.delete_cookie(REFRESH_COOKIE, path=REFRESH_COOKIE_PATH)
             return response
@@ -202,6 +212,9 @@ class LogoutView(APIView):
         if token:
             try:
                 with transaction.atomic():
+                    from Usuarios.models import AuthSession
+                    get_user_model().objects.select_for_update().get(pk=user.pk)
+                    AuthSession.objects.filter(pk=token.get('sid'), user=user).update(revoked_at=timezone.now())
                     OutstandingToken.objects.select_for_update().get(jti=token['jti'])
                     RefreshToken(request.COOKIES[REFRESH_COOKIE]).blacklist()
                     request._request.audit_auth_event = ('AUTH_LOGOUT', user, 'success')
@@ -310,7 +323,7 @@ class MedicalHistoryView(OwnedPatientMixin, APIView):
 class ConsultationListCreateView(OwnedPatientMixin, APIView):
     def get(self, request, patient_id):
         patient = self.patient(request, patient_id)
-        consultations = scoped(request.user, Consulta).filter(paciente=patient).select_related('paciente').order_by('-fecha_consulta', '-pk')
+        consultations = scoped(request.user, Consulta).filter(paciente=patient).select_related('paciente').prefetch_related('addenda').order_by('-fecha_consulta', '-pk')
         paginator = ClinicalPagination()
         page = paginator.paginate_queryset(consultations, request, view=self)
         return paginator.get_paginated_response(ConsultationSerializer(page, many=True).data)

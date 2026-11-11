@@ -9,7 +9,7 @@ from django.test import TestCase, TransactionTestCase, skipUnlessDBFeature
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework.exceptions import PermissionDenied
-from rest_framework_simplejwt.tokens import RefreshToken
+from api.authentication import SessionRefreshToken as RefreshToken
 
 from api.services.memberships import change_membership, MembershipConflict
 from Usuarios.models import AuditEvent, Clinic, ClinicMembership
@@ -23,7 +23,7 @@ class MembershipAdminTests(TestCase):
         self.other = Clinic.objects.create(name='B', slug='b', status='ACTIVE')
         self.admin_member = ClinicMembership.objects.create(clinic=self.clinic, user=self.admin, role='CLINIC_ADMIN', status='ACTIVE', joined_at=timezone.now())
         self.doctor_member = ClinicMembership.objects.create(clinic=self.clinic, user=self.doctor, role='DOCTOR', status='ACTIVE', joined_at=timezone.now())
-        self.token = str(RefreshToken.for_user(self.admin).access_token)
+        self.token = str(RefreshToken.for_user(self.admin, mfa_verified=True).access_token)
 
     def patch_member(self, member, data, clinic=None, token=None):
         return self.client.patch(reverse('clinic-membership-detail', args=[member.pk]), data=json.dumps(data), content_type='application/json', HTTP_AUTHORIZATION=f'Bearer {token or self.token}', HTTP_X_CLINIC_ID=str((clinic or self.clinic).pk))

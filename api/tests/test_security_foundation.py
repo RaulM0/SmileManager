@@ -83,7 +83,7 @@ class FoundationTests(TestCase):
         self.assertEqual(self.client.post(reverse('api-logout')).status_code, 204)
         self.assertTrue(AuditEvent.objects.filter(action='AUTH_LOGOUT', actor=self.a).exists())
 
-    def test_reused_refresh_is_rejected_and_access_survives_logout(self):
+    def test_reused_refresh_and_access_after_logout_are_rejected(self):
         self.client.force_authenticate(None)
         logged_in = self.client.post(reverse('api-login'), {'username': 'foundation-a', 'password': 'test-password'}, format='json')
         access = logged_in.data['access']
@@ -94,8 +94,8 @@ class FoundationTests(TestCase):
         self.assertEqual(self.client.post(reverse('api-refresh')).status_code, 401)
         self.client.cookies['smile_refresh'] = rotated_refresh
         self.assertEqual(self.client.post(reverse('api-logout')).status_code, 204)
-        # Access tokens have their own expiry and are not blacklisted by logout.
-        self.assertEqual(self.client.get(reverse('api-patient-detail', args=[self.patient.pk]), HTTP_AUTHORIZATION='Bearer ' + access).status_code, 200)
+        # Logout revokes the server session, including previously issued access.
+        self.assertEqual(self.client.get(reverse('api-patient-detail', args=[self.patient.pk]), HTTP_AUTHORIZATION='Bearer ' + access).status_code, 401)
 
     def test_failed_audit_insert_rolls_back_clinical_update(self):
         self.client.raise_request_exception = False

@@ -25,7 +25,7 @@ def patient_for(request, clinic_id, patient_id, *, lock=False):
 class TenantConsultations(TenantClinicalContextMixin, APIView):
     def get(self, request, patient_id):
         patient = patient_for(request, self.membership.clinic_id, patient_id)
-        rows = clinic_clinical_queryset(request.user, self.membership.clinic_id, Consulta).filter(paciente=patient).select_related('paciente').order_by('-fecha_consulta', '-pk')
+        rows = clinic_clinical_queryset(request.user, self.membership.clinic_id, Consulta).filter(paciente=patient).select_related('paciente').prefetch_related('addenda').order_by('-fecha_consulta', '-pk')
         paginator = ClinicalPagination()
         page = paginator.paginate_queryset(rows, request, view=self)
         data = ConsultationSerializer(page, many=True).data
@@ -53,3 +53,17 @@ class TenantConsultationDetail(TenantClinicalContextMixin, APIView):
         data = ConsultationSerializer(consultation).data
         self.record(consultation, 'TENANT_CONSULTATION_VIEWED', 'consultation')
         return Response(data)
+
+    @transaction.atomic
+    def patch(self, request, consultation_id):
+        self.lock_context()
+        row = get_object_or_404(clinic_clinical_queryset(request.user, self.membership.clinic_id, Consulta).select_for_update(of=('self',)), pk=consultation_id)
+        if row.status != 'DRAFT':
+            return Response({'detail': 'El documento está cerrado o es histórico. Registra una adenda.'}, status=409)
+        if set(request.data) - {'motivo_consulta', 'diagnostico', 'tratamiento', 'observaciones'}:
+            raise ValidationError({'detail': 'Se enviaron campos no permitidos.'})
+        serializer = ConsultationSerializer(row, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        self.record(row, 'CONSULTATION_DRAFT_UPDATED', 'consultation')
+        return Response(serializer.data)

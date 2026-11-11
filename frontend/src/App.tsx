@@ -8,6 +8,8 @@ import InvitationPage from "./pages/InvitationPage";
 import InvitationRegisterPage from "./pages/InvitationRegisterPage";
 import DashboardPage from "./pages/DashboardPage";
 import PrivacyPage from "./pages/PrivacyPage";
+import SecurityPage from './pages/SecurityPage';
+import CompliancePage from './pages/CompliancePage';
 import PatientsHubPage from "./pages/patients/PatientsHubPage";
 import PatientListPage from "./pages/patients/PatientListPage";
 import PatientCreatePage from "./pages/patients/PatientCreatePage";
@@ -53,10 +55,14 @@ function RouteLoading() {
 const router = createBrowserRouter(createRoutesFromElements(
     <>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/privacy/:clinicSlug" element={<PrivacyPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/invitations/register" element={<InvitationRegisterPage />} />
       <Route element={<ProtectedRoute />}>
+        <Route path="security" element={<SecurityPage />} />
+        <Route path="compliance" element={<CompliancePage />} />
+        <Route path="privacy" element={<PrivacyPage />} />
         <Route path="invitations/accept" element={<InvitationPage />} />
         <Route path="backoffice" element={<BackofficeLayout />}>
           <Route index element={<BackofficeDashboard />} />
@@ -79,7 +85,6 @@ const router = createBrowserRouter(createRoutesFromElements(
         </Route>
         <Route element={<ClinicWorkspace />}>
           <Route index element={<DashboardPage />} />
-          <Route path="privacy" element={<PrivacyPage />} />
           {DesignSystemLab && <Route path="design-system" element={<Suspense fallback={<RouteLoading />}><DesignSystemLab /></Suspense>} />}
           <Route path="patients" element={<PatientsHubPage />} />
           <Route path="patients/list" element={<PatientListPage />} />

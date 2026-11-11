@@ -16,7 +16,7 @@ from django.db import close_old_connections, connection
 from django.test import TransactionTestCase
 from django.urls import reverse
 from rest_framework.test import APIClient
-from rest_framework_simplejwt.tokens import RefreshToken
+from api.authentication import SessionRefreshToken as RefreshToken
 
 from Usuarios.models import Clinic, ClinicMembership
 from api.services.clinical_records import ConcurrentModification, save_record

@@ -46,6 +46,10 @@ def lock_clinic_capability(user, clinic_id, capability):
     """Revalidate under the common clinic-then-user lock order inside a transaction."""
     if not connection.in_atomic_block:
         raise RuntimeError('Tenant write or administrative read requires a transaction.')
+    try:
+        clinic_id = UUID(str(clinic_id))
+    except (ValueError, TypeError, AttributeError):
+        raise PermissionDenied('Contexto de clínica no autorizado.') from None
     clinic = Clinic.objects.select_for_update().filter(pk=clinic_id).first()
     account = get_user_model().objects.select_for_update().filter(pk=user.pk, is_active=True).first()
     if clinic is None or account is None:

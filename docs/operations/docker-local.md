@@ -2,13 +2,16 @@
 
 El frontend se ejecuta en el equipo con Vite. Docker ejecuta Django con Python 3.13, las dependencias fijadas en `requirements.txt` (PyTorch para CPU) y PostgreSQL 16. No necesita Python instalado en el equipo.
 
+La etapa 3 añade Redis, ClamAV, un recolector de auditoría y un trabajador de seguridad. Consulta [operación y respaldo](etapa-3-local.md).
+
 ## Arranque
 
 Desde la raíz del repositorio:
 
 ```bash
-docker compose up --build -d
-docker compose logs -f backend
+python3 scripts/setup_dev_security.py
+docker compose --env-file .local-ops.env up --build -d
+docker compose --env-file .local-ops.env logs -f backend
 ```
 
 El backend espera a que PostgreSQL esté disponible y aplica las migraciones antes de iniciar Django. La primera construcción descarga dependencias de IA y puede tardar varios minutos.
@@ -25,8 +28,8 @@ Abre `http://localhost:5173`. El proxy existente de Vite dirige `/api` y `/media
 Los enlaces de recuperación de contraseña e invitaciones usan Vite. Los correos se guardan en archivos dentro del contenedor, sin envío SMTP:
 
 ```bash
-docker compose exec backend ls -lt /var/lib/smilemanager/mail
-docker compose exec backend sh -c 'cat /var/lib/smilemanager/mail/*'
+docker compose --env-file .local-ops.env exec backend ls -lt /var/lib/smilemanager/mail
+docker compose --env-file .local-ops.env exec backend sh -c 'cat /var/lib/smilemanager/mail/*'
 ```
 
 ## Usuarios y clínicas
@@ -34,7 +37,7 @@ docker compose exec backend sh -c 'cat /var/lib/smilemanager/mail/*'
 Para cargar tres cuentas de demostración y una clínica activa en la base local:
 
 ```bash
-docker compose exec backend python manage.py seed_local
+docker compose --env-file .local-ops.env exec backend python manage.py seed_local
 ```
 
 Las cuentas son `smile` (administrador de plataforma con acceso al backoffice),
@@ -46,13 +49,13 @@ las contraseñas de cuentas existentes. No crea pacientes ni citas.
 La base nueva no contiene usuarios ni clínicas. Crea una cuenta interactivamente:
 
 ```bash
-docker compose exec backend python manage.py createsuperuser
+docker compose --env-file .local-ops.env exec backend python manage.py createsuperuser
 ```
 
 Ser superusuario no concede acceso al backoffice de plataforma. Para habilitar expresamente esa cuenta en esta base local, abre el shell:
 
 ```bash
-docker compose exec backend python manage.py shell
+docker compose --env-file .local-ops.env exec backend python manage.py shell
 ```
 
 Sustituye el nombre por el usuario recién creado y ejecuta:
@@ -73,8 +76,8 @@ PostgreSQL conserva el volumen existente `smilemanager_postgres_data`. Los archi
 El código se monta en modo lectura y Django recarga los cambios Python automáticamente. Después de agregar migraciones, aplícalas; si cambias dependencias, reconstruye la imagen:
 
 ```bash
-docker compose exec backend python manage.py migrate
-docker compose up --build -d backend
+docker compose --env-file .local-ops.env exec backend python manage.py migrate
+docker compose --env-file .local-ops.env up --build -d backend
 ```
 
 PostgreSQL también está disponible en `localhost:5433`, con base y usuario `smilemanager` y contraseña local `smilemanager_local`. Los puertos publicados solo escuchan en el equipo local.
@@ -82,11 +85,11 @@ PostgreSQL también está disponible en `localhost:5433`, con base y usuario `sm
 ## Validación
 
 ```bash
-docker compose ps
-docker compose exec backend python manage.py check
-docker compose exec backend python manage.py test --settings=SmileManager.settings_test --noinput
-docker compose exec backend python manage.py makemigrations --check --dry-run --settings=SmileManager.settings_test
-docker compose exec -e PHASE2_TEST_DATABASE_URL=postgresql://smilemanager:smilemanager_local@db:5432/postgres backend python manage.py test api.tests.test_postgres_concurrency --settings=SmileManager.settings_postgres_test --noinput
+docker compose --env-file .local-ops.env ps
+docker compose --env-file .local-ops.env exec backend python manage.py check
+docker compose --env-file .local-ops.env exec backend python manage.py test --settings=SmileManager.settings_test --noinput
+docker compose --env-file .local-ops.env exec backend python manage.py makemigrations --check --dry-run --settings=SmileManager.settings_test
+docker compose --env-file .local-ops.env exec -e PHASE2_TEST_DATABASE_URL=postgresql://smilemanager:smilemanager_local@db:5432/postgres backend python manage.py test api.tests.test_postgres_concurrency --settings=SmileManager.settings_postgres_test --noinput
 ```
 
 Las pruebas SQLite y PostgreSQL crean bases y archivos temporales separados de los datos locales. PostgreSQL utiliza una base de pruebas con nombre aleatorio.
@@ -94,10 +97,10 @@ Las pruebas SQLite y PostgreSQL crean bases y archivos temporales separados de l
 Para detener el entorno conservando los datos:
 
 ```bash
-docker compose down
+docker compose --env-file .local-ops.env down
 ```
 
-Evita `docker compose down -v` si quieres conservar los volúmenes. Esta configuración usa `runserver` y credenciales locales para desarrollo; no es una configuración de despliegue.
+Evita `docker compose --env-file .local-ops.env down -v` si quieres conservar los volúmenes. Esta configuración usa `runserver` y credenciales locales para desarrollo; no es una configuración de despliegue.
 
 El arranque con `service_healthy` sigue el [mecanismo de dependencias de Docker Compose](https://docs.docker.com/compose/how-tos/startup-order/).
 

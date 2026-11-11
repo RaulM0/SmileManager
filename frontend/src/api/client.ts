@@ -123,6 +123,7 @@ async function apiResponse(path: string, options: RequestInit = {}): Promise<Res
   if (!response.ok) {
     const payload = response.headers.get("content-type")?.includes("application/json")
       ? await response.json() as Record<string, unknown> : null;
+    if (response.status === 403 && payload?.code === 'reauthentication_required') window.dispatchEvent(new Event('smile:reauth-required'));
     throw new ApiError(typeof payload?.detail === "string" ? payload.detail : "No fue posible completar la operación.", response.status, payload);
   }
   return response;

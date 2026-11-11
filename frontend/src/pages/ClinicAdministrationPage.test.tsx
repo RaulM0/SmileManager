@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, expect, it, vi } from "vitest";
 import ClinicAdministrationPage from "./ClinicAdministrationPage";
+import { MemoryRouter } from 'react-router-dom';
 
 const request = vi.hoisted(() => vi.fn());
 vi.mock("../api/client", () => ({ api: request, getClinicContext: () => "clinic-a", getErrorMessage: (error: Error) => error.message }));
@@ -14,7 +15,7 @@ it("creates an invitation using a clinic role and displays only the returned cli
     return Promise.resolve({ count: 0, next: null, previous: null, results: [] });
   });
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  render(<QueryClientProvider client={client}><ClinicAdministrationPage /></QueryClientProvider>);
+  render(<MemoryRouter><QueryClientProvider client={client}><ClinicAdministrationPage /></QueryClientProvider></MemoryRouter>);
   expect(await screen.findByText("Pacientes activos")).toBeTruthy();
   fireEvent.change(screen.getByLabelText("Correo electrónico"), { target: { value: "doctor@example.test" } });
   fireEvent.click(screen.getByRole("button", { name: "Enviar invitación" }));
@@ -30,7 +31,7 @@ it("does not offer direct reactivation for a revoked membership", async () => {
     return Promise.resolve({ count: 0, next: null, previous: null, results: [] });
   });
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  render(<QueryClientProvider client={client}><ClinicAdministrationPage /></QueryClientProvider>);
+  render(<MemoryRouter><QueryClientProvider client={client}><ClinicAdministrationPage /></QueryClientProvider></MemoryRouter>);
   expect(await screen.findByText('Requiere una nueva invitación')).toBeTruthy();
   expect(screen.queryByRole('button', { name: 'Reactivar' })).toBeNull();
   expect(screen.getByLabelText('Rol de doctor')).toBeDisabled();

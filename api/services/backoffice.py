@@ -42,6 +42,8 @@ def set_user_active(*, actor, user_id, active, request_id):
             user.is_active = active
             user.save(update_fields=['is_active'])
             if not active:
+                from api.authentication import revoke_user_sessions
+                revoke_user_sessions(user.pk)
                 for token in OutstandingToken.objects.select_for_update().filter(user=user, expires_at__gt=timezone.now()).iterator():
                     BlacklistedToken.objects.get_or_create(token=token)
             AuditEvent.objects.create(actor=actor, action='USER_ACTIVATED' if active else 'USER_DEACTIVATED', resource_type='user', resource_id=str(user.pk), outcome='success', request_id=request_id)

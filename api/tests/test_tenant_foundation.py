@@ -4,7 +4,7 @@ from django.core.management import call_command
 from django.db import DataError, IntegrityError, transaction
 from django.test import TestCase
 from django.urls import reverse
-from rest_framework_simplejwt.tokens import RefreshToken
+from api.authentication import SessionRefreshToken as RefreshToken
 from io import StringIO
 
 from api.services.clinics import transition_clinic
