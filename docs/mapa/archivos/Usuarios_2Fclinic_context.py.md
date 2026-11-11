@@ -1,18 +1,18 @@
 ---
 generated: true
-source: "api/tenant_context.py"
-aliases: ["api/tenant_context.py"]
+source: "Usuarios/clinic_context.py"
+aliases: ["Usuarios/clinic_context.py"]
 tags: [mapa, archivo]
 ---
-# tenant_context.py
+# clinic_context.py
 
-Módulo: [[docs/mapa/API y seguridad]]. Inicio: [[docs/mapa/Inicio]].
+Módulo: [[docs/mapa/Usuarios]]. Inicio: [[docs/mapa/Inicio]].
 
 ## Archivo real
 
-Ruta desde la raíz: `api/tenant_context.py`.
+Ruta desde la raíz: `Usuarios/clinic_context.py`.
 
-[Abrir archivo del proyecto](../../../api/tenant_context.py)
+[Abrir archivo del proyecto](../../../Usuarios/clinic_context.py)
 
 El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abrirá o permitirá abrirlo con la aplicación predeterminada. Esta nota es un índice; leer el archivo real antes de modificarlo.
 

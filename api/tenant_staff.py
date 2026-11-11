@@ -13,8 +13,8 @@ from Citas.models import Cita
 from Pacientes.models import Paciente
 from Usuarios.models import AuditEvent, ClinicMembership
 from .services.appointments import can_transition, validate_appointment_schedule, InvalidStateTransition
-from .tenant_context import require_clinic_capability, lock_clinic_capability
-from .views import ClinicalPagination
+from Usuarios.clinic_context import require_clinic_capability, lock_clinic_capability
+from .pagination import ClinicalPagination
 
 
 def schedulable_patients(clinic_id):

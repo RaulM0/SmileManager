@@ -19,7 +19,8 @@ from DiagnosticosIA.models import AIAnalysisRun
 from Citas.models import Cita
 from Pacientes.models import Paciente
 from Usuarios.models import AuditEvent
-from .policies import IsSystemAdmin, has_backoffice_assignment, has_platform_assignment
+from api.permissions import IsSystemAdmin
+from Usuarios.permissions import has_backoffice_assignment, has_platform_assignment
 from .services.backoffice import AdministrativeAccountProtected, create_user, set_user_active
 from .throttles import ExpensiveThrottle
 from .features import GlobalAIFeatureMixin, ai_globally_enabled

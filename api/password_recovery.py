@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 
 from .services.password_recovery import InvalidReset, confirm_reset, request_reset
 from .throttles import PasswordResetAccountThrottle, PasswordResetConfirmThrottle, PasswordResetIPThrottle
-from .views import _auth_origin_allowed
+from .auth_views import _auth_origin_allowed
 
 MESSAGE = 'Si existe una cuenta elegible asociada a ese correo, recibirás instrucciones para restablecer tu contraseña.'
 INVALID_LINK = 'El enlace no es válido, ha caducado o ya fue utilizado. Solicita uno nuevo.'

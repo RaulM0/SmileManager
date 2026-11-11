@@ -3,7 +3,7 @@ from django.conf import settings
 from django.http import HttpResponse, JsonResponse
 import pandas as pd
 from Pacientes.models import Consulta, ImagenesClinicas, Paciente
-from api.policies import scoped
+from Pacientes.access import scoped
 
 def safe_cell(value):
     if isinstance(value, str) and value.lstrip(' \t\r\n').startswith(('=', '+', '-', '@')):

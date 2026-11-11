@@ -10,13 +10,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from Pacientes.models import Consentimiento
-from .policies import consistent_or_404
+from Pacientes.access import consistent_or_404
 from .services.file_inspection import require_clean
 from .services.document_integrity import file_digest
 from .serializers import ConsentSerializer
 from .services.clinical_records import ClinicalDataConflict
 from .tenant_consultations import patient_for
-from .tenant_patients import TenantClinicalContextMixin
+from .clinic_context import TenantClinicalContextMixin
 
 
 

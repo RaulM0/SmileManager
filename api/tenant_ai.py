@@ -16,9 +16,9 @@ from DiagnosticosIA.runs import AnalysisClinicConflict, AnalysisKeyConflict
 from DiagnosticosIA.services import ClinicalImageChangedError, ClinicalImageMissingError, analyze_clinical_image_detached
 from DiagnosticosIA.tenant_runs import AnalysisInterrupted, execute_tenant_analysis
 from .tenant_images import TenantClinicalImageSerializer, image_for
-from .tenant_patients import TenantClinicalContextMixin
+from .clinic_context import TenantClinicalContextMixin
 from .throttles import ExpensiveThrottle
-from .views import ClinicalPagination
+from .pagination import ClinicalPagination
 from .features import TenantAIFeatureMixin
 
 logger = logging.getLogger(__name__)

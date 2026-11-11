@@ -28,8 +28,8 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 - [[docs/mapa/archivos/DiagnosticosIA_2Fmodels.py|DiagnosticosIA/models.py]]
 - [[docs/mapa/archivos/DiagnosticosIA_2Fruns.py|DiagnosticosIA/runs.py]]
 - [[docs/mapa/archivos/DiagnosticosIA_2Fservices.py|DiagnosticosIA/services.py]]
+- [[docs/mapa/archivos/Pacientes_2Faccess.py|Pacientes/access.py]]
 - [[docs/mapa/archivos/Pacientes_2Fmodels.py|Pacientes/models.py]]
-- [[docs/mapa/archivos/api_2Fpolicies.py|api/policies.py]]
-- [[docs/mapa/archivos/api_2Ftenant_context.py|api/tenant_context.py]]
+- [[docs/mapa/archivos/Usuarios_2Fclinic_context.py|Usuarios/clinic_context.py]]
 
 Este índice resuelve imports Python y referencias relativas JS/TS; no ejecuta módulos ni representa todas las dependencias dinámicas.

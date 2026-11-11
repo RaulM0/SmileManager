@@ -24,6 +24,7 @@ Sin declaraciones principales detectadas por el índice estático.
 
 - [[docs/mapa/archivos/api_2F__init__.py|api/__init__.py]]
 - [[docs/mapa/archivos/api_2Fauth_security.py|api/auth_security.py]]
+- [[docs/mapa/archivos/api_2Fauth_views.py|api/auth_views.py]]
 - [[docs/mapa/archivos/api_2Fbackoffice.py|api/backoffice.py]]
 - [[docs/mapa/archivos/api_2Fbackoffice_clinical.py|api/backoffice_clinical.py]]
 - [[docs/mapa/archivos/api_2Fclinical_documents.py|api/clinical_documents.py]]
@@ -44,6 +45,5 @@ Sin declaraciones principales detectadas por el índice estático.
 - [[docs/mapa/archivos/api_2Ftenant_staff.py|api/tenant_staff.py]]
 - [[docs/mapa/archivos/api_2Ftenant_studies.py|api/tenant_studies.py]]
 - [[docs/mapa/archivos/api_2Ftenant_views.py|api/tenant_views.py]]
-- [[docs/mapa/archivos/api_2Fviews.py|api/views.py]]
 
 Este índice resuelve imports Python y referencias relativas JS/TS; no ejecuta módulos ni representa todas las dependencias dinámicas.

@@ -10,17 +10,16 @@ from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from rest_framework import generics, serializers
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from Pacientes.models import Paciente
 from Usuarios.models import AuditEvent
-from .policies import clinic_clinical_queryset
+from Pacientes.access import clinic_clinical_queryset
 from .serializers import PatientSerializer
 from .services.patients import deactivate_patient
-from .tenant_context import lock_clinic_capability, require_clinic_capability
-from .views import PatientPagination
+from .pagination import PatientPagination
+from .clinic_context import TenantClinicalContextMixin
 
 
 class TenantPatientSerializer(PatientSerializer):
@@ -28,24 +27,6 @@ class TenantPatientSerializer(PatientSerializer):
         if 'clinic' in data or 'clinic_id' in data or 'medico' in data or 'medico_id' in data:
             raise serializers.ValidationError({'detail': 'La clínica y el médico se asignan desde el contexto autorizado.'})
         return super().to_internal_value(data)
-
-
-class TenantClinicalContextMixin:
-    permission_classes = [IsAuthenticated]
-
-    def initial(self, request, *args, **kwargs):
-        super().initial(request, *args, **kwargs)
-        self.membership = require_clinic_capability(request.user, request.headers.get('X-Clinic-ID'), 'clinical.assigned')
-
-    def lock_context(self):
-        """Serialize writes with clinic and membership transitions using their lock order."""
-        self.membership = lock_clinic_capability(self.request.user, self.membership.clinic_id, 'clinical.assigned')
-        return self.membership.clinic
-
-    def record(self, resource, action, resource_type='patient', outcome='success'):
-        AuditEvent.objects.create(actor=self.request.user, clinic_id=self.membership.clinic_id,
-                                  action=action, resource_type=resource_type, resource_id=str(resource.pk),
-                                  request_id=self.request._request.request_id, outcome=outcome)
 
 
 class TenantPatientMixin(TenantClinicalContextMixin):

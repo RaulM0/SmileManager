@@ -8,8 +8,8 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework.exceptions import PermissionDenied
 
-from api.policies import clinic_clinical_queryset
-from api.tenant_context import lock_clinic_capability, require_clinic_capability
+from Pacientes.access import clinic_clinical_queryset
+from Usuarios.clinic_context import lock_clinic_capability, require_clinic_capability
 from Pacientes.models import ImagenesClinicas, Paciente
 from .models import AIAnalysisRun
 from .runs import AnalysisClinicConflict, AnalysisKeyConflict, audit, input_digest

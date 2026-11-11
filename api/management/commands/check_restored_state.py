@@ -3,7 +3,7 @@ from django.apps import apps
 from django.core.files.storage import default_storage
 from django.core.management.base import BaseCommand, CommandError
 from api.management.commands.audit_storage_consistency import FIELDS
-from api.services.audit_integrity import verify
+from Usuarios.audit_integrity import verify
 from api.services.document_integrity import file_digest, verify as verify_document
 from api.services import document_payloads
 from DiagnosticosIA.models import AIAnalysisRun

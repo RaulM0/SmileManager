@@ -16,7 +16,7 @@ from Usuarios.models import AuthSession, ClinicMembership
 
 
 def requires_mfa(user):
-    from .policies import can_access_backoffice
+    from Usuarios.permissions import can_access_backoffice
     return bool(user.is_staff or user.is_superuser or can_access_backoffice(user) or
                 ClinicMembership.objects.filter(user=user, role='CLINIC_ADMIN', status='ACTIVE', clinic__status='ACTIVE').exists())
 

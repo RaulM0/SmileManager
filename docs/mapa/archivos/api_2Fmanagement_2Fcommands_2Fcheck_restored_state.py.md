@@ -24,10 +24,10 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 - [[docs/mapa/archivos/DiagnosticosIA_2Fmodels.py|DiagnosticosIA/models.py]]
 - [[docs/mapa/archivos/Pacientes_2Fmodels.py|Pacientes/models.py]]
+- [[docs/mapa/archivos/Usuarios_2Faudit_integrity.py|Usuarios/audit_integrity.py]]
 - [[docs/mapa/archivos/Usuarios_2Fmodels.py|Usuarios/models.py]]
 - [[docs/mapa/archivos/api_2Fmanagement_2Fcommands_2Faudit_storage_consistency.py|api/management/commands/audit_storage_consistency.py]]
 - [[docs/mapa/archivos/api_2Fservices_2F__init__.py|api/services/__init__.py]]
-- [[docs/mapa/archivos/api_2Fservices_2Faudit_integrity.py|api/services/audit_integrity.py]]
 - [[docs/mapa/archivos/api_2Fservices_2Fdocument_integrity.py|api/services/document_integrity.py]]
 - [[docs/mapa/archivos/api_2Fservices_2Fdocument_payloads.py|api/services/document_payloads.py]]
 - [[docs/mapa/archivos/api_2Fservices_2Ffile_inspection.py|api/services/file_inspection.py]]

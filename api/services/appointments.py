@@ -5,7 +5,7 @@ from django.db import transaction
 from rest_framework.exceptions import ValidationError
 from rest_framework.exceptions import APIException
 from django.shortcuts import get_object_or_404
-from api.policies import clinic_clinical_queryset, scoped
+from Pacientes.access import clinic_clinical_queryset, scoped
 
 
 class InvalidStateTransition(APIException):

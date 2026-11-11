@@ -5,7 +5,7 @@ import hashlib
 from functools import lru_cache
 from django.conf import settings
 from django.core.files.base import ContentFile
-from ultralytics import YOLO
+from threading import Lock
 
 @lru_cache(maxsize=1)
 def model_version():
@@ -16,9 +16,23 @@ def model_version():
     return digest.hexdigest()
 
 
-# El artefacto debe permanecer inmutable durante la vida del proceso.
-model_version()
-model=YOLO(os.path.join(settings.BASE_DIR,'train_model','best.pt'))
+# The model artifact remains immutable for the lifetime of this process.
+_model = None
+_model_lock = Lock()
+_inference_lock = Lock()
+
+
+def get_model():
+    """Load the optional inference engine once, only when analysis is requested."""
+    global _model
+    with _model_lock:
+        if _model is None:
+            from ultralytics import YOLO
+
+            model_version()
+            _model = YOLO(os.path.join(settings.BASE_DIR, 'train_model', 'best.pt'))
+        return _model
+
 
 class ClinicalImageMissingError(Exception):
     """The source referenced by the clinical record is absent from storage."""
@@ -50,7 +64,10 @@ def analyze_clinical_image_detached(image, *, expected_hash=None):
                     raise ClinicalImageChangedError
             finally: image.imagen.close()
         temp_results=tempfile.mkdtemp(prefix='yolo_results_')
-        results=model.predict(temp_input,save=True,project=temp_results,name='pred')
+        model = get_model()
+        # Ultralytics keeps mutable predictor state on its model instance.
+        with _inference_lock:
+            results = model.predict(temp_input, save=True, project=temp_results, name='pred')
         save_dir=str(results[0].save_dir)
         supported_outputs=('.jpg','.jpeg','.png','.webp','.gif','.bmp','.tif','.tiff')
         output=next((os.path.join(save_dir,name) for name in os.listdir(save_dir) if name.lower().endswith(supported_outputs)),None)

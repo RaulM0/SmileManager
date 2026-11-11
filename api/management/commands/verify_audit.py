@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from Usuarios.models import AuditEvent
-from api.services.audit_integrity import verify
+from Usuarios.audit_integrity import verify
 
 
 class Command(BaseCommand):

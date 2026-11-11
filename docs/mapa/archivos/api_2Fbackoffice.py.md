@@ -18,26 +18,26 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `Pagination` — línea 31.
-- `UserSerializer` — línea 37.
-- `UserCreateSerializer` — línea 44.
-- `UserDetailSerializer` — línea 77.
-- `AuditSerializer` — línea 95.
-- `RunSerializer` — línea 103.
-- `stale_cutoff` — línea 114.
-- `date_filters` — línea 118.
-- `AdminAPIView` — línea 127.
-- `AdminList` — línea 132.
-- `Dashboard` — línea 137.
-- `Users` — línea 149.
-- `CreateUser` — línea 162.
-- `UserDetail` — línea 176.
-- `UserActivation` — línea 182.
-- `AuditList` — línea 206.
-- `AuditDetail` — línea 223.
-- `Runs` — línea 229.
-- `RunDetail` — línea 240.
-- `System` — línea 246.
+- `Pagination` — línea 32.
+- `UserSerializer` — línea 38.
+- `UserCreateSerializer` — línea 45.
+- `UserDetailSerializer` — línea 78.
+- `AuditSerializer` — línea 96.
+- `RunSerializer` — línea 104.
+- `stale_cutoff` — línea 115.
+- `date_filters` — línea 119.
+- `AdminAPIView` — línea 128.
+- `AdminList` — línea 133.
+- `Dashboard` — línea 138.
+- `Users` — línea 150.
+- `CreateUser` — línea 163.
+- `UserDetail` — línea 177.
+- `UserActivation` — línea 183.
+- `AuditList` — línea 207.
+- `AuditDetail` — línea 224.
+- `Runs` — línea 230.
+- `RunDetail` — línea 241.
+- `System` — línea 247.
 
 ## Dependencias internas
 
@@ -45,8 +45,9 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 - [[docs/mapa/archivos/DiagnosticosIA_2Fmodels.py|DiagnosticosIA/models.py]]
 - [[docs/mapa/archivos/Pacientes_2Fmodels.py|Pacientes/models.py]]
 - [[docs/mapa/archivos/Usuarios_2Fmodels.py|Usuarios/models.py]]
+- [[docs/mapa/archivos/Usuarios_2Fpermissions.py|Usuarios/permissions.py]]
 - [[docs/mapa/archivos/api_2Ffeatures.py|api/features.py]]
-- [[docs/mapa/archivos/api_2Fpolicies.py|api/policies.py]]
+- [[docs/mapa/archivos/api_2Fpermissions.py|api/permissions.py]]
 - [[docs/mapa/archivos/api_2Fservices_2Fbackoffice.py|api/services/backoffice.py]]
 - [[docs/mapa/archivos/api_2Fthrottles.py|api/throttles.py]]
 

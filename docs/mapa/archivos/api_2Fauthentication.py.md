@@ -28,6 +28,6 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 ## Dependencias internas
 
 - [[docs/mapa/archivos/Usuarios_2Fmodels.py|Usuarios/models.py]]
-- [[docs/mapa/archivos/api_2Fpolicies.py|api/policies.py]]
+- [[docs/mapa/archivos/Usuarios_2Fpermissions.py|Usuarios/permissions.py]]
 
 Este índice resuelve imports Python y referencias relativas JS/TS; no ejecuta módulos ni representa todas las dependencias dinámicas.

@@ -12,6 +12,7 @@ Volver a [[docs/mapa/Inicio]]. Consultar también [[docs/mapa/Como usar el mapa]
 
 - [[docs/mapa/archivos/Pacientes_2FPDF.py|Pacientes/PDF.py]]
 - [[docs/mapa/archivos/Pacientes_2F__init__.py|Pacientes/__init__.py]]
+- [[docs/mapa/archivos/Pacientes_2Faccess.py|Pacientes/access.py]]
 - [[docs/mapa/archivos/Pacientes_2Fapps.py|Pacientes/apps.py]]
 - [[docs/mapa/archivos/Pacientes_2Fdocuments.py|Pacientes/documents.py]]
 - [[docs/mapa/archivos/Pacientes_2Fmigrations_2F0001_initial.py|Pacientes/migrations/0001_initial.py]]

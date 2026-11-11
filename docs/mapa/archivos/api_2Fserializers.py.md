@@ -35,10 +35,11 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 ## Dependencias internas
 
 - [[docs/mapa/archivos/Citas_2Fmodels.py|Citas/models.py]]
+- [[docs/mapa/archivos/Pacientes_2Faccess.py|Pacientes/access.py]]
 - [[docs/mapa/archivos/Pacientes_2Fmodels.py|Pacientes/models.py]]
 - [[docs/mapa/archivos/Usuarios_2Fmodels.py|Usuarios/models.py]]
+- [[docs/mapa/archivos/Usuarios_2Fpermissions.py|Usuarios/permissions.py]]
 - [[docs/mapa/archivos/api_2Ffeatures.py|api/features.py]]
-- [[docs/mapa/archivos/api_2Fpolicies.py|api/policies.py]]
 - [[docs/mapa/archivos/api_2Fservices_2Fappointments.py|api/services/appointments.py]]
 - [[docs/mapa/archivos/api_2Fservices_2Fclinical_images.py|api/services/clinical_images.py]]
 - [[docs/mapa/archivos/api_2Fservices_2Fconsultations.py|api/services/consultations.py]]

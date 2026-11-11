@@ -29,7 +29,7 @@ class AIAnalysisRunTests(TestCase):
         return [{'clase': 'test', 'confianza': 0.9, 'coordenadas': [1, 2, 3, 4]}]
 
     @patch('DiagnosticosIA.runs.model_version', return_value='a' * 64)
-    @patch('api.views.analyze_clinical_image', side_effect=fake_analyzer.__func__)
+    @patch('api.legacy_views.analyze_clinical_image', side_effect=fake_analyzer.__func__)
     def test_normal_retry_reuse_and_explicit_reanalysis(self, analyzer, version):
         first = self.client.post(self.url, {}, format='json')
         self.assertEqual(first.status_code, 200)
@@ -58,7 +58,7 @@ class AIAnalysisRunTests(TestCase):
         self.assertEqual(self.client.get(reverse('api-analysis-run-file', args=[self.image.pk, first.data['run_id']])).status_code, 404)
 
     @patch('DiagnosticosIA.runs.model_version', return_value='a' * 64)
-    @patch('api.views.analyze_clinical_image', side_effect=RuntimeError('sensitive internal error'))
+    @patch('api.legacy_views.analyze_clinical_image', side_effect=RuntimeError('sensitive internal error'))
     def test_failure_records_only_category(self, analyzer, version):
         response = self.client.post(self.url, {}, format='json')
         self.assertEqual(response.status_code, 500)

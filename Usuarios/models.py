@@ -169,7 +169,7 @@ class AuditEvent(models.Model):
     def save(self, *args, **kwargs):
         if not self._state.adding:
             raise ValidationError('Audit events are append-only.')
-        from api.services.audit_integrity import payload, sign
+        from Usuarios.audit_integrity import payload, sign
         self.content_sha256, self.integrity_seal = sign(payload(self))
         return super().save(*args, **kwargs)
 

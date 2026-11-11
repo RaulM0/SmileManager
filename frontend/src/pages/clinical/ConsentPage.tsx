@@ -52,8 +52,8 @@ export default function ConsentPage() {
     <h1>Consentimientos y evidencia documental</h1><p>El consentimiento clínico y el tratamiento de datos se registran por separado. La carga conserva un documento firmado; no constituye por sí misma una firma electrónica avanzada ni una validación jurídica.</p>
     {error && <p role="alert" className="workspace-inline-error">{error}</p>}
     {workspace.legacy && <section className="workspace-section"><h2>Registro histórico sin firma verificada</h2><p>La fecha de aceptación del flujo anterior no acredita por sí misma la voluntad del paciente. Este registro se conserva para revisión.</p><p style={{ whiteSpace: 'pre-wrap' }}>{workspace.legacy.texto}</p>
-      {workspace.legacy.pdf_generado && <button disabled={Boolean(downloadActive)} onClick={() => void download('legacy-pdf', `patients/${id}/consent/pdf/`, `Historico_${id}.pdf`)}>Descargar documento histórico</button>}
-      {workspace.legacy.archivo_ine_url && <button disabled={Boolean(downloadActive)} onClick={() => void download('legacy-identity', `patients/${id}/consent/file/`, `Identificacion_historica_${id}`)}>Descargar identificación histórica</button>}
+      {workspace.legacy.pdf_generado && <button disabled={Boolean(downloadActive)} onClick={() => void download('legacy-pdf', `clinics/patients/${id}/consent/pdf/file/`, `Historico_${id}.pdf`)}>Descargar documento histórico</button>}
+      {workspace.legacy.archivo_ine_url && <button disabled={Boolean(downloadActive)} onClick={() => void download('legacy-identity', `clinics/patients/${id}/consent/identity/file/`, `Identificacion_historica_${id}`)}>Descargar identificación histórica</button>}
     </section>}
     {!selected ? <section className="workspace-inline-error"><h2>Registro pendiente de configuración</h2><p>La administración debe publicar el aviso de privacidad y las plantillas revisadas antes de incorporar documentos nuevos.</p></section> : <form className="workspace-section" onSubmit={submit}>
       <h2>Registrar documento firmado</h2>

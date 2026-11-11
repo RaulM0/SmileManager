@@ -8,10 +8,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from Pacientes.models import AntescedentesMedicos, Odontograma, Paciente
-from .policies import clinic_clinical_queryset, consistent_or_404
+from Pacientes.access import clinic_clinical_queryset, consistent_or_404
 from .serializers import MedicalHistorySerializer, OdontogramSerializer
 from .services.clinical_records import save_record
-from .tenant_patients import TenantClinicalContextMixin
+from .clinic_context import TenantClinicalContextMixin
 
 
 class TenantClinicalRecordMixin(TenantClinicalContextMixin):

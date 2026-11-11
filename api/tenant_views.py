@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from Usuarios.models import Clinic, ClinicMembership
-from .tenant_context import resolve_clinic_membership
+from Usuarios.clinic_context import resolve_clinic_membership
 from .services.memberships import change_membership
 from .services.invitations import create_invitation, preview_invitation, preview_registration, register_with_invitation, resolve_invitation, revoke_invitation
 from .throttles import EmailThrottle, AddressThrottle

@@ -1,3 +1,4 @@
+import { queryKeys } from "../../query/keys";
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { useParams } from "react-router-dom";
@@ -112,7 +113,7 @@ export default function ComparativeStudyPage() {
         await clinicalService.saveComparativeStudy(id!, data),
       );
       await queryClient.invalidateQueries({
-        predicate: (query) => query.queryKey[0] === "protected-media" && typeof query.queryKey[1] === "string" && query.queryKey[1].startsWith(`patients/${id}/comparative-study/`),
+        predicate: (query) => query.queryKey[0] === queryKeys.protectedMedia("")[0] && query.queryKey[1] === "protected-media" && typeof query.queryKey[2] === "string" && query.queryKey[2].startsWith(`clinics/patients/${id}/comparative-study/`),
       });
       setFiles({});
       baseline.current = submittedSnapshot;
@@ -133,11 +134,11 @@ export default function ComparativeStudyPage() {
         {study.exists && (
           <a
             className="clinical-action-outline"
-            href={`/api/v1/patients/${id}/comparative-study/pdf/`}
+            href={`/api/v1/clinics/patients/${id}/comparative-study/pdf/`}
             aria-disabled={Boolean(downloadActive)}
             onClick={(event) => {
               event.preventDefault();
-              void download("study", `patients/${id}/comparative-study/pdf/`, `Estudio_${id}.pdf`);
+              void download("study", `clinics/patients/${id}/comparative-study/pdf/`, `Estudio_${id}.pdf`);
             }}
           >
             <i className="bi bi-file-pdf" aria-hidden="true" />
@@ -210,7 +211,7 @@ export default function ComparativeStudyPage() {
               label={label}
               required={!study.exists}
               url={study.image_urls?.[name]}
-              mediaPath={`patients/${id}/comparative-study/media/${name}/`}
+              mediaPath={`clinics/patients/${id}/comparative-study/media/${name}/`}
               error={errorText(name)}
               onFile={updateFile}
             />
@@ -224,7 +225,7 @@ export default function ComparativeStudyPage() {
               name={name}
               label={label}
               url={study.image_urls?.[name]}
-              mediaPath={`patients/${id}/comparative-study/media/${name}/`}
+              mediaPath={`clinics/patients/${id}/comparative-study/media/${name}/`}
               error={errorText(name)}
               onFile={updateFile}
             />

@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import APIException, ValidationError
 
 from Pacientes.models import AntescedentesMedicos, ClinicalRevision, Odontograma, Paciente
-from api.policies import clinic_clinical_queryset, consistent_or_404, scoped
+from Pacientes.access import clinic_clinical_queryset, consistent_or_404, scoped
 from api.services.odontogram import validate_odontogram
 from .document_integrity import seal, verify, digest
 from .document_payloads import revision_payload

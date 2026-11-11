@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 
 from Usuarios.models import AuditEvent, Clinic, ClinicInvitation, ClinicMembership
 from .backoffice import Pagination
-from .tenant_context import require_clinic_capability
+from Usuarios.clinic_context import require_clinic_capability
 
 
 class TenantAdminList(APIView):

@@ -25,9 +25,9 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 ## Dependencias internas
 
 - [[docs/mapa/archivos/Citas_2Fmodels.py|Citas/models.py]]
+- [[docs/mapa/archivos/Pacientes_2Faccess.py|Pacientes/access.py]]
 - [[docs/mapa/archivos/Pacientes_2Fmodels.py|Pacientes/models.py]]
 - [[docs/mapa/archivos/Usuarios_2Fmodels.py|Usuarios/models.py]]
-- [[docs/mapa/archivos/api_2Fpolicies.py|api/policies.py]]
 - [[docs/mapa/archivos/api_2Fservices_2Fexports.py|api/services/exports.py]]
 - [[docs/mapa/archivos/api_2Fthrottles.py|api/throttles.py]]
 - [[docs/mapa/archivos/api_2Fupload_policy.py|api/upload_policy.py]]

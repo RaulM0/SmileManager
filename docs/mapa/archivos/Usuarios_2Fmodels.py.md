@@ -35,6 +35,6 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Dependencias internas
 
-- [[docs/mapa/archivos/api_2Fservices_2Faudit_integrity.py|api/services/audit_integrity.py]]
+- [[docs/mapa/archivos/Usuarios_2Faudit_integrity.py|Usuarios/audit_integrity.py]]
 
 Este índice resuelve imports Python y referencias relativas JS/TS; no ejecuta módulos ni representa todas las dependencias dinámicas.

@@ -10,9 +10,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from Pacientes.models import Consulta, ConsultationAddendum, ClinicalRevision, Paciente
-from .policies import clinic_clinical_queryset
+from Pacientes.access import clinic_clinical_queryset
 from .serializers import ConsultationSerializer
-from .tenant_patients import TenantClinicalContextMixin
+from .clinic_context import TenantClinicalContextMixin
 from .services.document_integrity import seal, verify, digest
 from .services.document_payloads import consultation_payload, addendum_payload, revision_payload
 from .services.mfa import verify_code

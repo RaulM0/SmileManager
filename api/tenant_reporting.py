@@ -13,11 +13,11 @@ from Citas.models import Cita
 from DiagnosticosIA.models import AIAnalysisRun
 from Pacientes.models import Consulta, ImagenesClinicas, Paciente
 from Usuarios.models import AuditEvent, ClinicMembership
-from .policies import clinic_clinical_queryset
+from Pacientes.access import clinic_clinical_queryset
 from .serializers import DashboardAppointmentSerializer
 from .services.exports import excel_response
-from .tenant_context import lock_clinic_capability, require_clinic_capability
-from .tenant_patients import TenantClinicalContextMixin
+from Usuarios.clinic_context import lock_clinic_capability, require_clinic_capability
+from .clinic_context import TenantClinicalContextMixin
 from .throttles import ExportThrottle
 
 

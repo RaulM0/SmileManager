@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 
 from Pacientes.models import PrivacyNotice, ConsentTemplate
 from Usuarios.models import Clinic, AuditEvent
-from .tenant_context import require_clinic_capability, lock_clinic_capability, resolve_clinic_membership
+from Usuarios.clinic_context import require_clinic_capability, lock_clinic_capability, resolve_clinic_membership
 from .services.document_integrity import seal, verify
 from .services.document_payloads import notice_payload, template_payload
 from .throttles import AddressThrottle

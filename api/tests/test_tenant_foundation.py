@@ -8,8 +8,8 @@ from api.authentication import SessionRefreshToken as RefreshToken
 from io import StringIO
 
 from api.services.clinics import transition_clinic
-from api.policies import clinic_clinical_queryset
-from api.tenant_context import require_clinic_capability
+from Pacientes.access import clinic_clinical_queryset
+from Usuarios.clinic_context import require_clinic_capability
 from api.serializers import PatientSerializer
 from Pacientes.models import ClinicalRevision, Paciente
 from rest_framework.exceptions import PermissionDenied

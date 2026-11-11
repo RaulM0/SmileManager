@@ -4,7 +4,7 @@ import urllib.request
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from Usuarios.models import AuditDelivery, AuditEvent
-from api.services.audit_integrity import payload, verify
+from Usuarios.audit_integrity import payload, verify
 
 
 class Command(BaseCommand):

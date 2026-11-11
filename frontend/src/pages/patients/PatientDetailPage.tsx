@@ -14,7 +14,7 @@ export default function PatientDetailPage() {
   const navigate = useNavigate();
   const toast = useToast();
   const queryClient = useQueryClient();
-  const { data: patient, error, reload } = useResource<Patient>(`patients/${id}/`);
+  const { data: patient, error, reload } = useResource<Patient>(`clinics/patients/${id}/`);
   const [deactivating, setDeactivating] = useState(false);
   async function deactivate() {
     if (deactivating) return;
@@ -22,10 +22,10 @@ export default function PatientDetailPage() {
     setDeactivating(true);
     try {
       const updated = await patientsService.deactivate(id!);
-      queryClient.setQueryData(queryKeys.resource(`patients/${id}/`), updated);
+      queryClient.setQueryData(queryKeys.resource(`clinics/patients/${id}/`), updated);
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.patients }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.resource("dashboard/") }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.resource("clinics/dashboard/") }),
       ]);
       toast.success("Paciente desactivado.");
       navigate("/patients/search");

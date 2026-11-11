@@ -13,11 +13,11 @@ from rest_framework.views import APIView
 from Citas.models import Cita
 from Pacientes.models import Paciente
 from Usuarios.models import AuditEvent
-from .policies import clinic_clinical_queryset
+from Pacientes.access import clinic_clinical_queryset
 from .serializers import AppointmentSerializer
 from .services.appointments import save_appointment, transition_appointment
-from .tenant_patients import TenantClinicalContextMixin
-from .views import ClinicalPagination
+from .clinic_context import TenantClinicalContextMixin
+from .pagination import ClinicalPagination
 
 
 class TenantAppointmentSerializer(AppointmentSerializer):

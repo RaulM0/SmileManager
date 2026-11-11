@@ -31,7 +31,7 @@ class DetachedAITests(TestCase):
             clinic = Clinic.objects.create(name='A', slug='detached-clinic', status='ACTIVE')
             patient = Paciente.objects.create(nombre='A', appat='B', apmat='C', fecha_nacimiento='2000-01-01', genero='F', telefono='1234567890', email='detached@example.test', medico=doctor, clinic=clinic)
             image = ImagenesClinicas.objects.create(paciente=patient, medico=doctor, tipo_imagen='RX', imagen=SimpleUploadedFile('source.png', b'synthetic-input'))
-            with patch('DiagnosticosIA.services.model', FakeModel()):
+            with patch('DiagnosticosIA.services.get_model', return_value=FakeModel()):
                 detections, filename, data = analyze_clinical_image_detached(image, expected_hash=hashlib.sha256(b'synthetic-input').hexdigest())
                 self.assertEqual((filename, data), ('result.png', b'synthetic-output'))
                 self.assertEqual(detections[0]['clase'], 'synthetic')

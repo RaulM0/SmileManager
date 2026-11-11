@@ -12,7 +12,7 @@ from django.core.files.storage import default_storage
 from django.test import TestCase
 from pypdf import PdfWriter
 from Usuarios.models import AuditEvent, FileInspection
-from api.services.audit_integrity import verify
+from Usuarios.audit_integrity import verify
 from api.services.file_inspection import QuarantinedFile, process_one, queue, require_clean
 
 
@@ -120,7 +120,7 @@ class AuditJournalTests(TestCase):
         collector = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(collector)
         event = AuditEvent.objects.create(action='JOURNAL_TEST', request_id=uuid.uuid4())
-        from api.services.audit_integrity import payload
+        from Usuarios.audit_integrity import payload
         document = {'payload': payload(event), 'content_sha256': event.content_sha256, 'integrity_seal': event.integrity_seal}
         with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, {'AUDIT_SIGNING_KEYS': ','.join(settings.AUDIT_SIGNING_KEYS)}):
             collector.PATH = directory + '/journal.sqlite3'
@@ -205,7 +205,7 @@ class CollectorHTTPTests(TestCase):
         spec = importlib.util.spec_from_file_location('collector_http_test', Path(settings.BASE_DIR) / 'docker/audit_collector.py')
         collector = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(collector)
-        from api.services.audit_integrity import payload
+        from Usuarios.audit_integrity import payload
         event = AuditEvent.objects.create(action='HTTP_TEST', request_id=uuid.uuid4())
         document = {'payload': payload(event), 'content_sha256': event.content_sha256, 'integrity_seal': event.integrity_seal}
         token = secrets.token_urlsafe(32)

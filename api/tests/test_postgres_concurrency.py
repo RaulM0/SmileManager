@@ -57,7 +57,7 @@ class PostgreSQLConcurrencyTests(TransactionTestCase):
         self.assertEqual(AntescedentesMedicos.objects.get(paciente=patient).medico_id, doctor.pk)
 
     def test_password_reset_wins_against_inflight_session_refresh(self):
-        from api.views import _refresh_user
+        from api.auth_views import _refresh_user
         user = User.objects.create_user('session-reset-race', email='session-race@example.test', password='Old password 123!')
         refresh = str(RefreshToken.for_user(user))
         uid = urlsafe_base64_encode(force_bytes(user.pk))
@@ -80,7 +80,7 @@ class PostgreSQLConcurrencyTests(TransactionTestCase):
             finally:
                 close_old_connections()
 
-        with patch('api.views._refresh_user', side_effect=delayed_refresh), ThreadPoolExecutor(max_workers=1) as pool:
+        with patch('api.auth_views._refresh_user', side_effect=delayed_refresh), ThreadPoolExecutor(max_workers=1) as pool:
             future = pool.submit(session)
             self.assertTrue(checked.wait(10))
             confirm_reset(uid, token, 'New synthetic password 459!', uuid.uuid4())
@@ -108,7 +108,7 @@ class PostgreSQLConcurrencyTests(TransactionTestCase):
             finally:
                 close_old_connections()
 
-        with patch('api.views.authenticate', side_effect=delayed_auth), ThreadPoolExecutor(max_workers=1) as pool:
+        with patch('api.auth_views.authenticate', side_effect=delayed_auth), ThreadPoolExecutor(max_workers=1) as pool:
             future = pool.submit(login)
             self.assertTrue(authenticated.wait(10))
             confirm_reset(uid, token, 'New synthetic password 459!', uuid.uuid4())

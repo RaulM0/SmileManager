@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 
 from Usuarios.models import AuditEvent, Clinic, ClinicInvitation, ClinicMembership
 from .backoffice import Pagination
-from .policies import IsPlatformAdmin
+from api.permissions import IsPlatformAdmin
 from .services.platform_clinics import change_clinic_ai, change_clinic_status, create_clinic, invite_initial_administrator, revoke_initial_invitation
 from .features import ai_enabled_for_clinic, ai_globally_enabled
 from .tenant_views import deliver_invitation, invitation_delivery_url

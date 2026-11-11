@@ -14,7 +14,7 @@ const actions = [
 
 export default function ClinicalRecordPage() {
   const { id } = useParams();
-  const { data, error, reload } = useResource<Paginated<Consultation>>(`patients/${id}/consultations/`);
+  const { data, error, reload } = useResource<Paginated<Consultation>>(`clinics/patients/${id}/consultations/`);
   const consultations = data?.results;
   return (
     <div className="workspace-page co-mx-auto co-max-w-[1320px]">

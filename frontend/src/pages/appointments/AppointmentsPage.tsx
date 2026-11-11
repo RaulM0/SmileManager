@@ -181,10 +181,10 @@ export default function AppointmentsPage() {
   const actionMutation = useMutation({
     mutationFn: ({ id, name }: { id: number; name: "complete" | "cancel" }) => appointmentsService.transition(id, name),
     onSuccess: async (updated, { name }) => {
-      queryClient.setQueryData(queryKeys.resource(`appointments/${updated.id}/`), updated);
+      queryClient.setQueryData(queryKeys.resource(`clinics/appointments/${updated.id}/`), updated);
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.appointments }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.resource("dashboard/") }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.resource("clinics/dashboard/") }),
       ]);
       toast.success(name === "complete" ? "Cita completada." : "Cita cancelada.");
     },

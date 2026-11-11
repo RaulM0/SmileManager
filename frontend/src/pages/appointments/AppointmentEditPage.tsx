@@ -11,7 +11,7 @@ export default function AppointmentEditPage() {
   const { id } = useParams();
   const toast = useToast();
   const queryClient = useQueryClient();
-  const { data: item, error, reload } = useResource<Appointment>(`appointments/${id}/`);
+  const { data: item, error, reload } = useResource<Appointment>(`clinics/appointments/${id}/`);
   if (error)
     return <div className="workspace-page co-mx-auto co-max-w-[1320px]"><div className="workspace-inline-error" role="alert">{error}</div><button className="clinical-action-outline co-mt-3" onClick={reload}>Reintentar</button></div>;
   if (!item)
@@ -29,10 +29,10 @@ export default function AppointmentEditPage() {
         submitLabel="Guardar cambios"
         onSubmit={async (form) => {
           const updated = await appointmentsService.update(id!, item.paciente.id, form);
-          queryClient.setQueryData(queryKeys.resource(`appointments/${id}/`), updated);
+          queryClient.setQueryData(queryKeys.resource(`clinics/appointments/${id}/`), updated);
           await Promise.all([
             queryClient.invalidateQueries({ queryKey: queryKeys.appointments }),
-            queryClient.invalidateQueries({ queryKey: queryKeys.resource("dashboard/") }),
+            queryClient.invalidateQueries({ queryKey: queryKeys.resource("clinics/dashboard/") }),
           ]);
           toast.success("Cita actualizada correctamente.");
           return `/appointments/${id}`;

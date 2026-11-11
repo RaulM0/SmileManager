@@ -35,10 +35,10 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 ## Dependencias internas
 
 - [[docs/mapa/archivos/Usuarios_2Fmodels.py|Usuarios/models.py]]
+- [[docs/mapa/archivos/api_2Fauth_views.py|api/auth_views.py]]
 - [[docs/mapa/archivos/api_2Fauthentication.py|api/authentication.py]]
 - [[docs/mapa/archivos/api_2Fserializers.py|api/serializers.py]]
 - [[docs/mapa/archivos/api_2Fservices_2Fmfa.py|api/services/mfa.py]]
 - [[docs/mapa/archivos/api_2Fthrottles.py|api/throttles.py]]
-- [[docs/mapa/archivos/api_2Fviews.py|api/views.py]]
 
 Este índice resuelve imports Python y referencias relativas JS/TS; no ejecuta módulos ni representa todas las dependencias dinámicas.

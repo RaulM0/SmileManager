@@ -24,7 +24,7 @@ export default function AppointmentCreatePage() {
   const [confirmChange, setConfirmChange] = useState(false);
   const [params] = useSearchParams();
   const patientId = params.get("patient") || "";
-  const preselected = useQuery({ queryKey: queryKeys.resource(`patients/${patientId}/`), queryFn: () => patientsService.get(patientId), enabled: /^\d+$/.test(patientId) && !ignorePreselected });
+  const preselected = useQuery({ queryKey: queryKeys.resource(`clinics/patients/${patientId}/`), queryFn: () => patientsService.get(patientId), enabled: /^\d+$/.test(patientId) && !ignorePreselected });
   const patient = selectedPatient ?? (!ignorePreselected && preselected.data ? { id: preselected.data.id, text: [preselected.data.nombre, preselected.data.appat, preselected.data.apmat].filter(Boolean).join(" ") } : null);
   const toast = useToast();
   const queryClient = useQueryClient();
@@ -60,10 +60,10 @@ export default function AppointmentCreatePage() {
             submitLabel="Registrar cita"
             onSubmit={async (form) => {
               const result = await appointmentsService.create(patient.id, form);
-              queryClient.setQueryData(queryKeys.resource(`appointments/${result.id}/`), result);
+              queryClient.setQueryData(queryKeys.resource(`clinics/appointments/${result.id}/`), result);
               await Promise.all([
                 queryClient.invalidateQueries({ queryKey: queryKeys.appointments }),
-                queryClient.invalidateQueries({ queryKey: queryKeys.resource("dashboard/") }),
+                queryClient.invalidateQueries({ queryKey: queryKeys.resource("clinics/dashboard/") }),
               ]);
               toast.success("Cita registrada correctamente.");
               return `/appointments/${result.id}`;
