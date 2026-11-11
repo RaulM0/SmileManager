@@ -1,6 +1,6 @@
 from unittest.mock import patch
 from django.db import OperationalError
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 
@@ -17,3 +17,12 @@ class HealthTests(TestCase):
             response = self.client.get(reverse('health-ready'))
         self.assertEqual(response.status_code, 503)
         self.assertNotIn('internal', response.content.decode())
+
+    @override_settings(THROTTLE_REDIS_URL='redis://unused.invalid/0')
+    def test_readiness_hides_redis_error(self):
+        from redis.exceptions import ConnectionError
+        with patch('api.rate_limit.redis_client') as client:
+            client.return_value.ping.side_effect = ConnectionError('internal secret address')
+            response = self.client.get(reverse('health-ready'))
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.json(), {'status': 'unavailable'})

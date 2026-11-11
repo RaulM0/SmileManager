@@ -1,5 +1,6 @@
 import { api, getClinicContext } from "../api/client";
-import type { ComparativeStudy, Consent, Consultation, MedicalHistory, OdontogramData, Paginated } from "../types/domain";
+import type { ComparativeStudy, Consultation, MedicalHistory, OdontogramData, Paginated } from "../types/domain";
+import type { ConsentWorkspace, ConsentEvidence } from '../types/compliance';
 
 export const clinicalService = {
   medicalHistory: (patientId: string) => api<MedicalHistory>(`patients/${patientId}/medical-history/`),
@@ -21,6 +22,6 @@ export const clinicalService = {
   saveOdontogram: (patientId: string, values: OdontogramData & { resumen: Record<string, number> }) => api<OdontogramData>(`patients/${patientId}/odontogram/`, { method: "PUT", body: JSON.stringify(values) }),
   comparativeStudy: (patientId: string) => api<ComparativeStudy>(`patients/${patientId}/comparative-study/`),
   saveComparativeStudy: (patientId: string, data: FormData) => api<ComparativeStudy>(`patients/${patientId}/comparative-study/`, { method: "PUT", body: data }),
-  consent: (patientId: string) => api<Consent>(`patients/${patientId}/consent/`),
-  saveConsent: (patientId: string, data: FormData) => api<Consent>(`patients/${patientId}/consent/`, { method: "POST", body: data }),
+  consent: (patientId: string) => api<ConsentWorkspace>(`patients/${patientId}/consent/`),
+  saveConsent: (patientId: string, data: FormData) => api<ConsentEvidence>(`patients/${patientId}/consent/`, { method: "POST", body: data }),
 };

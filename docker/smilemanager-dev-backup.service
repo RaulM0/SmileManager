@@ -1,0 +1,10 @@
+[Unit]
+Description=Encrypted SmileManager development backup
+After=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/repos/SmileManager
+ExecStart=/usr/bin/python3 %h/repos/SmileManager/scripts/dev_backup.py create
+UMask=0077
+TimeoutStartSec=15min

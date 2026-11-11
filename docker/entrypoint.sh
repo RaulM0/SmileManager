@@ -1,5 +1,15 @@
 #!/bin/sh
 set -eu
-python manage.py migrate --noinput
-python manage.py collectstatic --noinput
+
+case "${1:-}" in
+    runserver)
+        python manage.py migrate --noinput
+        set -- python manage.py "$@"
+        ;;
+    gunicorn)
+        python manage.py migrate --noinput
+        python manage.py collectstatic --noinput
+        ;;
+esac
+
 exec "$@"

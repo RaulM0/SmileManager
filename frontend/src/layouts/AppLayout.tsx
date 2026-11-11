@@ -154,6 +154,7 @@ export default function AppLayout({ clinics = [], activeClinic = null, onClinicC
             {(user?.username || "U").slice(0, 1).toUpperCase()}
           </span>
           <span className="workspace-user-name">{user?.username}</span>
+          <NavLink to="/security" className="workspace-logout"><i className="bi bi-shield-lock" aria-hidden="true" /><span>Mi seguridad</span></NavLink>
           <button className="workspace-logout" type="button" onClick={handleLogout}>
             <i className="bi bi-box-arrow-right" aria-hidden="true" />
             <span>Salir</span>

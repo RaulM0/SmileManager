@@ -19,8 +19,24 @@ from . import platform_clinics
 from . import tenant_admin
 from . import tenant_contact
 from . import tenant_staff
+from . import auth_security
+from . import privacy, clinical_documents
+from . import tenant_consent_evidence
 
 urlpatterns = [
+    path('privacy/<slug:clinic_slug>/', privacy.PublicNotice.as_view(), name='public-privacy-notice'),
+    path('clinics/privacy/', privacy.ClinicNotice.as_view(), name='clinic-privacy-notice'),
+    path('clinics/admin/privacy/', privacy.PublishNotice.as_view(), name='publish-privacy-notice'),
+    path('clinics/admin/consent-templates/', privacy.Templates.as_view(), name='consent-templates'),
+    path('clinics/consultations/<int:consultation_id>/<str:operation>/', clinical_documents.ConsultationAttestation.as_view(), name='consultation-attestation'),
+    path('clinics/patients/<int:patient_id>/revisions/', clinical_documents.ClinicalRevisionList.as_view(), name='clinical-revisions'),
+    path('auth/mfa/setup/', auth_security.MFAStart.as_view(), name='auth-mfa-setup'),
+    path('auth/mfa/verify/', auth_security.MFAFinish.as_view(), name='auth-mfa-verify'),
+    path('auth/reauthenticate/', auth_security.Reauthenticate.as_view(), name='auth-reauthenticate'),
+    path('auth/sessions/', auth_security.SessionList.as_view(), name='auth-sessions'),
+    path('auth/sessions/revoke-others/', auth_security.RevokeOtherSessions.as_view(), name='auth-revoke-other-sessions'),
+    path('auth/profile/', auth_security.OwnProfile.as_view(), name='auth-own-profile'),
+    path('auth/sessions/<uuid:session_id>/revoke/', auth_security.SessionRevoke.as_view(), name='auth-session-revoke'),
     path('clinics/staff/patients/', tenant_staff.StaffPatients.as_view(), name='tenant-staff-patients'),
     path('clinics/staff/appointments/', tenant_staff.StaffAppointments.as_view(), name='tenant-staff-appointments'),
     path('clinics/staff/appointments/<int:pk>/', tenant_staff.StaffAppointmentDetail.as_view(), name='tenant-staff-appointment-detail'),
@@ -42,7 +58,9 @@ urlpatterns = [
     path('clinics/patients/<int:patient_id>/odontogram/', tenant_clinical_records.TenantOdontogram.as_view(), name='tenant-odontogram'),
     path('clinics/patients/<int:patient_id>/consultations/', tenant_consultations.TenantConsultations.as_view(), name='tenant-consultations'),
     path('clinics/patients/<int:patient_id>/clinical-images/', tenant_images.TenantClinicalImages.as_view(), name='tenant-clinical-images'),
-    path('clinics/patients/<int:patient_id>/consent/', tenant_consents.TenantConsent.as_view(), name='tenant-consent'),
+    path('clinics/patients/<int:patient_id>/consent/', tenant_consent_evidence.TenantEvidence.as_view(), name='tenant-consent'),
+    path('clinics/patients/<int:patient_id>/consent/records/<int:evidence_id>/file/', tenant_consent_evidence.EvidenceFile.as_view(), name='consent-evidence-file'),
+    path('clinics/patients/<int:patient_id>/consent/records/<int:evidence_id>/revoke/', tenant_consent_evidence.RevokeEvidence.as_view(), name='consent-evidence-revoke'),
     path('clinics/patients/<int:patient_id>/consent/<str:kind>/file/', tenant_consents.TenantConsentFile.as_view(), name='tenant-consent-file'),
     path('clinics/patients/<int:patient_id>/comparative-study/', tenant_studies.TenantComparativeStudy.as_view(), name='tenant-comparative-study'),
     path('clinics/patients/<int:patient_id>/comparative-study/pdf/', tenant_studies.TenantStudyPDF.as_view(), name='tenant-study-pdf'),

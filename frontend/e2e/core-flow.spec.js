@@ -353,6 +353,10 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   ).toBeVisible();
   await expect(page.getByText("DIAGNOSTICO E2E")).toBeVisible();
   const prescriptionPath = new URL(page.url()).pathname;
+  await expect(page.getByRole('button', { name: 'Descargar PDF / Imprimir' })).toBeDisabled();
+  await page.getByLabel('Confirma tu contraseña').fill('e2e_password_123');
+  await page.getByRole('button', { name: 'Confirmar cierre' }).click();
+  await expect(page.getByText(/Documento cerrado/)).toBeVisible();
   await page.evaluate(() => { window.__printCalled = false; window.print = () => { window.__printCalled = true; }; });
   await page.getByRole("button", { name: "Descargar PDF / Imprimir" }).click();
   expect(await page.evaluate(() => window.__printCalled)).toBe(true);
@@ -536,12 +540,10 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
   expect((await pdfPromise).suggestedFilename()).toMatch(/^Estudio_.*\.pdf$/);
 
   await page.goto(`/app/patients/${patientId}/consent`);
-  await page.getByLabel("He leído y acepto los términos.").check();
-  await expectTabSequence(page, [
-    page.getByLabel("He leído y acepto los términos."),
-    page.getByLabel("Identificación oficial"),
-  ]);
-  await page.getByLabel("Identificación oficial").setInputFiles(tinyImage);
+  await page.getByLabel('Nombre completo del firmante').fill('Paciente Sintético');
+  await page.getByLabel('Fecha de firma').fill('2026-01-01');
+  await page.getByLabel(/Verifiqué el documento firmado/).check();
+  await page.getByLabel('Documento firmado completo').setInputFiles(tinyImage);
   await expectResponsiveWidths(page);
   await captureFormVariants(page, "redesign-consent-form");
   let rejectConsentSave = true;
@@ -551,21 +553,21 @@ test("flujo clínico completo de React contra la API", async ({ page }) => {
       await route.fulfill({
         status: 400,
         contentType: "application/json",
-        body: JSON.stringify({ archivo_ine: ["La identificación no se pudo validar."] }),
+        body: JSON.stringify({ signed_document: ["El documento no se pudo validar."] }),
       });
       return;
     }
     await route.continue();
   });
-  await page.getByRole("button", { name: "Aceptar y guardar" }).click();
-  const identityInput = page.getByLabel("Identificación oficial");
+  await page.getByRole("button", { name: "Registrar evidencia" }).click();
+  const identityInput = page.getByLabel("Documento firmado completo");
   await expect(identityInput).toHaveAttribute("aria-invalid", "true");
-  await expect(identityInput).toHaveAttribute("aria-describedby", "ine-help ine-error");
-  await expect(page.locator("#ine-error")).toHaveText("La identificación no se pudo validar.");
-  await page.getByRole("button", { name: "Aceptar y guardar" }).click();
+  await expect(identityInput).toHaveAttribute("aria-describedby", "document-help document-error");
+  await expect(page.locator("#document-error")).toHaveText("El documento no se pudo validar.");
+  await page.getByRole("button", { name: "Registrar evidencia" }).click();
   await page.unroute(`**/api/v1/clinics/patients/${patientId}/consent/`);
   await expect(
-    page.getByRole("heading", { name: "Consentimiento aceptado" }),
+    page.getByText("Evidencia documental registrada."),
   ).toBeVisible();
 
   let rejectDiagnosticsList = true;

@@ -1,30 +1,23 @@
-"""Tenant-scoped consent acceptance and protected document access."""
-import logging
+"""Read-only historical consent records and protected document access."""
 import os
 
-from django.core.exceptions import ValidationError as DjangoValidationError
-from django.db import transaction
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
-from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from Pacientes.models import Consentimiento
 from .policies import consistent_or_404
+from .services.file_inspection import require_clean
+from .services.document_integrity import file_digest
 from .serializers import ConsentSerializer
 from .services.clinical_records import ClinicalDataConflict
 from .tenant_consultations import patient_for
 from .tenant_patients import TenantClinicalContextMixin
-from .upload_policy import validate_upload
-from .services.consent_pdf import attach_consent_pdf
 
-logger = logging.getLogger(__name__)
 
 
 class TenantConsentSerializer(ConsentSerializer):
@@ -55,51 +48,6 @@ class TenantConsent(TenantConsentMixin, APIView):
         self.record(patient, 'TENANT_CONSENT_VIEWED')
         return Response(data)
 
-    def post(self, request, patient_id):
-        consent = None
-        old_name = None
-        new_upload_assigned = False
-        old_pdf_name = None
-        try:
-            with transaction.atomic():
-                self.lock_context()
-                if any(field in request.data for field in ('clinic', 'clinic_id', 'medico', 'medico_id', 'paciente', 'paciente_id')):
-                    raise ValidationError({'detail': 'La clínica, el médico y el paciente se asignan desde el contexto autorizado.'})
-                patient = patient_for(request, self.membership.clinic_id, patient_id, lock=True)
-                consent = self.consent_for(patient, lock=True) or Consentimiento(paciente=patient, medico=request.user, texto='')
-                old_name = consent.archivo_ine.name if consent.archivo_ine else None
-                old_pdf_name = consent.pdf_generado.name if consent.pdf_generado else None
-                if consent.fecha_aceptacion:
-                    return Response({'detail': 'El consentimiento ya fue aceptado.'}, status=409)
-                uploaded = request.FILES.get('archivo_ine')
-                if uploaded is None:
-                    return Response({'archivo_ine': ['Este archivo es obligatorio.']}, status=400)
-                try:
-                    validate_upload(uploaded, allow_pdf=True)
-                except DjangoValidationError as exc:
-                    return Response({'archivo_ine': exc.messages}, status=400)
-                text = serializers.CharField(allow_blank=True, max_length=100000).run_validation(request.data.get('texto', ''))
-                consent.texto = text
-                consent.archivo_ine = uploaded
-                new_upload_assigned = True
-                consent.fecha_aceptacion = timezone.now()
-                attach_consent_pdf(consent)
-                consent.save()
-                self.record(patient, 'TENANT_CONSENT_ACCEPTED')
-                data = TenantConsentSerializer(consent).data
-        except Exception:
-            if consent is not None and consent.pdf_generado and consent.pdf_generado._committed and consent.pdf_generado.name != old_pdf_name:
-                try:
-                    consent.pdf_generado.delete(save=False)
-                except Exception:
-                    logger.exception('No fue posible limpiar un PDF de consentimiento después de un error de transacción.')
-            if new_upload_assigned and consent is not None and consent.archivo_ine and consent.archivo_ine._committed and consent.archivo_ine.name != old_name:
-                try:
-                    consent.archivo_ine.delete(save=False)
-                except Exception:
-                    logger.exception('No fue posible limpiar un archivo de consentimiento después de un error de transacción.')
-            raise
-        return Response(data)
 
 
 @method_decorator(never_cache, name='dispatch')
@@ -117,6 +65,7 @@ class TenantConsentFile(TenantConsentMixin, APIView):
         except FileNotFoundError:
             return Response({'detail': 'Archivo no disponible.'}, status=404)
         try:
+            require_clean(file.name, file_digest(opened))
             self.record(patient, 'TENANT_CONSENT_FILE_VIEWED')
         except Exception:
             opened.close()

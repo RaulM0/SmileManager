@@ -16,7 +16,7 @@ const python = process.env.SMILE_E2E_PYTHON || resolve(
 const manage = resolve(root, "manage.py");
 export default async function globalSetup() {
   if (process.env.SMILE_E2E_EXTERNAL === '1') {
-    process.env.SMILE_E2E_MAIL_DIR = join(root, '.e2e-browser-mail');
+    process.env.SMILE_E2E_MAIL_DIR = process.env.SMILE_E2E_MAIL_DIR || join(root, '.e2e-browser-mail');
     for (const name of readdirSync(process.env.SMILE_E2E_MAIL_DIR)) {
       if (name.endsWith('.log')) unlinkSync(join(process.env.SMILE_E2E_MAIL_DIR, name));
     }

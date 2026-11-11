@@ -3,14 +3,19 @@ import type { FormEvent } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
-import { getErrorMessage } from "../api/client";
+import { api, getErrorMessage } from "../api/client";
+import type { LoginResult } from '../types/domain';
 
 export default function LoginPage() {
-  const { user, loading, login } = useAuth();
+  const { user, loading, login, completeLogin } = useAuth();
   const toast = useToast();
   const [form, setForm] = useState({ username: "", password: "" });
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [challenge, setChallenge] = useState('');
+  const [setupSecret, setSetupSecret] = useState('');
+  const [code, setCode] = useState('');
+  const [recoveryResult, setRecoveryResult] = useState<LoginResult | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const requestedLocation = location.state?.from;
@@ -23,7 +28,24 @@ export default function LoginPage() {
     if (submitting) return;
     setSubmitting(true);
     try {
-      await login(form.username, form.password);
+      if (challenge) {
+        const result = await api<LoginResult>('auth/mfa/verify/', { method: 'POST', body: JSON.stringify({ challenge, code }) });
+        setCode('');
+        setSetupSecret('');
+        if (result.recovery_codes?.length) { setRecoveryResult(result); return; }
+        completeLogin(result);
+      } else {
+        const result = await login(form.username, form.password);
+        setForm((previous) => ({ ...previous, password: '' }));
+        if (result.mfa_required && result.challenge) {
+          setChallenge(result.challenge);
+          if (result.enrollment_required) {
+            const setup = await api<{ secret: string }>('auth/mfa/setup/', { method: 'POST', body: JSON.stringify({ challenge: result.challenge }) });
+            setSetupSecret(setup.secret);
+          }
+          return;
+        }
+      }
       toast.success("Sesión iniciada.");
       navigate(returnTo, { replace: true });
     } catch (requestError) {
@@ -53,7 +75,20 @@ export default function LoginPage() {
             <p>Ingrese sus credenciales para acceder al sistema</p>
             {requestedLocation?.pathname === "/invitations/accept" && requestedLocation.hash &&
               <p>¿Aún no tienes cuenta? <Link to={{ pathname: "/invitations/register", hash: requestedLocation.hash }}>Crear cuenta con la invitación</Link></p>}
-            <form onSubmit={submit}>
+            {recoveryResult ? <section aria-label="Códigos de recuperación">
+              <h3>Guarda tus códigos de recuperación</h3><p>Cada código permite un solo uso junto con tu contraseña. Se muestran una sola vez; consérvalos en un lugar privado.</p>
+              <ul>{recoveryResult.recovery_codes?.map((value) => <li key={value}><code>{value}</code></li>)}</ul>
+              <button className="clinical-form-submit" onClick={() => { completeLogin(recoveryResult); setRecoveryResult(null); navigate(returnTo, { replace: true }); }}>He guardado los códigos</button>
+            </section> : <form onSubmit={submit}>
+              {challenge ? <section aria-label="Segundo factor">
+                <h3>{setupSecret ? 'Configura tu autenticador' : 'Verifica tu identidad'}</h3>
+                {setupSecret && <><p>Agrega una cuenta TOTP en tu aplicación autenticadora con esta clave. El código cambia cada 30 segundos.</p><code aria-label="Clave del autenticador">{setupSecret}</code></>}
+                <label className="clinical-form-label" htmlFor="mfa-code">Código del autenticador o de recuperación</label>
+                <input id="mfa-code" className="clinical-form-control" autoComplete="one-time-code" required value={code} maxLength={128} onChange={(event) => setCode(event.target.value)} />
+                <p>Si el código ya fue utilizado, espera al siguiente. La verificación vence en cinco minutos.</p>
+                <button className="clinical-form-submit" disabled={submitting}>{submitting ? 'Verificando…' : 'Verificar'}</button>
+                <button type="button" disabled={submitting} onClick={() => { setChallenge(''); setSetupSecret(''); setCode(''); }}>Volver al inicio de sesión</button>
+              </section> : <>
               <div className="clinical-form-field">
                 <label className="clinical-form-label" htmlFor="username">Usuario</label>
                 <input
@@ -94,11 +129,12 @@ export default function LoginPage() {
               <button disabled={submitting} className="clinical-form-submit co-mt-5 co-w-full">
                 {submitting ? <><span className="clinical-form-spinner" aria-hidden="true" />Iniciando sesión…</> : <><i className="bi bi-box-arrow-in-right" aria-hidden="true" />Iniciar sesión</>}
               </button>
-            </form>
+              </>}
+            </form>}
           </div>
         </main>
       </div>
-      <p className="login-security-note"><i className="bi bi-shield-check" aria-hidden="true" />Sistema seguro · Protegido con encriptación</p>
+      <p className="login-security-note"><i className="bi bi-shield-check" aria-hidden="true" />Información clínica · Acceso exclusivo de personal autorizado</p>
     </div>
   );
 }

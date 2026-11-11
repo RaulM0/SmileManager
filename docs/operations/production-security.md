@@ -9,4 +9,4 @@ Configurar `SECRET_KEY` fuerte y exclusiva, `DATABASE_URL`, `AWS_STORAGE_BUCKET_
 `check --deploy` aislado emitió W005 y W021: subdominios y preload no se activan sin verificación de infraestructura. No fueron silenciados. Verificar backups y restauración según [plan](backup-recovery-plan.md). La configuración segura de Django no demuestra cumplimiento legal ni seguridad del proveedor.
 # Recuperación de contraseña
 
-La recuperación requiere `FRONTEND_URL` HTTPS, remitente y SMTP configurados. La entrega síncrona puede filtrar diferencias temporales y el throttling de aplicación no equivale a un control distribuido. Revisar la lista de infraestructura y límites de revocación en [recuperación de contraseña](../security/password-recovery.md).
+La recuperación requiere `FRONTEND_URL` HTTPS, remitente y SMTP configurados. La entrega síncrona puede filtrar diferencias temporales. Los límites compartidos Redis no sustituyen protección perimetral. Revisar [recuperación de contraseña](../security/password-recovery.md) y los requisitos de claves, PostgreSQL, migración y MFA de la [etapa 2](../security/etapa-2-resultados.md).

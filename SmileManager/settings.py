@@ -1,5 +1,8 @@
 # Produccion
 import os
+import base64
+import hashlib
+from ipaddress import ip_network
 from datetime import timedelta
 from pathlib import Path
 import dj_database_url
@@ -73,6 +76,8 @@ WSGI_APPLICATION = 'SmileManager.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
 }
+if not _local_settings and DATABASES['default'].get('ENGINE') != 'django.db.backends.postgresql':
+    raise ImproperlyConfigured('Producción requiere PostgreSQL para los controles de integridad documental.')
 if DATABASES['default'].get('ENGINE') == 'django.db.backends.postgresql':
     DATABASES['default'].setdefault('OPTIONS', {}).setdefault('connect_timeout', int(os.environ.get('DB_CONNECT_TIMEOUT', '10')))
 
@@ -176,12 +181,25 @@ PASSWORD_RESET_TIMEOUT = max(1, int(os.environ.get('PASSWORD_RESET_TIMEOUT', '18
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 1800
 
+# Shared atomic throttling is mandatory in production; local/test may use DRF's
+# in-process cache. Use a private Redis instance, persistent state and no eviction.
+THROTTLE_REDIS_URL = os.environ.get('THROTTLE_REDIS_URL', '')
+THROTTLE_KEY_PREFIX = 'smile:throttle:v1'
+THROTTLE_TRUSTED_PROXIES = [value.strip() for value in os.environ.get('THROTTLE_TRUSTED_PROXIES', '').split(',') if value.strip()]
+try:
+    if any(ip_network(cidr).prefixlen == 0 for cidr in THROTTLE_TRUSTED_PROXIES):
+        raise ValueError
+except ValueError:
+    raise ImproperlyConfigured('THROTTLE_TRUSTED_PROXIES requiere redes explícitas; no se permite confiar en todo Internet.') from None
+if not _local_settings and not THROTTLE_REDIS_URL.startswith(('redis://', 'rediss://')):
+    raise ImproperlyConfigured('Producción requiere THROTTLE_REDIS_URL para límites compartidos.')
+
 # Login
 LOGIN_URL = '/app/login'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'api.authentication.SessionJWTAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
@@ -189,6 +207,8 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'authentication': os.environ.get('THROTTLE_AUTH', '30/min'),
         'authentication_account': os.environ.get('THROTTLE_ACCOUNT', '10/min'),
+        'mfa_challenge': '5/min',
+        'reauthentication': os.environ.get('THROTTLE_REAUTH', '5/min'),
         'password_reset_ip': os.environ.get('THROTTLE_PASSWORD_RESET_IP', '10/hour'),
         'password_reset_account': os.environ.get('THROTTLE_PASSWORD_RESET_ACCOUNT', '3/hour'),
         'password_reset_confirm': os.environ.get('THROTTLE_PASSWORD_RESET_CONFIRM', '20/hour'),
@@ -197,6 +217,26 @@ REST_FRAMEWORK = {
         'export': os.environ.get('THROTTLE_EXPORT', '10/min'),
     },
 }
+
+AUTH_IDLE_SECONDS = 1800
+AUTH_ABSOLUTE_SECONDS = 28800
+AUTH_REAUTH_SECONDS = 300
+DOCUMENT_SEAL_KEYS = [value.strip() for value in os.environ.get('DOCUMENT_SEAL_KEYS', '').split(',') if value.strip()]
+if _local_settings and not DOCUMENT_SEAL_KEYS:
+    DOCUMENT_SEAL_KEYS = ['local-test-only-document-seal-not-for-production']
+if not DOCUMENT_SEAL_KEYS or any(len(value) < 32 for value in DOCUMENT_SEAL_KEYS):
+    raise ImproperlyConfigured('Producción requiere DOCUMENT_SEAL_KEYS de al menos 32 caracteres.')
+MFA_ENCRYPTION_KEYS = [key.strip() for key in os.environ.get('MFA_ENCRYPTION_KEYS', '').split(',') if key.strip()]
+if _local_settings and not MFA_ENCRYPTION_KEYS:
+    MFA_ENCRYPTION_KEYS = [base64.urlsafe_b64encode(hashlib.sha256(b'local-test-only-mfa-key').digest()).decode()]
+if not MFA_ENCRYPTION_KEYS:
+    raise ImproperlyConfigured('Producción requiere MFA_ENCRYPTION_KEYS para custodiar el segundo factor.')
+from cryptography.fernet import Fernet
+try:
+    for _mfa_key in MFA_ENCRYPTION_KEYS:
+        Fernet(_mfa_key.encode())
+except (ValueError, TypeError):
+    raise ImproperlyConfigured('MFA_ENCRYPTION_KEYS contiene una clave inválida.') from None
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
@@ -228,3 +268,17 @@ LOGGING = {
 # Solo habilitar cuando el proxy confiable elimine y establezca este encabezado.
 if os.environ.get('TRUST_PROXY_HTTPS_HEADER') == 'true':
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Independent operational keys; development fallbacks never authorize production.
+AUDIT_SIGNING_KEYS = [key.strip() for key in os.environ.get('AUDIT_SIGNING_KEYS', '').split(',') if key.strip()]
+FILE_SCAN_KEYS = [key.strip() for key in os.environ.get('FILE_SCAN_KEYS', '').split(',') if key.strip()]
+for _name in ('AUDIT_SIGNING_KEYS', 'FILE_SCAN_KEYS'):
+    _keys = globals()[_name]
+    if not _keys and _local_settings:
+        _keys.append('development-only-' + _name + '-replace-before-production')
+    if not _keys or any(len(key) < 32 for key in _keys):
+        raise ImproperlyConfigured(_name + ' requires keys of at least 32 characters.')
+AUDIT_COLLECTOR_URL = os.environ.get('AUDIT_COLLECTOR_URL', '')
+AUDIT_INGEST_TOKEN = os.environ.get('AUDIT_INGEST_TOKEN', '')
+CLAMAV_HOST = os.environ.get('CLAMAV_HOST', '')
+CLAMAV_PORT = int(os.environ.get('CLAMAV_PORT', '3310'))

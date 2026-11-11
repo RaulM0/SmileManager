@@ -69,8 +69,7 @@ class ClinicalIntegrityTests(APITestCase):
         history = save_record(user=self.user, clinic_id=clinic.pk, patient_id=self.patient.pk, model=AntescedentesMedicos, changes={'otros': 'sintetico'}, expected_version=0)
         revision = ClinicalRevision.objects.get(resource_type='medical_history', resource_id=history.pk)
         self.assertEqual(revision.clinic_id, clinic.pk)
-        revision.clinic = other
-        revision.save(update_fields=['clinic'])
+        ClinicalRevision.objects.create(clinic=other, patient=self.patient, resource_type='medical_history', resource_id=history.pk, version=99, snapshot={})
         with self.assertRaises(ClinicalDataConflict):
             save_record(user=self.user, clinic_id=clinic.pk, patient_id=self.patient.pk, model=AntescedentesMedicos, changes={'otros': 'cambio'}, expected_version=1)
         history.refresh_from_db()

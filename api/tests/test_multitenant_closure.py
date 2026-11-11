@@ -121,12 +121,17 @@ class MultitenantClosureTests(APITestCase):
             self.assertEqual(self.client.get(reverse('tenant-staff-appointments'), **self.headers).status_code, 403)
 
     def test_consent_generates_private_pdf_and_cross_clinic_download_is_denied(self):
-        upload = SimpleUploadedFile('identity.pdf', b'%PDF-1.4\nsynthetic\n%%EOF', content_type='application/pdf')
-        response = self.client.post(reverse('tenant-consent', args=[self.patient_a.pk]), {'texto': 'Consentimiento <seguro>', 'archivo_ine': upload}, format='multipart', **self.headers)
-        self.assertEqual(response.status_code, 200, response.data)
-        consent = Consentimiento.objects.get(paciente=self.patient_a)
-        self.assertTrue(consent.pdf_generado.name.startswith(f'tenants/{self.a.pk}/patients/{self.patient_a.pk}/consents/documents/'))
-        url = reverse('tenant-consent-file', args=[self.patient_a.pk, 'pdf'])
+        from .document_fixtures import publish_documents, evidence_values, signed_pdf_bytes, scan_test_documents
+        from Pacientes.models import ConsentEvidence
+        _, template = publish_documents(self.a, self.doctor)
+        upload = SimpleUploadedFile('identity.pdf', signed_pdf_bytes(), content_type='application/pdf')
+        response = self.client.post(reverse('tenant-consent', args=[self.patient_a.pk]), evidence_values(template, upload), format='multipart', **self.headers)
+        self.assertEqual(response.status_code, 201, response.data)
+        consent = ConsentEvidence.objects.get(patient=self.patient_a)
+        self.assertTrue(consent.signed_document.name.startswith(f'tenants/{self.a.pk}/patients/{self.patient_a.pk}/consents/evidence/'))
+        url = reverse('consent-evidence-file', args=[self.patient_a.pk, consent.pk])
+        self.assertEqual(self.client.get(url, **self.headers).status_code, 423)
+        scan_test_documents()
         response = self.client.get(url, **self.headers)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(b''.join(response.streaming_content).startswith(b'%PDF-'))

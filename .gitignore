@@ -39,3 +39,13 @@ uploads/
 *.env
 .env.*
 !.env.example
+
+.local-backups/
+
+# Obsidian: configuración compartida, estado personal fuera de Git.
+.obsidian/workspace*.json
+.obsidian/cache/
+.obsidian/plugins/
+.obsidian/appearance.json
+.obsidian/hotkeys.json
+.trash/

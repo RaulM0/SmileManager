@@ -1,10 +1,12 @@
 import { expect, test } from '@playwright/test';
+import { completeMFA, loginAPI } from './mfa-helper.js';
 
 test('administración operativa y acceso denegado a usuario normal', async ({ page }) => {
   await page.goto('login');
   await page.getByLabel('Usuario').fill('e2e_system_admin');
   await page.getByLabel('Contraseña', { exact: true }).fill('e2e_password_123');
   await page.getByRole('button', { name: 'Iniciar sesión' }).click();
+  await completeMFA(page, 'e2e_system_admin');
   await page.getByRole('link', { name: 'Administración', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Resumen del sistema' })).toBeVisible();
   await page.getByRole('link', { name: 'Usuarios', exact: true }).click();
@@ -18,20 +20,19 @@ test('administración operativa y acceso denegado a usuario normal', async ({ pa
   await page.getByRole('link', { name: 'Usuarios', exact: true }).click();
   await page.getByLabel('Buscar usuario').fill('e2e_other_doctor');
   await page.getByRole('button', { name: 'Buscar' }).click();
-  await page.getByRole('link', { name: 'e2e_other_doctor' }).click();
+  await page.getByRole('row').filter({ hasText: 'e2e_other_doctor' }).getByRole('link', { name: 'Ver usuario' }).click();
   await expect(page.getByRole('link', { name: 'Ver pacientes asociados' })).toHaveCount(0);
-  const adminLogin = await page.request.post('/api/v1/auth/login/', { data: { username: 'e2e_system_admin', password: 'e2e_password_123' } });
-  const adminToken = (await adminLogin.json()).access;
+  const adminToken = (await loginAPI(page.request, 'e2e_system_admin')).access;
   expect((await page.request.get('/api/v1/backoffice/patients/', { headers: { Authorization: `Bearer ${adminToken}` } })).status()).toBe(403);
   await page.getByRole('button', { name: 'Desactivar usuario' }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Desactivar', exact: true }).click();
   await expect(page.getByText('Estado actualizado.')).toBeVisible();
   await page.getByRole('link', { name: 'Auditoría', exact: true }).click();
-  await expect(page.getByText('USER_DEACTIVATED').first()).toBeVisible();
+  await expect(page.getByText('Desactivó una cuenta de usuario').first()).toBeVisible();
   await page.getByRole('link', { name: 'Usuarios', exact: true }).click();
   await page.getByLabel('Buscar usuario').fill('e2e_other_doctor');
   await page.getByRole('button', { name: 'Buscar' }).click();
-  await page.getByRole('link', { name: 'e2e_other_doctor' }).click();
+  await page.getByRole('row').filter({ hasText: 'e2e_other_doctor' }).getByRole('link', { name: 'Ver usuario' }).click();
   await page.getByRole('button', { name: 'Activar usuario' }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Activar', exact: true }).click();
   await expect(page.getByText('Estado actualizado.')).toBeVisible();

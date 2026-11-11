@@ -7,12 +7,13 @@ from django.core.files.storage import default_storage
 from django.core.management.base import BaseCommand, CommandError
 from django.db.models import Q
 
-from Pacientes.models import Consentimiento, EstudioComparativo, ImagenesClinicas
+from Pacientes.models import ConsentEvidence, Consentimiento, EstudioComparativo, ImagenesClinicas
 from DiagnosticosIA.models import AIAnalysisRun
 from Usuarios.models import Clinic
 
 
 FIELDS = {
+    ConsentEvidence: ('signed_document',),
     ImagenesClinicas: ('imagen', 'resultados'),
     EstudioComparativo: ('antes_oclusal_superior', 'antes_lateral_izquierda', 'antes_frontal', 'antes_lateral_derecha', 'antes_oclusal_inferior', 'despues_perfil', 'despues_semiperfil', 'despues_retrato_frontal', 'despues_retrato_sonrisa'),
     Consentimiento: ('archivo_ine', 'pdf_generado'),
@@ -55,7 +56,7 @@ class Command(BaseCommand):
             for field in fields:
                 rows = model.objects.exclude(**{field: ''}).exclude(**{field + '__isnull': True})
                 if clinic_id is not None:
-                    rows = rows.filter(paciente__clinic_id=clinic_id)
+                    rows = rows.filter(**{('clinic_id' if model is ConsentEvidence else 'paciente__clinic_id'): clinic_id})
                 for pk, name in rows.values_list('pk', field).iterator(chunk_size=500):
                     if scanned >= limit:
                         truncated = True

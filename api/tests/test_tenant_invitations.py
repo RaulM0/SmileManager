@@ -12,7 +12,7 @@ from django.core import mail
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework.exceptions import PermissionDenied, ValidationError
-from rest_framework_simplejwt.tokens import RefreshToken
+from api.authentication import SessionRefreshToken as RefreshToken
 
 from api.services.invitations import create_invitation, register_with_invitation, resolve_invitation, revoke_invitation
 from api.services.memberships import MembershipConflict
@@ -115,7 +115,7 @@ class InvitationTests(TestCase):
 
     @override_settings(TENANT_INVITATION_URL='https://example.com/app/invitations/accept')
     def test_http_delivery_and_acceptance(self):
-        admin_token = str(RefreshToken.for_user(self.admin).access_token)
+        admin_token = str(RefreshToken.for_user(self.admin, mfa_verified=True).access_token)
         response = self.client.post(reverse('clinic-invitation-create'),
             data=json.dumps({'email': self.user.email, 'role': 'DOCTOR'}), content_type='application/json',
             HTTP_AUTHORIZATION=f'Bearer {admin_token}', HTTP_X_CLINIC_ID=str(self.clinic.pk))
@@ -137,7 +137,7 @@ class InvitationTests(TestCase):
     @override_settings(TENANT_INVITATION_URL='https://example.com/app/invitations/accept')
     @patch('api.tenant_views.send_mail', return_value=0)
     def test_failed_delivery_does_not_leave_invitation(self, _send):
-        admin_token = str(RefreshToken.for_user(self.admin).access_token)
+        admin_token = str(RefreshToken.for_user(self.admin, mfa_verified=True).access_token)
         response = self.client.post(reverse('clinic-invitation-create'),
             data=json.dumps({'email': self.user.email, 'role': 'DOCTOR'}), content_type='application/json',
             HTTP_AUTHORIZATION=f'Bearer {admin_token}', HTTP_X_CLINIC_ID=str(self.clinic.pk))

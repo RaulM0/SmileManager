@@ -7,14 +7,16 @@ import {
   useState,
 } from "react";
 import type { ReactNode } from "react";
-import { api, setAccessToken, waitForAuthRefresh } from "../api/client";
-import type { SessionResponse, SessionUser } from "../types/domain";
+import { api, getErrorMessage, setAccessToken, waitForAuthRefresh } from "../api/client";
+import { ConfirmDialog } from '../components/ConfirmDialog';
+import type { LoginResult, SessionResponse, SessionUser } from "../types/domain";
 import { queryClient } from "../query/client";
 
 interface AuthValue {
   user: SessionUser | null;
   loading: boolean;
-  login: (username: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<LoginResult>;
+  completeLogin: (result: LoginResult) => void;
   logout: () => Promise<void>;
 }
 
@@ -23,6 +25,21 @@ const AuthContext = createContext<AuthValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<SessionUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [reauth, setReauth] = useState(false);
+  const [reauthForm, setReauthForm] = useState({ password: '', code: '' });
+  const [reauthError, setReauthError] = useState('');
+  const [reauthBusy, setReauthBusy] = useState(false);
+  useEffect(() => {
+    const open = () => { setReauthError(''); setReauth(true); };
+    window.addEventListener('smile:reauth-required', open);
+    return () => window.removeEventListener('smile:reauth-required', open);
+  }, []);
+  const completeLogin = useCallback((result: LoginResult) => {
+    if (!result.access || !result.user) throw new Error('Respuesta de autenticación incompleta.');
+    queryClient.clear();
+    setAccessToken(result.access);
+    setUser(result.user);
+  }, []);
 
   const refreshSession = useCallback(async () => {
     const session = await api<SessionResponse>("auth/session/");
@@ -44,22 +61,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [refreshSession]);
 
   useEffect(() => {
-    const expire = () => { setAccessToken(null); queryClient.clear(); setUser(null); };
+    const expire = () => { setAccessToken(null); queryClient.clear(); setUser(null); setReauth(false); setReauthForm({ password: '', code: '' }); };
     window.addEventListener("smile:auth-expired", expire);
     return () => window.removeEventListener("smile:auth-expired", expire);
   }, []);
 
   const login = useCallback(
     async (username: string, password: string) => {
-      const result = await api<{ access: string; user: SessionUser }>("auth/login/", {
+      const result = await api<LoginResult>("auth/login/", {
         method: "POST",
         body: JSON.stringify({ username, password }),
       });
-      queryClient.clear();
-      setAccessToken(result.access);
-      setUser(result.user);
+      if (result.authenticated) completeLogin(result);
+      return result;
     },
-    [],
+    [completeLogin],
   );
 
   const logout = useCallback(async () => {
@@ -71,10 +87,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, loading, login, logout }),
-    [user, loading, login, logout],
+    () => ({ user, loading, login, completeLogin, logout }),
+    [user, loading, login, completeLogin, logout],
   );
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  async function confirmIdentity() {
+    if (reauthBusy) return;
+    if (!reauthForm.password) { setReauthError('Ingresa tu contraseña.'); return; }
+    setReauthBusy(true);
+    try {
+      await api('auth/reauthenticate/', { method: 'POST', body: JSON.stringify(reauthForm) });
+      setReauth(false);
+      setReauthForm({ password: '', code: '' });
+      setReauthError('');
+    } catch (error) { setReauthError(getErrorMessage(error)); }
+    finally { setReauthBusy(false); }
+  }
+  return <AuthContext.Provider value={value}>{children}
+    {reauth && user && <ConfirmDialog title="Confirma tu identidad" confirmLabel="Confirmar identidad" busy={reauthBusy} onConfirm={() => void confirmIdentity()} onClose={() => { setReauth(false); setReauthForm({ password: '', code: '' }); }}>
+      <p>Después de confirmar, vuelve a enviar la operación que estabas realizando.</p>
+      <label htmlFor="reauth-password">Contraseña</label><input id="reauth-password" className="clinical-form-control" type="password" autoComplete="current-password" value={reauthForm.password} onChange={(event) => setReauthForm({ ...reauthForm, password: event.target.value })} />
+      {user.mfa_enabled && <><label htmlFor="reauth-code">Código del autenticador o de recuperación</label><input id="reauth-code" className="clinical-form-control" autoComplete="one-time-code" value={reauthForm.code} onChange={(event) => setReauthForm({ ...reauthForm, code: event.target.value })} /></>}
+      {reauthError && <p role="alert">{reauthError}</p>}
+    </ConfirmDialog>}
+  </AuthContext.Provider>;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components

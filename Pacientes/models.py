@@ -3,6 +3,8 @@ import uuid
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 class Paciente(models.Model):
     # Nullable during expand/backfill. Existing ownership cannot safely be inferred.
@@ -92,6 +94,21 @@ class Consulta(models.Model):
     diagnostico = models.TextField(blank=True, null=True)
     tratamiento = models.TextField(blank=True, null=True)
     observaciones = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=8, choices=[('DRAFT', 'Borrador'), ('CLOSED', 'Cerrado'), ('LEGACY', 'Histórico')], default='DRAFT')
+    author_name = models.CharField(max_length=300, blank=True)
+    closed_at = models.DateTimeField(null=True, blank=True)
+    content_sha256 = models.CharField(max_length=64, blank=True)
+    integrity_seal = models.CharField(max_length=64, blank=True)
+
+    def save(self, *args, **kwargs):
+        if self.pk and type(self).objects.filter(pk=self.pk, status='CLOSED').exists():
+            raise ValidationError('El documento está cerrado; registra una adenda.')
+        return super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        if self.status == 'CLOSED':
+            raise ValidationError('El documento cerrado no admite borrado ordinario.')
+        return super().delete(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Consulta'
@@ -167,7 +184,10 @@ class ClinicalRevision(models.Model):
     resource_id = models.BigIntegerField()
     version = models.PositiveIntegerField()
     snapshot = models.JSONField()
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(default=timezone.now)
+    actor_name = models.CharField(max_length=300, blank=True)
+    content_sha256 = models.CharField(max_length=64, blank=True)
+    integrity_seal = models.CharField(max_length=64, blank=True)
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['resource_type', 'resource_id', 'version'], name='unique_clinical_revision')]
@@ -251,4 +271,7 @@ class Consentimiento(models.Model):
         else:
             fecha = "Sin fecha"
         return f"Consentimiento de {self.paciente.nombre} - {fecha}"
+
+
+from .documents import PrivacyNotice, ConsentTemplate, ConsentEvidence, ConsentRevocation, ConsultationAddendum  # noqa: E402,F401
 

@@ -5,6 +5,15 @@ from rest_framework.exceptions import APIException, ValidationError
 from Pacientes.models import AntescedentesMedicos, ClinicalRevision, Odontograma, Paciente
 from api.policies import clinic_clinical_queryset, consistent_or_404, scoped
 from api.services.odontogram import validate_odontogram
+from .document_integrity import seal, verify, digest
+from .document_payloads import revision_payload
+
+
+def sealed_revision(*, actor, **values):
+    revision = ClinicalRevision(actor=actor, actor_name=(actor.get_full_name() or actor.username) if actor else '', **values)
+    revision.content_sha256, revision.integrity_seal = seal(revision_payload(revision))
+    revision.save()
+    return revision
 
 
 class ConcurrentModification(APIException):
@@ -39,6 +48,11 @@ def save_record(*, user, patient_id, model, changes, expected_version, clinic_id
     obj = rows[0] if rows else model(paciente=patient, medico=user)
     if obj.version != expected_version:
         raise ConcurrentModification()
+    current_revision = ClinicalRevision.objects.filter(resource_type='medical_history' if model is AntescedentesMedicos else 'odontogram', resource_id=obj.pk, version=obj.version).first() if obj.pk else None
+    if current_revision and current_revision.content_sha256 and (
+            not verify(revision_payload(current_revision), current_revision.content_sha256, current_revision.integrity_seal)
+            or digest(current_revision.snapshot) != digest(snapshot(obj))):
+        raise ClinicalDataConflict('El expediente no coincide con su última revisión. Requiere revisión de integridad.')
     if model is Odontograma and obj.pk:
         try:
             validate_odontogram(obj.dientes_permanentes, obj.dientes_deciduos, obj.resumen_clinico)
@@ -49,12 +63,13 @@ def save_record(*, user, patient_id, model, changes, expected_version, clinic_id
             patient_id=patient.pk, clinic_id=patient.clinic_id).exists():
         raise ClinicalDataConflict('El historial de versiones requiere conciliación antes de editarse.')
     if obj.pk:
-        ClinicalRevision.objects.get_or_create(resource_type=resource_type, resource_id=obj.pk, version=obj.version,
-                                               defaults={'patient': patient, 'clinic_id': patient.clinic_id, 'actor': None, 'snapshot': snapshot(obj)})
+        if not ClinicalRevision.objects.filter(resource_type=resource_type, resource_id=obj.pk, version=obj.version).exists():
+            sealed_revision(resource_type=resource_type, resource_id=obj.pk, version=obj.version,
+                            patient=patient, clinic_id=patient.clinic_id, actor=None, snapshot=snapshot(obj))
     for key, value in changes.items():
         setattr(obj, key, value)
     obj.version += 1
     obj.save()
-    ClinicalRevision.objects.create(resource_type=resource_type, resource_id=obj.pk, version=obj.version,
-                                    patient=patient, clinic_id=patient.clinic_id, actor=user, snapshot=snapshot(obj))
+    sealed_revision(resource_type=resource_type, resource_id=obj.pk, version=obj.version,
+                    patient=patient, clinic_id=patient.clinic_id, actor=user, snapshot=snapshot(obj))
     return obj

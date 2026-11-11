@@ -4,7 +4,7 @@ from django.test import TransactionTestCase, skipUnlessDBFeature
 from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework.test import APIClient
-from rest_framework_simplejwt.tokens import RefreshToken
+from api.authentication import SessionRefreshToken as RefreshToken
 from concurrent.futures import ThreadPoolExecutor
 import threading
 from unittest.mock import patch

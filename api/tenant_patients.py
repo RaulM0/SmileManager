@@ -42,10 +42,10 @@ class TenantClinicalContextMixin:
         self.membership = lock_clinic_capability(self.request.user, self.membership.clinic_id, 'clinical.assigned')
         return self.membership.clinic
 
-    def record(self, resource, action, resource_type='patient'):
+    def record(self, resource, action, resource_type='patient', outcome='success'):
         AuditEvent.objects.create(actor=self.request.user, clinic_id=self.membership.clinic_id,
                                   action=action, resource_type=resource_type, resource_id=str(resource.pk),
-                                  request_id=self.request._request.request_id)
+                                  request_id=self.request._request.request_id, outcome=outcome)
 
 
 class TenantPatientMixin(TenantClinicalContextMixin):
