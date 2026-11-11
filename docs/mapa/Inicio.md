@@ -5,6 +5,8 @@ tags: [mapa, inicio]
 
 Este mapa conecta módulos, archivos y documentación. Abre **la raíz de SmileManager** como bóveda de Obsidian para que los enlaces al código permanezcan dentro de la bóveda.
 
+Arquitectura y límites actuales: [[docs/architecture/module-boundaries]].
+
 ## Recorrer por responsabilidad
 
 - [[docs/mapa/Configuracion]]: rutas Django y configuración por entorno.

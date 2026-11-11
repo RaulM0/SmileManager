@@ -1,7 +1,7 @@
 """Historical API contracts, mounted only by isolated compatibility tests."""
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from . import views
+from . import legacy_views as views
 
 router = DefaultRouter()
 router.register('patients', views.PatientViewSet, basename='api-patient')

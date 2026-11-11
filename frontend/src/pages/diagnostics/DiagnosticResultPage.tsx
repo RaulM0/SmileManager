@@ -32,10 +32,10 @@ export default function DiagnosticResultPage() {
       setSourceMissing(false);
       setImage(result.image);
       setDetections(result.detections);
-      queryClient.setQueryData(queryKeys.resource(`clinical-images/${id}/`), result.image);
+      queryClient.setQueryData(queryKeys.resource(`clinics/clinical-images/${id}/`), result.image);
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.diagnostics }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.protectedMedia(`clinical-images/${id}/result-file/`) }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.protectedMedia(`clinics/clinical-images/${id}/result/file/`) }),
       ]);
     } catch (err) {
       setSourceMissing(err instanceof ApiError && err.payload?.code === "source_image_missing");
@@ -76,13 +76,13 @@ export default function DiagnosticResultPage() {
         <div className="diagnostic-image-grid">
             <section className="diagnostic-image-panel" aria-label="Imagen original">
               <h2>Imagen original</h2>
-              <ProtectedImageViewer path={`clinical-images/${image.id}/file/`} />
+              <ProtectedImageViewer path={`clinics/clinical-images/${image.id}/original/file/`} />
               {sourceMissing && <><p className="clinical-form-help">La nueva carga crea un registro independiente; el registro anterior se conserva.</p><Link className="clinical-action-outline co-mt-3" to={`/patients/${image.paciente}/images/upload`}>Cargar imagen en el expediente</Link></>}
             </section>
             <section className="diagnostic-image-panel" aria-label="Imagen analizada">
               <h2>Imagen analizada</h2>
               {image.resultados_url ? (
-                <ProtectedImageViewer path={`clinical-images/${image.id}/result-file/`} />
+                <ProtectedImageViewer path={`clinics/clinical-images/${image.id}/result/file/`} />
               ) : (
                 <div className="diagnostic-image-pending">Pendiente</div>
               )}

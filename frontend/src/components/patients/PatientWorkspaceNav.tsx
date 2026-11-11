@@ -15,7 +15,7 @@ const sections: Array<[string, string, boolean?]> = [
 ];
 
 export default function PatientWorkspaceNav({ patientId }: { patientId: string }) {
-  const { data: patient } = useResource<Patient>(`patients/${patientId}/`);
+  const { data: patient } = useResource<Patient>(`clinics/patients/${patientId}/`);
   const { pathname } = useLocation();
   const linksRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLElement>(null);

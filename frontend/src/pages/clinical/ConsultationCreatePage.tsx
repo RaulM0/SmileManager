@@ -16,7 +16,7 @@ export default function ConsultationCreatePage() {
   const navigate = useNavigate();
   const toast = useToast();
   const queryClient = useQueryClient();
-  const { data: patient, error: loadError, reload } = useResource<Patient>(`patients/${id}/`);
+  const { data: patient, error: loadError, reload } = useResource<Patient>(`clinics/patients/${id}/`);
   const [form, setForm] = useState({
     motivo_consulta: "",
     diagnostico: "",
@@ -33,8 +33,8 @@ export default function ConsultationCreatePage() {
     setFieldErrors({});
     try {
       const result = await clinicalService.createConsultation(id!, form);
-      queryClient.setQueryData(queryKeys.resource(`consultations/${result.id}/`), result);
-      await queryClient.invalidateQueries({ predicate: (query) => query.queryKey[0] === 'resource' && typeof query.queryKey[1] === 'string' && query.queryKey[1].startsWith(`patients/${id}/consultations/`) });
+      queryClient.setQueryData(queryKeys.resource(`clinics/consultations/${result.id}/`), result);
+      await queryClient.invalidateQueries({ predicate: (query) => query.queryKey[0] === queryKeys.resource('')[0] && query.queryKey[1] === 'resource' && typeof query.queryKey[2] === 'string' && query.queryKey[2].startsWith(`clinics/patients/${id}/consultations/`) });
       toast.success("Consulta registrada correctamente.");
       guard.markSaved();
       navigate(params.get("continue") === "images" ? `/patients/${id}/images/upload` : `/consultations/${result.id}/prescription`);

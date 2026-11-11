@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 
 from .services.clinical_access import lock_authorized_patient
 from .services.emails import send_patient_email
-from .tenant_patients import TenantClinicalContextMixin
+from .clinic_context import TenantClinicalContextMixin
 from .throttles import EmailThrottle
 
 

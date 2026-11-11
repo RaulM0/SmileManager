@@ -14,7 +14,7 @@ function formatConsultationDate(value: string) {
 export default function ConsultationHistoryPage() {
   const { id } = useParams();
   const [page, setPage] = useState(1);
-  const { data, error, reload } = useResource<Paginated<Consultation>>(`patients/${id}/consultations/?page=${page}`);
+  const { data, error, reload } = useResource<Paginated<Consultation>>(`clinics/patients/${id}/consultations/?page=${page}`);
   const items = data?.results;
   return (
     <div className="workspace-page co-mx-auto co-max-w-[1320px]">

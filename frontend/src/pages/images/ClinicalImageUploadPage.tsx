@@ -18,7 +18,7 @@ export default function ClinicalImageUploadPage() {
   const toast = useToast();
   const queryClient = useQueryClient();
   const [consultationPage, setConsultationPage] = useState(1);
-  const { data: consultationData, error: consultationError, loading: consultationsLoading, reload } = useResource<Paginated<Consultation>>(`patients/${id}/consultations/?page=${consultationPage}`);
+  const { data: consultationData, error: consultationError, loading: consultationsLoading, reload } = useResource<Paginated<Consultation>>(`clinics/patients/${id}/consultations/?page=${consultationPage}`);
   const consultations = consultationData?.results;
   const [form, setForm] = useState<UploadForm>({
     consulta_id: "",

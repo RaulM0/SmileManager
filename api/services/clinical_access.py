@@ -2,8 +2,8 @@
 from django.shortcuts import get_object_or_404
 
 from Pacientes.models import Paciente
-from api.policies import clinic_clinical_queryset, scoped
-from api.tenant_context import lock_clinic_capability
+from Pacientes.access import clinic_clinical_queryset, scoped
+from Usuarios.clinic_context import lock_clinic_capability
 
 
 def lock_authorized_patient(*, user, patient_id, clinic_id):

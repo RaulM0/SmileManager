@@ -58,7 +58,7 @@ function AppointmentTable({ appointments, future = false }: { appointments: Appo
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const { data, error, reload } = useResource<Dashboard>("dashboard/");
+  const { data, error, reload } = useResource<Dashboard>("clinics/dashboard/");
   if (error)
     return (
       <div className="workspace-page">

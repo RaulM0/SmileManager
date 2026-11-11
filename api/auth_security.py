@@ -18,7 +18,7 @@ from Usuarios.models import AuthSession, AuditEvent, MFAChallenge, MFACredential
 from .authentication import SessionRefreshToken, requires_mfa
 from .services.mfa import challenge_id, enrollment_counter, enrollment_data, recovery_codes, verify_code
 from .throttles import AddressThrottle, MFAChallengeThrottle, ReauthenticationThrottle
-from .views import _auth_origin_allowed, _set_refresh_cookie
+from .auth_views import _auth_origin_allowed, _set_refresh_cookie
 from .serializers import SessionUserSerializer
 
 

@@ -11,7 +11,7 @@ from openpyxl import load_workbook
 from PIL import Image
 from rest_framework.test import APIClient
 
-from api.policies import scoped
+from Pacientes.access import scoped
 from api.services.exports import excel_response
 from api.throttles import AccountThrottle, ExpensiveThrottle, ExportThrottle
 from api.upload_policy import validate_upload
@@ -136,7 +136,7 @@ class FoundationTests(TestCase):
     def test_expensive_throttle_is_independent(self):
         image = ImagenesClinicas.objects.create(paciente=self.patient, medico=self.a, tipo_imagen='x', imagen=SimpleUploadedFile('test.bin', b'synthetic'))
         url = reverse('api-clinical-image-analyze', args=[image.pk])
-        with patch.object(ExpensiveThrottle, 'rate', '1/min', create=True), patch('api.views.analyze_clinical_image', return_value=[]):
+        with patch.object(ExpensiveThrottle, 'rate', '1/min', create=True), patch('api.legacy_views.analyze_clinical_image', return_value=[]):
             self.assertEqual(self.client.post(url).status_code, 200)
             self.assertEqual(self.client.post(url).status_code, 429)
             self.assertEqual(self.client.get(reverse('api-patient-detail', args=[self.patient.pk])).status_code, 200)

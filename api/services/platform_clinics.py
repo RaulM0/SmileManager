@@ -11,7 +11,7 @@ from django.utils import timezone
 from rest_framework.exceptions import PermissionDenied, ValidationError
 
 from Usuarios.models import AuditEvent, Clinic, ClinicInvitation, ClinicMembership, PlatformAdmin
-from api.policies import is_platform_admin
+from Usuarios.permissions import is_platform_admin
 from .clinics import transition_clinic
 from .invitations import _digest
 from .memberships import MembershipConflict

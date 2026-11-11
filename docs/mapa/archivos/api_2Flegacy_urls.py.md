@@ -23,6 +23,6 @@ Sin declaraciones principales detectadas por el índice estático.
 ## Dependencias internas
 
 - [[docs/mapa/archivos/api_2F__init__.py|api/__init__.py]]
-- [[docs/mapa/archivos/api_2Fviews.py|api/views.py]]
+- [[docs/mapa/archivos/api_2Flegacy_views.py|api/legacy_views.py]]
 
 Este índice resuelve imports Python y referencias relativas JS/TS; no ejecuta módulos ni representa todas las dependencias dinámicas.

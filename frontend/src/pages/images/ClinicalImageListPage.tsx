@@ -19,7 +19,7 @@ export default function ClinicalImageListPage({ searchable = false }: { searchab
   const [consultationPage, setConsultationPage] = useState(1);
   const { active: downloadActive, download } = useApiDownload();
   const listing = useQuery({ queryKey: [...queryKeys.images(id!), filters.date, filters.consultation_id, page], queryFn: () => imagesService.list(id!, filters.date, filters.consultation_id, page) });
-  const consultationQuery = useQuery({ queryKey: [...queryKeys.resource(`patients/${id}/consultations/`), consultationPage], queryFn: () => clinicalService.consultations(id!, consultationPage) });
+  const consultationQuery = useQuery({ queryKey: [...queryKeys.resource(`clinics/patients/${id}/consultations/`), consultationPage], queryFn: () => clinicalService.consultations(id!, consultationPage) });
   const items: ClinicalImage[] | undefined = listing.data?.results;
   const error = listing.error?.message ?? "";
   const consultations = consultationQuery.data?.results ?? [];
@@ -104,7 +104,7 @@ export default function ClinicalImageListPage({ searchable = false }: { searchab
               {items.map((image) => (
                 <li className="clinical-image-row" key={image.id}>
                   <ProtectedThumbnail
-                    path={`clinical-images/${image.id}/file/`}
+                    path={`clinics/clinical-images/${image.id}/original/file/`}
                     className="clinical-image-thumbnail"
                     alt={image.descripcion}
                   />
@@ -116,7 +116,7 @@ export default function ClinicalImageListPage({ searchable = false }: { searchab
                   <div className="clinical-image-actions">
                     <a className="clinical-action-primary clinical-action-compact" href={image.imagen_url} download aria-disabled={downloadActive !== null} onClick={(event) => {
                       event.preventDefault();
-                      void download(String(image.id), `clinical-images/${image.id}/file/`, `Imagen_${image.id}`);
+                      void download(String(image.id), `clinics/clinical-images/${image.id}/original/file/`, `Imagen_${image.id}`);
                     }}>
                       {downloadActive === String(image.id) ? "Preparando…" : "Descargar"}
                     </a>

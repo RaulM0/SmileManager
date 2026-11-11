@@ -1,6 +1,6 @@
 import { getClinicContext } from "../api/client";
 
-const scope = () => getClinicContext() ?? "legacy";
+const scope = () => getClinicContext() ?? "unselected";
 
 export const queryKeys = {
   resource: (path: string) => [scope(), "resource", path] as const,

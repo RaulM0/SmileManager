@@ -7,7 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 
 export default function PrescriptionPage() {
   const { id } = useParams();
-  const { data, error, reload } = useResource<Consultation>(`consultations/${id}/`);
+  const { data, error, reload } = useResource<Consultation>(`clinics/consultations/${id}/`);
   const [updated, setUpdated] = useState<Consultation | null>(null);
   const item = updated || data;
   const { user } = useAuth();

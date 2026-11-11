@@ -13,11 +13,11 @@ from rest_framework.views import APIView
 
 from Pacientes.PDF import render_pdf_progreso
 from Pacientes.models import EstudioComparativo
-from .policies import consistent_or_404
+from Pacientes.access import consistent_or_404
 from .serializers import ComparativeStudySerializer, STUDY_IMAGE_FIELDS
 from .services.clinical_records import ClinicalDataConflict
 from .tenant_consultations import patient_for
-from .tenant_patients import TenantClinicalContextMixin
+from .clinic_context import TenantClinicalContextMixin
 
 logger = logging.getLogger(__name__)
 

@@ -7,7 +7,7 @@ from django.utils import timezone
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
 
 from Usuarios.models import AuditEvent
-from api.policies import can_access_backoffice, has_backoffice_assignment, has_platform_assignment
+from Usuarios.permissions import can_access_backoffice, has_backoffice_assignment, has_platform_assignment
 
 
 class AdministrativeAccountProtected(Exception):

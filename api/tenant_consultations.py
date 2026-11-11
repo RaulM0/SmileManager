@@ -8,10 +8,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from Pacientes.models import Consulta, Paciente
-from .policies import clinic_clinical_queryset
+from Pacientes.access import clinic_clinical_queryset
 from .serializers import ConsultationSerializer
-from .tenant_patients import TenantClinicalContextMixin
-from .views import ClinicalPagination
+from .clinic_context import TenantClinicalContextMixin
+from .pagination import ClinicalPagination
 
 
 def patient_for(request, clinic_id, patient_id, *, lock=False):

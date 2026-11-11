@@ -8,7 +8,7 @@ from .services.patients import create_patient, legacy_age, update_patient
 from .services.consultations import create_consultation
 from .services.appointments import save_appointment
 from .services.clinical_images import create_clinical_image
-from .policies import scoped
+from Pacientes.access import scoped
 from .upload_policy import validate_upload
 from django.core.exceptions import ValidationError as DjangoValidationError
 from .services.odontogram import validate_odontogram
@@ -51,11 +51,11 @@ class SessionUserSerializer(serializers.Serializer):
         return MFACredential.objects.filter(user=user).exists()
 
     def get_can_access_backoffice(self, user):
-        from .policies import can_access_backoffice
+        from Usuarios.permissions import can_access_backoffice
         return can_access_backoffice(user)
 
     def get_is_platform_admin(self, user):
-        from .policies import is_platform_admin
+        from Usuarios.permissions import is_platform_admin
         return is_platform_admin(user)
 
     def get_ai_globally_enabled(self, user):

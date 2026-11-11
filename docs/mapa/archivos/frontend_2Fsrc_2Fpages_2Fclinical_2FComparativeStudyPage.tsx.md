@@ -18,11 +18,11 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `formSnapshot` — línea 13.
-- `before` — línea 17.
-- `after` — línea 24.
-- `ImageField` — línea 30.
-- `ComparativeStudyPage` — línea 60.
+- `formSnapshot` — línea 14.
+- `before` — línea 18.
+- `after` — línea 25.
+- `ImageField` — línea 31.
+- `ComparativeStudyPage` — línea 61.
 
 ## Dependencias internas
 
@@ -31,6 +31,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fhooks_2FuseApiDownload.ts|frontend/src/hooks/useApiDownload.ts]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fhooks_2FuseProtectedMedia.ts|frontend/src/hooks/useProtectedMedia.ts]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fhooks_2FuseUnsavedChanges.tsx|frontend/src/hooks/useUnsavedChanges.tsx]]
+- [[docs/mapa/archivos/frontend_2Fsrc_2Fquery_2Fkeys.ts|frontend/src/query/keys.ts]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fservices_2Fclinical.ts|frontend/src/services/clinical.ts]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Ftypes_2Fdomain.ts|frontend/src/types/domain.ts]]
 

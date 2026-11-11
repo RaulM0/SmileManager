@@ -16,11 +16,11 @@ from rest_framework.views import APIView
 
 from DiagnosticosIA.models import AIAnalysisRun
 from Pacientes.models import ImagenesClinicas
-from .policies import clinic_clinical_queryset
+from Pacientes.access import clinic_clinical_queryset
 from .serializers import ClinicalImageSerializer
 from .tenant_consultations import patient_for
-from .tenant_patients import TenantClinicalContextMixin
-from .views import ClinicalPagination, PatientPagination
+from .clinic_context import TenantClinicalContextMixin
+from .pagination import ClinicalPagination, PatientPagination
 from .features import TenantAIFeatureMixin, ai_enabled_for_clinic, require_ai_enabled
 
 logger = logging.getLogger(__name__)

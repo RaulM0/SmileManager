@@ -26,8 +26,8 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Dependencias internas
 
+- [[docs/mapa/archivos/Pacientes_2Faccess.py|Pacientes/access.py]]
 - [[docs/mapa/archivos/Pacientes_2Fmodels.py|Pacientes/models.py]]
-- [[docs/mapa/archivos/api_2Fpolicies.py|api/policies.py]]
 - [[docs/mapa/archivos/api_2Fservices_2Fdocument_integrity.py|api/services/document_integrity.py]]
 - [[docs/mapa/archivos/api_2Fservices_2Fdocument_payloads.py|api/services/document_payloads.py]]
 - [[docs/mapa/archivos/api_2Fservices_2Fodontogram.py|api/services/odontogram.py]]

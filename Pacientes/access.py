@@ -2,7 +2,6 @@
 from django.db.models import Exists, F, Q
 from django.conf import settings
 from django.shortcuts import get_object_or_404
-from rest_framework.permissions import BasePermission
 
 from Citas.models import Cita
 from Pacientes.models import (AntescedentesMedicos, Consentimiento, Consulta,
@@ -52,7 +51,7 @@ def clinic_clinical_queryset(user, clinic_id, model):
     Callers must also use validated tenant context for writes and enforce
     relational consistency. Retired routes cannot grant tenant access.
     """
-    from api.tenant_context import require_clinic_capability
+    from Usuarios.clinic_context import require_clinic_capability
     from Usuarios.models import Clinic, ClinicMembership
 
     membership = require_clinic_capability(user, clinic_id, 'clinical.assigned')
@@ -80,34 +79,3 @@ def consistent_or_404(user, model, patient, clinic_id=None):
     if all_rows.exclude(pk__in=authorized.values('pk')).exists():
         raise Http404
     return authorized.filter(paciente=patient)
-
-
-def has_backoffice_assignment(user):
-    # Django's has_perm grants everything to superusers. This product
-    # capability instead requires an explicit direct or group assignment.
-    from django.contrib.auth.models import Permission
-    from django.db.models import Q
-    return Permission.objects.filter(content_type__app_label='Usuarios', codename='access_system_backoffice').filter(Q(user=user) | Q(group__user=user)).exists()
-
-
-def has_platform_assignment(user):
-    from Usuarios.models import PlatformAdmin
-    return bool(user and user.is_authenticated and PlatformAdmin.objects.filter(user_id=user.pk, is_active=True).exists())
-
-
-def is_platform_admin(user):
-    return bool(user and user.is_authenticated and user.is_active and has_platform_assignment(user))
-
-
-def can_access_backoffice(user):
-    return bool(user and user.is_authenticated and user.is_active and (has_backoffice_assignment(user) or is_platform_admin(user)))
-
-
-class IsSystemAdmin(BasePermission):
-    def has_permission(self, request, view):
-        return can_access_backoffice(request.user)
-
-
-class IsPlatformAdmin(BasePermission):
-    def has_permission(self, request, view):
-        return is_platform_admin(request.user)

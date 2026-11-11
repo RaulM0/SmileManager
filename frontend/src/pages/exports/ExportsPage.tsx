@@ -27,9 +27,9 @@ export default function ExportsPage() {
                 <div><h2>{title}</h2><p>{text}</p></div>
                 <a
                   className="clinical-action-outline"
-                  href={`/api/v1/exports/${path}`}
+                  href={`/api/v1/clinics/exports/${path}`}
                   aria-disabled={Boolean(active)}
-                  onClick={(event) => { event.preventDefault(); void download(path, `exports/${path}`, path); }}
+                  onClick={(event) => { event.preventDefault(); void download(path, `clinics/exports/${path}`, path); }}
                 >
                   {active === path ? "Preparando descarga…" : "Descargar Excel"}
                 </a>

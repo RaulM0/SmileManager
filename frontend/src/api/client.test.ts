@@ -83,20 +83,31 @@ it("cancels and ignores late responses after changing clinics", async () => {
   await expect(second).resolves.toEqual({ clinic: "b" });
 });
 
-it("routes clinical requests and protected files through the selected clinic API", async () => {
+it("uses explicit clinic routes for resources and protected files", async () => {
   const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(Response.json({})));
   vi.stubGlobal("fetch", fetchMock);
   setClinicContext("clinic-a");
-  await api("patients/5/");
-  await api("clinical-images/9/file/");
-  await api("clinical-images/9/result-file/");
-  await api("patients/5/consent/file/");
-  await api("patients/5/consent/pdf/");
+  await api("clinics/patients/5/");
+  await api("clinics/clinical-images/9/original/file/");
+  await api("clinics/clinical-images/9/result/file/");
+  await api("clinics/patients/5/consent/identity/file/");
+  await api("clinics/patients/5/consent/pdf/file/");
   expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
     "/api/v1/clinics/patients/5/",
     "/api/v1/clinics/clinical-images/9/original/file/",
     "/api/v1/clinics/clinical-images/9/result/file/",
     "/api/v1/clinics/patients/5/consent/identity/file/",
     "/api/v1/clinics/patients/5/consent/pdf/file/",
+  ]);
+});
+
+it("does not rewrite the requested URL when a clinic is selected", async () => {
+  const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(Response.json({})));
+  vi.stubGlobal("fetch", fetchMock);
+  await api("patients/5/");
+  setClinicContext("clinic-a");
+  await api("patients/5/");
+  expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+    "/api/v1/patients/5/", "/api/v1/patients/5/",
   ]);
 });

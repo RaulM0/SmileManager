@@ -34,7 +34,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 - [[docs/mapa/archivos/Usuarios_2Fmodels.py|Usuarios/models.py]]
 - [[docs/mapa/archivos/api_2Fbackoffice.py|api/backoffice.py]]
 - [[docs/mapa/archivos/api_2Ffeatures.py|api/features.py]]
-- [[docs/mapa/archivos/api_2Fpolicies.py|api/policies.py]]
+- [[docs/mapa/archivos/api_2Fpermissions.py|api/permissions.py]]
 - [[docs/mapa/archivos/api_2Fservices_2Fplatform_clinics.py|api/services/platform_clinics.py]]
 - [[docs/mapa/archivos/api_2Ftenant_views.py|api/tenant_views.py]]
 - [[docs/mapa/archivos/api_2Fthrottles.py|api/throttles.py]]

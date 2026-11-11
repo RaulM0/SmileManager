@@ -20,24 +20,6 @@ export function setClinicContext(id: string | null) {
 
 export function getClinicContext() { return clinicId; }
 
-// Clinical screens still use the legacy URL vocabulary. Route them to the
-// equivalent clinic API only when a clinic is selected. Missing operations
-// fail closed in the clinic API instead of falling back to legacy access.
-function clinicPath(path: string): string {
-  if (!clinicId) return path;
-  if (/^clinical-images\/\d+\/file\/(?:\?|$)/.test(path))
-    return `clinics/${path.replace('/file/', '/original/file/')}`;
-  if (/^clinical-images\/\d+\/result-file\/(?:\?|$)/.test(path))
-    return `clinics/${path.replace('/result-file/', '/result/file/')}`;
-  if (/^patients\/\d+\/consent\/file\/(?:\?|$)/.test(path))
-    return `clinics/${path.replace('/consent/file/', '/consent/identity/file/')}`;
-  if (/^patients\/\d+\/consent\/pdf\/(?:\?|$)/.test(path))
-    return `clinics/${path.replace('/consent/pdf/', '/consent/pdf/file/')}`;
-  if (/^(dashboard|patients|appointments|consultations|clinical-images|diagnostics|exports)(?:\/|\?|$)/.test(path))
-    return `clinics/${path}`;
-  return path;
-}
-
 function assertCurrentClinic(generation: number) {
   if (generation !== clinicGeneration) throw new DOMException("La clínica activa cambió.", "AbortError");
 }
@@ -104,7 +86,7 @@ async function apiResponse(path: string, options: RequestInit = {}): Promise<Res
     headers.set("Content-Type", "application/json");
   if (accessToken) headers.set("Authorization", `Bearer ${accessToken}`);
   if (clinicId && !headers.has("X-Clinic-ID")) headers.set("X-Clinic-ID", clinicId);
-  const request = () => fetch(`/api/v1/${clinicPath(path)}`, { ...options, signal: controller.signal, headers, credentials: "include" });
+  const request = () => fetch(`/api/v1/${path}`, { ...options, signal: controller.signal, headers, credentials: "include" });
   let response = await request();
   assertCurrentClinic(generation);
   if (response.status === 401 && !path.startsWith("auth/")) {

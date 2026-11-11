@@ -29,7 +29,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 ## Dependencias internas
 
 - [[docs/mapa/archivos/Usuarios_2Fmodels.py|Usuarios/models.py]]
-- [[docs/mapa/archivos/api_2Fpolicies.py|api/policies.py]]
+- [[docs/mapa/archivos/Usuarios_2Fpermissions.py|Usuarios/permissions.py]]
 - [[docs/mapa/archivos/api_2Fservices_2Fclinics.py|api/services/clinics.py]]
 - [[docs/mapa/archivos/api_2Fservices_2Finvitations.py|api/services/invitations.py]]
 - [[docs/mapa/archivos/api_2Fservices_2Fmemberships.py|api/services/memberships.py]]

@@ -211,7 +211,7 @@ class StaffConcurrencyTests(TransactionTestCase):
         self.assertCountEqual(statuses, [200, 409])
 
     def test_revoked_staff_cannot_publish_after_waiting_for_clinic_lock(self):
-        from api.tenant_context import lock_clinic_capability
+        from Usuarios.clinic_context import lock_clinic_capability
         entered = Event()
 
         def waiting_lock(*args, **kwargs):

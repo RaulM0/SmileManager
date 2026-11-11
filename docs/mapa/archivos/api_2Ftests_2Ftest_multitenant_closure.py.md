@@ -25,9 +25,9 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 - [[docs/mapa/archivos/Citas_2Fmodels.py|Citas/models.py]]
 - [[docs/mapa/archivos/Pacientes_2Fmodels.py|Pacientes/models.py]]
+- [[docs/mapa/archivos/Usuarios_2Fclinic_context.py|Usuarios/clinic_context.py]]
 - [[docs/mapa/archivos/Usuarios_2Fmodels.py|Usuarios/models.py]]
 - [[docs/mapa/archivos/api_2Fservices_2Fpatients.py|api/services/patients.py]]
-- [[docs/mapa/archivos/api_2Ftenant_context.py|api/tenant_context.py]]
 - [[docs/mapa/archivos/api_2Ftenant_views.py|api/tenant_views.py]]
 - [[docs/mapa/archivos/api_2Ftests_2Fdocument_fixtures.py|api/tests/document_fixtures.py]]
 

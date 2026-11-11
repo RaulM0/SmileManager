@@ -4,7 +4,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
-from api.policies import clinic_clinical_queryset, scoped
+from Pacientes.access import clinic_clinical_queryset, scoped
 from Pacientes.models import ImagenesClinicas
 from Usuarios.models import AuditEvent
 from .models import AIAnalysisRun

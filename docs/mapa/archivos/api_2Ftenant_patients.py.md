@@ -18,22 +18,21 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `TenantPatientSerializer` — línea 26.
-- `TenantClinicalContextMixin` — línea 33.
-- `TenantPatientMixin` — línea 51.
-- `TenantPatientList` — línea 70.
-- `TenantPatientDetail` — línea 91.
-- `TenantPatientAutocomplete` — línea 109.
-- `TenantPatientDeactivate` — línea 125.
+- `TenantPatientSerializer` — línea 25.
+- `TenantPatientMixin` — línea 32.
+- `TenantPatientList` — línea 51.
+- `TenantPatientDetail` — línea 72.
+- `TenantPatientAutocomplete` — línea 90.
+- `TenantPatientDeactivate` — línea 106.
 
 ## Dependencias internas
 
+- [[docs/mapa/archivos/Pacientes_2Faccess.py|Pacientes/access.py]]
 - [[docs/mapa/archivos/Pacientes_2Fmodels.py|Pacientes/models.py]]
 - [[docs/mapa/archivos/Usuarios_2Fmodels.py|Usuarios/models.py]]
-- [[docs/mapa/archivos/api_2Fpolicies.py|api/policies.py]]
+- [[docs/mapa/archivos/api_2Fclinic_context.py|api/clinic_context.py]]
+- [[docs/mapa/archivos/api_2Fpagination.py|api/pagination.py]]
 - [[docs/mapa/archivos/api_2Fserializers.py|api/serializers.py]]
 - [[docs/mapa/archivos/api_2Fservices_2Fpatients.py|api/services/patients.py]]
-- [[docs/mapa/archivos/api_2Ftenant_context.py|api/tenant_context.py]]
-- [[docs/mapa/archivos/api_2Fviews.py|api/views.py]]
 
 Este índice resuelve imports Python y referencias relativas JS/TS; no ejecuta módulos ni representa todas las dependencias dinámicas.

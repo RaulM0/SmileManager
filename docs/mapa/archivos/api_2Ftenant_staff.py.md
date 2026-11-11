@@ -32,9 +32,9 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 - [[docs/mapa/archivos/Citas_2Fmodels.py|Citas/models.py]]
 - [[docs/mapa/archivos/Pacientes_2Fmodels.py|Pacientes/models.py]]
+- [[docs/mapa/archivos/Usuarios_2Fclinic_context.py|Usuarios/clinic_context.py]]
 - [[docs/mapa/archivos/Usuarios_2Fmodels.py|Usuarios/models.py]]
+- [[docs/mapa/archivos/api_2Fpagination.py|api/pagination.py]]
 - [[docs/mapa/archivos/api_2Fservices_2Fappointments.py|api/services/appointments.py]]
-- [[docs/mapa/archivos/api_2Ftenant_context.py|api/tenant_context.py]]
-- [[docs/mapa/archivos/api_2Fviews.py|api/views.py]]
 
 Este índice resuelve imports Python y referencias relativas JS/TS; no ejecuta módulos ni representa todas las dependencias dinámicas.

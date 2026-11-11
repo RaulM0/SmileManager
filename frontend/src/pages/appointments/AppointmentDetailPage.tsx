@@ -6,7 +6,7 @@ import { appointmentStatus } from "../../utils/appointmentStatus";
 
 export default function AppointmentDetailPage() {
   const { id } = useParams();
-  const { data: item, error, reload } = useResource<Appointment>(`appointments/${id}/`);
+  const { data: item, error, reload } = useResource<Appointment>(`clinics/appointments/${id}/`);
   if (error)
     return <div className="workspace-page co-mx-auto co-max-w-[1320px]"><div className="workspace-inline-error" role="alert">{error}</div><button className="clinical-action-outline co-mt-3" onClick={reload}>Reintentar</button></div>;
   if (!item)

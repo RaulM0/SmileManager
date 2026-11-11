@@ -117,7 +117,7 @@ export default function DiagnosticsPage() {
                   <tbody>
                     {data.results.map((image) => (
                       <tr key={image.id}>
-                        <td data-label="Imagen"><ProtectedThumbnail path={`clinical-images/${image.id}/file/`} className="clinical-result-thumbnail" alt={image.descripcion} /></td>
+                        <td data-label="Imagen"><ProtectedThumbnail path={`clinics/clinical-images/${image.id}/original/file/`} className="clinical-result-thumbnail" alt={image.descripcion} /></td>
                         <td data-label="Paciente">{image.patient_name}</td>
                         <td data-label="Tipo">{image.tipo_imagen}</td>
                         <td data-label="Descripción">{image.descripcion}</td>

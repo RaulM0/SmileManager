@@ -14,10 +14,10 @@ export default function PatientCreatePage() {
         submitLabel="Registrar paciente"
         onSubmit={async (values) => {
           const patient = await patientsService.create(values);
-          queryClient.setQueryData(queryKeys.resource(`patients/${patient.id}/`), patient);
+          queryClient.setQueryData(queryKeys.resource(`clinics/patients/${patient.id}/`), patient);
           await Promise.all([
             queryClient.invalidateQueries({ queryKey: queryKeys.patients }),
-            queryClient.invalidateQueries({ queryKey: queryKeys.resource("dashboard/") }),
+            queryClient.invalidateQueries({ queryKey: queryKeys.resource("clinics/dashboard/") }),
           ]);
           toast.success("Paciente registrado correctamente.");
           return `/patients/${patient.id}`;

@@ -46,7 +46,7 @@ def create_patient(*, medico, validated_data):
         if ClinicMembership.objects.filter(user_id=medico.pk).exists():
             raise PermissionDenied('Selecciona una clínica en una ruta compatible para crear pacientes.')
     else:
-        from api.tenant_context import lock_clinic_capability
+        from Usuarios.clinic_context import lock_clinic_capability
         lock_clinic_capability(medico, clinic_id, 'clinical.assigned')
     validate_patient_uniqueness(
         medico=medico, telefono=data['telefono'], email=data['email'], clinic_id=clinic_id,

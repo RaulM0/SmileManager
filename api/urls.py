@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.urls import include, path
 
-from . import views
+from . import auth_views
 from . import password_recovery
 from . import backoffice
 from . import backoffice_clinical
@@ -104,12 +104,12 @@ urlpatterns = [
     path('backoffice/ai-runs/', backoffice.Runs.as_view(), name='backoffice-ai-runs'),
     path('backoffice/ai-runs/<int:pk>/', backoffice.RunDetail.as_view(), name='backoffice-ai-run'),
     path('backoffice/system/', backoffice.System.as_view(), name='backoffice-system'),
-    path('auth/session/', views.SessionView.as_view(), name='api-session'),
-    path('auth/login/', views.LoginView.as_view(), name='api-login'),
+    path('auth/session/', auth_views.SessionView.as_view(), name='api-session'),
+    path('auth/login/', auth_views.LoginView.as_view(), name='api-login'),
     path('auth/password-reset/request/', password_recovery.PasswordResetRequest.as_view(), name='api-password-reset-request'),
     path('auth/password-reset/confirm/', password_recovery.PasswordResetConfirm.as_view(), name='api-password-reset-confirm'),
-    path('auth/refresh/', views.RefreshView.as_view(), name='api-refresh'),
-    path('auth/logout/', views.LogoutView.as_view(), name='api-logout'),
+    path('auth/refresh/', auth_views.RefreshView.as_view(), name='api-refresh'),
+    path('auth/logout/', auth_views.LogoutView.as_view(), name='api-logout'),
 ]
 
 # Historical contracts are available only in explicitly isolated regression settings.

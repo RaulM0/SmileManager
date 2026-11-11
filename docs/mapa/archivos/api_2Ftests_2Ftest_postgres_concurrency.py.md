@@ -27,11 +27,11 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 - [[docs/mapa/archivos/DiagnosticosIA_2Fruns.py|DiagnosticosIA/runs.py]]
 - [[docs/mapa/archivos/Pacientes_2Fmodels.py|Pacientes/models.py]]
 - [[docs/mapa/archivos/Usuarios_2Fmodels.py|Usuarios/models.py]]
+- [[docs/mapa/archivos/api_2Fauth_views.py|api/auth_views.py]]
 - [[docs/mapa/archivos/api_2Fauthentication.py|api/authentication.py]]
 - [[docs/mapa/archivos/api_2Fservices_2Fappointments.py|api/services/appointments.py]]
 - [[docs/mapa/archivos/api_2Fservices_2Fbackoffice.py|api/services/backoffice.py]]
 - [[docs/mapa/archivos/api_2Fservices_2Fclinical_records.py|api/services/clinical_records.py]]
 - [[docs/mapa/archivos/api_2Fservices_2Fpassword_recovery.py|api/services/password_recovery.py]]
-- [[docs/mapa/archivos/api_2Fviews.py|api/views.py]]
 
 Este índice resuelve imports Python y referencias relativas JS/TS; no ejecuta módulos ni representa todas las dependencias dinámicas.
