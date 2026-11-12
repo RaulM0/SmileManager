@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 
-export function ConfirmDialog({ title, children, confirmLabel, busy, busyLabel = "Procesando…", onConfirm, onClose }: {
+export function ConfirmDialog({ title, children, confirmLabel, busy, busyLabel = "Procesando…", variant = "danger", onConfirm, onClose }: {
   title: string; children: React.ReactNode; confirmLabel: string; busy: boolean;
-  busyLabel?: string;
+  busyLabel?: string; variant?: "danger" | "primary";
   onConfirm: () => void; onClose: () => void;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -17,7 +17,7 @@ export function ConfirmDialog({ title, children, confirmLabel, busy, busyLabel =
     <div id="confirm-dialog-description">{children}</div>
     <div className="clinical-confirm-actions">
       <button type="button" className="clinical-action-outline" onClick={onClose} disabled={busy} autoFocus>Volver</button>
-      <button type="button" className="clinical-action-danger" onClick={onConfirm} disabled={busy}>{busy ? busyLabel : confirmLabel}</button>
+      <button type="button" className={variant === "primary" ? "clinical-action-primary" : "clinical-action-danger"} onClick={onConfirm} disabled={busy}>{busy ? busyLabel : confirmLabel}</button>
     </div>
   </dialog>;
 }

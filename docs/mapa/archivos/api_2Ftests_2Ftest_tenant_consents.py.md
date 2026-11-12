@@ -21,11 +21,13 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 - `pdf` — línea 19.
 - `TenantConsentTests` — línea 23.
 - `TenantConsentConcurrencyTests` — línea 113.
+- `PrivacyPublisherIdentityTests` — línea 143.
 
 ## Dependencias internas
 
 - [[docs/mapa/archivos/Pacientes_2Fmodels.py|Pacientes/models.py]]
 - [[docs/mapa/archivos/Usuarios_2Fmodels.py|Usuarios/models.py]]
+- [[docs/mapa/archivos/api_2Fprivacy.py|api/privacy.py]]
 - [[docs/mapa/archivos/api_2Ftests_2Fdocument_fixtures.py|api/tests/document_fixtures.py]]
 
 Este índice resuelve imports Python y referencias relativas JS/TS; no ejecuta módulos ni representa todas las dependencias dinámicas.

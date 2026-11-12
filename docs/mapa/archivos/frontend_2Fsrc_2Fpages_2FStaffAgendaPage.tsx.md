@@ -18,16 +18,17 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `Patient` — línea 9.
-- `Appointment` — línea 10.
-- `empty` — línea 11.
-- `stateLabel` — línea 12.
-- `StaffAgendaPage` — línea 14.
+- `Patient` — línea 10.
+- `Appointment` — línea 11.
+- `empty` — línea 12.
+- `stateLabel` — línea 13.
+- `StaffAgendaPage` — línea 15.
 
 ## Dependencias internas
 
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fapi_2Fclient.ts|frontend/src/api/client.ts]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fcomponents_2FConfirmDialog.tsx|frontend/src/components/ConfirmDialog.tsx]]
+- [[docs/mapa/archivos/frontend_2Fsrc_2Fcontext_2FToastContext.tsx|frontend/src/context/ToastContext.tsx]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fhooks_2FuseUnsavedChanges.tsx|frontend/src/hooks/useUnsavedChanges.tsx]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Ftypes_2Fdomain.ts|frontend/src/types/domain.ts]]
 

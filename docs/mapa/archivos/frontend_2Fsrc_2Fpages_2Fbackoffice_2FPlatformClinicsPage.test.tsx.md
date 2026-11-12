@@ -18,12 +18,13 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `show` — línea 12.
+- `show` — línea 13.
 
 ## Dependencias internas
 
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fapi_2Fclient.ts|frontend/src/api/client.ts]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fcontext_2FAuthContext.tsx|frontend/src/context/AuthContext.tsx]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fpages_2Fbackoffice_2FPlatformClinicsPage.tsx|frontend/src/pages/backoffice/PlatformClinicsPage.tsx]]
+- [[docs/mapa/archivos/frontend_2Fsrc_2Ftest_2FrenderWithToast.tsx|frontend/src/test/renderWithToast.tsx]]
 
 Este índice resuelve imports Python y referencias relativas JS/TS; no ejecuta módulos ni representa todas las dependencias dinámicas.

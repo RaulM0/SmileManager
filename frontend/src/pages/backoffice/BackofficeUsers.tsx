@@ -1,3 +1,4 @@
+import { useToast } from "../../context/ToastContext";
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -121,11 +122,11 @@ export function BackofficeUsers() {
 }
 
 export function BackofficeUser() {
+  const toast = useToast();
   const { id } = useParams();
   const client = useQueryClient();
   const { user: actor } = useAuth();
   const [confirm, setConfirm] = useState(false);
-  const [message, setMessage] = useState("");
   const query = useAdmin<User>(`users/${id}/`);
   const u = query.data;
   const mutation = useMutation({
@@ -136,12 +137,12 @@ export function BackofficeUser() {
       ),
     onSuccess: async () => {
       setConfirm(false);
-      setMessage("Estado actualizado.");
+      toast.success("Estado actualizado.");
       await client.invalidateQueries({ queryKey: ["backoffice"] });
     },
     onError: (e) => {
       setConfirm(false);
-      setMessage(getErrorMessage(e));
+      toast.error(getErrorMessage(e));
     },
   });
   return (
@@ -153,11 +154,6 @@ export function BackofficeUser() {
             <h1 className="co-text-2xl co-font-semibold co-my-5">
               {u.username}
             </h1>
-            {message && (
-              <p role="status" className="co-mb-4">
-                {message}
-              </p>
-            )}
             <dl className="clinical-form-surface admin-detail-grid">
               <div>
                 <dt>Identificador</dt>

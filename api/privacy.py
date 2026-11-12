@@ -99,7 +99,7 @@ class PublishNotice(APIView):
         data.is_valid(raise_exception=True)
         name = request.user.get_full_name().strip()
         if not name:
-            return Response({'detail': 'El responsable que publica debe tener nombre completo registrado.'}, status=400)
+            return Response({'detail': 'El responsable que publica debe tener nombre completo registrado.', 'code': 'profile_name_required'}, status=400)
         version = (PrivacyNotice.objects.filter(clinic=member.clinic).aggregate(value=Max('version'))['value'] or 0) + 1
         row = PrivacyNotice(clinic=member.clinic, version=version, body={key: data.validated_data[key] for key in NOTICE_FIELDS}, approved_by=request.user, approved_name=name)
         row.content_sha256, row.integrity_seal = seal(notice_payload(row))
@@ -120,7 +120,7 @@ class Templates(APIView):
         data = TemplateInput(data=request.data)
         data.is_valid(raise_exception=True)
         if not request.user.get_full_name().strip():
-            return Response({'detail': 'Registra el nombre completo del responsable que publica.'}, status=400)
+            return Response({'detail': 'Registra el nombre completo del responsable que publica.', 'code': 'profile_name_required'}, status=400)
         notice = PrivacyNotice.objects.filter(clinic=member.clinic).order_by('-version').first()
         if notice is None:
             return Response({'detail': 'Publica primero el aviso de privacidad de la clínica.'}, status=409)

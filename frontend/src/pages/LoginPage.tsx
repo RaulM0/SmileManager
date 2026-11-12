@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { QRCodeSVG } from "qrcode.react";
 import type { FormEvent } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -13,7 +14,7 @@ export default function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [challenge, setChallenge] = useState('');
-  const [setupSecret, setSetupSecret] = useState('');
+  const [setupUri, setSetupUri] = useState('');
   const [code, setCode] = useState('');
   const [recoveryResult, setRecoveryResult] = useState<LoginResult | null>(null);
   const navigate = useNavigate();
@@ -31,18 +32,18 @@ export default function LoginPage() {
       if (challenge) {
         const result = await api<LoginResult>('auth/mfa/verify/', { method: 'POST', body: JSON.stringify({ challenge, code }) });
         setCode('');
-        setSetupSecret('');
+        setSetupUri('');
         if (result.recovery_codes?.length) { setRecoveryResult(result); return; }
         completeLogin(result);
       } else {
         const result = await login(form.username, form.password);
         setForm((previous) => ({ ...previous, password: '' }));
         if (result.mfa_required && result.challenge) {
-          setChallenge(result.challenge);
           if (result.enrollment_required) {
-            const setup = await api<{ secret: string }>('auth/mfa/setup/', { method: 'POST', body: JSON.stringify({ challenge: result.challenge }) });
-            setSetupSecret(setup.secret);
+            const setup = await api<{ otpauth_uri: string }>('auth/mfa/setup/', { method: 'POST', body: JSON.stringify({ challenge: result.challenge }) });
+            setSetupUri(setup.otpauth_uri);
           }
+          setChallenge(result.challenge);
           return;
         }
       }
@@ -71,23 +72,31 @@ export default function LoginPage() {
         </section>
         <main className="login-form-panel">
           <div className="login-form-inner">
-            <h2>Bienvenido de nuevo</h2>
-            <p>Ingrese sus credenciales para acceder al sistema</p>
+            <h2>{recoveryResult ? 'Protege tu acceso' : challenge ? (setupUri ? 'Configura tu autenticador' : 'Verifica tu identidad') : 'Bienvenido de nuevo'}</h2>
+            <p>{recoveryResult ? 'Conserva una copia de tus códigos de recuperación.' : challenge ? 'Un paso más para acceder a tu espacio de trabajo.' : 'Ingrese sus credenciales para acceder al sistema'}</p>
             {requestedLocation?.pathname === "/invitations/accept" && requestedLocation.hash &&
               <p>¿Aún no tienes cuenta? <Link to={{ pathname: "/invitations/register", hash: requestedLocation.hash }}>Crear cuenta con la invitación</Link></p>}
-            {recoveryResult ? <section aria-label="Códigos de recuperación">
+            {recoveryResult ? <section className="login-mfa" aria-label="Códigos de recuperación">
               <h3>Guarda tus códigos de recuperación</h3><p>Cada código permite un solo uso junto con tu contraseña. Se muestran una sola vez; consérvalos en un lugar privado.</p>
-              <ul>{recoveryResult.recovery_codes?.map((value) => <li key={value}><code>{value}</code></li>)}</ul>
-              <button className="clinical-form-submit" onClick={() => { completeLogin(recoveryResult); setRecoveryResult(null); navigate(returnTo, { replace: true }); }}>He guardado los códigos</button>
+              <ul className="login-recovery-codes">{recoveryResult.recovery_codes?.map((value) => <li key={value}><code>{value}</code></li>)}</ul>
+              <button className="clinical-form-submit co-w-full" onClick={() => { completeLogin(recoveryResult); setRecoveryResult(null); navigate(returnTo, { replace: true }); }}>He guardado los códigos</button>
             </section> : <form onSubmit={submit}>
-              {challenge ? <section aria-label="Segundo factor">
-                <h3>{setupSecret ? 'Configura tu autenticador' : 'Verifica tu identidad'}</h3>
-                {setupSecret && <><p>Agrega una cuenta TOTP en tu aplicación autenticadora con esta clave. El código cambia cada 30 segundos.</p><code aria-label="Clave del autenticador">{setupSecret}</code></>}
-                <label className="clinical-form-label" htmlFor="mfa-code">Código del autenticador o de recuperación</label>
-                <input id="mfa-code" className="clinical-form-control" autoComplete="one-time-code" required value={code} maxLength={128} onChange={(event) => setCode(event.target.value)} />
-                <p>Si el código ya fue utilizado, espera al siguiente. La verificación vence en cinco minutos.</p>
-                <button className="clinical-form-submit" disabled={submitting}>{submitting ? 'Verificando…' : 'Verificar'}</button>
-                <button type="button" disabled={submitting} onClick={() => { setChallenge(''); setSetupSecret(''); setCode(''); }}>Volver al inicio de sesión</button>
+              {challenge ? <section className="login-mfa" aria-label="Segundo factor">
+                {setupUri && <>
+                  <p>Escanea este QR con Google Authenticator, Microsoft Authenticator u otra aplicación autenticadora.</p>
+                  <div className="login-mfa-qr">
+                    <QRCodeSVG value={setupUri} size={192} marginSize={4} level="M" role="img" aria-label="Código QR para configurar tu autenticador" />
+                  </div>
+                </>}
+                <div className="clinical-form-field">
+                  <label className="clinical-form-label" htmlFor="mfa-code">{setupUri ? 'Código del autenticador' : 'Código del autenticador o de recuperación'}</label>
+                  <input id="mfa-code" className="clinical-form-control login-mfa-code" autoComplete="one-time-code" inputMode={setupUri ? 'numeric' : 'text'} required value={code} maxLength={setupUri ? 6 : 128} placeholder={setupUri ? '000000' : 'Ingresa tu código'} aria-describedby="mfa-help" onChange={(event) => setCode(event.target.value)} />
+                  <p id="mfa-help" className="clinical-form-help">{setupUri ? 'Escribe los 6 dígitos que aparecen en tu aplicación.' : 'Si el código ya fue utilizado, espera al siguiente.'} La verificación vence en cinco minutos.</p>
+                </div>
+                <div className="login-mfa-actions">
+                  <button className="clinical-form-submit" disabled={submitting}>{submitting ? <><span className="clinical-form-spinner" aria-hidden="true" />Verificando…</> : <><i className="bi bi-shield-check" aria-hidden="true" />Verificar</>}</button>
+                  <button className="clinical-action-outline" type="button" disabled={submitting} onClick={() => { setChallenge(''); setSetupUri(''); setCode(''); }}><i className="bi bi-arrow-left" aria-hidden="true" />Volver al inicio de sesión</button>
+                </div>
               </section> : <>
               <div className="clinical-form-field">
                 <label className="clinical-form-label" htmlFor="username">Usuario</label>

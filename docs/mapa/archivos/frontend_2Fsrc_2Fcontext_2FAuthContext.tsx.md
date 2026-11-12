@@ -18,15 +18,16 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `AuthValue` — línea 15.
-- `AuthContext` — línea 23.
-- `AuthProvider` — línea 25.
-- `useAuth` — línea 116.
+- `AuthValue` — línea 16.
+- `AuthContext` — línea 24.
+- `AuthProvider` — línea 26.
+- `useAuth` — línea 119.
 
 ## Dependencias internas
 
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fapi_2Fclient.ts|frontend/src/api/client.ts]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fcomponents_2FConfirmDialog.tsx|frontend/src/components/ConfirmDialog.tsx]]
+- [[docs/mapa/archivos/frontend_2Fsrc_2Fcontext_2FToastContext.tsx|frontend/src/context/ToastContext.tsx]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fquery_2Fclient.ts|frontend/src/query/client.ts]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Ftypes_2Fdomain.ts|frontend/src/types/domain.ts]]
 

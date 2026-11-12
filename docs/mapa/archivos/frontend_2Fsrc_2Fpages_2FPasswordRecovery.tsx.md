@@ -18,12 +18,13 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `RecoveryLayout` — línea 6.
-- `ForgotPasswordPage` — línea 10.
-- `ResetPasswordPage` — línea 21.
+- `RecoveryLayout` — línea 7.
+- `ForgotPasswordPage` — línea 11.
+- `ResetPasswordPage` — línea 23.
 
 ## Dependencias internas
 
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fapi_2Fclient.ts|frontend/src/api/client.ts]]
+- [[docs/mapa/archivos/frontend_2Fsrc_2Fcontext_2FToastContext.tsx|frontend/src/context/ToastContext.tsx]]
 
 Este índice resuelve imports Python y referencias relativas JS/TS; no ejecuta módulos ni representa todas las dependencias dinámicas.

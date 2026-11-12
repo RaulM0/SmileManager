@@ -111,6 +111,7 @@ class ClinicInvitation(models.Model):
     email = models.EmailField(max_length=254)
     role = models.CharField(max_length=12, choices=ClinicMembership.Role.choices)
     token_hash = models.CharField(max_length=64, unique=True)
+    activates_clinic = models.BooleanField(default=False)
     status = models.CharField(max_length=8, choices=Status.choices, default=Status.PENDING)
     invited_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name='clinic_invitations_sent')
     created_at = models.DateTimeField(auto_now_add=True)

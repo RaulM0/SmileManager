@@ -25,13 +25,13 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 - `Clinic` — línea 52.
 - `ClinicMembership` — línea 73.
 - `ClinicInvitation` — línea 102.
-- `InvitationEmailLock` — línea 128.
-- `Perfil` — línea 132.
-- `AppendOnlyAuditQuerySet` — línea 143.
-- `AuditEvent` — línea 154.
-- `AuditDelivery` — línea 184.
-- `FileInspection` — línea 190.
-- `OperationalStatus` — línea 201.
+- `InvitationEmailLock` — línea 129.
+- `Perfil` — línea 133.
+- `AppendOnlyAuditQuerySet` — línea 144.
+- `AuditEvent` — línea 155.
+- `AuditDelivery` — línea 185.
+- `FileInspection` — línea 191.
+- `OperationalStatus` — línea 202.
 
 ## Dependencias internas
 

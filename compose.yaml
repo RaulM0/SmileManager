@@ -17,8 +17,15 @@ services:
       FEATURE_AI_ENABLED: ${FEATURE_AI_ENABLED:-false}
       FRONTEND_URL: http://localhost:5173
       TENANT_INVITATION_URL: http://localhost:5173/invitations/accept
-      DEV_EMAIL_DELIVERY: file
+      DEV_EMAIL_DELIVERY: ${DEV_EMAIL_DELIVERY:-file}
       DEV_EMAIL_DIR: /var/lib/smilemanager/mail
+      EMAIL_HOST: ${EMAIL_HOST:-smtp.example.com}
+      EMAIL_PORT: ${EMAIL_PORT:-587}
+      EMAIL_USE_TLS: ${EMAIL_USE_TLS:-true}
+      EMAIL_USER: ${EMAIL_USER:-}
+      EMAIL_PASS: ${EMAIL_PASS:-}
+      DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL:-webmaster@localhost}
+      SMTP_TIMEOUT: ${SMTP_TIMEOUT:-30}
     ports:
       - "127.0.0.1:8000:8000"
     volumes:

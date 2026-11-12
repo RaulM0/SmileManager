@@ -91,7 +91,7 @@ export default function ClinicalImageUploadPage() {
                 </option>
               ))}
             </select>
-              <div><button type="button" disabled={consultationPage === 1} onClick={() => setConsultationPage(consultationPage - 1)}>Consultas anteriores</button><span> Página {consultationPage} </span><button type="button" disabled={!consultationData?.next} onClick={() => setConsultationPage(consultationPage + 1)}>Más consultas</button></div>
+              <div className="workspace-pagination"><button className="clinical-action-outline clinical-action-compact" type="button" disabled={consultationPage === 1} onClick={() => setConsultationPage(consultationPage - 1)}>Consultas anteriores</button><span className="workspace-pagination-summary" aria-live="polite">Página {consultationPage}</span><button className="clinical-action-outline clinical-action-compact" type="button" disabled={!consultationData?.next} onClick={() => setConsultationPage(consultationPage + 1)}>Más consultas</button></div>
             {errors.consulta_id && (
               <div id="consulta-error" className="clinical-form-field-error">
                 {errorText("consulta_id")}

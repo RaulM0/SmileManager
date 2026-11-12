@@ -18,10 +18,11 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `request` — línea 7.
+- `request` — línea 8.
 
 ## Dependencias internas
 
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fpages_2FClinicAdministrationPage.tsx|frontend/src/pages/ClinicAdministrationPage.tsx]]
+- [[docs/mapa/archivos/frontend_2Fsrc_2Ftest_2FrenderWithToast.tsx|frontend/src/test/renderWithToast.tsx]]
 
 Este índice resuelve imports Python y referencias relativas JS/TS; no ejecuta módulos ni representa todas las dependencias dinámicas.

@@ -1,4 +1,5 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { renderWithToast as render } from "../test/renderWithToast";
+import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, expect, test, vi } from 'vitest';
 import { api, ApiError } from '../api/client';

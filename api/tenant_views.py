@@ -3,6 +3,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.conf import settings
 from django.core.mail import send_mail
+from django.template.loader import render_to_string
 from django.db import transaction
 from urllib.parse import urlsplit
 from rest_framework import serializers
@@ -94,8 +95,13 @@ def invitation_delivery_url():
 
 
 def deliver_invitation(invitation, token, url):
+    html = render_to_string('api/emails/invitation.html', {
+        'clinic_name': invitation.clinic.name,
+        'invitation_url': f'{url}#{token}',
+        'expires_at': invitation.expires_at,
+    })
     delivered = send_mail('Invitación a SmileManager', f'Has recibido una invitación. Abre este enlace para aceptarla o rechazarla:\n{url}#{token}',
-                          settings.DEFAULT_FROM_EMAIL, [invitation.email], fail_silently=False)
+                          settings.DEFAULT_FROM_EMAIL, [invitation.email], html_message=html, fail_silently=False)
     if delivered != 1:
         raise InvitationUnavailable()
 

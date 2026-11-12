@@ -46,7 +46,7 @@ export default function ConsultationHistoryPage() {
           </ol> : <div className="workspace-empty-state">No hay consultas registradas.</div>}
         </div>
       )}
-      {data && <nav aria-label="Páginas de consultas"><button disabled={page === 1} onClick={() => setPage(page - 1)}>Anterior</button><span> Página {page} </span><button disabled={!data.next} onClick={() => setPage(page + 1)}>Siguiente</button></nav>}
+      {data && <nav className="workspace-pagination" aria-label="Páginas de consultas"><button className="clinical-action-outline clinical-action-compact" disabled={page === 1} onClick={() => setPage(page - 1)}>Anterior</button><span className="workspace-pagination-summary" aria-live="polite">Página {page}</span><button className="clinical-action-outline clinical-action-compact" disabled={!data.next} onClick={() => setPage(page + 1)}>Siguiente</button></nav>}
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { useToast } from "../context/ToastContext";
 import { auditActionLabel } from "../utils/auditLabels";
 import { Link } from 'react-router-dom';
 import {
@@ -43,12 +44,12 @@ const roleLabel = (role: Role) =>
   roles.find(([value]) => value === role)?.[1] ?? role;
 
 export default function ClinicAdministrationPage({ aiEnabled = false }: { aiEnabled?: boolean }) {
+  const toast = useToast();
   const clinic = getClinicContext();
   const client = useQueryClient();
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<Role>("DOCTOR");
   const [page, setPage] = useState(1);
-  const [message, setMessage] = useState("");
   const [membershipChange, setMembershipChange] = useState<{
     member: Member;
     status: "ACTIVE" | "SUSPENDED" | "REVOKED";
@@ -84,12 +85,12 @@ export default function ClinicAdministrationPage({ aiEnabled = false }: { aiEnab
       api(path, { method, ...(body ? { body: JSON.stringify(body) } : {}) }),
     onSuccess: async () => {
       setMembershipChange(null);
-      setMessage("Operación realizada.");
+      toast.success("Operación realizada.");
       await client.invalidateQueries({ queryKey: key });
     },
     onError: (error) => {
       setMembershipChange(null);
-      setMessage(getErrorMessage(error));
+      toast.error(getErrorMessage(error));
     },
   });
   function invite(event: FormEvent) {
@@ -110,14 +111,6 @@ export default function ClinicAdministrationPage({ aiEnabled = false }: { aiEnab
           </p>
         </div>
       </div>
-      {message && (
-        <div
-          className={`${mutation.isError ? "workspace-inline-error" : "workspace-inline-success"} co-mb-4`}
-          role={mutation.isError ? "alert" : "status"}
-        >
-          {message}
-        </div>
-      )}
       {dashboard.isPending ? (
         <AdminState pending />
       ) : dashboard.isError ? (

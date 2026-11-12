@@ -18,7 +18,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `ActionFixture` — línea 5.
+- `ActionFixture` — línea 7.
 
 ## Dependencias internas
 

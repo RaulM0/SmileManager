@@ -1,3 +1,4 @@
+import { useToast } from "./ToastContext";
 import {
   createContext,
   useCallback,
@@ -23,6 +24,7 @@ interface AuthValue {
 const AuthContext = createContext<AuthValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const toast = useToast();
   const [user, setUser] = useState<SessionUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [reauth, setReauth] = useState(false);
@@ -92,22 +94,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
   async function confirmIdentity() {
     if (reauthBusy) return;
-    if (!reauthForm.password) { setReauthError('Ingresa tu contraseña.'); return; }
+    if (!reauthForm.password) { setReauthError('Ingresa tu contraseña.'); toast.warning('Ingresa tu contraseña.'); return; }
     setReauthBusy(true);
     try {
       await api('auth/reauthenticate/', { method: 'POST', body: JSON.stringify(reauthForm) });
+      toast.success('Identidad confirmada. Vuelve a enviar la operación.');
       setReauth(false);
       setReauthForm({ password: '', code: '' });
       setReauthError('');
-    } catch (error) { setReauthError(getErrorMessage(error)); }
+    } catch (error) { setReauthError(getErrorMessage(error)); toast.error(getErrorMessage(error)); }
     finally { setReauthBusy(false); }
   }
   return <AuthContext.Provider value={value}>{children}
-    {reauth && user && <ConfirmDialog title="Confirma tu identidad" confirmLabel="Confirmar identidad" busy={reauthBusy} onConfirm={() => void confirmIdentity()} onClose={() => { setReauth(false); setReauthForm({ password: '', code: '' }); }}>
-      <p>Después de confirmar, vuelve a enviar la operación que estabas realizando.</p>
-      <label htmlFor="reauth-password">Contraseña</label><input id="reauth-password" className="clinical-form-control" type="password" autoComplete="current-password" value={reauthForm.password} onChange={(event) => setReauthForm({ ...reauthForm, password: event.target.value })} />
-      {user.mfa_enabled && <><label htmlFor="reauth-code">Código del autenticador o de recuperación</label><input id="reauth-code" className="clinical-form-control" autoComplete="one-time-code" value={reauthForm.code} onChange={(event) => setReauthForm({ ...reauthForm, code: event.target.value })} /></>}
-      {reauthError && <p role="alert">{reauthError}</p>}
+    {reauth && user && <ConfirmDialog title="Confirma tu identidad" confirmLabel="Confirmar identidad" variant="primary" busyLabel="Verificando…" busy={reauthBusy} onConfirm={() => void confirmIdentity()} onClose={() => { setReauth(false); setReauthForm({ password: '', code: '' }); }}>
+      <div className="reauth-dialog-body"><p className="reauth-dialog-description">Ingresa tu contraseña para continuar. Después de confirmar, vuelve a enviar la operación que estabas realizando.</p>
+      <div className="clinical-form-field"><label className="clinical-form-label" htmlFor="reauth-password">Contraseña</label><input id="reauth-password" className="clinical-form-control" type="password" autoComplete="current-password" value={reauthForm.password} onChange={(event) => setReauthForm({ ...reauthForm, password: event.target.value })} /></div>
+      {user.mfa_enabled && <div className="clinical-form-field"><label className="clinical-form-label" htmlFor="reauth-code">Código del autenticador o de recuperación</label><input id="reauth-code" className="clinical-form-control" autoComplete="one-time-code" value={reauthForm.code} onChange={(event) => setReauthForm({ ...reauthForm, code: event.target.value })} /></div>}
+      {reauthError && <p className="clinical-form-alert" role="alert">{reauthError}</p>}</div>
     </ConfirmDialog>}
   </AuthContext.Provider>;
 }

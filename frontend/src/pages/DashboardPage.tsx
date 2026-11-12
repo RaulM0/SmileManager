@@ -96,14 +96,14 @@ export default function DashboardPage() {
           <Link to="/appointments">Ver agenda completa <i className="bi bi-arrow-right" aria-hidden="true" /></Link>
         </div>
         <AppointmentTable appointments={data.today} />
-        {data.today_count > data.today.length && <p>Se muestran {data.today.length} de {data.today_count} citas. Consulta la agenda completa.</p>}
+        {data.today_count > data.today.length && <p className="workspace-section-note">Se muestran {data.today.length} de {data.today_count} citas. <Link to="/appointments">Ver agenda completa</Link></p>}
       </section>
       <section className="workspace-section" aria-labelledby="upcoming-heading">
         <div className="workspace-section-heading">
           <div><h2 id="upcoming-heading">Próximas citas</h2><p>Siguientes pacientes programados</p></div>
         </div>
         <AppointmentTable appointments={data.upcoming} future />
-        {data.upcoming.length > 0 && <p>La lista muestra las próximas citas hasta el límite de la vista. Consulta la agenda completa para ver más.</p>}
+        {data.upcoming.length > 0 && <p className="workspace-section-note">Estas son tus próximas citas. <Link to="/appointments">Ver agenda completa <i className="bi bi-arrow-right" aria-hidden="true" /></Link></p>}
       </section>
     </div>
   );

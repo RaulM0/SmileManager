@@ -1,3 +1,4 @@
+import { useToast } from "../../context/ToastContext";
 import {
   AdminSection,
   AdminState,
@@ -22,6 +23,7 @@ const labels: Record<ClinicStatus, string> = {
 };
 
 export default function PlatformClinicsPage() {
+  const toast = useToast();
   const { user } = useAuth();
   const client = useQueryClient();
   const [page, setPage] = useState(1);
@@ -34,7 +36,6 @@ export default function PlatformClinicsPage() {
   const [slug, setSlug] = useState("");
   const [email, setEmail] = useState("");
   const [replacement, setReplacement] = useState("");
-  const [message, setMessage] = useState("");
   const clinics = useQuery({
     queryKey: ["platform-clinics", page],
     enabled: Boolean(user?.is_platform_admin),
@@ -55,7 +56,7 @@ export default function PlatformClinicsPage() {
         ...(body ? { body: JSON.stringify(body) } : {}),
       }),
     onSuccess: async () => {
-      setMessage("Operación realizada.");
+      toast.success("Operación realizada.");
       setChange(null);
       await Promise.all([
         client.invalidateQueries({ queryKey: ["platform-clinics"] }),
@@ -64,7 +65,7 @@ export default function PlatformClinicsPage() {
     },
     onError: (error) => {
       setChange(null);
-      setMessage(getErrorMessage(error));
+      toast.error(getErrorMessage(error));
     },
   });
   function create(event: FormEvent) {
@@ -106,14 +107,6 @@ export default function PlatformClinicsPage() {
           </p>
         </div>
       </div>
-      {message && (
-        <div
-          className={`${mutation.isError ? "workspace-inline-error" : "workspace-inline-success"} co-mb-4`}
-          role={mutation.isError ? "alert" : "status"}
-        >
-          {message}
-        </div>
-      )}
       {clinics.data?.results[0]?.ai_globally_enabled === false && (
         <div className="workspace-inline-warning co-mb-4" role="status">
           IA está apagada para todo el sistema. Puedes preparar clínicas individuales, pero no tendrán acceso hasta activar <code>FEATURE_AI_ENABLED</code>.
@@ -220,7 +213,6 @@ export default function PlatformClinicsPage() {
                         className="clinical-action-outline"
                         onClick={() => {
                           setSelected(clinic);
-                          setMessage("");
                         }}
                       >
                         Administración inicial

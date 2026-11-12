@@ -326,7 +326,7 @@ export default function AppointmentsPage() {
               </div>
             )}
           </div>
-          <nav aria-label="Páginas de citas"><button type="button" disabled={page === 1 || listing.isFetching} onClick={() => setPage(page - 1)}>Anterior</button><span> Página {page} </span><button type="button" disabled={!listing.data?.next || listing.isFetching} onClick={() => setPage(page + 1)}>Siguiente</button></nav>
+          <nav className="workspace-pagination" aria-label="Páginas de citas"><button className="clinical-action-outline clinical-action-compact" type="button" disabled={page === 1 || listing.isFetching} onClick={() => setPage(page - 1)}>Anterior</button><span className="workspace-pagination-summary" aria-live="polite">Página {page}</span><button className="clinical-action-outline clinical-action-compact" type="button" disabled={!listing.data?.next || listing.isFetching} onClick={() => setPage(page + 1)}>Siguiente</button></nav>
         </>
       ) : (
         <button className="clinical-action-outline" onClick={() => void listing.refetch()}>Reintentar</button>

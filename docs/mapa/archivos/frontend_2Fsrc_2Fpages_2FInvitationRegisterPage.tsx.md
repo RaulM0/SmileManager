@@ -18,10 +18,13 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `InvitationRegisterPage` — línea 6.
+- `InvitationRegisterPage` — línea 10.
 
 ## Dependencias internas
 
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fapi_2Fclient.ts|frontend/src/api/client.ts]]
+- [[docs/mapa/archivos/frontend_2Fsrc_2Fcomponents_2FInvitationLayout.tsx|frontend/src/components/InvitationLayout.tsx]]
+- [[docs/mapa/archivos/frontend_2Fsrc_2Fcontext_2FToastContext.tsx|frontend/src/context/ToastContext.tsx]]
+- [[docs/mapa/archivos/frontend_2Fsrc_2Futils_2Finvitations.ts|frontend/src/utils/invitations.ts]]
 
 Este índice resuelve imports Python y referencias relativas JS/TS; no ejecuta módulos ni representa todas las dependencias dinámicas.

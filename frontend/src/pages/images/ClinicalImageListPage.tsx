@@ -88,7 +88,7 @@ export default function ClinicalImageListPage({ searchable = false }: { searchab
                     </option>
                   ))}
                 </select>
-                <div><button type="button" disabled={consultationPage === 1} onClick={() => setConsultationPage(consultationPage - 1)}>Consultas anteriores</button><span> Página {consultationPage} </span><button type="button" disabled={!consultationQuery.data?.next} onClick={() => setConsultationPage(consultationPage + 1)}>Más consultas</button></div>
+                <div className="workspace-pagination"><button className="clinical-action-outline clinical-action-compact" type="button" disabled={consultationPage === 1} onClick={() => setConsultationPage(consultationPage - 1)}>Consultas anteriores</button><span className="workspace-pagination-summary" aria-live="polite">Página {consultationPage}</span><button className="clinical-action-outline clinical-action-compact" type="button" disabled={!consultationQuery.data?.next} onClick={() => setConsultationPage(consultationPage + 1)}>Más consultas</button></div>
               </div>
             </div>
         </section>
@@ -134,7 +134,7 @@ export default function ClinicalImageListPage({ searchable = false }: { searchab
           ) : (
             <div className="workspace-empty-state"><span>{filters.date || filters.consultation_id ? "No hay imágenes clínicas para los filtros actuales." : "No hay imágenes clínicas."}</span>{searchable && (filters.date || filters.consultation_id) && <button type="button" className="clinical-action-outline co-mt-3" onClick={() => { setPage(1); setFilters({ date: "", consultation_id: "" }); }}>Limpiar filtros</button>}</div>
           )}
-          <nav aria-label="Páginas de imágenes"><button disabled={page === 1 || listing.isFetching} onClick={() => setPage(page - 1)}>Anterior</button><span> Página {page} </span><button disabled={!listing.data?.next || listing.isFetching} onClick={() => setPage(page + 1)}>Siguiente</button></nav>
+          <nav className="workspace-pagination" aria-label="Páginas de imágenes"><button className="clinical-action-outline clinical-action-compact" disabled={page === 1 || listing.isFetching} onClick={() => setPage(page - 1)}>Anterior</button><span className="workspace-pagination-summary" aria-live="polite">Página {page}</span><button className="clinical-action-outline clinical-action-compact" disabled={!listing.data?.next || listing.isFetching} onClick={() => setPage(page + 1)}>Siguiente</button></nav>
         </>
       )}
     </div>

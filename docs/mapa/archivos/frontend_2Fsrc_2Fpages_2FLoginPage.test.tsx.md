@@ -22,6 +22,7 @@ Sin declaraciones principales detectadas por el índice estático.
 
 ## Dependencias internas
 
+- [[docs/mapa/archivos/frontend_2Fsrc_2Fapi_2Fclient.ts|frontend/src/api/client.ts]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fcontext_2FToastContext.tsx|frontend/src/context/ToastContext.tsx]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fpages_2FLoginPage.tsx|frontend/src/pages/LoginPage.tsx]]
 

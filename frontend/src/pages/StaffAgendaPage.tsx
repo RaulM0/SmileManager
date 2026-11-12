@@ -1,3 +1,4 @@
+import { useToast } from "../context/ToastContext";
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -12,6 +13,7 @@ const empty = { paciente_id: "", fecha: "", hora: "10:00", motivo: "" };
 const stateLabel = { P: "Pendiente", C: "Completada", A: "Anulada" };
 
 export default function StaffAgendaPage() {
+  const toast = useToast();
   const clinic = getClinicContext();
   const client = useQueryClient();
   const [term, setTerm] = useState("");
@@ -20,15 +22,14 @@ export default function StaffAgendaPage() {
   const [form, setForm] = useState(empty);
   const [editing, setEditing] = useState<number | null>(null);
   const [transition, setTransition] = useState<{ appointment: Appointment; operation: "complete" | "cancel" } | null>(null);
-  const [message, setMessage] = useState("");
   const guard = useUnsavedChanges(form.paciente_id !== "" || form.fecha !== "" || form.motivo !== "");
   const key = [clinic, "staff-agenda"];
   const patients = useQuery({ queryKey: [...key, "patients", term], queryFn: () => api<{ results: Patient[] }>(`clinics/staff/patients/?term=${encodeURIComponent(term)}`) });
   const appointments = useQuery({ queryKey: [...key, "appointments", date, page], queryFn: () => api<Paginated<Appointment>>(`clinics/staff/appointments/?page=${page}&date=${date}`) });
   const mutation = useMutation({
     mutationFn: ({ path, method, body }: { path: string; method: string; body?: object }) => api(path, { method, ...(body ? { body: JSON.stringify(body) } : {}) }),
-    onSuccess: async (_, variables) => { if (variables.body) { guard.markSaved(); setForm(empty); setEditing(null); } setTransition(null); setMessage("Cita guardada correctamente."); await client.invalidateQueries({ queryKey: key }); },
-    onError: error => setMessage(getErrorMessage(error)),
+    onSuccess: async (_, variables) => { if (variables.body) { guard.markSaved(); setForm(empty); setEditing(null); } setTransition(null); toast.success("Cita guardada correctamente."); await client.invalidateQueries({ queryKey: key }); },
+    onError: error => toast.error(getErrorMessage(error)),
   });
   function save(event: FormEvent) {
     event.preventDefault();
@@ -42,7 +43,6 @@ export default function StaffAgendaPage() {
   return <div className="workspace-page co-mx-auto co-max-w-[1320px]">
     {guard.prompt}
     <h1>Agenda de recepción</h1><p>Programa y actualiza citas de la clínica. Los expedientes están reservados al médico asignado.</p>
-    {message && <p role={mutation.isError ? "alert" : "status"}>{message}</p>}
     <section className="workspace-section"><h2>{editing ? "Editar cita" : "Nueva cita"}</h2>
       <label>Buscar paciente <input value={term} onChange={event => setTerm(event.target.value)} /></label>
       {patients.isError && <p role="alert">No fue posible cargar los pacientes.</p>}
@@ -56,7 +56,7 @@ export default function StaffAgendaPage() {
       </form>
     </section>
     <section className="workspace-section"><h2>Citas</h2><label>Filtrar por fecha <input type="date" value={date} onChange={event => { setDate(event.target.value); setPage(1); }} /></label>
-      {appointments.isPending ? <p role="status">Cargando agenda…</p> : appointments.isError ? <p role="alert">No fue posible cargar la agenda.</p> : <div className="workspace-table-scroll"><table className="workspace-data-table"><thead><tr><th>Paciente</th><th>Médico</th><th>Fecha</th><th>Hora</th><th>Motivo</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>{appointments.data?.results.map(appointment => <tr key={appointment.id}><td>{appointment.patient.name}</td><td>{appointment.patient.doctor}</td><td>{appointment.fecha}</td><td>{appointment.hora.slice(0, 5)}</td><td>{appointment.motivo}</td><td>{stateLabel[appointment.estatus]}</td><td><button type="button" disabled={mutation.isPending} onClick={() => edit(appointment)}>Editar</button>{appointment.estatus === "P" && <><button type="button" disabled={mutation.isPending} onClick={() => setTransition({ appointment, operation: "complete" })}>Completar</button><button type="button" disabled={mutation.isPending} onClick={() => setTransition({ appointment, operation: "cancel" })}>Anular</button></>}</td></tr>)}</tbody></table>{appointments.data?.results.length === 0 && <p>No hay citas.</p>}<nav aria-label="Paginación de agenda"><button disabled={page === 1} onClick={() => setPage(page - 1)}>Anterior</button> Página {page} <button disabled={!appointments.data?.next} onClick={() => setPage(page + 1)}>Siguiente</button></nav></div>}
+      {appointments.isPending ? <p role="status">Cargando agenda…</p> : appointments.isError ? <p role="alert">No fue posible cargar la agenda.</p> : <div className="workspace-table-scroll"><table className="workspace-data-table"><thead><tr><th>Paciente</th><th>Médico</th><th>Fecha</th><th>Hora</th><th>Motivo</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>{appointments.data?.results.map(appointment => <tr key={appointment.id}><td>{appointment.patient.name}</td><td>{appointment.patient.doctor}</td><td>{appointment.fecha}</td><td>{appointment.hora.slice(0, 5)}</td><td>{appointment.motivo}</td><td>{stateLabel[appointment.estatus]}</td><td><button type="button" disabled={mutation.isPending} onClick={() => edit(appointment)}>Editar</button>{appointment.estatus === "P" && <><button type="button" disabled={mutation.isPending} onClick={() => setTransition({ appointment, operation: "complete" })}>Completar</button><button type="button" disabled={mutation.isPending} onClick={() => setTransition({ appointment, operation: "cancel" })}>Anular</button></>}</td></tr>)}</tbody></table>{appointments.data?.results.length === 0 && <p>No hay citas.</p>}<nav className="workspace-pagination" aria-label="Paginación de agenda"><button className="clinical-action-outline clinical-action-compact" disabled={page === 1} onClick={() => setPage(page - 1)}>Anterior</button><span className="workspace-pagination-summary" aria-live="polite">Página {page}</span><button className="clinical-action-outline clinical-action-compact" disabled={!appointments.data?.next} onClick={() => setPage(page + 1)}>Siguiente</button></nav></div>}
     </section>
     {transition && <ConfirmDialog title="Cambiar estado de cita" confirmLabel="Confirmar cambio" busy={mutation.isPending} onClose={() => setTransition(null)} onConfirm={() => mutation.mutate({ path: `clinics/staff/appointments/${transition.appointment.id}/${transition.operation}/`, method: "POST" })}><p>Se cambiará el estado de la cita de {transition.appointment.patient.name}.</p></ConfirmDialog>}
   </div>;

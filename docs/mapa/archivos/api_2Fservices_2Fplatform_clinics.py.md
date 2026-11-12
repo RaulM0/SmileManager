@@ -21,10 +21,10 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 - `_locked_platform_actor` — línea 20.
 - `_initial_invitation` — línea 28.
 - `create_clinic` — línea 56.
-- `change_clinic_status` — línea 75.
-- `change_clinic_ai` — línea 89.
-- `invite_initial_administrator` — línea 109.
-- `revoke_initial_invitation` — línea 118.
+- `change_clinic_status` — línea 76.
+- `change_clinic_ai` — línea 90.
+- `invite_initial_administrator` — línea 110.
+- `revoke_initial_invitation` — línea 125.
 
 ## Dependencias internas
 

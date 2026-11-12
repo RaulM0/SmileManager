@@ -16,6 +16,7 @@ def transition_clinic(*, clinic_id, target):
     if target != clinic.status and target not in transitions.get(clinic.status, set()):
         raise ValidationError('Transición de clínica no válida.')
     if target != clinic.status:
+        clinic.invitations.filter(activates_clinic=True).update(activates_clinic=False)
         clinic.status = target
         clinic.save(update_fields=['status', 'updated_at'])
     return clinic

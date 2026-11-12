@@ -18,13 +18,13 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `ToastKind` — línea 4.
-- `Toast` — línea 5.
-- `ToastContextValue` — línea 6.
-- `ToastContext` — línea 12.
-- `ToastItem` — línea 14.
-- `ToastProvider` — línea 29.
-- `useToast` — línea 56.
+- `ToastKind` — línea 5.
+- `Toast` — línea 6.
+- `ToastContextValue` — línea 7.
+- `ToastContext` — línea 14.
+- `ToastItem` — línea 16.
+- `ToastProvider` — línea 31.
+- `useToast` — línea 67.
 
 ## Dependencias internas
 

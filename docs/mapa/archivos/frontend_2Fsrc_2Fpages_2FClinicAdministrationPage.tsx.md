@@ -18,20 +18,21 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `Role` — línea 16.
-- `Member` — línea 17.
-- `Invitation` — línea 24.
-- `Event` — línea 25.
-- `Dashboard` — línea 31.
-- `roles` — línea 37.
-- `roleLabel` — línea 42.
-- `ClinicAdministrationPage` — línea 45.
+- `Role` — línea 17.
+- `Member` — línea 18.
+- `Invitation` — línea 25.
+- `Event` — línea 26.
+- `Dashboard` — línea 32.
+- `roles` — línea 38.
+- `roleLabel` — línea 43.
+- `ClinicAdministrationPage` — línea 46.
 
 ## Dependencias internas
 
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fapi_2Fclient.ts|frontend/src/api/client.ts]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fcomponents_2FConfirmDialog.tsx|frontend/src/components/ConfirmDialog.tsx]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fcomponents_2Fworkspace_2FAdministration.tsx|frontend/src/components/workspace/Administration.tsx]]
+- [[docs/mapa/archivos/frontend_2Fsrc_2Fcontext_2FToastContext.tsx|frontend/src/context/ToastContext.tsx]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Ftypes_2Fdomain.ts|frontend/src/types/domain.ts]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Futils_2FauditLabels.ts|frontend/src/utils/auditLabels.ts]]
 
