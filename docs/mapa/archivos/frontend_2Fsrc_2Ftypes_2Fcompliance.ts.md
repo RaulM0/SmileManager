@@ -19,10 +19,10 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 ## Símbolos principales
 
 - `noticeFields` — línea 1.
-- `Notice` — línea 9.
-- `ConsentTemplate` — línea 10.
-- `ConsentEvidence` — línea 11.
-- `ConsentWorkspace` — línea 12.
+- `Notice` — línea 15.
+- `ConsentTemplate` — línea 22.
+- `ConsentEvidence` — línea 31.
+- `ConsentWorkspace` — línea 46.
 
 ## Dependencias internas
 

@@ -5,6 +5,7 @@ import threading
 
 from django.contrib.auth.models import Permission, User
 from django.core import mail
+from django.core.cache import cache
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.db import close_old_connections
@@ -19,6 +20,7 @@ from api.serializers import SessionUserSerializer
 @override_settings(TENANT_INVITATION_URL='https://example.test/app/invitations/accept')
 class PlatformClinicTests(APITestCase):
     def setUp(self):
+        cache.clear()
         self.platform = User.objects.create_user('platform-user', email='platform@example.test')
         self.role = PlatformAdmin.objects.create(user=self.platform, is_active=True)
         self.initial_admin = User.objects.create_user('initial-admin', email='initial@example.test')
@@ -160,3 +162,148 @@ class PlatformRoleConcurrencyTests(TransactionTestCase):
             results = list(executor.map(revoke, (0, 1)))
         self.assertCountEqual(results, ['revoked', 'denied'])
         self.assertEqual(PlatformAdmin.objects.filter(is_active=True, user__is_active=True).count(), 1)
+
+
+@override_settings(TENANT_INVITATION_URL="https://example.test/app/invitations/accept")
+class InitialClinicActivationTests(APITestCase):
+    setUp = PlatformClinicTests.setUp
+    payload = staticmethod(PlatformClinicTests.payload)
+    def create_pending(self):
+        response = self.client.post(reverse('platform-clinics'), {**self.payload(), 'status': 'INACTIVE'}, format='json')
+        self.assertEqual(response.status_code, 201, response.data)
+        clinic = Clinic.objects.get(pk=response.data['id'])
+        token = mail.outbox[-1].body.split('#', 1)[1].strip()
+        return clinic, token
+
+    def test_initial_preview_and_accept_activate_atomically(self):
+        clinic, token = self.create_pending()
+        self.client.force_authenticate(self.initial_admin)
+        preview = self.client.post(reverse('clinic-invitation-preview'), {'token': token}, format='json')
+        self.assertEqual(preview.status_code, 200)
+        clinic.refresh_from_db()
+        self.assertEqual(clinic.status, 'INACTIVE')
+        response = self.client.post(reverse('clinic-invitation-resolve'), {'token': token, 'action': 'accept'}, format='json')
+        self.assertEqual(response.status_code, 200)
+        clinic.refresh_from_db()
+        self.assertEqual(clinic.status, 'ACTIVE')
+        self.assertTrue(clinic.memberships.filter(user=self.initial_admin, role='CLINIC_ADMIN', status='ACTIVE').exists())
+        self.assertTrue(AuditEvent.objects.filter(clinic=clinic, action='CLINIC_ACTIVATED_ON_INVITATION').exists())
+
+    def test_reject_does_not_activate(self):
+        clinic, token = self.create_pending()
+        self.client.force_authenticate(self.initial_admin)
+        response = self.client.post(reverse('clinic-invitation-resolve'), {'token': token, 'action': 'reject'}, format='json')
+        self.assertEqual(response.status_code, 200)
+        clinic.refresh_from_db()
+        self.assertEqual(clinic.status, 'INACTIVE')
+        self.assertFalse(clinic.memberships.exists())
+
+    def test_registration_activates_initial_clinic(self):
+        clinic, token = self.create_pending()
+        self.initial_admin.delete()
+        self.client.force_authenticate(user=None)
+        from api.services.invitations import preview_registration, register_with_invitation
+        import uuid
+        self.assertEqual(preview_registration(token).clinic_id, clinic.pk)
+        user = register_with_invitation(token=token, username='new-initial-admin', password='Unique$Password987', request_id=uuid.uuid4())
+        clinic.refresh_from_db()
+        self.assertEqual(clinic.status, 'ACTIVE')
+        self.assertTrue(clinic.memberships.filter(user=user, role='CLINIC_ADMIN').exists())
+
+    def test_manual_deactivation_cancels_initial_activation(self):
+        clinic, token = self.create_pending()
+        url = reverse('platform-clinic-status', args=[clinic.pk])
+        self.assertEqual(self.client.post(url, {'status': 'ACTIVE'}, format='json').status_code, 200)
+        self.assertEqual(self.client.post(url, {'status': 'INACTIVE'}, format='json').status_code, 200)
+        self.client.force_authenticate(self.initial_admin)
+        response = self.client.post(reverse('clinic-invitation-preview'), {'token': token}, format='json')
+        self.assertEqual(response.status_code, 403)
+        clinic.refresh_from_db()
+        self.assertEqual(clinic.status, 'INACTIVE')
+
+    def test_suspended_and_ordinary_invitations_cannot_activate(self):
+        from api.services.invitations import preview_invitation
+        from rest_framework.exceptions import PermissionDenied
+        clinic, token = self.create_pending()
+        invitation = clinic.invitations.get()
+        for status, role, activates in [('SUSPENDED', 'CLINIC_ADMIN', True), ('INACTIVE', 'DOCTOR', True), ('INACTIVE', 'CLINIC_ADMIN', False)]:
+            clinic.status = status
+            clinic.save(update_fields=['status'])
+            invitation.role = role
+            invitation.activates_clinic = activates
+            invitation.save(update_fields=['role', 'activates_clinic'])
+            with self.assertRaises(PermissionDenied):
+                preview_invitation(user=self.initial_admin, token=token)
+
+
+    def test_replacement_initial_invitation_retains_activation(self):
+        clinic, token = self.create_pending()
+        original = clinic.invitations.get()
+        self.assertEqual(self.client.post(reverse('platform-clinic-initial-admin-revoke', args=[clinic.pk, original.pk])).status_code, 204)
+        response = self.client.post(reverse('platform-clinic-initial-admin', args=[clinic.pk]), {'email': self.initial_admin.email}, format='json')
+        self.assertEqual(response.status_code, 202)
+        self.assertTrue(clinic.invitations.get(status='PENDING').activates_clinic)
+        new_token = mail.outbox[-1].body.split('#', 1)[1].strip()
+        self.client.force_authenticate(self.initial_admin)
+        self.assertEqual(self.client.post(reverse('clinic-invitation-resolve'), {'token': new_token, 'action': 'accept'}, format='json').status_code, 200)
+        clinic.refresh_from_db()
+        self.assertEqual(clinic.status, 'ACTIVE')
+
+    def test_wrong_account_expired_and_revoked_do_not_activate(self):
+        from api.services.invitations import resolve_invitation
+        from rest_framework.exceptions import PermissionDenied
+        from datetime import timedelta
+        from django.utils import timezone
+        import uuid
+        clinic, token = self.create_pending()
+        with self.assertRaises(PermissionDenied):
+            resolve_invitation(user=self.platform, token=token, accept=True, request_id=uuid.uuid4())
+        invitation = clinic.invitations.get()
+        invitation.expires_at = timezone.now() - timedelta(seconds=1)
+        invitation.save(update_fields=['expires_at'])
+        with self.assertRaises(PermissionDenied):
+            resolve_invitation(user=self.initial_admin, token=token, accept=True, request_id=uuid.uuid4())
+        invitation.expires_at = timezone.now() + timedelta(days=1)
+        invitation.status = 'REVOKED'
+        invitation.save(update_fields=['expires_at', 'status'])
+        with self.assertRaises(PermissionDenied):
+            resolve_invitation(user=self.initial_admin, token=token, accept=True, request_id=uuid.uuid4())
+        clinic.refresh_from_db()
+        self.assertEqual(clinic.status, 'INACTIVE')
+        self.assertFalse(clinic.memberships.exists())
+
+
+@skipUnlessDBFeature('has_select_for_update')
+class InitialActivationConcurrencyTests(TransactionTestCase):
+    def test_concurrent_acceptance_activates_once(self):
+        import uuid
+        from api.services.invitations import resolve_invitation
+        from api.services.platform_clinics import create_clinic
+        from rest_framework.exceptions import PermissionDenied
+        actor = User.objects.create_user('activation-platform')
+        PlatformAdmin.objects.create(user=actor, is_active=True)
+        user = User.objects.create_user('activation-admin', email='activation@example.test')
+        clinic, invitation, token = create_clinic(actor=actor, name='Concurrent initial clinic', slug='concurrent-initial',
+            status='INACTIVE', initial_admin_email=user.email, request_id=uuid.uuid4())
+        barrier = threading.Barrier(2)
+
+        def accept(_):
+            close_old_connections()
+            try:
+                barrier.wait(timeout=10)
+                resolve_invitation(user=user, token=token, accept=True, request_id=uuid.uuid4())
+                return 'accepted'
+            except PermissionDenied:
+                return 'denied'
+            finally:
+                close_old_connections()
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            results = list(executor.map(accept, (0, 1)))
+        self.assertCountEqual(results, ['accepted', 'denied'])
+        clinic.refresh_from_db()
+        invitation.refresh_from_db()
+        self.assertEqual(clinic.status, 'ACTIVE')
+        self.assertEqual(invitation.status, 'ACCEPTED')
+        self.assertEqual(clinic.memberships.count(), 1)
+        self.assertEqual(AuditEvent.objects.filter(clinic=clinic, action='CLINIC_ACTIVATED_ON_INVITATION').count(), 1)

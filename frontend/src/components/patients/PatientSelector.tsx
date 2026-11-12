@@ -4,7 +4,11 @@ import type { PatientOption } from "../../types/domain";
 import { patientsService } from "../../services/patients";
 import { queryKeys } from "../../query/keys";
 
-export default function PatientSelector({ onSelect }: { onSelect: (patient: PatientOption) => void }) {
+export default function PatientSelector({
+  onSelect,
+}: {
+  onSelect: (patient: PatientOption) => void;
+}) {
   const [term, setTerm] = useState("");
   const [debouncedTerm, setDebouncedTerm] = useState(term);
   useEffect(() => {
@@ -34,8 +38,16 @@ export default function PatientSelector({ onSelect }: { onSelect: (patient: Pati
         aria-controls="patient-selector-results"
         aria-busy={loading}
       />
-      {error && <div className="clinical-form-field-error" role="alert">{error}</div>}
-      {loading && <div className="clinical-loading-note co-mt-2" role="status">Buscando pacientes…</div>}
+      {error && (
+        <div className="clinical-form-field-error" role="alert">
+          {error}
+        </div>
+      )}
+      {loading && (
+        <div className="clinical-loading-note co-mt-2" role="status">
+          Buscando pacientes…
+        </div>
+      )}
       <div
         className="patient-selector-results"
         id="patient-selector-results"
@@ -56,7 +68,9 @@ export default function PatientSelector({ onSelect }: { onSelect: (patient: Pati
         ))}
       </div>
       {!loading && !error && term.trim() && results.length === 0 && (
-        <p className="clinical-loading-note co-mt-2" role="status">No se encontraron pacientes.</p>
+        <p className="clinical-loading-note co-mt-2" role="status">
+          No se encontraron pacientes.
+        </p>
       )}
     </div>
   );

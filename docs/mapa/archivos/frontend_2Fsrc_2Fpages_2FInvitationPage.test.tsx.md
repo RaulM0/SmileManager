@@ -24,5 +24,6 @@ Sin declaraciones principales detectadas por el índice estático.
 
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fapi_2Fclient.ts|frontend/src/api/client.ts]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fpages_2FInvitationPage.tsx|frontend/src/pages/InvitationPage.tsx]]
+- [[docs/mapa/archivos/frontend_2Fsrc_2Ftest_2FrenderWithToast.tsx|frontend/src/test/renderWithToast.tsx]]
 
 Este índice resuelve imports Python y referencias relativas JS/TS; no ejecuta módulos ni representa todas las dependencias dinámicas.

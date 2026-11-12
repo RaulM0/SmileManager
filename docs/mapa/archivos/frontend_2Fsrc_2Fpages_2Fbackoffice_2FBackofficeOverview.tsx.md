@@ -19,7 +19,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 ## Símbolos principales
 
 - `BackofficeDashboard` — línea 6.
-- `BackofficeSystem` — línea 66.
+- `BackofficeSystem` — línea 72.
 
 ## Dependencias internas
 

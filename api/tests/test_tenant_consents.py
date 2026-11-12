@@ -138,3 +138,25 @@ class TenantConsentConcurrencyTests(TransactionTestCase):
                 statuses = list(executor.map(accept, (0, 1)))
             self.assertCountEqual(statuses, [201, 409])
             self.assertEqual(ConsentEvidence.objects.filter(patient=patient).count(), 2)
+
+
+class PrivacyPublisherIdentityTests(APITestCase):
+    def test_missing_publisher_name_can_be_corrected_before_retry(self):
+        from api.privacy import NOTICE_FIELDS
+        from Pacientes.models import PrivacyNotice
+        user = User.objects.create_user('publisher-no-name')
+        clinic = Clinic.objects.create(name='Synthetic privacy clinic', slug='publisher-name-check', status='ACTIVE')
+        ClinicMembership.objects.create(user=user, clinic=clinic, role='CLINIC_ADMIN', status='ACTIVE')
+        self.client.force_authenticate(user)
+        body = {key: ('privacy@example.test' if key == 'privacy_email' else 'Contenido sintético de prueba') for key in NOTICE_FIELDS}
+        body['review_confirmed'] = True
+        url = reverse('publish-privacy-notice')
+        response = self.client.post(url, body, format='json', HTTP_X_CLINIC_ID=str(clinic.pk))
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data['code'], 'profile_name_required')
+        self.assertFalse(PrivacyNotice.objects.filter(clinic=clinic).exists())
+        user.first_name, user.last_name = 'Persona', 'Sintética'
+        user.save(update_fields=['first_name', 'last_name'])
+        response = self.client.post(url, body, format='json', HTTP_X_CLINIC_ID=str(clinic.pk))
+        self.assertEqual(response.status_code, 201, response.data)
+        self.assertEqual(PrivacyNotice.objects.get(clinic=clinic).approved_name, 'Persona Sintética')

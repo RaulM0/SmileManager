@@ -14,15 +14,15 @@
 
 ## Matriz
 
-| Grupo | Rutas | Estrategia | Estado |
-|---|---|---|---|
-| Shell | todas | router/protección/logout intactos; sidebar y drawer mobile con rutas vigentes | REDESIGNED; E2E shell y captura desktop/mobile |
-| Inicio | `/` | agenda de hoy y próximas citas en tablas; resumen desde `dashboard/` | REDESIGNED; inspección visual desktop/mobile |
-| Citas | `/appointments*` | calendario mensual desktop, agenda por fecha en móvil con vista mensual opcional; tabla/filtros/status existentes; error/retry y bloqueo de acción duplicada | REDESIGNED; E2E alta/edición/completar/cancelar y selector móvil; recorrido integral pendiente |
-| Pacientes | `/patients*` | hub como lista de tareas, tabla, header Patient 360 y nav contextual | REDESIGNED; E2E alta/edición/búsqueda/contacto/desactivar |
-| Clínico | `/clinical-record`, `/patients/:id/{record,medical-history,consultations*,odontogram,comparative-study,consent}` | contexto de paciente, antecedentes densos, odontograma con estados accesibles | REDESIGNED; E2E antecedentes/consulta/receta/odontograma/estudio/consentimiento |
-| Imágenes | `/patients/:id/images*`, `/diagnostics*` | flujo clínico, upload, filtros, viewer y análisis | REDESIGNED; E2E upload/filtro/delete/diagnóstico; assets de toolbar del viewer locales |
-| Administración | `/exports`, `/privacy`, `/login` | presentación sobria con acciones intactas | REDESIGNED; E2E login/privacidad/3 XLSX |
+| Grupo          | Rutas                                                                                                            | Estrategia                                                                                                                                                   | Estado                                                                                         |
+| -------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| Shell          | todas                                                                                                            | router/protección/logout intactos; sidebar y drawer mobile con rutas vigentes                                                                                | REDESIGNED; E2E shell y captura desktop/mobile                                                 |
+| Inicio         | `/`                                                                                                              | agenda de hoy y próximas citas en tablas; resumen desde `dashboard/`                                                                                         | REDESIGNED; inspección visual desktop/mobile                                                   |
+| Citas          | `/appointments*`                                                                                                 | calendario mensual desktop, agenda por fecha en móvil con vista mensual opcional; tabla/filtros/status existentes; error/retry y bloqueo de acción duplicada | REDESIGNED; E2E alta/edición/completar/cancelar y selector móvil; recorrido integral pendiente |
+| Pacientes      | `/patients*`                                                                                                     | hub como lista de tareas, tabla, header Patient 360 y nav contextual                                                                                         | REDESIGNED; E2E alta/edición/búsqueda/contacto/desactivar                                      |
+| Clínico        | `/clinical-record`, `/patients/:id/{record,medical-history,consultations*,odontogram,comparative-study,consent}` | contexto de paciente, antecedentes densos, odontograma con estados accesibles                                                                                | REDESIGNED; E2E antecedentes/consulta/receta/odontograma/estudio/consentimiento                |
+| Imágenes       | `/patients/:id/images*`, `/diagnostics*`                                                                         | flujo clínico, upload, filtros, viewer y análisis                                                                                                            | REDESIGNED; E2E upload/filtro/delete/diagnóstico; assets de toolbar del viewer locales         |
+| Administración | `/exports`, `/privacy`, `/login`                                                                                 | presentación sobria con acciones intactas                                                                                                                    | REDESIGNED; E2E login/privacidad/3 XLSX                                                        |
 
 E2E conectado a backend es la evidencia de flujos críticos, pero no cubre cada estado degradado, permiso ni tamaño de pantalla. No marcar un grupo como completamente VERIFIED solo por el flujo feliz.
 
@@ -52,4 +52,3 @@ E2E conectado a backend es la evidencia de flujos críticos, pero no cubre cada 
 - Pase `frontend-design`: se retiraron etiquetas de área en mayúsculas que repetían sidebar/Patient 360 en encabezados de trabajo; metadatos con ID de cita, consulta o imagen se conservaron en frase normal. Se compactó el margen del h1; capturas de Inicio, Pacientes, login y visor 390 px inspeccionadas después. Lint, build y E2E 3/3 pasan.
 - Errores, reintentos, saving y prevención de doble envío mejorados donde la lógica existente lo permitió.
 - APIs, payloads, rutas y query params se mantienen. E2E crítico y revisión visual del dashboard desktop/mobile ejecutados; tablet y estados de error intencionales aún pendientes.
-

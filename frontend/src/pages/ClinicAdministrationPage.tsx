@@ -1,5 +1,6 @@
+import { useToast } from "../context/ToastContext";
 import { auditActionLabel } from "../utils/auditLabels";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 import {
   AdminSection,
   AdminState,
@@ -42,13 +43,17 @@ const roles: Array<[Role, string]> = [
 const roleLabel = (role: Role) =>
   roles.find(([value]) => value === role)?.[1] ?? role;
 
-export default function ClinicAdministrationPage({ aiEnabled = false }: { aiEnabled?: boolean }) {
+export default function ClinicAdministrationPage({
+  aiEnabled = false,
+}: {
+  aiEnabled?: boolean;
+}) {
+  const toast = useToast();
   const clinic = getClinicContext();
   const client = useQueryClient();
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<Role>("DOCTOR");
   const [page, setPage] = useState(1);
-  const [message, setMessage] = useState("");
   const [membershipChange, setMembershipChange] = useState<{
     member: Member;
     status: "ACTIVE" | "SUSPENDED" | "REVOKED";
@@ -84,12 +89,12 @@ export default function ClinicAdministrationPage({ aiEnabled = false }: { aiEnab
       api(path, { method, ...(body ? { body: JSON.stringify(body) } : {}) }),
     onSuccess: async () => {
       setMembershipChange(null);
-      setMessage("Operación realizada.");
+      toast.success("Operación realizada.");
       await client.invalidateQueries({ queryKey: key });
     },
     onError: (error) => {
       setMembershipChange(null);
-      setMessage(getErrorMessage(error));
+      toast.error(getErrorMessage(error));
     },
   });
   function invite(event: FormEvent) {
@@ -110,14 +115,6 @@ export default function ClinicAdministrationPage({ aiEnabled = false }: { aiEnab
           </p>
         </div>
       </div>
-      {message && (
-        <div
-          className={`${mutation.isError ? "workspace-inline-error" : "workspace-inline-success"} co-mb-4`}
-          role={mutation.isError ? "alert" : "status"}
-        >
-          {message}
-        </div>
-      )}
       {dashboard.isPending ? (
         <AdminState pending />
       ) : dashboard.isError ? (
@@ -133,7 +130,12 @@ export default function ClinicAdministrationPage({ aiEnabled = false }: { aiEnab
               ["Citas hoy", dashboard.data.appointments.today],
               ["Médicos", dashboard.data.members.doctors],
               ["Personal", dashboard.data.members.staff],
-              ...(aiEnabled ? [["Análisis de IA", dashboard.data.ai.total], ["Fallos de IA", dashboard.data.ai.failed]] : []),
+              ...(aiEnabled
+                ? [
+                    ["Análisis de IA", dashboard.data.ai.total],
+                    ["Fallos de IA", dashboard.data.ai.failed],
+                  ]
+                : []),
             ].map(([label, value]) => (
               <div key={label}>
                 <span>{label}</span>
@@ -331,8 +333,23 @@ export default function ClinicAdministrationPage({ aiEnabled = false }: { aiEnab
             {events.data?.results.map((event) => (
               <li key={event.id}>
                 <div className="co-flex co-flex-wrap co-items-start co-justify-between co-gap-2">
-                  <div><strong>{auditActionLabel(event.action)}</strong><p className="co-m-0 co-text-xs co-text-clinical-muted">{event.actor ? `Realizado por ${event.actor}` : "Actividad automática del sistema"}</p></div>
-                  <time className="co-text-xs co-text-clinical-muted" dateTime={event.timestamp}>{new Date(event.timestamp).toLocaleString("es-MX", { dateStyle: "medium", timeStyle: "short" })}</time>
+                  <div>
+                    <strong>{auditActionLabel(event.action)}</strong>
+                    <p className="co-m-0 co-text-xs co-text-clinical-muted">
+                      {event.actor
+                        ? `Realizado por ${event.actor}`
+                        : "Actividad automática del sistema"}
+                    </p>
+                  </div>
+                  <time
+                    className="co-text-xs co-text-clinical-muted"
+                    dateTime={event.timestamp}
+                  >
+                    {new Date(event.timestamp).toLocaleString("es-MX", {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    })}
+                  </time>
                 </div>
               </li>
             ))}

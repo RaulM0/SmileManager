@@ -18,10 +18,10 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `root` — línea 11.
-- `python` — línea 12.
-- `manage` — línea 16.
-- `globalSetup` — línea 17.
+- `root` — línea 8.
+- `python` — línea 9.
+- `manage` — línea 17.
+- `globalSetup` — línea 18.
 
 ## Dependencias internas
 

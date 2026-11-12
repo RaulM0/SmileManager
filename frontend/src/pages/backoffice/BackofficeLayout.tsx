@@ -115,7 +115,10 @@ export function BackofficeLayout() {
             <div className="workspace-nav-group">
               <div className="workspace-nav-label">ADMINISTRACIÓN</div>
               {[
-                ...nav.filter(([, url]) => url !== "/backoffice/ai" || user.ai_globally_enabled),
+                ...nav.filter(
+                  ([, url]) =>
+                    url !== "/backoffice/ai" || user.ai_globally_enabled,
+                ),
                 ...(user.is_platform_admin
                   ? [["Clínicas", "/backoffice/clinics", "bi-building"]]
                   : []),

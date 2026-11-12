@@ -2,12 +2,12 @@
 
 La siguiente matriz describe únicamente los controles nuevos, no el comportamiento de todas las rutas existentes.
 
-| Operación implementada | Administrador activo de clínica activa | Médico o personal activos | Sin membresía vigente |
-| --- | --- | --- | --- |
-| Enumerar clínicas propias activas | Sí | Sí | No |
-| Validar contexto propio | Sí | Sí | No |
-| Cambiar rol o estado de una membresía de la misma clínica | Sí, con restricciones abajo | No | No |
-| Consulta clínica mediante la función de política nueva | No por el rol administrativo | Médico asignado; personal no | No |
+| Operación implementada                                    | Administrador activo de clínica activa | Médico o personal activos    | Sin membresía vigente |
+| --------------------------------------------------------- | -------------------------------------- | ---------------------------- | --------------------- |
+| Enumerar clínicas propias activas                         | Sí                                     | Sí                           | No                    |
+| Validar contexto propio                                   | Sí                                     | Sí                           | No                    |
+| Cambiar rol o estado de una membresía de la misma clínica | Sí, con restricciones abajo            | No                           | No                    |
+| Consulta clínica mediante la función de política nueva    | No por el rol administrativo           | Médico asignado; personal no | No                    |
 
 Los cambios de membresía se serializan mediante bloqueo de la clínica, verifican el rol actual en base de datos y generan un evento de auditoría en la misma transacción. No se permite eliminar al último administrador activo mediante esta operación, asignar `PLATFORM_ADMIN`, ni reactivar una membresía que no tenga aceptación registrada. Una membresía revocada requiere una nueva invitación aceptada. Estas garantías no cubren modificaciones directas en SQL o por código que ignore este servicio.
 

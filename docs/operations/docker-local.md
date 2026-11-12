@@ -34,6 +34,40 @@ docker compose --env-file .local-ops.env exec backend sh -c 'cat /var/lib/smilem
 
 ## Usuarios y clínicas
 
+### Envío real de correos desde el entorno local
+
+Agrega las siguientes variables al archivo privado `.local-ops.env` en la raíz,
+conservando las claves que ya contiene. No publiques este archivo ni sus valores:
+
+```dotenv
+DEV_EMAIL_DELIVERY=smtp
+EMAIL_HOST=smtp.tu-proveedor.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=true
+EMAIL_USER=tu-usuario-smtp
+EMAIL_PASS='tu-clave-smtp'
+DEFAULT_FROM_EMAIL=Tu Clínica <correo@tu-dominio.com>
+SMTP_TIMEOUT=30
+```
+
+Usa el servidor y las credenciales indicados por tu proveedor, con STARTTLS en
+el puerto 587. Si exige una contraseña de aplicación o credencial SMTP
+específica, usa esa credencial. El remitente debe estar autorizado por el proveedor.
+
+Aplica los cambios recreando el backend:
+
+```bash
+docker --context default compose --env-file .local-ops.env up -d --force-recreate backend
+```
+
+Las invitaciones, recuperación y contacto a pacientes usarán SMTP. Los enlaces
+continúan apuntando a `http://localhost:5173`: funcionan en el equipo donde corre
+Vite. Los recordatorios se envían al ejecutar su comando con `--send`; cambiar a
+SMTP no los programa automáticamente.
+
+Para volver a guardar los correos en archivos, cambia `DEV_EMAIL_DELIVERY=file`
+y recrea el backend con el mismo comando.
+
 Para cargar tres cuentas de demostración y una clínica activa en la base local:
 
 ```bash
@@ -165,7 +199,6 @@ directorio reservado a la prueba. No arranca ni detiene contenedores automática
 La configuración original de Playwright continúa disponible para equipos con
 Python/dependencias instalados: sin `SMILE_E2E_EXTERNAL`, crea su entorno temporal
 y controla su propio servidor de prueba.
-
 
 ## Imagen integrada y control de IA
 

@@ -20,6 +20,19 @@ def _digest(token):
     return hashlib.sha256(token.encode('ascii')).hexdigest()
 
 
+def can_activate_clinic(invitation):
+    return (
+        invitation.activates_clinic
+        and invitation.role == ClinicMembership.Role.CLINIC_ADMIN
+        and invitation.clinic.status == Clinic.Status.INACTIVE
+        and not ClinicMembership.objects.filter(clinic_id=invitation.clinic_id).exists()
+    )
+
+
+def invitation_clinic_available(invitation):
+    return invitation.clinic.status == Clinic.Status.ACTIVE or can_activate_clinic(invitation)
+
+
 def preview_registration(token):
     try:
         if not isinstance(token, str) or len(token) != 43:
@@ -29,9 +42,9 @@ def preview_registration(token):
         raise PermissionDenied('Invitación no válida o vencida.')
     invitation = ClinicInvitation.objects.select_related('clinic').filter(
         token_hash=digest, status=ClinicInvitation.Status.PENDING,
-        expires_at__gt=timezone.now(), clinic__status=Clinic.Status.ACTIVE,
+        expires_at__gt=timezone.now(),
     ).first()
-    if invitation is None:
+    if invitation is None or not invitation_clinic_available(invitation):
         raise PermissionDenied('Invitación no válida o vencida.')
     return invitation
 
@@ -45,10 +58,10 @@ def preview_invitation(*, user, token):
         raise PermissionDenied('Invitación no válida o vencida.')
     invitation = ClinicInvitation.objects.select_related('clinic').filter(
         token_hash=digest, status=ClinicInvitation.Status.PENDING,
-        expires_at__gt=timezone.now(), clinic__status=Clinic.Status.ACTIVE,
+        expires_at__gt=timezone.now(),
     ).first()
     account = get_user_model().objects.filter(pk=user.pk, is_active=True).first()
-    if invitation is None or account is None or not account.email or account.email.strip().casefold() != invitation.email:
+    if invitation is None or not invitation_clinic_available(invitation) or account is None or not account.email or account.email.strip().casefold() != invitation.email:
         raise PermissionDenied('Invitación no válida o vencida.')
     return invitation
 
@@ -101,10 +114,15 @@ def resolve_invitation(*, user, token, accept, request_id):
     invitation = ClinicInvitation.objects.select_for_update().get(token_hash=digest)
     account = get_user_model().objects.select_for_update().filter(pk=user.pk, is_active=True).first()
     if (account is None or not account.email or account.email.strip().casefold() != invitation.email
-            or clinic.status != Clinic.Status.ACTIVE or invitation.status != ClinicInvitation.Status.PENDING
+            or not invitation_clinic_available(invitation) or invitation.status != ClinicInvitation.Status.PENDING
             or invitation.expires_at <= timezone.now()):
         raise PermissionDenied('Invitación no válida o vencida.')
     if accept:
+        if can_activate_clinic(invitation):
+            clinic.status = Clinic.Status.ACTIVE
+            clinic.save(update_fields=['status', 'updated_at'])
+            AuditEvent.objects.create(clinic=clinic, actor=account, action='CLINIC_ACTIVATED_ON_INVITATION',
+                                      resource_type='clinic', resource_id=str(clinic.pk), request_id=request_id)
         membership = ClinicMembership.objects.select_for_update().filter(clinic=clinic, user=account).first()
         if membership and membership.status != ClinicMembership.Status.REVOKED:
             raise MembershipConflict('La membresía ya existe; contacta al administrador de la clínica.')
@@ -139,7 +157,7 @@ def register_with_invitation(*, token, username, password, request_id):
         raise PermissionDenied('Invitación no válida o vencida.')
     clinic = Clinic.objects.select_for_update().get(pk=reference['clinic_id'])
     invitation = ClinicInvitation.objects.select_for_update().get(token_hash=digest)
-    if (clinic.status != Clinic.Status.ACTIVE or invitation.status != ClinicInvitation.Status.PENDING
+    if (not invitation_clinic_available(invitation) or invitation.status != ClinicInvitation.Status.PENDING
             or invitation.expires_at <= timezone.now()):
         raise PermissionDenied('Invitación no válida o vencida.')
     User = get_user_model()

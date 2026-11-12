@@ -18,7 +18,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `PatientListPage` — línea 10.
+- `PatientListPage` — línea 14.
 
 ## Dependencias internas
 

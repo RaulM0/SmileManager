@@ -5,7 +5,13 @@ import { useResource } from "../hooks/useResource";
 import type { Appointment, Dashboard } from "../types/domain";
 import { appointmentStatus } from "../utils/appointmentStatus";
 
-function AppointmentTable({ appointments, future = false }: { appointments: Appointment[]; future?: boolean }) {
+function AppointmentTable({
+  appointments,
+  future = false,
+}: {
+  appointments: Appointment[];
+  future?: boolean;
+}) {
   if (!appointments.length)
     return (
       <div className="workspace-empty-state">
@@ -35,16 +41,24 @@ function AppointmentTable({ appointments, future = false }: { appointments: Appo
         <tbody>
           {appointments.map((item) => (
             <tr key={item.id}>
-              {future && <td data-label="Fecha"><time dateTime={item.fecha}>{formatDate(item.fecha)}</time></td>}
+              {future && (
+                <td data-label="Fecha">
+                  <time dateTime={item.fecha}>{formatDate(item.fecha)}</time>
+                </td>
+              )}
               <td data-label="Hora">
-                <Link to={`/appointments/${item.id}`}><time className="time-value">{item.hora.slice(0, 5)}</time></Link>
+                <Link to={`/appointments/${item.id}`}>
+                  <time className="time-value">{item.hora.slice(0, 5)}</time>
+                </Link>
               </td>
               <td data-label="Paciente">
                 {item.paciente.nombre} {item.paciente.appat}
               </td>
               <td data-label="Motivo">{item.motivo}</td>
               <td data-label="Estado">
-                <span className={`appointment-status ${appointmentStatus[item.estatus]?.className || ""}`}>
+                <span
+                  className={`appointment-status ${appointmentStatus[item.estatus]?.className || ""}`}
+                >
                   {appointmentStatus[item.estatus]?.label || item.estatus}
                 </span>
               </td>
@@ -62,8 +76,12 @@ export default function DashboardPage() {
   if (error)
     return (
       <div className="workspace-page">
-        <div className="workspace-inline-error" role="alert">{error}</div>
-        <button className="clinical-action-outline co-mt-3" onClick={reload}>Reintentar</button>
+        <div className="workspace-inline-error" role="alert">
+          {error}
+        </div>
+        <button className="clinical-action-outline co-mt-3" onClick={reload}>
+          Reintentar
+        </button>
       </div>
     );
   if (!data)
@@ -77,9 +95,16 @@ export default function DashboardPage() {
       <div className="workspace-page-header">
         <div>
           <h1>
-            Bienvenido, {user && <span className="co-text-clinical-brand">Dr. {user.username.toUpperCase()}</span>}
+            Bienvenido,{" "}
+            {user && (
+              <span className="co-text-clinical-brand">
+                Dr. {user.username.toUpperCase()}
+              </span>
+            )}
           </h1>
-          <p className="clinical-page-description">Agenda y actividad clínica</p>
+          <p className="clinical-page-description">
+            Agenda y actividad clínica
+          </p>
         </div>
         <Link to="/appointments" className="clinical-action-primary">
           <i className="bi bi-calendar3" aria-hidden="true" />
@@ -87,23 +112,53 @@ export default function DashboardPage() {
         </Link>
       </div>
       <div className="workspace-summary-strip" aria-label="Resumen operativo">
-        <div><span>Pacientes registrados</span><strong>{data.patient_count}</strong><Link to="/patients">Ver pacientes</Link></div>
-        <div><span>Citas de hoy</span><strong>{data.today_count ?? data.today.length}</strong><span className="co-text-clinical-muted">Agenda del día</span></div>
+        <div>
+          <span>Pacientes registrados</span>
+          <strong>{data.patient_count}</strong>
+          <Link to="/patients">Ver pacientes</Link>
+        </div>
+        <div>
+          <span>Citas de hoy</span>
+          <strong>{data.today_count ?? data.today.length}</strong>
+          <span className="co-text-clinical-muted">Agenda del día</span>
+        </div>
       </div>
       <section className="workspace-section" aria-labelledby="today-heading">
         <div className="workspace-section-heading">
-          <div><h2 id="today-heading">Agenda de hoy</h2><p>Citas programadas para la jornada</p></div>
-          <Link to="/appointments">Ver agenda completa <i className="bi bi-arrow-right" aria-hidden="true" /></Link>
+          <div>
+            <h2 id="today-heading">Agenda de hoy</h2>
+            <p>Citas programadas para la jornada</p>
+          </div>
+          <Link to="/appointments">
+            Ver agenda completa{" "}
+            <i className="bi bi-arrow-right" aria-hidden="true" />
+          </Link>
         </div>
         <AppointmentTable appointments={data.today} />
-        {data.today_count > data.today.length && <p>Se muestran {data.today.length} de {data.today_count} citas. Consulta la agenda completa.</p>}
+        {data.today_count > data.today.length && (
+          <p className="workspace-section-note">
+            Se muestran {data.today.length} de {data.today_count} citas.{" "}
+            <Link to="/appointments">Ver agenda completa</Link>
+          </p>
+        )}
       </section>
       <section className="workspace-section" aria-labelledby="upcoming-heading">
         <div className="workspace-section-heading">
-          <div><h2 id="upcoming-heading">Próximas citas</h2><p>Siguientes pacientes programados</p></div>
+          <div>
+            <h2 id="upcoming-heading">Próximas citas</h2>
+            <p>Siguientes pacientes programados</p>
+          </div>
         </div>
         <AppointmentTable appointments={data.upcoming} future />
-        {data.upcoming.length > 0 && <p>La lista muestra las próximas citas hasta el límite de la vista. Consulta la agenda completa para ver más.</p>}
+        {data.upcoming.length > 0 && (
+          <p className="workspace-section-note">
+            Estas son tus próximas citas.{" "}
+            <Link to="/appointments">
+              Ver agenda completa{" "}
+              <i className="bi bi-arrow-right" aria-hidden="true" />
+            </Link>
+          </p>
+        )}
       </section>
     </div>
   );

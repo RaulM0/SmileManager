@@ -10,15 +10,15 @@ Fecha: 2026-11-01. Revisión estática de la copia de trabajo; no se probó cont
 
 Los hallazgos históricos siguientes describen el estado anterior; esta tabla refleja el estado tras los cambios locales. Pruebas aisladas en SQLite en memoria y storage temporal; no se verificó infraestructura real.
 
-| ID | Estado actual | Evidencia y pendiente |
-|---|---|---|
-| SEC-001 | RESOLVED en aplicación | Citas y logout de sesión requieren POST; análisis tradicional GET consulta y POST analiza; GET de antecedentes/consentimiento y sesión sin creación implícita. Verificar despliegue y superficies ajenas al repositorio. |
-| SEC-002 | RESOLVED en aplicación | Se eliminó exención CSRF; pruebas con token, sin token y propietario ajeno. |
-| SEC-003 | INFRASTRUCTURE VERIFICATION REQUIRED | `/media/` no se sirve desde Django; endpoints por sesión/JWT comprueban propiedad; serializadores y HTML dejan de entregar URLs directas. Falta comprobar bucket, CDN, proxy y accesos anónimos reales. |
-| SEC-004 | PARTIALLY RESOLVED | `.gitignore` ampliado; archivos ya rastreados permanecen en índice e historial. [Procedimiento](security/git-sensitive-data-remediation.md). |
-| SEC-009 | INFRASTRUCTURE VERIFICATION REQUIRED | Producción exige variables y habilita HTTPS/HSTS; proxy, TLS, dominios y headers reales aún requieren verificación. W005/W021 justificadas en [operación](operations/production-security.md). |
-| SEC-014 | PARTIALLY RESOLVED | Comentario de credenciales retirado y clave de producción obligatoria; cuentas y secretos de entornos reales no verificados. |
-| OPS-001 | INFRASTRUCTURE VERIFICATION REQUIRED / BUSINESS DECISION REQUIRED | [Plan de recuperación](operations/backup-recovery-plan.md); RPO/RTO y restauración real pendientes. |
+| ID      | Estado actual                                                     | Evidencia y pendiente                                                                                                                                                                                                    |
+| ------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| SEC-001 | RESOLVED en aplicación                                            | Citas y logout de sesión requieren POST; análisis tradicional GET consulta y POST analiza; GET de antecedentes/consentimiento y sesión sin creación implícita. Verificar despliegue y superficies ajenas al repositorio. |
+| SEC-002 | RESOLVED en aplicación                                            | Se eliminó exención CSRF; pruebas con token, sin token y propietario ajeno.                                                                                                                                              |
+| SEC-003 | INFRASTRUCTURE VERIFICATION REQUIRED                              | `/media/` no se sirve desde Django; endpoints por sesión/JWT comprueban propiedad; serializadores y HTML dejan de entregar URLs directas. Falta comprobar bucket, CDN, proxy y accesos anónimos reales.                  |
+| SEC-004 | PARTIALLY RESOLVED                                                | `.gitignore` ampliado; archivos ya rastreados permanecen en índice e historial. [Procedimiento](security/git-sensitive-data-remediation.md).                                                                             |
+| SEC-009 | INFRASTRUCTURE VERIFICATION REQUIRED                              | Producción exige variables y habilita HTTPS/HSTS; proxy, TLS, dominios y headers reales aún requieren verificación. W005/W021 justificadas en [operación](operations/production-security.md).                            |
+| SEC-014 | PARTIALLY RESOLVED                                                | Comentario de credenciales retirado y clave de producción obligatoria; cuentas y secretos de entornos reales no verificados.                                                                                             |
+| OPS-001 | INFRASTRUCTURE VERIFICATION REQUIRED / BUSINESS DECISION REQUIRED | [Plan de recuperación](operations/backup-recovery-plan.md); RPO/RTO y restauración real pendientes.                                                                                                                      |
 
 No se ha comprobado que el bucket sea privado, ni se han retirado copias de Git remoto. Mantener bloqueado el uso de datos clínicos reales hasta completar esas verificaciones y las demás prioridades aplicables.
 
@@ -72,31 +72,31 @@ Se persisten originales y resultados en storage; URLs se exponen en serializador
 
 Referencia: [OWASP API Security Top 10 2023](https://api-security.owasp.org/editions/2023/en/0x11-t10/) y [lista de despliegue Django](https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/). Estados acotan lo observado y no certifican ausencia de fallos.
 
-| Categoría API 2023 | Estado | Evidencia / acción |
-|---|---|---|
-| API1 BOLA | CONFIRMADO para media local; REQUIERE PRUEBA DINÁMICA para API y S3 | SEC-003/006; pruebas cruzadas por recurso. |
-| API2 autenticación | RIESGO POTENCIAL | SEC-007/013/014. |
-| API3 propiedades | RIESGO POTENCIAL | Campos sensibles y URLs; serializers restringen varias relaciones, sin matriz de propiedades por rol. |
-| API4 recursos | CONFIRMADO como falta de límites | SEC-007/008 y PERF-001. |
-| API5 funciones | RIESGO POTENCIAL | SEC-005: sin política de roles definida no puede concluirse que una función viole una política existente. |
-| API6 flujos sensibles | RIESGO POTENCIAL | Correo, inferencia y exportaciones repetibles. |
-| API7 SSRF | NO ENCONTRADO; REQUIERE PRUEBA DINÁMICA | SEC-015, sin URL de atacante demostrada. |
-| API8 configuración | CONFIRMADO | SEC-001/002/003/009. |
-| API9 inventario | RIESGO POTENCIAL | Superficies HTML y API coexistentes; revisar despliegues históricos. |
-| API10 consumo de APIs | NO ENCONTRADO | Sin integración de API externa de negocio identificada; S3/SMTP requieren revisión de confianza y configuración. |
+| Categoría API 2023    | Estado                                                              | Evidencia / acción                                                                                               |
+| --------------------- | ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| API1 BOLA             | CONFIRMADO para media local; REQUIERE PRUEBA DINÁMICA para API y S3 | SEC-003/006; pruebas cruzadas por recurso.                                                                       |
+| API2 autenticación    | RIESGO POTENCIAL                                                    | SEC-007/013/014.                                                                                                 |
+| API3 propiedades      | RIESGO POTENCIAL                                                    | Campos sensibles y URLs; serializers restringen varias relaciones, sin matriz de propiedades por rol.            |
+| API4 recursos         | CONFIRMADO como falta de límites                                    | SEC-007/008 y PERF-001.                                                                                          |
+| API5 funciones        | RIESGO POTENCIAL                                                    | SEC-005: sin política de roles definida no puede concluirse que una función viole una política existente.        |
+| API6 flujos sensibles | RIESGO POTENCIAL                                                    | Correo, inferencia y exportaciones repetibles.                                                                   |
+| API7 SSRF             | NO ENCONTRADO; REQUIERE PRUEBA DINÁMICA                             | SEC-015, sin URL de atacante demostrada.                                                                         |
+| API8 configuración    | CONFIRMADO                                                          | SEC-001/002/003/009.                                                                                             |
+| API9 inventario       | RIESGO POTENCIAL                                                    | Superficies HTML y API coexistentes; revisar despliegues históricos.                                             |
+| API10 consumo de APIs | NO ENCONTRADO                                                       | Sin integración de API externa de negocio identificada; S3/SMTP requieren revisión de confianza y configuración. |
 
 OWASP Top 10 web: acceso roto y configuración insegura confirmados por las condiciones anteriores; fallas criptográficas y de componentes requieren verificación; inyección, diseño inseguro, integridad de software/datos, autenticación, logging y SSRF deben probarse según alcance. No se identificó SQL injection, XSS ni deserialización insegura explotable mediante inspección; NO ENCONTRADO no equivale a prueba de ausencia.
 
 ## Controles clínicos: gap técnico, no certificación
 
-| Control | Estado | Brecha |
-|---|---|---|
-| Autenticación y propiedad | CONTROL PARCIAL | JWT/sesiones y filtros; SEC-003/005/006/007. |
-| Mínimo privilegio y clínica | CONTROL PARCIAL | Sin RBAC clínico ni tenant. |
-| Auditoría y trazabilidad | CONTROL AUSENTE | SEC-010; timestamps no identifican actor ni cambio. |
-| Cifrado | REQUIERE VERIFICACIÓN DE INFRAESTRUCTURA | TLS, DB, bucket, backups y llaves. |
-| Integridad y disponibilidad | CONTROL PARCIAL | Constraints y algunos validadores; sin versiones ni recuperación demostrada. |
-| Retención, eliminación, incidentes | REQUIERE REVISIÓN LEGAL/ORGANIZACIONAL | Políticas y pruebas no constan. |
-| Consentimiento | CONTROL PARCIAL | Registro técnico de aceptación; validez, contenido y prueba de identidad requieren decisión externa. |
+| Control                            | Estado                                   | Brecha                                                                                               |
+| ---------------------------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Autenticación y propiedad          | CONTROL PARCIAL                          | JWT/sesiones y filtros; SEC-003/005/006/007.                                                         |
+| Mínimo privilegio y clínica        | CONTROL PARCIAL                          | Sin RBAC clínico ni tenant.                                                                          |
+| Auditoría y trazabilidad           | CONTROL AUSENTE                          | SEC-010; timestamps no identifican actor ni cambio.                                                  |
+| Cifrado                            | REQUIERE VERIFICACIÓN DE INFRAESTRUCTURA | TLS, DB, bucket, backups y llaves.                                                                   |
+| Integridad y disponibilidad        | CONTROL PARCIAL                          | Constraints y algunos validadores; sin versiones ni recuperación demostrada.                         |
+| Retención, eliminación, incidentes | REQUIERE REVISIÓN LEGAL/ORGANIZACIONAL   | Políticas y pruebas no constan.                                                                      |
+| Consentimiento                     | CONTROL PARCIAL                          | Registro técnico de aceptación; validez, contenido y prueba de identidad requieren decisión externa. |
 
 La normativa mexicana y la aplicabilidad de cualquier otra regulación requieren **LEGAL REVIEW REQUIRED** con jurisdicción, operación, contratos y datos concretos. También se requiere evaluación clínica de correcciones/retención y revisión independiente de seguridad dinámica. No se afirma cumplimiento legal.

@@ -20,11 +20,11 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 - `root` — línea 7.
 - `python` — línea 8.
-- `manage` — línea 12.
-- `serverUrl` — línea 13.
-- `isProcessAlive` — línea 15.
-- `startE2EServer` — línea 25.
-- `stopE2EServer` — línea 73.
+- `manage` — línea 16.
+- `serverUrl` — línea 17.
+- `isProcessAlive` — línea 19.
+- `startE2EServer` — línea 29.
+- `stopE2EServer` — línea 79.
 
 ## Dependencias internas
 

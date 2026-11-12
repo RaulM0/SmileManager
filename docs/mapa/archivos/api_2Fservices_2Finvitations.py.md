@@ -19,13 +19,15 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 ## Símbolos principales
 
 - `_digest` — línea 19.
-- `preview_registration` — línea 23.
-- `preview_invitation` — línea 39.
-- `_admin` — línea 56.
-- `create_invitation` — línea 64.
-- `resolve_invitation` — línea 89.
-- `register_with_invitation` — línea 129.
-- `revoke_invitation` — línea 168.
+- `can_activate_clinic` — línea 23.
+- `invitation_clinic_available` — línea 32.
+- `preview_registration` — línea 36.
+- `preview_invitation` — línea 52.
+- `_admin` — línea 69.
+- `create_invitation` — línea 77.
+- `resolve_invitation` — línea 102.
+- `register_with_invitation` — línea 147.
+- `revoke_invitation` — línea 186.
 
 ## Dependencias internas
 

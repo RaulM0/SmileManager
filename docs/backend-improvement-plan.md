@@ -49,6 +49,7 @@ Instrumentar latencias, errores, DB y procesamiento IA, alertas y trazabilidad o
 - Evitar URLs directas expuestas y verificar bloqueo público del bucket; la migración completa de storage puede requerir esfuerzo medio.
 
 No todos los quick wins sustituyen una solución integral: por ejemplo, throttle DRF no reemplaza protección perimetral y ocultar una URL no protege un bucket público.
+
 # Backoffice: alcance clínico ampliado
 
 Se añadieron listados globales paginados y secciones clínicas de consulta auditada. La revisión organizacional del permiso ampliado, preview protegido de archivos, experiencia clínica especializada y métricas PostgreSQL de las nuevas consultas siguen pendientes; no se declara listo para producción.

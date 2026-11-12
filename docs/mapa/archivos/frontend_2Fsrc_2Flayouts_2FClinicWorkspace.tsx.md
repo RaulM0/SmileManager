@@ -18,8 +18,8 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `ClinicOption` — línea 9.
-- `ClinicWorkspace` — línea 11.
+- `ClinicOption` — línea 17.
+- `ClinicWorkspace` — línea 27.
 
 ## Dependencias internas
 

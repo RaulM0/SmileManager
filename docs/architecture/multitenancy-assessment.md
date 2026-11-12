@@ -6,19 +6,19 @@ Estado: evaluación inicial y plan incremental; el sistema todavía no ofrece ai
 
 ## Inventario y propiedad actual
 
-| Componente | Clasificación actual / destino | Dependencia y riesgo |
-| --- | --- | --- |
-| Usuario Django, credenciales, sesiones y tokens | GLOBAL / USER-SCOPED | Un usuario puede trabajar en varias clínicas; el rol no debe inferirse de `is_staff` o de un token. |
-| Perfil | USER-SCOPED | `clinica_nombre` es texto, no prueba propiedad organizacional. |
-| Paciente | USER-SCOPED → TENANT-SCOPED | `medico` es anulable; teléfono y correo son únicos por médico. No existe una asignación histórica verificable a clínica. |
-| Cita | TENANT-SCOPED por paciente | No tiene médico ni clínica propios; la relación con paciente debe validarse. |
-| Antecedentes, consulta, odontograma, imagen, estudio, consentimiento | TENANT-SCOPED por paciente, con restricción clínica por médico | También guardan `medico`; las inconsistencias deben identificarse antes del backfill. Imagen puede referir otra consulta. |
-| ClinicalRevision | TENANT-SCOPED por paciente cuando existe | `patient` puede ser nulo; recurso mediante tipo e id, snapshots contienen datos clínicos. Necesita reconciliación de huérfanos. |
-| AIAnalysisRun | TENANT-SCOPED | Imagen puede ser nula tras borrado; `image_reference` no establece pertenencia. Historial y claves de idempotencia requieren migración explícita. |
-| AuditEvent | SYSTEM-ONLY o TENANT-SCOPED según evento | No contiene clínica; `resource_type`/`resource_id` no siempre bastan para reconstruirla. No atribuir eventos ambiguos. |
-| Modelo YOLO, configuración, catálogos y salud | SHARED CONFIGURATION / SYSTEM-ONLY | No contienen por sí mismos contexto de clínica; no compartir resultados de inferencia. |
-| Backoffice y permiso `access_system_backoffice` | GLOBAL | Las vistas clínicas globales se deniegan, incluidos superusuarios; falta un flujo excepcional autorizado y auditado que sea compatible con clínicas. |
-| Asignación histórica, identidad de paciente entre clínicas, acceso excepcional | REQUIRES BUSINESS DECISION | No inferirla del nombre de clínica del perfil ni del médico responsable. |
+| Componente                                                                     | Clasificación actual / destino                                 | Dependencia y riesgo                                                                                                                                 |
+| ------------------------------------------------------------------------------ | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Usuario Django, credenciales, sesiones y tokens                                | GLOBAL / USER-SCOPED                                           | Un usuario puede trabajar en varias clínicas; el rol no debe inferirse de `is_staff` o de un token.                                                  |
+| Perfil                                                                         | USER-SCOPED                                                    | `clinica_nombre` es texto, no prueba propiedad organizacional.                                                                                       |
+| Paciente                                                                       | USER-SCOPED → TENANT-SCOPED                                    | `medico` es anulable; teléfono y correo son únicos por médico. No existe una asignación histórica verificable a clínica.                             |
+| Cita                                                                           | TENANT-SCOPED por paciente                                     | No tiene médico ni clínica propios; la relación con paciente debe validarse.                                                                         |
+| Antecedentes, consulta, odontograma, imagen, estudio, consentimiento           | TENANT-SCOPED por paciente, con restricción clínica por médico | También guardan `medico`; las inconsistencias deben identificarse antes del backfill. Imagen puede referir otra consulta.                            |
+| ClinicalRevision                                                               | TENANT-SCOPED por paciente cuando existe                       | `patient` puede ser nulo; recurso mediante tipo e id, snapshots contienen datos clínicos. Necesita reconciliación de huérfanos.                      |
+| AIAnalysisRun                                                                  | TENANT-SCOPED                                                  | Imagen puede ser nula tras borrado; `image_reference` no establece pertenencia. Historial y claves de idempotencia requieren migración explícita.    |
+| AuditEvent                                                                     | SYSTEM-ONLY o TENANT-SCOPED según evento                       | No contiene clínica; `resource_type`/`resource_id` no siempre bastan para reconstruirla. No atribuir eventos ambiguos.                               |
+| Modelo YOLO, configuración, catálogos y salud                                  | SHARED CONFIGURATION / SYSTEM-ONLY                             | No contienen por sí mismos contexto de clínica; no compartir resultados de inferencia.                                                               |
+| Backoffice y permiso `access_system_backoffice`                                | GLOBAL                                                         | Las vistas clínicas globales se deniegan, incluidos superusuarios; falta un flujo excepcional autorizado y auditado que sea compatible con clínicas. |
+| Asignación histórica, identidad de paciente entre clínicas, acceso excepcional | REQUIRES BUSINESS DECISION                                     | No inferirla del nombre de clínica del perfil ni del médico responsable.                                                                             |
 
 ## Superficies y dependencias
 

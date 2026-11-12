@@ -1,7 +1,16 @@
 import { useEffect, useRef } from "react";
 import OpenSeadragon from "openseadragon";
-type ViewerControl = { element?: HTMLElement; raiseEvent: (name: string, event: { originalEvent: KeyboardEvent }) => void };
-type ControlName = "zoomInButton" | "zoomOutButton" | "homeButton" | "fullPageButton" | "rotateLeftButton" | "rotateRightButton";
+type ViewerControl = {
+  element?: HTMLElement;
+  raiseEvent: (name: string, event: { originalEvent: KeyboardEvent }) => void;
+};
+type ControlName =
+  | "zoomInButton"
+  | "zoomOutButton"
+  | "homeButton"
+  | "fullPageButton"
+  | "rotateLeftButton"
+  | "rotateRightButton";
 
 export default function ImageViewer({ url }: { url: string }) {
   const element = useRef<HTMLDivElement>(null);
@@ -15,7 +24,8 @@ export default function ImageViewer({ url }: { url: string }) {
       showRotationControl: true,
       maxZoomLevel: 20,
     });
-    const controls = viewer as typeof viewer & Partial<Record<ControlName, ViewerControl>>;
+    const controls = viewer as typeof viewer &
+      Partial<Record<ControlName, ViewerControl>>;
     const labels: Array<[ViewerControl | undefined, string]> = [
       [controls.zoomInButton, "Acercar"],
       [controls.zoomOutButton, "Alejar"],
@@ -24,7 +34,8 @@ export default function ImageViewer({ url }: { url: string }) {
       [controls.rotateLeftButton, "Girar a la izquierda"],
       [controls.rotateRightButton, "Girar a la derecha"],
     ];
-    const spaceHandlers: Array<[HTMLElement, (event: KeyboardEvent) => void]> = [];
+    const spaceHandlers: Array<[HTMLElement, (event: KeyboardEvent) => void]> =
+      [];
     labels.forEach(([button, label]) => {
       if (!button?.element) return;
       button.element.setAttribute("role", "button");
@@ -40,7 +51,9 @@ export default function ImageViewer({ url }: { url: string }) {
       spaceHandlers.push([button.element, onSpace]);
     });
     return () => {
-      spaceHandlers.forEach(([control, handler]) => control.removeEventListener("keydown", handler));
+      spaceHandlers.forEach(([control, handler]) =>
+        control.removeEventListener("keydown", handler),
+      );
       viewer.destroy();
     };
   }, [url]);

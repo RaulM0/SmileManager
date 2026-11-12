@@ -18,23 +18,23 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `membership_data` — línea 22.
-- `MembershipList` — línea 31.
-- `ValidateClinicContext` — línea 43.
-- `MembershipChangeInput` — línea 50.
-- `MembershipDetail` — línea 61.
-- `InvitationInput` — línea 74.
-- `InvitationUnavailable` — línea 79.
-- `invitation_delivery_url` — línea 84.
-- `deliver_invitation` — línea 96.
-- `InvitationCreate` — línea 104.
-- `InvitationResolveInput` — línea 122.
-- `InvitationRegisterInput` — línea 127.
-- `InvitationRegister` — línea 134.
-- `InvitationRegisterPreview` — línea 147.
-- `InvitationPreview` — línea 159.
-- `InvitationResolve` — línea 170.
-- `InvitationRevoke` — línea 183.
+- `membership_data` — línea 23.
+- `MembershipList` — línea 32.
+- `ValidateClinicContext` — línea 44.
+- `MembershipChangeInput` — línea 51.
+- `MembershipDetail` — línea 62.
+- `InvitationInput` — línea 75.
+- `InvitationUnavailable` — línea 80.
+- `invitation_delivery_url` — línea 85.
+- `deliver_invitation` — línea 97.
+- `InvitationCreate` — línea 110.
+- `InvitationResolveInput` — línea 128.
+- `InvitationRegisterInput` — línea 133.
+- `InvitationRegister` — línea 140.
+- `InvitationRegisterPreview` — línea 153.
+- `InvitationPreview` — línea 165.
+- `InvitationResolve` — línea 176.
+- `InvitationRevoke` — línea 189.
 
 ## Dependencias internas
 

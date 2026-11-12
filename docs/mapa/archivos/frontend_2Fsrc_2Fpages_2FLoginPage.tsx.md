@@ -18,7 +18,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `LoginPage` — línea 9.
+- `LoginPage` — línea 10.
 
 ## Dependencias internas
 

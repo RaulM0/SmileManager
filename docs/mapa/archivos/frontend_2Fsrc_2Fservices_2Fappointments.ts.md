@@ -18,7 +18,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `appointmentsService` — línea 4.
+- `appointmentsService` — línea 8.
 
 ## Dependencias internas
 

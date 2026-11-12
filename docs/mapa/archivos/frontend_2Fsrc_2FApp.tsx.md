@@ -18,12 +18,12 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `DiagnosticResultPage` — línea 44.
-- `DesignSystemLab` — línea 47.
-- `RouteLoading` — línea 49.
-- `GlobalAIFeatureRoute` — línea 57.
-- `router` — línea 62.
-- `App` — línea 172.
+- `DiagnosticResultPage` — línea 69.
+- `DesignSystemLab` — línea 72.
+- `RouteLoading` — línea 76.
+- `GlobalAIFeatureRoute` — línea 84.
+- `router` — línea 93.
+- `App` — línea 241.
 
 ## Dependencias internas
 

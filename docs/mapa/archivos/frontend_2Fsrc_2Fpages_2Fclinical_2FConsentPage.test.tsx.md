@@ -18,8 +18,8 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `service` — línea 6.
-- `mount` — línea 12.
+- `service` — línea 12.
+- `mount` — línea 28.
 
 ## Dependencias internas
 

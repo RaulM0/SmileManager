@@ -20,8 +20,8 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 - `drafts` — línea 5.
 - `hasUnsavedChanges` — línea 6.
-- `discardDraftsFor` — línea 9.
-- `useUnsavedChanges` — línea 17.
+- `discardDraftsFor` — línea 11.
+- `useUnsavedChanges` — línea 29.
 
 ## Dependencias internas
 

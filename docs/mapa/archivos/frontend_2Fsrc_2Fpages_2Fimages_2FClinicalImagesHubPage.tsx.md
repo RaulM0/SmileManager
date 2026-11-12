@@ -19,7 +19,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 ## Símbolos principales
 
 - `actions` — línea 3.
-- `ClinicalImagesHubPage` — línea 9.
+- `ClinicalImagesHubPage` — línea 19.
 
 ## Dependencias internas
 

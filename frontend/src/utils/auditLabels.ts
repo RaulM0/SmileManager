@@ -1,29 +1,34 @@
 /** User-facing descriptions; original audit codes remain unchanged in storage. */
 const actions: Record<string, string> = {
-  MFA_ENROLLED: 'Configuró el segundo factor de autenticación',
-  MFA_VERIFICATION_FAILED: 'Falló la verificación del segundo factor',
-  MFA_OPERATOR_RESET: 'Restableció MFA mediante recuperación operativa',
-  REAUTHENTICATION_FAILED: 'Falló la confirmación de identidad',
-  SESSION_REAUTHENTICATED: 'Confirmó su identidad para una operación sensible',
-  SESSION_REVOKED: 'Cerró una sesión de acceso',
-  OTHER_SESSIONS_REVOKED: 'Cerró sus otras sesiones de acceso',
-  USER_NAME_UPDATED: 'Actualizó su nombre para documentos nuevos',
-  PRIVACY_NOTICE_PUBLISHED: 'Publicó una versión del aviso de privacidad',
-  CONSENT_TEMPLATE_PUBLISHED: 'Publicó una versión de consentimiento',
-  CONSENT_EVIDENCE_RECORDED: 'Registró un documento de consentimiento',
-  CONSENT_EVIDENCE_DOWNLOADED: 'Descargó evidencia de consentimiento',
-  CONSENT_REVOCATION_RECORDED: 'Registró una revocación de consentimiento',
-  CONSULTATION_CLOSED: 'Cerró una nota clínica',
-  CONSULTATION_ADDENDUM_CREATED: 'Agregó una adenda clínica',
-  CONSULTATION_DRAFT_UPDATED: 'Actualizó una nota en borrador',
-  CLINICAL_ATTESTATION_FAILED: 'Falló la confirmación de identidad al cerrar un documento',
-  CLINICAL_REVISIONS_VIEWED: 'Consultó las versiones del expediente',
+  MFA_ENROLLED: "Configuró el segundo factor de autenticación",
+  MFA_VERIFICATION_FAILED: "Falló la verificación del segundo factor",
+  MFA_OPERATOR_RESET: "Restableció MFA mediante recuperación operativa",
+  REAUTHENTICATION_FAILED: "Falló la confirmación de identidad",
+  SESSION_REAUTHENTICATED: "Confirmó su identidad para una operación sensible",
+  SESSION_REVOKED: "Cerró una sesión de acceso",
+  OTHER_SESSIONS_REVOKED: "Cerró sus otras sesiones de acceso",
+  USER_NAME_UPDATED: "Actualizó su nombre para documentos nuevos",
+  PRIVACY_NOTICE_PUBLISHED: "Publicó una versión del aviso de privacidad",
+  CONSENT_TEMPLATE_PUBLISHED: "Publicó una versión de consentimiento",
+  CONSENT_EVIDENCE_RECORDED: "Registró un documento de consentimiento",
+  CONSENT_EVIDENCE_DOWNLOADED: "Descargó evidencia de consentimiento",
+  CONSENT_REVOCATION_RECORDED: "Registró una revocación de consentimiento",
+  CONSULTATION_CLOSED: "Cerró una nota clínica",
+  CONSULTATION_ADDENDUM_CREATED: "Agregó una adenda clínica",
+  CONSULTATION_DRAFT_UPDATED: "Actualizó una nota en borrador",
+  CLINICAL_ATTESTATION_FAILED:
+    "Falló la confirmación de identidad al cerrar un documento",
+  CLINICAL_REVISIONS_VIEWED: "Consultó las versiones del expediente",
   TENANT_AUDIT_VIEWED: "Consultó la actividad reciente de la clínica",
-  TENANT_ADMIN_DASHBOARD_VIEWED: "Consultó el resumen administrativo de la clínica",
+  TENANT_ADMIN_DASHBOARD_VIEWED:
+    "Consultó el resumen administrativo de la clínica",
   TENANT_DOCTOR_DASHBOARD_VIEWED: "Consultó el panel médico",
-  PLATFORM_INITIAL_ADMIN_INVITATIONS_VIEWED: "Consultó las invitaciones del administrador inicial",
-  PLATFORM_INITIAL_ADMIN_INVITED: "Envió una invitación al administrador inicial",
-  PLATFORM_INITIAL_ADMIN_INVITATION_REVOKED: "Revocó una invitación al administrador inicial",
+  PLATFORM_INITIAL_ADMIN_INVITATIONS_VIEWED:
+    "Consultó las invitaciones del administrador inicial",
+  PLATFORM_INITIAL_ADMIN_INVITED:
+    "Envió una invitación al administrador inicial",
+  PLATFORM_INITIAL_ADMIN_INVITATION_REVOKED:
+    "Revocó una invitación al administrador inicial",
   PLATFORM_CLINIC_CREATED: "Creó una clínica",
   PLATFORM_CLINIC_ACTIVE: "Activó una clínica",
   PLATFORM_CLINIC_INACTIVE: "Desactivó una clínica",
@@ -34,7 +39,8 @@ const actions: Record<string, string> = {
   CLINIC_INVITATION_ACCEPTED: "Aceptó la invitación para unirse a la clínica",
   CLINIC_INVITATION_REJECTED: "Rechazó una invitación de la clínica",
   CLINIC_INVITATION_REVOKED: "Revocó una invitación de la clínica",
-  CLINIC_MEMBERSHIP_CHANGED: "Actualizó el rol o el acceso de un integrante de la clínica",
+  CLINIC_MEMBERSHIP_CHANGED:
+    "Actualizó el rol o el acceso de un integrante de la clínica",
   USER_CREATED: "Creó una cuenta de usuario",
   USER_ACTIVATED: "Activó una cuenta de usuario",
   USER_DEACTIVATED: "Desactivó una cuenta de usuario",
@@ -63,7 +69,8 @@ const actions: Record<string, string> = {
   TENANT_STUDY_VIEWED: "Consultó un estudio clínico",
   TENANT_STUDY_IMAGE_VIEWED: "Abrió una imagen de un estudio",
   TENANT_STUDY_PDF_VIEWED: "Abrió el PDF de un estudio",
-  TENANT_CLINICAL_IMAGE_LIST_VIEWED: "Consultó las imágenes clínicas de un paciente",
+  TENANT_CLINICAL_IMAGE_LIST_VIEWED:
+    "Consultó las imágenes clínicas de un paciente",
   TENANT_CLINICAL_IMAGE_VIEWED: "Consultó una imagen clínica",
   TENANT_CLINICAL_FILE_VIEWED: "Abrió un archivo de imagen clínica",
   TENANT_DIAGNOSTICS_VIEWED: "Consultó los diagnósticos",
@@ -71,4 +78,5 @@ const actions: Record<string, string> = {
   TENANT_AI_RESULT_VIEWED: "Consultó el resultado de un análisis de IA",
 };
 
-export const auditActionLabel = (action: string) => actions[action] ?? "Realizó una operación en el sistema";
+export const auditActionLabel = (action: string) =>
+  actions[action] ?? "Realizó una operación en el sistema";

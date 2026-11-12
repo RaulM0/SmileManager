@@ -19,10 +19,10 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 ## Símbolos principales
 
 - `formSnapshot` — línea 14.
-- `before` — línea 18.
-- `after` — línea 25.
-- `ImageField` — línea 31.
-- `ComparativeStudyPage` — línea 61.
+- `before` — línea 27.
+- `after` — línea 34.
+- `ImageField` — línea 40.
+- `ComparativeStudyPage` — línea 91.
 
 ## Dependencias internas
 

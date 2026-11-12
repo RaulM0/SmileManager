@@ -263,4 +263,3 @@ Razón: reutiliza datos entre subsecciones del paciente, evita solicitudes dupli
 Impacto: listas de pacientes/citas/diagnósticos/imágenes, selector de paciente, `useResource`, cambios de paciente/cita/consulta/imagen/análisis, logout y cambio de identidad.
 
 Validación: Vitest 8/8 incluye refresh concurrente y caché; E2E 3/3 incluye filtros 503, acciones clínicas y segunda cuenta.
-

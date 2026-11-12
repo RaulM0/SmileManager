@@ -24,7 +24,7 @@ Use Python 3.13, matching CI. Install Python dependencies with `python -m pip in
 
 ## Coding Style & Naming Conventions
 
-Use four-space Python indentation and snake_case functions/modules. Use two-space TypeScript indentation, PascalCase components, and `use*` hook names. Follow nearby code and ESLint; no repository-wide formatter is configured. Keep endpoint handlers focused, business logic in services, and authorization enforced server-side through clinic context and resource policies.
+Use four-space Python indentation and snake_case functions/modules. Use two-space TypeScript indentation, PascalCase components, and `use*` hook names. Follow nearby code and ESLint. Run `npm run format` or `npm run format:check` from the repository root for Prettier-supported files; generated assets, navigation notes, and Django templates are excluded. Python uses four-space indentation and is not formatted by Prettier. Keep endpoint handlers focused, business logic in services, and authorization enforced server-side through clinic context and resource policies.
 
 ## Testing Guidelines
 
@@ -41,7 +41,6 @@ Never commit patient data, databases, credentials, or custody keys. Run `python 
 ## Project Navigation Map
 
 Start repository navigation at `docs/mapa/Inicio.md` and the relevant module index. File notes provide source paths, symbols and static import links; read the real source before changing behavior. Refresh with `python3 scripts/build_project_map.py` after adding, moving or changing indexed source; verify with `--check`. Generated notes are navigation aids, not authoritative architecture or complete dependency analysis. Keep private data and credentials out of notes.
-
 
 ## Codex Commits & Obsidian
 

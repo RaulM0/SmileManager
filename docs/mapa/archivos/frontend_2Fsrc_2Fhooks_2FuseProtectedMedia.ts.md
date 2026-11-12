@@ -19,7 +19,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 ## Símbolos principales
 
 - `useProtectedMediaState` — línea 5.
-- `useProtectedMedia` — línea 30.
+- `useProtectedMedia` — línea 35.
 
 ## Dependencias internas
 

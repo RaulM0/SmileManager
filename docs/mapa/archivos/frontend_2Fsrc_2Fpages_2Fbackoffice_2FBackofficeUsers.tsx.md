@@ -18,8 +18,8 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `BackofficeUsers` — línea 15.
-- `BackofficeUser` — línea 123.
+- `BackofficeUsers` — línea 19.
+- `BackofficeUser` — línea 127.
 
 ## Dependencias internas
 
@@ -27,6 +27,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fcomponents_2FConfirmDialog.tsx|frontend/src/components/ConfirmDialog.tsx]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fcomponents_2Fworkspace_2FAdministration.tsx|frontend/src/components/workspace/Administration.tsx]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fcontext_2FAuthContext.tsx|frontend/src/context/AuthContext.tsx]]
+- [[docs/mapa/archivos/frontend_2Fsrc_2Fcontext_2FToastContext.tsx|frontend/src/context/ToastContext.tsx]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fpages_2Fbackoffice_2Fdate.ts|frontend/src/pages/backoffice/date.ts]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fpages_2Fbackoffice_2Fshared.tsx|frontend/src/pages/backoffice/shared.tsx]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fpages_2Fbackoffice_2Ftypes.ts|frontend/src/pages/backoffice/types.ts]]

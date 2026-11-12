@@ -106,4 +106,3 @@ Contexto al cambiar ID: Vitest simula paciente 1 visible y navegación directa a
 - [ ] 3 descargas XLSX con nombres correctos
 - [ ] Link/contenido de privacidad
 - [ ] Responsive/teclado/consistencia
-

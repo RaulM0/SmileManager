@@ -11,9 +11,15 @@ export function useApiDownload() {
     if (busy.current) return;
     busy.current = true;
     setActive(key);
-    try { await downloadApiFile(path, filename); toast.success("Descarga iniciada."); }
-    catch (error) { toast.error(getErrorMessage(error)); }
-    finally { busy.current = false; setActive(null); }
+    try {
+      await downloadApiFile(path, filename);
+      toast.success("Descarga iniciada.");
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+    } finally {
+      busy.current = false;
+      setActive(null);
+    }
   }
   return { active, download };
 }

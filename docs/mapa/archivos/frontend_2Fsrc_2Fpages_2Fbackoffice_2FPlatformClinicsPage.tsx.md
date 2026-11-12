@@ -18,11 +18,11 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `ClinicStatus` — línea 15.
-- `Clinic` — línea 16.
-- `Invitation` — línea 17.
-- `labels` — línea 18.
-- `PlatformClinicsPage` — línea 24.
+- `ClinicStatus` — línea 16.
+- `Clinic` — línea 17.
+- `Invitation` — línea 26.
+- `labels` — línea 27.
+- `PlatformClinicsPage` — línea 33.
 
 ## Dependencias internas
 
@@ -30,6 +30,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fcomponents_2FConfirmDialog.tsx|frontend/src/components/ConfirmDialog.tsx]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fcomponents_2Fworkspace_2FAdministration.tsx|frontend/src/components/workspace/Administration.tsx]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Fcontext_2FAuthContext.tsx|frontend/src/context/AuthContext.tsx]]
+- [[docs/mapa/archivos/frontend_2Fsrc_2Fcontext_2FToastContext.tsx|frontend/src/context/ToastContext.tsx]]
 - [[docs/mapa/archivos/frontend_2Fsrc_2Ftypes_2Fdomain.ts|frontend/src/types/domain.ts]]
 
 Este índice resuelve imports Python y referencias relativas JS/TS; no ejecuta módulos ni representa todas las dependencias dinámicas.

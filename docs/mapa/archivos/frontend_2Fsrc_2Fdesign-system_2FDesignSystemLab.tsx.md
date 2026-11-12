@@ -19,28 +19,28 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 ## Símbolos principales
 
 - `directions` — línea 5.
-- `Direction` — línea 11.
-- `Intent` — línea 12.
-- `ButtonProps` — línea 13.
-- `Button` — línea 15.
-- `Icon` — línea 19.
-- `FilterGroup` — línea 21.
-- `ViewSelector` — línea 28.
-- `ChoiceGroup` — línea 34.
-- `ExampleTabs` — línea 45.
-- `StatusBadge` — línea 64.
-- `LoadingExample` — línea 68.
-- `Scenario` — línea 76.
-- `Comparison` — línea 79.
-- `examples` — línea 85.
-- `ActionSamples` — línea 90.
-- `TableActions` — línea 97.
-- `RealWorld` — línea 101.
-- `FilterSample` — línea 113.
-- `ViewSample` — línea 114.
-- `inputDirections` — línea 116.
-- `InputSamples` — línea 123.
-- `DesignSystemLab` — línea 136.
+- `Direction` — línea 31.
+- `Intent` — línea 32.
+- `ButtonProps` — línea 40.
+- `Button` — línea 45.
+- `Icon` — línea 61.
+- `FilterGroup` — línea 65.
+- `ViewSelector` — línea 92.
+- `ChoiceGroup` — línea 115.
+- `ExampleTabs` — línea 139.
+- `StatusBadge` — línea 195.
+- `LoadingExample` — línea 204.
+- `Scenario` — línea 236.
+- `Comparison` — línea 253.
+- `examples` — línea 279.
+- `ActionSamples` — línea 299.
+- `TableActions` — línea 367.
+- `RealWorld` — línea 413.
+- `FilterSample` — línea 485.
+- `ViewSample` — línea 489.
+- `inputDirections` — línea 494.
+- `InputSamples` — línea 521.
+- `DesignSystemLab` — línea 593.
 
 ## Dependencias internas
 

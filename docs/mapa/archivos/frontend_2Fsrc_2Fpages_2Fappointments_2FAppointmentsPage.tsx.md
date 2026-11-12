@@ -21,7 +21,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 - `weekdays` — línea 14.
 - `localDateKey` — línea 16.
 - `AppointmentCalendar` — línea 23.
-- `AppointmentsPage` — línea 164.
+- `AppointmentsPage` — línea 247.
 
 ## Dependencias internas
 

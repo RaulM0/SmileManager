@@ -25,7 +25,7 @@ def _locked_platform_actor(actor):
     return account
 
 
-def _initial_invitation(*, clinic, actor, email, request_id):
+def _initial_invitation(*, clinic, actor, email, request_id, activates_clinic=False):
     email = email.strip().casefold()
     try:
         validate_email(email)
@@ -45,7 +45,7 @@ def _initial_invitation(*, clinic, actor, email, request_id):
     token = secrets.token_urlsafe(32)
     invitation = ClinicInvitation.objects.create(clinic=clinic, email=email,
                                                  role=ClinicMembership.Role.CLINIC_ADMIN,
-                                                 token_hash=_digest(token), invited_by=actor,
+                                                 token_hash=_digest(token), invited_by=actor, activates_clinic=activates_clinic,
                                                  expires_at=now + timedelta(days=7))
     AuditEvent.objects.create(clinic=clinic, actor=actor, action='PLATFORM_INITIAL_ADMIN_INVITED',
                               resource_type='clinic_invitation', resource_id=str(invitation.pk), request_id=request_id)
@@ -67,7 +67,8 @@ def create_clinic(*, actor, name, slug, status, initial_admin_email, request_id)
     clinic.save()
     AuditEvent.objects.create(clinic=clinic, actor=actor, action='PLATFORM_CLINIC_CREATED',
                               resource_type='clinic', resource_id=str(clinic.pk), request_id=request_id)
-    invitation, token = _initial_invitation(clinic=clinic, actor=actor, email=initial_admin_email, request_id=request_id)
+    invitation, token = _initial_invitation(clinic=clinic, actor=actor, email=initial_admin_email, request_id=request_id,
+                                             activates_clinic=status == Clinic.Status.INACTIVE)
     return clinic, invitation, token
 
 
@@ -111,7 +112,13 @@ def invite_initial_administrator(*, actor, clinic_id, email, request_id):
         raise PermissionDenied('Operación no autorizada.')
     clinic = get_object_or_404(Clinic.objects.select_for_update(), pk=clinic_id)
     actor = _locked_platform_actor(actor)
-    return _initial_invitation(clinic=clinic, actor=actor, email=email, request_id=request_id)
+    activates_clinic = (
+        clinic.status == Clinic.Status.INACTIVE
+        and clinic.invitations.filter(activates_clinic=True).exists()
+        and not clinic.memberships.exists()
+    )
+    return _initial_invitation(clinic=clinic, actor=actor, email=email, request_id=request_id,
+                               activates_clinic=activates_clinic)
 
 
 @transaction.atomic

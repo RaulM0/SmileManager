@@ -20,9 +20,9 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 - `tinyImage` — línea 4.
 - `expectResponsiveWidths` — línea 13.
-- `captureFormVariants` — línea 26.
-- `expectTabSequence` — línea 35.
-- `expectRoutesAtAllWidths` — línea 42.
+- `captureFormVariants` — línea 28.
+- `expectTabSequence` — línea 40.
+- `expectRoutesAtAllWidths` — línea 47.
 
 ## Dependencias internas
 

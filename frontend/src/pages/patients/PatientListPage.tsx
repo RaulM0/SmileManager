@@ -1,20 +1,37 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import type { Paginated, Patient } from "../../types/domain";
 import { patientsService } from "../../services/patients";
 import { queryKeys } from "../../query/keys";
 import { latestCachedData } from "../../query/latestCachedData";
 
-export default function PatientListPage({ searchable = false }: { searchable?: boolean }) {
+export default function PatientListPage({
+  searchable = false,
+}: {
+  searchable?: boolean;
+}) {
   const queryClient = useQueryClient();
   const [params, setParams] = useSearchParams();
   const query = params.get("q") || "";
   const page = params.get("page") || "1";
   const [term, setTerm] = useState(query);
-  const records = useQuery({ queryKey: queryKeys.patientList(query, page), queryFn: () => patientsService.list(query, page), placeholderData: keepPreviousData });
-  const data: Paginated<Patient> | undefined = records.data ?? latestCachedData<Paginated<Patient>>(queryClient, [...queryKeys.patients, "list"]);
+  const records = useQuery({
+    queryKey: queryKeys.patientList(query, page),
+    queryFn: () => patientsService.list(query, page),
+    placeholderData: keepPreviousData,
+  });
+  const data: Paginated<Patient> | undefined =
+    records.data ??
+    latestCachedData<Paginated<Patient>>(queryClient, [
+      ...queryKeys.patients,
+      "list",
+    ]);
   const error = records.error?.message ?? "";
   function search(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -24,9 +41,7 @@ export default function PatientListPage({ searchable = false }: { searchable?: b
     <div className="workspace-page co-mx-auto co-max-w-[1320px]">
       <div className="workspace-page-header">
         <div>
-          <h1>
-            {searchable ? "Buscar pacientes" : "Todos los pacientes"}
-          </h1>
+          <h1>{searchable ? "Buscar pacientes" : "Todos los pacientes"}</h1>
         </div>
         <Link to="/patients/new" className="clinical-action-primary">
           <i className="bi bi-person-plus" aria-hidden="true" />
@@ -46,15 +61,40 @@ export default function PatientListPage({ searchable = false }: { searchable?: b
           <button className="clinical-action-primary">Buscar</button>
         </form>
       }
-      {error && <div className={data ? "workspace-inline-warning co-mb-4" : "workspace-inline-error co-mb-4"} role="alert">
-        {error}{data && <span> Se muestran los pacientes de la última carga.</span>}
-        <button className="clinical-action-outline co-ml-3" onClick={() => void records.refetch()}>Reintentar</button>
-      </div>}
-      {records.isFetching && data && <p className="clinical-loading-note" role="status">Actualizando pacientes…</p>}
-      {!data ? error ? null : (
-        <div className="page-loader" role="status" aria-label="Cargando pacientes">
-          <div className="workspace-loader-spinner" />
+      {error && (
+        <div
+          className={
+            data
+              ? "workspace-inline-warning co-mb-4"
+              : "workspace-inline-error co-mb-4"
+          }
+          role="alert"
+        >
+          {error}
+          {data && <span> Se muestran los pacientes de la última carga.</span>}
+          <button
+            className="clinical-action-outline co-ml-3"
+            onClick={() => void records.refetch()}
+          >
+            Reintentar
+          </button>
         </div>
+      )}
+      {records.isFetching && data && (
+        <p className="clinical-loading-note" role="status">
+          Actualizando pacientes…
+        </p>
+      )}
+      {!data ? (
+        error ? null : (
+          <div
+            className="page-loader"
+            role="status"
+            aria-label="Cargando pacientes"
+          >
+            <div className="workspace-loader-spinner" />
+          </div>
+        )
       ) : data.results.length ? (
         <div className="workspace-table-frame">
           <div className="workspace-table-scroll">
@@ -62,7 +102,10 @@ export default function PatientListPage({ searchable = false }: { searchable?: b
               <i className="bi bi-arrow-left-right" aria-hidden="true" />
               Desliza la tabla para ver todas las columnas
             </p>
-            <table className="workspace-data-table" aria-busy={records.isFetching}>
+            <table
+              className="workspace-data-table"
+              aria-busy={records.isFetching}
+            >
               <caption className="co-sr-only">Registros de pacientes</caption>
               <thead>
                 <tr>
@@ -82,7 +125,9 @@ export default function PatientListPage({ searchable = false }: { searchable?: b
                     <td data-label="Teléfono">{p.telefono}</td>
                     <td data-label="Correo">{p.email}</td>
                     <td data-label="Estado">
-                      <span className={`patient-status ${p.estatus === "A" ? "is-active" : "is-inactive"}`}>
+                      <span
+                        className={`patient-status ${p.estatus === "A" ? "is-active" : "is-inactive"}`}
+                      >
                         {p.estatus === "A" ? "Activo" : "Inactivo"}
                       </span>
                     </td>
@@ -111,11 +156,25 @@ export default function PatientListPage({ searchable = false }: { searchable?: b
       ) : (
         <div className="workspace-empty-state">
           <span>No se encontraron pacientes.</span>
-          {query && <button className="clinical-action-outline co-mt-3" type="button" onClick={() => { setTerm(""); setParams({}); }}>Limpiar búsqueda</button>}
+          {query && (
+            <button
+              className="clinical-action-outline co-mt-3"
+              type="button"
+              onClick={() => {
+                setTerm("");
+                setParams({});
+              }}
+            >
+              Limpiar búsqueda
+            </button>
+          )}
         </div>
       )}
       {data && (
-        <nav className="workspace-pagination" aria-label="Paginación de pacientes">
+        <nav
+          className="workspace-pagination"
+          aria-label="Paginación de pacientes"
+        >
           <button
             className="clinical-action-outline clinical-action-compact"
             disabled={!data.previous}

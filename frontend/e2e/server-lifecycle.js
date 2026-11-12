@@ -5,10 +5,14 @@ import { createServer } from "node:net";
 import process from "node:process";
 
 const root = resolve(import.meta.dirname, "../..");
-const python = process.env.SMILE_E2E_PYTHON || resolve(
-  root,
-  process.platform === "win32" ? ".venv/Scripts/python.exe" : ".venv/bin/python",
-);
+const python =
+  process.env.SMILE_E2E_PYTHON ||
+  resolve(
+    root,
+    process.platform === "win32"
+      ? ".venv/Scripts/python.exe"
+      : ".venv/bin/python",
+  );
 const manage = resolve(root, "manage.py");
 const serverUrl = "http://127.0.0.1:8010/app/login";
 
@@ -26,8 +30,10 @@ export async function startE2EServer(env) {
   // Never point the tests at an unrelated server that already owns the port.
   await new Promise((resolvePort, rejectPort) => {
     const probe = createServer();
-    probe.once('error', rejectPort);
-    probe.listen(8010, '127.0.0.1', () => probe.close((error) => error ? rejectPort(error) : resolvePort()));
+    probe.once("error", rejectPort);
+    probe.listen(8010, "127.0.0.1", () =>
+      probe.close((error) => (error ? rejectPort(error) : resolvePort())),
+    );
   });
   const child = spawn(
     python,
