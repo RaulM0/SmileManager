@@ -19,7 +19,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 ## Símbolos principales
 
 - `actions` — línea 2.
-- `auditActionLabel` — línea 74.
+- `auditActionLabel` — línea 81.
 
 ## Dependencias internas
 

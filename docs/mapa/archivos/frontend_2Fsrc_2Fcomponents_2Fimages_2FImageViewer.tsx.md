@@ -19,8 +19,8 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 ## Símbolos principales
 
 - `ViewerControl` — línea 3.
-- `ControlName` — línea 4.
-- `ImageViewer` — línea 6.
+- `ControlName` — línea 7.
+- `ImageViewer` — línea 15.
 
 ## Dependencias internas
 

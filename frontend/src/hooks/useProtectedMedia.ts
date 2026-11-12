@@ -13,7 +13,12 @@ export function useProtectedMediaState(path: string | null) {
     gcTime: 0,
     retry: false,
   });
-  const [state, setState] = useState<{ path: string; clinic: string; url: string | null; failed: boolean } | null>(null);
+  const [state, setState] = useState<{
+    path: string;
+    clinic: string;
+    url: string | null;
+    failed: boolean;
+  } | null>(null);
   useEffect(() => {
     if (!path || !media.data) return;
     const objectUrl = URL.createObjectURL(media.data);

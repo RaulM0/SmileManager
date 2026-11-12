@@ -19,8 +19,8 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 ## Símbolos principales
 
 - `consultationDateFormat` — línea 6.
-- `formatConsultationDate` — línea 9.
-- `ConsultationHistoryPage` — línea 14.
+- `formatConsultationDate` — línea 14.
+- `ConsultationHistoryPage` — línea 21.
 
 ## Dependencias internas
 

@@ -18,8 +18,8 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `BackofficeRuns` — línea 10.
-- `BackofficeRun` — línea 116.
+- `BackofficeRuns` — línea 13.
+- `BackofficeRun` — línea 119.
 
 ## Dependencias internas
 

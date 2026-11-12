@@ -20,8 +20,8 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 - `CreatedUser` — línea 9.
 - `Fields` — línea 10.
-- `empty` — línea 11.
-- `BackofficeUserCreate` — línea 13.
+- `empty` — línea 18.
+- `BackofficeUserCreate` — línea 27.
 
 ## Dependencias internas
 

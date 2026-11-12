@@ -21,15 +21,15 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 - `states` — línea 10.
 - `surfaces` — línea 19.
 - `quadrantLabels` — línea 20.
-- `permanent` — línea 21.
-- `deciduous` — línea 27.
-- `unrecorded` — línea 33.
-- `DentitionData` — línea 35.
-- `fullDentition` — línea 37.
-- `recordedDentition` — línea 44.
-- `Tooth` — línea 50.
-- `Dentition` — línea 69.
-- `OdontogramPage` — línea 102.
+- `permanent` — línea 26.
+- `deciduous` — línea 32.
+- `unrecorded` — línea 38.
+- `DentitionData` — línea 40.
+- `fullDentition` — línea 42.
+- `recordedDentition` — línea 55.
+- `Tooth` — línea 65.
+- `Dentition` — línea 92.
+- `OdontogramPage` — línea 149.
 
 ## Dependencias internas
 

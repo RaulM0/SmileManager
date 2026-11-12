@@ -37,7 +37,13 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready/', timeout=5)"]
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready/', timeout=5)",
+        ]
       interval: 15s
       timeout: 10s
       start_period: 90s
@@ -46,7 +52,7 @@ services:
   redis:
     image: redis:7.4-alpine
     restart: unless-stopped
-    command: [redis-server, --save, '', --appendonly, 'no']
+    command: [redis-server, --save, "", --appendonly, "no"]
 
   clamav:
     image: clamav/clamav:stable
@@ -57,8 +63,8 @@ services:
 
   audit-init:
     image: smilemanager-backend
-    user: '0:0'
-    entrypoint: [sh, -c, 'chown 1000:1000 /journal && chmod 700 /journal']
+    user: "0:0"
+    entrypoint: [sh, -c, "chown 1000:1000 /journal && chmod 700 /journal"]
     volumes:
       - audit_journal:/journal
 
@@ -71,7 +77,13 @@ services:
       audit-init:
         condition: service_completed_successfully
     healthcheck:
-      test: [CMD, python, -c, 'import urllib.request; urllib.request.urlopen("http://127.0.0.1:8080/health", timeout=5)']
+      test:
+        [
+          CMD,
+          python,
+          -c,
+          'import urllib.request; urllib.request.urlopen("http://127.0.0.1:8080/health", timeout=5)',
+        ]
       interval: 15s
       timeout: 10s
       retries: 5
@@ -115,7 +127,12 @@ services:
       DJANGO_SETTINGS_MODULE: SmileManager.settings_e2e
       SMILE_E2E_DIR: /tmp/smilemanager-e2e-browser
       SMILE_E2E_MAIL_PATH: /e2e-mail
-    command: [sh, -c, 'mkdir -p /tmp/smilemanager-e2e-browser && python manage.py migrate --noinput && python manage.py prepare_e2e && exec python manage.py runserver 0.0.0.0:8010 --noreload']
+    command:
+      [
+        sh,
+        -c,
+        "mkdir -p /tmp/smilemanager-e2e-browser && python manage.py migrate --noinput && python manage.py prepare_e2e && exec python manage.py runserver 0.0.0.0:8010 --noreload",
+      ]
     ports:
       - "127.0.0.1:8010:8010"
     volumes:
@@ -125,7 +142,13 @@ services:
     tmpfs:
       - /tmp:uid=1000,gid=1000,mode=1777
     healthcheck:
-      test: [CMD, python, -c, 'import urllib.request; urllib.request.urlopen("http://127.0.0.1:8010/health/ready/", timeout=5)']
+      test:
+        [
+          CMD,
+          python,
+          -c,
+          'import urllib.request; urllib.request.urlopen("http://127.0.0.1:8010/health/ready/", timeout=5)',
+        ]
       interval: 5s
       timeout: 10s
       start_period: 60s

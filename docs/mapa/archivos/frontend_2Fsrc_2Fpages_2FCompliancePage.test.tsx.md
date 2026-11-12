@@ -18,7 +18,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `request` — línea 9.
+- `request` — línea 15.
 
 ## Dependencias internas
 

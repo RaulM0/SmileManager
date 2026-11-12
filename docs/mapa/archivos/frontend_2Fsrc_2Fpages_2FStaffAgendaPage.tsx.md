@@ -20,9 +20,9 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 - `Patient` — línea 10.
 - `Appointment` — línea 11.
-- `empty` — línea 12.
-- `stateLabel` — línea 13.
-- `StaffAgendaPage` — línea 15.
+- `empty` — línea 19.
+- `stateLabel` — línea 20.
+- `StaffAgendaPage` — línea 22.
 
 ## Dependencias internas
 

@@ -6,12 +6,12 @@ Pacientes, citas, antecedentes, consultas, odontograma, imágenes (metadatos), e
 
 Las relaciones clínicas con médico distinto al propietario del paciente se excluyen, así como revisiones que no puedan asociarse a un recurso actual coherente. Esto puede ocultar historia legacy y requiere revisión de datos, no implica que no existan registros. No existe una vinculación inequívoca de todos los eventos históricos a un paciente; no se infiere a partir de identificadores ambiguos.
 
-| Información | Clase | Acceso |
-|---|---|---|
-| Usuarios y estado | Administrativa | System Admin: lectura y activar/desactivar usuarios ordinarios |
-| Identidad y expediente | Clínica | System Admin: lectura auditada y edición explícita de paciente, antecedentes y odontograma con control de concurrencia |
-| Revisiones | Clínica | Solo lectura auditada; acceso DBA fuera de la frontera de aplicación |
-| AuditEvent | Seguridad | Solo lectura; sin payload clínico |
-| AIAnalysisRun | Operacional | Solo lectura; sin edición ni recuperación desde UI |
+| Información            | Clase          | Acceso                                                                                                                 |
+| ---------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Usuarios y estado      | Administrativa | System Admin: lectura y activar/desactivar usuarios ordinarios                                                         |
+| Identidad y expediente | Clínica        | System Admin: lectura auditada y edición explícita de paciente, antecedentes y odontograma con control de concurrencia |
+| Revisiones             | Clínica        | Solo lectura auditada; acceso DBA fuera de la frontera de aplicación                                                   |
+| AuditEvent             | Seguridad      | Solo lectura; sin payload clínico                                                                                      |
+| AIAnalysisRun          | Operacional    | Solo lectura; sin edición ni recuperación desde UI                                                                     |
 
 Normal: sin acceso a endpoints backoffice. System Admin: capacidades anteriores y creación de usuarios, incluida la concesión explícita del Backoffice al crear una cuenta. Django Admin técnico: modelos clínicos registrados de solo lectura, incluso superuser; revisiones y runs no expuestos. DBA: acceso técnico por fuera de estas políticas y sujeto a controles organizacionales. No hay borrado físico ni edición administrativa de consultas, consentimientos, estudios o archivos. La contraseña elegida al crear una cuenta no obliga todavía a cambiarla en el primer acceso; no hay envío de invitaciones.

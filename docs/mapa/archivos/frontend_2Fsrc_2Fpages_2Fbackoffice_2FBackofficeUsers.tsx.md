@@ -18,8 +18,8 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `BackofficeUsers` — línea 16.
-- `BackofficeUser` — línea 124.
+- `BackofficeUsers` — línea 19.
+- `BackofficeUser` — línea 127.
 
 ## Dependencias internas
 

@@ -21,7 +21,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 - `nextCodes` — línea 3.
 - `recoveryCode` — línea 4.
 - `completeMFA` — línea 10.
-- `loginAPI` — línea 30.
+- `loginAPI` — línea 42.
 
 ## Dependencias internas
 

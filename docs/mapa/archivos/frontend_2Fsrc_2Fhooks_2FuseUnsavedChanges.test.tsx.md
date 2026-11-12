@@ -18,7 +18,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `Draft` — línea 8.
+- `Draft` — línea 19.
 
 ## Dependencias internas
 

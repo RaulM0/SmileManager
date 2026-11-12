@@ -5,7 +5,10 @@ import { Link, useParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, getErrorMessage } from "../../api/client";
 import { ConfirmDialog } from "../../components/ConfirmDialog";
-import { AdminState, AdminStatus } from "../../components/workspace/Administration";
+import {
+  AdminState,
+  AdminStatus,
+} from "../../components/workspace/Administration";
 import { useAuth } from "../../context/AuthContext";
 import type { Paginated } from "../../types/domain";
 import { Load, Pages } from "./shared";

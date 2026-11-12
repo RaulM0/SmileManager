@@ -9,7 +9,12 @@ export interface SessionUser {
   is_platform_admin?: boolean;
   mfa_enabled?: boolean;
   ai_globally_enabled?: boolean;
-  profile: { clinica_nombre: string; telefono: string; direccion: string; extra: string };
+  profile: {
+    clinica_nombre: string;
+    telefono: string;
+    direccion: string;
+    extra: string;
+  };
 }
 
 export interface SessionResponse {
@@ -101,14 +106,23 @@ export interface Consultation {
   diagnostico: string;
   tratamiento: string;
   observaciones: string;
-  status?: 'DRAFT' | 'CLOSED' | 'LEGACY';
+  status?: "DRAFT" | "CLOSED" | "LEGACY";
   author_name?: string;
   closed_at?: string | null;
-  integrity?: 'verified' | 'invalid' | 'draft' | 'legacy_unsealed';
-  addenda?: Array<{ id: number; text: string; author_name: string; created_at: string; integrity: string }>;
+  integrity?: "verified" | "invalid" | "draft" | "legacy_unsealed";
+  addenda?: Array<{
+    id: number;
+    text: string;
+    author_name: string;
+    created_at: string;
+    integrity: string;
+  }>;
 }
 
-export interface PatientOption { id: number; text: string }
+export interface PatientOption {
+  id: number;
+  text: string;
+}
 
 export interface ComparativeStudy {
   exists: boolean;
@@ -126,7 +140,13 @@ export interface Dashboard {
 }
 
 export interface DiagnosticsPageData extends Paginated<ClinicalImage> {
-  statistics: { total: number; processed: number; pending: number; processed_percentage: number; type_count: number };
+  statistics: {
+    total: number;
+    processed: number;
+    pending: number;
+    processed_percentage: number;
+    type_count: number;
+  };
 }
 
 export interface Detection {
@@ -135,9 +155,18 @@ export interface Detection {
   coordenadas: number[];
 }
 
-export interface AnalysisResult { image: ClinicalImage; detections: Detection[]; run_id?: number; status?: string; disposition?: string }
+export interface AnalysisResult {
+  image: ClinicalImage;
+  detections: Detection[];
+  run_id?: number;
+  status?: string;
+  disposition?: string;
+}
 
-export interface MedicalHistory extends Record<string, boolean | string | number | null> {
+export interface MedicalHistory extends Record<
+  string,
+  boolean | string | number | null
+> {
   id: number | null;
 }
 
@@ -156,4 +185,6 @@ export interface Consent {
   pdf_generado: string | null;
 }
 
-export type FieldErrors<T extends string = string> = Partial<Record<T | "detail", string | string[]>>;
+export type FieldErrors<T extends string = string> = Partial<
+  Record<T | "detail", string | string[]>
+>;

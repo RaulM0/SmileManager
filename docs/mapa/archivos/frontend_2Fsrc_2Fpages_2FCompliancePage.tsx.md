@@ -18,7 +18,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `CompliancePage` — línea 10.
+- `CompliancePage` — línea 16.
 
 ## Dependencias internas
 

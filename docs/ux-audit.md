@@ -22,27 +22,27 @@ Todavía no recomendaría afirmar que puede utilizarse con seguridad y eficienci
 
 La SPA tiene 30 rutas de pantalla declaradas, incluyendo login y privacidad, con un fallback general. No se identificaron módulos React de pagos, inventario, tratamientos estructurados o permisos diferenciados; el tratamiento existe como texto de consulta/receta. Los perfiles de recepción/asistencia/odontología son escenarios, no roles implementados. La navegación principal ofrece Inicio, Citas, Pacientes, Diagnósticos y Exportaciones; el contexto de paciente añade Resumen, Expediente, Antecedentes, Consultas, Odontograma, Imágenes, Progreso y Consentimiento. `PatientSelector`, `PatientForm`, `AppointmentForm`, `PatientWorkspaceNav`, `useResource`, toasts, tablas y visor protegido son piezas reutilizadas.
 
-| Perfil supuesto | Tarea y módulos disponibles | Riesgo contextual |
-|---|---|---|
-| Recepción | alta/búsqueda, citas, contacto y exportaciones | nombres repetidos y cambios de estado accidentales |
-| Asistencia | seleccionar expediente, imágenes, consentimiento y progreso | volver a seleccionar paciente y campos sin orientación |
-| Odontología | antecedentes, consulta/receta, odontograma, imágenes/IA | confundir dato no registrado con negativo o sano |
-| Administración | listados y Excel | no se observan roles distintos; verificar permisos en operación real |
+| Perfil supuesto | Tarea y módulos disponibles                                 | Riesgo contextual                                                    |
+| --------------- | ----------------------------------------------------------- | -------------------------------------------------------------------- |
+| Recepción       | alta/búsqueda, citas, contacto y exportaciones              | nombres repetidos y cambios de estado accidentales                   |
+| Asistencia      | seleccionar expediente, imágenes, consentimiento y progreso | volver a seleccionar paciente y campos sin orientación               |
+| Odontología     | antecedentes, consulta/receta, odontograma, imágenes/IA     | confundir dato no registrado con negativo o sano                     |
+| Administración  | listados y Excel                                            | no se observan roles distintos; verificar permisos en operación real |
 
 ## Heurísticas de Nielsen
 
-| # | Heurística | Evaluación y evidencias principales |
-|---|---|---|
-| 1 | Visibilidad del estado | Toasts y estados de carga/reintento existen; borradores sin indicador y descargas sin éxito visible: UX-03, UX-17. |
-| 2 | Correspondencia con el mundo real | Texto clínico en español; «Anulada/Cancelada», «Resumen» y aceptación del consentimiento pueden confundir: UX-11, UX-14, UX-19. |
-| 3 | Control y libertad | Navegación por secciones y teclado; perder borradores o cancelar sin revisión limita recuperación: UX-03, UX-04. |
-| 4 | Consistencia y estándares | Componentes y estados compartidos; búsqueda dividida, nombres de acciones y confirmaciones difieren: UX-07, UX-11, UX-12. |
-| 5 | Prevención de errores | Validación de campos y bloqueo durante envío; antecedentes y odontograma suponen estados clínicos: UX-01, UX-02. |
-| 6 | Reconocimiento antes que recuerdo | Contexto Patient 360 positivo; cita y receta no conectan de vuelta con paciente; selector no desambigua homónimos: UX-06, UX-08. |
-| 7 | Flexibilidad y eficiencia | Filtros, búsqueda y agenda móvil; hubs y reselección añaden pasos: UX-07, UX-09, UX-10. |
-| 8 | Diseño estético y minimalista | Superficies sobrias y jerarquía operativa; detalle de paciente repite datos y el resumen clínico es un menú: UX-10, UX-16. |
-| 9 | Recuperación de errores | Hay reintentos y errores por campo; algunos vacíos y fallos no indican el próximo paso: UX-13, UX-15, UX-18. |
-| 10 | Ayuda y documentación | Existen algunos textos de ayuda; faltan guía contextual y explicaciones de acciones/formatos: UX-14, UX-18, UX-20. |
+| #   | Heurística                        | Evaluación y evidencias principales                                                                                              |
+| --- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Visibilidad del estado            | Toasts y estados de carga/reintento existen; borradores sin indicador y descargas sin éxito visible: UX-03, UX-17.               |
+| 2   | Correspondencia con el mundo real | Texto clínico en español; «Anulada/Cancelada», «Resumen» y aceptación del consentimiento pueden confundir: UX-11, UX-14, UX-19.  |
+| 3   | Control y libertad                | Navegación por secciones y teclado; perder borradores o cancelar sin revisión limita recuperación: UX-03, UX-04.                 |
+| 4   | Consistencia y estándares         | Componentes y estados compartidos; búsqueda dividida, nombres de acciones y confirmaciones difieren: UX-07, UX-11, UX-12.        |
+| 5   | Prevención de errores             | Validación de campos y bloqueo durante envío; antecedentes y odontograma suponen estados clínicos: UX-01, UX-02.                 |
+| 6   | Reconocimiento antes que recuerdo | Contexto Patient 360 positivo; cita y receta no conectan de vuelta con paciente; selector no desambigua homónimos: UX-06, UX-08. |
+| 7   | Flexibilidad y eficiencia         | Filtros, búsqueda y agenda móvil; hubs y reselección añaden pasos: UX-07, UX-09, UX-10.                                          |
+| 8   | Diseño estético y minimalista     | Superficies sobrias y jerarquía operativa; detalle de paciente repite datos y el resumen clínico es un menú: UX-10, UX-16.       |
+| 9   | Recuperación de errores           | Hay reintentos y errores por campo; algunos vacíos y fallos no indican el próximo paso: UX-13, UX-15, UX-18.                     |
+| 10  | Ayuda y documentación             | Existen algunos textos de ayuda; faltan guía contextual y explicaciones de acciones/formatos: UX-14, UX-18, UX-20.               |
 
 ## Hallazgos priorizados
 
@@ -204,38 +204,38 @@ La SPA tiene 30 rutas de pantalla declaradas, incluyendo login y privacidad, con
 
 R = visitada en navegador en esta auditoría; C = código; P = evidencia E2E histórica. «Visitada» no significa que todos sus estados o acciones se hayan probado.
 
-| Pantalla / ruta | Objetivo, acción principal y estados observados | Evaluación y evidencia |
-|---|---|---|
-| Login `/login` | Autenticarse; usuario, contraseña, mostrar y enviar; toast/error. | Labels y autocomplete; no se encontró recuperación de contraseña en la SPA. R/C. |
-| Inicio `/` | Revisar jornada; abrir agenda, dos tablas. | Buena prioridad operativa; citas sin acceso directo; vacío sin CTA. UX-10. R/C. |
-| Pacientes `/patients` | Elegir tarea; alta y seis accesos. | Duplicación de alta y seis «Acceder» ambiguos. UX-07/12. R/C. |
-| Pacientes `/patients/list` | Examinar tabla paginada. | Acciones por fila; búsqueda ausente en esta variante. UX-07. R/C. |
-| Búsqueda `/patients/search` | Buscar por nombre/teléfono/correo y abrir/editar. | Filtros por URL y paginación; falta limpiar explícito, ver riesgo homónimos. R/C. |
-| Alta `/patients/new` | Registrar datos personales/contacto. | Labels y errores asociados; obligatorios y formato de teléfono poco anticipados. UX-20. R/C. |
-| Contacto `/patients/contact` | Seleccionar y enviar correo. | Selector compartido y estado de envío; contexto de destinatario debe desambiguarse. UX-06. R/C. |
-| Paciente `/patients/:id` | Identificar, editar, abrir expediente o desactivar. | Confirmación de desactivación; metadatos duplicados y sin acción contextual de cita. UX-09/16. R/C. |
-| Edición `/patients/:id/edit` | Modificar datos; guardar. | Se comprobó pérdida de borrador al salir. UX-03. R/C. |
-| Selector `/clinical-record` | Buscar paciente y abrir expediente. | Resultados por nombre; límite 10 y sin ID visible. UX-06. R/C. |
-| Expediente `/patients/:id/record` | Elegir tarea clínica. | Contexto de nombre/ID persistente; menú, no resumen de actividad. UX-10. R/C. |
-| Antecedentes `/patients/:id/medical-history` | Registrar 24 condiciones y notas. | Riesgo de «No» por defecto; formulario extenso. UX-01/20. R/C. |
-| Nueva consulta `/patients/:id/consultations/new` | Capturar motivo, diagnóstico, tratamiento y notas. | Motivo obligatorio; al guardar lleva directamente a receta; confirmar con clínicos si es la salida esperada. R/C. |
-| Historial `/patients/:id/consultations` | Revisar consultas y abrir receta. | Timeline claro, fecha y diagnóstico; no muestra tratamiento u observaciones hasta receta. UX-08/18. R/C. |
-| Receta `/consultations/:id/prescription` | Leer e imprimir diagnóstico/tratamiento. | Paciente visible, sin navegación Patient 360 ni regreso explícito. UX-08. C/P. |
-| Imágenes `/patients/:id/images` | Seleccionar carga, búsqueda o historial. | Acciones claras, añade un hub antes de la tarea. R/C. |
-| Carga `/patients/:id/images/upload` | Asociar imagen a consulta. | Campos y validación; vacío sin enlace a prerrequisito. UX-13. R/C. |
-| Búsqueda imágenes `/patients/:id/images/search` | Filtrar por fecha/consulta; descargar/eliminar. | Filtrado y estado parcial; eliminar pide confirmación. R/C/P. |
-| Historial imágenes `/patients/:id/images/history` | Revisar, descargar, eliminar. | Descripción, fecha y acciones; ausencia de archivo requiere recuperación contextual. UX-15/18. R/C. |
-| Odontograma `/patients/:id/odontogram` | Pintar estados de 52 piezas y guardar. | Diagrama FDI y leyenda; valor por defecto y precisión táctil requieren revisión. UX-02/21. R/C/P. |
-| Progreso `/patients/:id/comparative-study` | Guardar texto y fotografías antes/después, PDF. | Cinco imágenes iniciales obligatorias sin guía previa suficiente; formulario largo. UX-03/20. R/C. |
-| Consentimiento `/patients/:id/consent` | Aceptar y guardar identificación. | Texto/estado visibles; actor y consecuencias de aceptación ambiguos. UX-14/17. R/C. |
-| Agenda `/appointments` | Filtrar, buscar, ver calendario y operar citas. | Buen estado textual y agenda móvil; cancelación directa; mes/lista con distinto alcance. UX-04/19. R/C. |
-| Nueva cita `/appointments/new` | Seleccionar paciente y programar. | Dos pasos claros, pero búsqueda limitada y sin paciente precargado. UX-06/09/20. R/C. |
-| Detalle cita `/appointments/:id` | Revisar fecha, paciente y motivo; editar. | Sin enlace al paciente ni regreso contextual. UX-08. R/C. |
-| Editar cita `/appointments/:id/edit` | Corregir cita con formulario compartido. | Validación compartida; terminología «Anulada» y protección de borrador pendientes. UX-03/11. R/C. |
-| Diagnósticos `/diagnostics` | Filtrar imágenes y abrir análisis. | Tabla y estados de procesamiento; exige contexto al entrar al resultado. UX-22. R/C. |
-| Resultado `/diagnostics/:id` | Ver original, resultado y detecciones. | Autoanálisis al entrar; falta identidad visible; manejo de archivo faltante con enlace de carga. UX-05/15/22. C/P. |
-| Exportaciones `/exports` | Descargar tres Excel. | Etiquetas de tipo claras; feedback/estado de descarga insuficiente. UX-17. R/C. |
-| Privacidad `/privacy` | Leer aviso. | Acceso por pie dentro de sesión; la revisión legal del texto queda fuera de alcance. R/C. |
+| Pantalla / ruta                                   | Objetivo, acción principal y estados observados                   | Evaluación y evidencia                                                                                             |
+| ------------------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Login `/login`                                    | Autenticarse; usuario, contraseña, mostrar y enviar; toast/error. | Labels y autocomplete; no se encontró recuperación de contraseña en la SPA. R/C.                                   |
+| Inicio `/`                                        | Revisar jornada; abrir agenda, dos tablas.                        | Buena prioridad operativa; citas sin acceso directo; vacío sin CTA. UX-10. R/C.                                    |
+| Pacientes `/patients`                             | Elegir tarea; alta y seis accesos.                                | Duplicación de alta y seis «Acceder» ambiguos. UX-07/12. R/C.                                                      |
+| Pacientes `/patients/list`                        | Examinar tabla paginada.                                          | Acciones por fila; búsqueda ausente en esta variante. UX-07. R/C.                                                  |
+| Búsqueda `/patients/search`                       | Buscar por nombre/teléfono/correo y abrir/editar.                 | Filtros por URL y paginación; falta limpiar explícito, ver riesgo homónimos. R/C.                                  |
+| Alta `/patients/new`                              | Registrar datos personales/contacto.                              | Labels y errores asociados; obligatorios y formato de teléfono poco anticipados. UX-20. R/C.                       |
+| Contacto `/patients/contact`                      | Seleccionar y enviar correo.                                      | Selector compartido y estado de envío; contexto de destinatario debe desambiguarse. UX-06. R/C.                    |
+| Paciente `/patients/:id`                          | Identificar, editar, abrir expediente o desactivar.               | Confirmación de desactivación; metadatos duplicados y sin acción contextual de cita. UX-09/16. R/C.                |
+| Edición `/patients/:id/edit`                      | Modificar datos; guardar.                                         | Se comprobó pérdida de borrador al salir. UX-03. R/C.                                                              |
+| Selector `/clinical-record`                       | Buscar paciente y abrir expediente.                               | Resultados por nombre; límite 10 y sin ID visible. UX-06. R/C.                                                     |
+| Expediente `/patients/:id/record`                 | Elegir tarea clínica.                                             | Contexto de nombre/ID persistente; menú, no resumen de actividad. UX-10. R/C.                                      |
+| Antecedentes `/patients/:id/medical-history`      | Registrar 24 condiciones y notas.                                 | Riesgo de «No» por defecto; formulario extenso. UX-01/20. R/C.                                                     |
+| Nueva consulta `/patients/:id/consultations/new`  | Capturar motivo, diagnóstico, tratamiento y notas.                | Motivo obligatorio; al guardar lleva directamente a receta; confirmar con clínicos si es la salida esperada. R/C.  |
+| Historial `/patients/:id/consultations`           | Revisar consultas y abrir receta.                                 | Timeline claro, fecha y diagnóstico; no muestra tratamiento u observaciones hasta receta. UX-08/18. R/C.           |
+| Receta `/consultations/:id/prescription`          | Leer e imprimir diagnóstico/tratamiento.                          | Paciente visible, sin navegación Patient 360 ni regreso explícito. UX-08. C/P.                                     |
+| Imágenes `/patients/:id/images`                   | Seleccionar carga, búsqueda o historial.                          | Acciones claras, añade un hub antes de la tarea. R/C.                                                              |
+| Carga `/patients/:id/images/upload`               | Asociar imagen a consulta.                                        | Campos y validación; vacío sin enlace a prerrequisito. UX-13. R/C.                                                 |
+| Búsqueda imágenes `/patients/:id/images/search`   | Filtrar por fecha/consulta; descargar/eliminar.                   | Filtrado y estado parcial; eliminar pide confirmación. R/C/P.                                                      |
+| Historial imágenes `/patients/:id/images/history` | Revisar, descargar, eliminar.                                     | Descripción, fecha y acciones; ausencia de archivo requiere recuperación contextual. UX-15/18. R/C.                |
+| Odontograma `/patients/:id/odontogram`            | Pintar estados de 52 piezas y guardar.                            | Diagrama FDI y leyenda; valor por defecto y precisión táctil requieren revisión. UX-02/21. R/C/P.                  |
+| Progreso `/patients/:id/comparative-study`        | Guardar texto y fotografías antes/después, PDF.                   | Cinco imágenes iniciales obligatorias sin guía previa suficiente; formulario largo. UX-03/20. R/C.                 |
+| Consentimiento `/patients/:id/consent`            | Aceptar y guardar identificación.                                 | Texto/estado visibles; actor y consecuencias de aceptación ambiguos. UX-14/17. R/C.                                |
+| Agenda `/appointments`                            | Filtrar, buscar, ver calendario y operar citas.                   | Buen estado textual y agenda móvil; cancelación directa; mes/lista con distinto alcance. UX-04/19. R/C.            |
+| Nueva cita `/appointments/new`                    | Seleccionar paciente y programar.                                 | Dos pasos claros, pero búsqueda limitada y sin paciente precargado. UX-06/09/20. R/C.                              |
+| Detalle cita `/appointments/:id`                  | Revisar fecha, paciente y motivo; editar.                         | Sin enlace al paciente ni regreso contextual. UX-08. R/C.                                                          |
+| Editar cita `/appointments/:id/edit`              | Corregir cita con formulario compartido.                          | Validación compartida; terminología «Anulada» y protección de borrador pendientes. UX-03/11. R/C.                  |
+| Diagnósticos `/diagnostics`                       | Filtrar imágenes y abrir análisis.                                | Tabla y estados de procesamiento; exige contexto al entrar al resultado. UX-22. R/C.                               |
+| Resultado `/diagnostics/:id`                      | Ver original, resultado y detecciones.                            | Autoanálisis al entrar; falta identidad visible; manejo de archivo faltante con enlace de carga. UX-05/15/22. C/P. |
+| Exportaciones `/exports`                          | Descargar tres Excel.                                             | Etiquetas de tipo claras; feedback/estado de descarga insuficiente. UX-17. R/C.                                    |
+| Privacidad `/privacy`                             | Leer aviso.                                                       | Acceso por pie dentro de sesión; la revisión legal del texto queda fuera de alcance. R/C.                          |
 
 ## Flujos actuales y propuestos
 

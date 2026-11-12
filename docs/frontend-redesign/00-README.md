@@ -28,4 +28,3 @@ Frontend SPA en `frontend/`: React 19, React Router 7, Vite 8, Bootstrap 5.3.8 y
 ## Estado actual (24-10-2026)
 
 Inventario UI-001–UI-034 y matriz de rutas preparados. Tailwind 3.4.17 compila con prefijo `co-`; Bootstrap CSS/JS y su dependencia ya se retiraron, mientras `bootstrap-icons` permanece. Shell, Inicio, Patient 360, formularios de paciente/cita, expediente, odontograma, imágenes, estudio comparativo, consentimiento, diagnósticos, exportaciones, login y privacidad recibieron cambios de presentación. Lint, unit, build y E2E (3/3, salida 0) pasan tras retirar Bootstrap; E2E comprueba overflow en rutas clave a 390/768 px y el foco/ciclo de teclado del drawer móvil. Se midió la paleta base y se mejoró el contraste muted. Capturas desktop/tablet/mobile y drawer inspeccionadas; falta revisión manual general de rutas y estados. Ver `09-REDESIGN-STATUS.md` y `12-FINAL-VALIDATION.md`.
-

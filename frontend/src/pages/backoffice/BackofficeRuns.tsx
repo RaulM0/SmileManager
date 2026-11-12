@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { AdminState, AdminStatus } from "../../components/workspace/Administration";
+import {
+  AdminState,
+  AdminStatus,
+} from "../../components/workspace/Administration";
 import type { Paginated } from "../../types/domain";
 import { Load, Pages } from "./shared";
 import { useAdmin } from "./useAdmin";

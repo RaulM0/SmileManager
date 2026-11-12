@@ -19,7 +19,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 ## Símbolos principales
 
 - `SecuritySession` — línea 7.
-- `SecurityPage` — línea 9.
+- `SecurityPage` — línea 16.
 
 ## Dependencias internas
 

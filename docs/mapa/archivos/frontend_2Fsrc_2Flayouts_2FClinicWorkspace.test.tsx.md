@@ -18,7 +18,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `state` — línea 6.
+- `state` — línea 12.
 
 ## Dependencias internas
 

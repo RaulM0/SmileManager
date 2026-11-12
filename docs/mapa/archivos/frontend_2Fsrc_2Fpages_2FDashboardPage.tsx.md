@@ -19,7 +19,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 ## Símbolos principales
 
 - `AppointmentTable` — línea 8.
-- `DashboardPage` — línea 59.
+- `DashboardPage` — línea 73.
 
 ## Dependencias internas
 

@@ -22,18 +22,18 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 - `inFlightRequests` — línea 9.
 - `setClinicContext` — línea 12.
 - `getClinicContext` — línea 21.
-- `assertCurrentClinic` — línea 23.
-- `ApiError` — línea 27.
-- `getFormErrors` — línea 39.
-- `getErrorMessage` — línea 44.
-- `setAccessToken` — línea 48.
-- `getAccessToken` — línea 54.
-- `waitForAuthRefresh` — línea 56.
-- `refreshAccessToken` — línea 60.
-- `apiResponse` — línea 75.
-- `api` — línea 118.
-- `downloadApiFile` — línea 142.
-- `apiBlob` — línea 159.
+- `assertCurrentClinic` — línea 25.
+- `ApiError` — línea 30.
+- `getFormErrors` — línea 46.
+- `getErrorMessage` — línea 59.
+- `setAccessToken` — línea 65.
+- `getAccessToken` — línea 71.
+- `waitForAuthRefresh` — línea 75.
+- `refreshAccessToken` — línea 79.
+- `apiResponse` — línea 99.
+- `api` — línea 165.
+- `downloadApiFile` — línea 201.
+- `apiBlob` — línea 221.
 
 ## Dependencias internas
 

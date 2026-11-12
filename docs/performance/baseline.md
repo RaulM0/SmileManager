@@ -2,22 +2,22 @@
 
 **LOCAL BENCHMARK — NO PRODUCTION CAPACITY CLAIM.** PostgreSQL en contenedor local, cliente de pruebas Django en el mismo equipo, sin red HTTP real, datos generados sintéticamente. `api/tests/benchmark_synthetic.py` y `run_perf_postgres.py` crean una base temporal de nombre aleatorio y la destruyen; no utilizan DB clínica ni objetos reales. Cada escenario tiene n pacientes y citas, y concentra n consultas e imágenes en un solo paciente para exponer el peor caso de serialización, no para representar una distribución clínica real. Cada muestra corresponde a una petición por tamaño, instrumentada con `tracemalloc`: no es p95 ni un benchmark de throughput. `db_ms` de Django tiene resolución limitada y la instrumentación altera la latencia. Todos los archivos son rutas sintéticas, no archivos clínicos.
 
-| Endpoint | n=10 queries / ms / bytes | n=100 queries / ms / bytes | n=1000 queries / ms / bytes |
-|---|---:|---:|---:|
-| dashboard | 3 / 125 / 3236 | 3 / 69 / 32129 | 3 / 1369 / 322832 |
-| pacientes | 2 / 20 / 2853 | 2 / 17 / 2893 | 2 / 44 / 2894 |
-| búsqueda | 2 / 32 / 2853 | 2 / 30 / 2910 | 2 / 66 / 2911 |
-| autocomplete | 1 / 17 / 424 | 1 / 16 / 424 | 1 / 37 / 424 |
-| detalle paciente | 2 / 18 / 279 | 2 / 16 / 279 | 2 / 30 / 279 |
-| antecedentes | 3 / 35 / 668 | 3 / 27 / 668 | 3 / 85 / 668 |
-| consultas del paciente | 12 / 58 / 2752 | 102 / 493 / 27593 | 1002 / 6276 / 276894 |
-| citas | 1 / 25 / 3493 | 1 / 268 / 35085 | 1 / 1147 / 352787 |
-| odontograma vacío | 3 / 20 / 115 | 3 / 40 / 115 | 3 / 28 / 115 |
-| imágenes del paciente | 12 / 71 / 2343 | 102 / 1352 / 23585 | 1002 / 6772 / 237787 |
-| diagnósticos | 5 / 45 / 2489 | 5 / 100 / 2554 | 5 / 109 / 2577 |
-| consentimiento vacío | 4 / 29 / 102 | 4 / 56 / 102 | 4 / 33 / 102 |
-| estudio vacío | 3 / 26 / 16 | 3 / 38 / 16 | 3 / 29 / 16 |
-| exportación pacientes | 2 / 822 / 5683 | 2 / 390 / 9281 | 2 / 1753 / 43514 |
+| Endpoint               | n=10 queries / ms / bytes | n=100 queries / ms / bytes | n=1000 queries / ms / bytes |
+| ---------------------- | ------------------------: | -------------------------: | --------------------------: |
+| dashboard              |            3 / 125 / 3236 |             3 / 69 / 32129 |           3 / 1369 / 322832 |
+| pacientes              |             2 / 20 / 2853 |              2 / 17 / 2893 |               2 / 44 / 2894 |
+| búsqueda               |             2 / 32 / 2853 |              2 / 30 / 2910 |               2 / 66 / 2911 |
+| autocomplete           |              1 / 17 / 424 |               1 / 16 / 424 |                1 / 37 / 424 |
+| detalle paciente       |              2 / 18 / 279 |               2 / 16 / 279 |                2 / 30 / 279 |
+| antecedentes           |              3 / 35 / 668 |               3 / 27 / 668 |                3 / 85 / 668 |
+| consultas del paciente |            12 / 58 / 2752 |          102 / 493 / 27593 |        1002 / 6276 / 276894 |
+| citas                  |             1 / 25 / 3493 |            1 / 268 / 35085 |           1 / 1147 / 352787 |
+| odontograma vacío      |              3 / 20 / 115 |               3 / 40 / 115 |                3 / 28 / 115 |
+| imágenes del paciente  |            12 / 71 / 2343 |         102 / 1352 / 23585 |        1002 / 6772 / 237787 |
+| diagnósticos           |             5 / 45 / 2489 |             5 / 100 / 2554 |              5 / 109 / 2577 |
+| consentimiento vacío   |              4 / 29 / 102 |               4 / 56 / 102 |                4 / 33 / 102 |
+| estudio vacío          |               3 / 26 / 16 |                3 / 38 / 16 |                 3 / 29 / 16 |
+| exportación pacientes  |            2 / 822 / 5683 |             2 / 390 / 9281 |            2 / 1753 / 43514 |
 
 El primer XLSX incluye inicialización; memoria pico Python trazada en exportación de 1000 fue ~3,7 MB y ~5,1 MB en la primera exportación de 10. Esto no es RSS total ni límite de producción. Consultas e imágenes presentan N+1 confirmado; citas y dashboard serializan listas completas. No se ha medido 10.000 ni IA en esta línea base.
 

@@ -18,7 +18,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `show` — línea 11.
+- `show` — línea 17.
 
 ## Dependencias internas
 

@@ -29,7 +29,13 @@ export function BackofficeDashboard() {
                 ["Pacientes activos", d.patients_active ?? "—"],
                 ["Citas hoy", d.appointments?.today ?? "—"],
                 ["Próximas citas", d.appointments?.upcoming ?? "—"],
-                ...(d.ai ? [["IA en curso", d.ai.running], ["IA fallida", d.ai.failed], ["IA posiblemente detenida", d.ai.stale]] : []),
+                ...(d.ai
+                  ? [
+                      ["IA en curso", d.ai.running],
+                      ["IA fallida", d.ai.failed],
+                      ["IA posiblemente detenida", d.ai.stale],
+                    ]
+                  : []),
               ].map(([label, count]) => (
                 <div key={label}>
                   <span>{label}</span>

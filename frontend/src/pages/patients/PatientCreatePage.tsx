@@ -9,15 +9,24 @@ export default function PatientCreatePage() {
   const queryClient = useQueryClient();
   return (
     <div className="workspace-page co-mx-auto co-max-w-[1320px]">
-      <div className="workspace-page-header"><div><h1>Registrar paciente</h1></div></div>
+      <div className="workspace-page-header">
+        <div>
+          <h1>Registrar paciente</h1>
+        </div>
+      </div>
       <PatientForm
         submitLabel="Registrar paciente"
         onSubmit={async (values) => {
           const patient = await patientsService.create(values);
-          queryClient.setQueryData(queryKeys.resource(`clinics/patients/${patient.id}/`), patient);
+          queryClient.setQueryData(
+            queryKeys.resource(`clinics/patients/${patient.id}/`),
+            patient,
+          );
           await Promise.all([
             queryClient.invalidateQueries({ queryKey: queryKeys.patients }),
-            queryClient.invalidateQueries({ queryKey: queryKeys.resource("clinics/dashboard/") }),
+            queryClient.invalidateQueries({
+              queryKey: queryKeys.resource("clinics/dashboard/"),
+            }),
           ]);
           toast.success("Paciente registrado correctamente.");
           return `/patients/${patient.id}`;

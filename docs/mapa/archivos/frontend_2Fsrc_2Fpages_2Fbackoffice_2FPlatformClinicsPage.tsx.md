@@ -20,9 +20,9 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 - `ClinicStatus` — línea 16.
 - `Clinic` — línea 17.
-- `Invitation` — línea 18.
-- `labels` — línea 19.
-- `PlatformClinicsPage` — línea 25.
+- `Invitation` — línea 26.
+- `labels` — línea 27.
+- `PlatformClinicsPage` — línea 33.
 
 ## Dependencias internas
 

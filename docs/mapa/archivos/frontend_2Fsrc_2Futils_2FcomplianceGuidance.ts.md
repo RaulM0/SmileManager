@@ -20,7 +20,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 - `NoticeKey` — línea 4.
 - `noticeGuidance` — línea 5.
-- `templateGuidance` — línea 20.
+- `templateGuidance` — línea 67.
 
 ## Dependencias internas
 

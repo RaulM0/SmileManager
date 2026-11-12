@@ -18,7 +18,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `DiagnosticsPage` — línea 12.
+- `DiagnosticsPage` — línea 21.
 
 ## Dependencias internas
 

@@ -19,8 +19,8 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 ## Símbolos principales
 
 - `RecoveryLayout` — línea 7.
-- `ForgotPasswordPage` — línea 11.
-- `ResetPasswordPage` — línea 23.
+- `ForgotPasswordPage` — línea 35.
+- `ResetPasswordPage` — línea 109.
 
 ## Dependencias internas
 

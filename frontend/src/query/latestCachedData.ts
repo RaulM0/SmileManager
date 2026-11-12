@@ -1,7 +1,10 @@
 import type { QueryClient, QueryKey } from "@tanstack/react-query";
 
 /** Return the most recently successful response for a family of list filters. */
-export function latestCachedData<T>(client: QueryClient, prefix: QueryKey): T | undefined {
+export function latestCachedData<T>(
+  client: QueryClient,
+  prefix: QueryKey,
+): T | undefined {
   let latest: T | undefined;
   let updatedAt = 0;
   for (const [key, data] of client.getQueriesData<T>({ queryKey: prefix })) {

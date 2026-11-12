@@ -20,7 +20,15 @@ function localDateKey(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
-export function AppointmentCalendar({ appointments, month, onMonthChange }: { appointments: Appointment[]; month?: Date; onMonthChange?: (date: Date) => void }) {
+export function AppointmentCalendar({
+  appointments,
+  month,
+  onMonthChange,
+}: {
+  appointments: Appointment[];
+  month?: Date;
+  onMonthChange?: (date: Date) => void;
+}) {
   const [mobileView, setMobileView] = useState("agenda");
   const [internalMonth, setVisibleMonth] = useState(() => {
     const now = new Date();
@@ -29,10 +37,13 @@ export function AppointmentCalendar({ appointments, month, onMonthChange }: { ap
   const visibleMonth = month ?? internalMonth;
   const byDate = useMemo(
     () =>
-      appointments.reduce<Record<string, Appointment[]>>((result, appointment) => {
-        (result[appointment.fecha] ||= []).push(appointment);
-        return result;
-      }, {}),
+      appointments.reduce<Record<string, Appointment[]>>(
+        (result, appointment) => {
+          (result[appointment.fecha] ||= []).push(appointment);
+          return result;
+        },
+        {},
+      ),
     [appointments],
   );
   const first = new Date(
@@ -56,7 +67,11 @@ export function AppointmentCalendar({ appointments, month, onMonthChange }: { ap
     .filter(([date]) => date.startsWith(monthKey))
     .sort(([left], [right]) => left.localeCompare(right));
   function move(months: number) {
-    const next = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + months, 1);
+    const next = new Date(
+      visibleMonth.getFullYear(),
+      visibleMonth.getMonth() + months,
+      1,
+    );
     setVisibleMonth(next);
     onMonthChange?.(next);
   }
@@ -95,11 +110,31 @@ export function AppointmentCalendar({ appointments, month, onMonthChange }: { ap
           <i className="bi bi-chevron-right" aria-hidden="true" />
         </button>
       </div>
-      <div className="clinical-calendar-view-switch" role="group" aria-label="Vista del calendario">
-        <button type="button" className="clinical-action-outline clinical-action-compact" aria-pressed={mobileView === "agenda"} onClick={() => setMobileView("agenda")}>Agenda</button>
-        <button type="button" className="clinical-action-outline clinical-action-compact" aria-pressed={mobileView === "month"} onClick={() => setMobileView("month")}>Mes</button>
+      <div
+        className="clinical-calendar-view-switch"
+        role="group"
+        aria-label="Vista del calendario"
+      >
+        <button
+          type="button"
+          className="clinical-action-outline clinical-action-compact"
+          aria-pressed={mobileView === "agenda"}
+          onClick={() => setMobileView("agenda")}
+        >
+          Agenda
+        </button>
+        <button
+          type="button"
+          className="clinical-action-outline clinical-action-compact"
+          aria-pressed={mobileView === "month"}
+          onClick={() => setMobileView("month")}
+        >
+          Mes
+        </button>
       </div>
-      <div className={`clinical-calendar-grid ${mobileView === "agenda" ? "is-mobile-hidden" : ""}`}>
+      <div
+        className={`clinical-calendar-grid ${mobileView === "agenda" ? "is-mobile-hidden" : ""}`}
+      >
         <p className="calendar-scroll-hint">
           <i className="bi bi-arrow-left-right" aria-hidden="true" />
           Desliza el calendario para ver toda la semana
@@ -107,9 +142,7 @@ export function AppointmentCalendar({ appointments, month, onMonthChange }: { ap
         <div className="clinical-calendar-grid-inner">
           <div className="clinical-calendar-weekdays" aria-hidden="true">
             {weekdays.map((day) => (
-              <div key={day}>
-                {day}
-              </div>
+              <div key={day}>{day}</div>
             ))}
           </div>
           <div className="clinical-calendar-days">
@@ -118,8 +151,13 @@ export function AppointmentCalendar({ appointments, month, onMonthChange }: { ap
               const outside = date.getMonth() !== visibleMonth.getMonth();
               const today = key === localDateKey(new Date());
               return (
-                <div className={`clinical-calendar-day ${outside ? "is-outside" : ""}`} key={key}>
-                  <div className={`clinical-calendar-date ${today ? "is-today" : ""}`}>
+                <div
+                  className={`clinical-calendar-day ${outside ? "is-outside" : ""}`}
+                  key={key}
+                >
+                  <div
+                    className={`clinical-calendar-date ${today ? "is-today" : ""}`}
+                  >
                     {date.getDate()}
                   </div>
                   {(byDate[key] || []).map((item) => (
@@ -131,10 +169,17 @@ export function AppointmentCalendar({ appointments, month, onMonthChange }: { ap
                       key={item.id}
                     >
                       <span className="clinical-calendar-entry-meta">
-                        <time dateTime={item.hora}>{item.hora.slice(0, 5)}</time>
-                        <span>{appointmentStatus[item.estatus]?.label || item.estatus}</span>
+                        <time dateTime={item.hora}>
+                          {item.hora.slice(0, 5)}
+                        </time>
+                        <span>
+                          {appointmentStatus[item.estatus]?.label ||
+                            item.estatus}
+                        </span>
                       </span>
-                      <span className="clinical-calendar-entry-patient">{item.paciente.full_name}</span>
+                      <span className="clinical-calendar-entry-patient">
+                        {item.paciente.full_name}
+                      </span>
                     </Link>
                   ))}
                 </div>
@@ -143,19 +188,57 @@ export function AppointmentCalendar({ appointments, month, onMonthChange }: { ap
           </div>
         </div>
       </div>
-      <div className={`clinical-calendar-agenda ${mobileView === "agenda" ? "is-active" : ""}`}>
-        {monthDates.length ? monthDates.map(([date, entries]) => (
-          <section className="clinical-calendar-date-group" key={date} aria-label={new Intl.DateTimeFormat("es-MX", { dateStyle: "full" }).format(new Date(`${date}T12:00:00`))}>
-            <h3><time dateTime={date}>{new Intl.DateTimeFormat("es-MX", { weekday: "long", day: "numeric", month: "short" }).format(new Date(`${date}T12:00:00`))}</time></h3>
-            {entries.slice().sort((left, right) => left.hora.localeCompare(right.hora)).map((item) => (
-              <Link className="clinical-calendar-agenda-row" to={`/appointments/${item.id}`} key={item.id}>
-                <time className="time-value" dateTime={item.hora}>{item.hora.slice(0, 5)}</time>
-                <span className="clinical-calendar-agenda-patient">{item.paciente.full_name}<small>{item.motivo}</small></span>
-                <span className={`appointment-status ${appointmentStatus[item.estatus]?.className || ""}`}>{appointmentStatus[item.estatus]?.label || item.estatus}</span>
-              </Link>
-            ))}
-          </section>
-        )) : <p className="clinical-calendar-empty">No hay citas para este mes con los filtros actuales.</p>}
+      <div
+        className={`clinical-calendar-agenda ${mobileView === "agenda" ? "is-active" : ""}`}
+      >
+        {monthDates.length ? (
+          monthDates.map(([date, entries]) => (
+            <section
+              className="clinical-calendar-date-group"
+              key={date}
+              aria-label={new Intl.DateTimeFormat("es-MX", {
+                dateStyle: "full",
+              }).format(new Date(`${date}T12:00:00`))}
+            >
+              <h3>
+                <time dateTime={date}>
+                  {new Intl.DateTimeFormat("es-MX", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "short",
+                  }).format(new Date(`${date}T12:00:00`))}
+                </time>
+              </h3>
+              {entries
+                .slice()
+                .sort((left, right) => left.hora.localeCompare(right.hora))
+                .map((item) => (
+                  <Link
+                    className="clinical-calendar-agenda-row"
+                    to={`/appointments/${item.id}`}
+                    key={item.id}
+                  >
+                    <time className="time-value" dateTime={item.hora}>
+                      {item.hora.slice(0, 5)}
+                    </time>
+                    <span className="clinical-calendar-agenda-patient">
+                      {item.paciente.full_name}
+                      <small>{item.motivo}</small>
+                    </span>
+                    <span
+                      className={`appointment-status ${appointmentStatus[item.estatus]?.className || ""}`}
+                    >
+                      {appointmentStatus[item.estatus]?.label || item.estatus}
+                    </span>
+                  </Link>
+                ))}
+            </section>
+          ))
+        ) : (
+          <p className="clinical-calendar-empty">
+            No hay citas para este mes con los filtros actuales.
+          </p>
+        )}
       </div>
     </section>
   );
@@ -170,23 +253,43 @@ export default function AppointmentsPage() {
   const [term, setTerm] = useState(search);
   const [cancelTarget, setCancelTarget] = useState<Appointment | null>(null);
   const [page, setPage] = useState(1);
-  const [month, setMonth] = useState(() => { const now = new Date(); return new Date(now.getFullYear(), now.getMonth(), 1); });
-  const start = new Date(month); start.setDate(start.getDate() - start.getDay());
-  const end = new Date(start); end.setDate(end.getDate() + 41);
-  const from = localDateKey(start), to = localDateKey(end);
-  const listing = useQuery({ queryKey: [...queryKeys.appointmentList(status, search), page], queryFn: () => appointmentsService.list(status, search, page) });
-  const calendar = useQuery({ queryKey: [...queryKeys.appointments, 'calendar', status, search, from, to], queryFn: () => appointmentsService.range(status, search, from, to) });
+  const [month, setMonth] = useState(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  });
+  const start = new Date(month);
+  start.setDate(start.getDate() - start.getDay());
+  const end = new Date(start);
+  end.setDate(end.getDate() + 41);
+  const from = localDateKey(start),
+    to = localDateKey(end);
+  const listing = useQuery({
+    queryKey: [...queryKeys.appointmentList(status, search), page],
+    queryFn: () => appointmentsService.list(status, search, page),
+  });
+  const calendar = useQuery({
+    queryKey: [...queryKeys.appointments, "calendar", status, search, from, to],
+    queryFn: () => appointmentsService.range(status, search, from, to),
+  });
   const items: Appointment[] | undefined = listing.data?.results;
   const error = listing.error?.message ?? "";
   const actionMutation = useMutation({
-    mutationFn: ({ id, name }: { id: number; name: "complete" | "cancel" }) => appointmentsService.transition(id, name),
+    mutationFn: ({ id, name }: { id: number; name: "complete" | "cancel" }) =>
+      appointmentsService.transition(id, name),
     onSuccess: async (updated, { name }) => {
-      queryClient.setQueryData(queryKeys.resource(`clinics/appointments/${updated.id}/`), updated);
+      queryClient.setQueryData(
+        queryKeys.resource(`clinics/appointments/${updated.id}/`),
+        updated,
+      );
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.appointments }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.resource("clinics/dashboard/") }),
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.resource("clinics/dashboard/"),
+        }),
       ]);
-      toast.success(name === "complete" ? "Cita completada." : "Cita cancelada.");
+      toast.success(
+        name === "complete" ? "Cita completada." : "Cita cancelada.",
+      );
     },
     onError: (requestError) => toast.error(getErrorMessage(requestError)),
   });
@@ -206,13 +309,19 @@ export default function AppointmentsPage() {
   return (
     <div className="workspace-page co-mx-auto co-max-w-[1560px]">
       <div className="workspace-page-header">
-        <div><h1>Agenda</h1></div>
+        <div>
+          <h1>Agenda</h1>
+        </div>
         <Link to="/appointments/new" className="clinical-action-primary">
           <i className="bi bi-plus-circle" aria-hidden="true" />
           Nueva cita
         </Link>
       </div>
-      <div className="workspace-filter-group" role="group" aria-label="Filtrar citas por estado">
+      <div
+        className="workspace-filter-group"
+        role="group"
+        aria-label="Filtrar citas por estado"
+      >
         {[
           ["", "Todas"],
           ["P", "Pendientes"],
@@ -241,27 +350,68 @@ export default function AppointmentsPage() {
         />
         <button className="clinical-action-outline">Buscar</button>
       </form>
-      {error && <div className={items ? "workspace-inline-warning co-mb-4" : "workspace-inline-error co-mb-4"} role="alert">
-        {error}{items && <span> Se muestran las citas de la última carga.</span>}
-        <button className="clinical-action-outline co-ml-3" onClick={() => void listing.refetch()}>Reintentar</button>
-      </div>}
-      {listing.isFetching && items && <p className="clinical-loading-note" role="status">Actualizando citas…</p>}
+      {error && (
+        <div
+          className={
+            items
+              ? "workspace-inline-warning co-mb-4"
+              : "workspace-inline-error co-mb-4"
+          }
+          role="alert"
+        >
+          {error}
+          {items && <span> Se muestran las citas de la última carga.</span>}
+          <button
+            className="clinical-action-outline co-ml-3"
+            onClick={() => void listing.refetch()}
+          >
+            Reintentar
+          </button>
+        </div>
+      )}
+      {listing.isFetching && items && (
+        <p className="clinical-loading-note" role="status">
+          Actualizando citas…
+        </p>
+      )}
       {!items && !error ? (
         <div className="page-loader" role="status" aria-label="Cargando citas">
           <div className="workspace-loader-spinner" />
         </div>
       ) : items ? (
         <>
-          {calendar.data ? <AppointmentCalendar appointments={calendar.data} month={month} onMonthChange={setMonth} /> : calendar.error ? <div role="alert">No se pudo cargar el calendario. <button onClick={() => void calendar.refetch()}>Reintentar</button></div> : <p role="status">Cargando calendario…</p>}
-          <h2 className="workspace-section-heading">Todas las citas que coinciden con los filtros</h2>
+          {calendar.data ? (
+            <AppointmentCalendar
+              appointments={calendar.data}
+              month={month}
+              onMonthChange={setMonth}
+            />
+          ) : calendar.error ? (
+            <div role="alert">
+              No se pudo cargar el calendario.{" "}
+              <button onClick={() => void calendar.refetch()}>
+                Reintentar
+              </button>
+            </div>
+          ) : (
+            <p role="status">Cargando calendario…</p>
+          )}
+          <h2 className="workspace-section-heading">
+            Todas las citas que coinciden con los filtros
+          </h2>
           <div className="workspace-table-frame">
             <div className="workspace-table-scroll">
               <p className="table-scroll-hint">
                 <i className="bi bi-arrow-left-right" aria-hidden="true" />
                 Desliza la tabla para ver todas las columnas
               </p>
-              <table className="workspace-data-table" aria-busy={listing.isFetching}>
-                <caption className="co-sr-only">Citas según el filtro seleccionado</caption>
+              <table
+                className="workspace-data-table"
+                aria-busy={listing.isFetching}
+              >
+                <caption className="co-sr-only">
+                  Citas según el filtro seleccionado
+                </caption>
                 <thead>
                   <tr>
                     <th scope="col">Fecha</th>
@@ -275,11 +425,22 @@ export default function AppointmentsPage() {
                 <tbody>
                   {items.map((item) => (
                     <tr key={item.id}>
-                      <td data-label="Fecha"><time dateTime={item.fecha}>{formatDate(item.fecha)}</time></td>
+                      <td data-label="Fecha">
+                        <time dateTime={item.fecha}>
+                          {formatDate(item.fecha)}
+                        </time>
+                      </td>
                       <td data-label="Hora">{item.hora.slice(0, 5)}</td>
                       <td data-label="Paciente">{item.paciente.full_name}</td>
                       <td data-label="Motivo">{item.motivo}</td>
-                      <td data-label="Estado"><span className={`appointment-status ${appointmentStatus[item.estatus]?.className || ""}`}>{appointmentStatus[item.estatus]?.label || item.estatus}</span></td>
+                      <td data-label="Estado">
+                        <span
+                          className={`appointment-status ${appointmentStatus[item.estatus]?.className || ""}`}
+                        >
+                          {appointmentStatus[item.estatus]?.label ||
+                            item.estatus}
+                        </span>
+                      </td>
                       <td data-label="Acciones">
                         <Link
                           className="clinical-action-outline clinical-action-compact co-mr-1"
@@ -299,7 +460,12 @@ export default function AppointmentsPage() {
                               type="button"
                               className="clinical-action-success co-mr-1"
                               disabled={busyId === item.id}
-                              onClick={() => actionMutation.mutate({ id: item.id, name: "complete" })}
+                              onClick={() =>
+                                actionMutation.mutate({
+                                  id: item.id,
+                                  name: "complete",
+                                })
+                              }
                             >
                               Completar
                             </button>
@@ -322,19 +488,74 @@ export default function AppointmentsPage() {
             {!items.length && (
               <div className="workspace-empty-state">
                 <span>No se encontraron citas.</span>
-                {(search || status) && <button type="button" className="clinical-action-outline co-mt-3" onClick={() => { setTerm(""); setParams({}); }}>Limpiar filtros</button>}
+                {(search || status) && (
+                  <button
+                    type="button"
+                    className="clinical-action-outline co-mt-3"
+                    onClick={() => {
+                      setTerm("");
+                      setParams({});
+                    }}
+                  >
+                    Limpiar filtros
+                  </button>
+                )}
               </div>
             )}
           </div>
-          <nav className="workspace-pagination" aria-label="Páginas de citas"><button className="clinical-action-outline clinical-action-compact" type="button" disabled={page === 1 || listing.isFetching} onClick={() => setPage(page - 1)}>Anterior</button><span className="workspace-pagination-summary" aria-live="polite">Página {page}</span><button className="clinical-action-outline clinical-action-compact" type="button" disabled={!listing.data?.next || listing.isFetching} onClick={() => setPage(page + 1)}>Siguiente</button></nav>
+          <nav className="workspace-pagination" aria-label="Páginas de citas">
+            <button
+              className="clinical-action-outline clinical-action-compact"
+              type="button"
+              disabled={page === 1 || listing.isFetching}
+              onClick={() => setPage(page - 1)}
+            >
+              Anterior
+            </button>
+            <span className="workspace-pagination-summary" aria-live="polite">
+              Página {page}
+            </span>
+            <button
+              className="clinical-action-outline clinical-action-compact"
+              type="button"
+              disabled={!listing.data?.next || listing.isFetching}
+              onClick={() => setPage(page + 1)}
+            >
+              Siguiente
+            </button>
+          </nav>
         </>
       ) : (
-        <button className="clinical-action-outline" onClick={() => void listing.refetch()}>Reintentar</button>
+        <button
+          className="clinical-action-outline"
+          onClick={() => void listing.refetch()}
+        >
+          Reintentar
+        </button>
       )}
-      {cancelTarget && <ConfirmDialog title="Cancelar cita" confirmLabel="Sí, cancelar cita" busyLabel="Cancelando…" busy={actionMutation.isPending}
-        onClose={() => setCancelTarget(null)} onConfirm={() => actionMutation.mutate({ id: cancelTarget.id, name: "cancel" }, { onSuccess: () => setCancelTarget(null) })}>
-        <p>Se cancelará la cita de <strong>{cancelTarget.paciente.full_name}</strong> del {formatDate(cancelTarget.fecha)} a las {cancelTarget.hora.slice(0, 5)}. La cita quedará marcada como cancelada en la agenda.</p>
-      </ConfirmDialog>}
+      {cancelTarget && (
+        <ConfirmDialog
+          title="Cancelar cita"
+          confirmLabel="Sí, cancelar cita"
+          busyLabel="Cancelando…"
+          busy={actionMutation.isPending}
+          onClose={() => setCancelTarget(null)}
+          onConfirm={() =>
+            actionMutation.mutate(
+              { id: cancelTarget.id, name: "cancel" },
+              { onSuccess: () => setCancelTarget(null) },
+            )
+          }
+        >
+          <p>
+            Se cancelará la cita de{" "}
+            <strong>{cancelTarget.paciente.full_name}</strong> del{" "}
+            {formatDate(cancelTarget.fecha)} a las{" "}
+            {cancelTarget.hora.slice(0, 5)}. La cita quedará marcada como
+            cancelada en la agenda.
+          </p>
+        </ConfirmDialog>
+      )}
     </div>
   );
 }

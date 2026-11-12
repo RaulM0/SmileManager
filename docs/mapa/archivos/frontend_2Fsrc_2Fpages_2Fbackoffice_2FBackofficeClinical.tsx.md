@@ -18,20 +18,20 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `Patient` — línea 10.
-- `Appointment` — línea 11.
-- `RecordRow` — línea 12.
-- `sections` — línea 13.
-- `useData` — línea 15.
-- `Pager` — línea 18.
-- `State` — línea 21.
-- `ReadOnlyValue` — línea 24.
-- `BackofficePatients` — línea 35.
-- `BackofficePatient` — línea 45.
-- `BackofficePatientEdit` — línea 50.
-- `BackofficePatientSection` — línea 59.
-- `BackofficeAppointments` — línea 66.
-- `BackofficeAppointment` — línea 72.
+- `Patient` — línea 15.
+- `Appointment` — línea 32.
+- `RecordRow` — línea 41.
+- `sections` — línea 42.
+- `useData` — línea 54.
+- `Pager` — línea 61.
+- `State` — línea 92.
+- `ReadOnlyValue` — línea 101.
+- `BackofficePatients` — línea 136.
+- `BackofficePatient` — línea 241.
+- `BackofficePatientEdit` — línea 310.
+- `BackofficePatientSection` — línea 436.
+- `BackofficeAppointments` — línea 501.
+- `BackofficeAppointment` — línea 616.
 
 ## Dependencias internas
 

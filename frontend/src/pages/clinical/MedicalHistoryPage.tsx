@@ -44,12 +44,20 @@ const questionGroups = [
   { title: "Salud general", items: questions.slice(0, 12) },
   { title: "Salud oral y hábitos", items: questions.slice(12) },
 ];
-export default function MedicalHistoryPage({ administrative = false }: { administrative?: boolean }) {
+export default function MedicalHistoryPage({
+  administrative = false,
+}: {
+  administrative?: boolean;
+}) {
   const toast = useToast();
   const { id } = useParams();
   const [history, setHistory] = useState<MedicalHistory | null>(null);
   const [baseline, setBaseline] = useState<string | null>(null);
-  const guard = useUnsavedChanges(history !== null && baseline !== null && JSON.stringify(history) !== baseline);
+  const guard = useUnsavedChanges(
+    history !== null &&
+      baseline !== null &&
+      JSON.stringify(history) !== baseline,
+  );
   const [patient, setPatient] = useState<Patient | null>(null);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
@@ -57,23 +65,42 @@ export default function MedicalHistoryPage({ administrative = false }: { adminis
   const [reload, setReload] = useState(0);
   useEffect(() => {
     Promise.all([
-      administrative ? api<Patient>(`backoffice/patients/${id}/`) : patientsService.get(id!),
-      administrative ? api<MedicalHistory>(`backoffice/patients/${id}/records/medical-history/`) : clinicalService.medicalHistory(id!),
-    ]).then(([p, h]) => {
-      setPatient(p);
-      setHistory(h);
-      setBaseline(JSON.stringify(h));
-      setError("");
-    }).catch((requestError) => setError(requestError.message));
+      administrative
+        ? api<Patient>(`backoffice/patients/${id}/`)
+        : patientsService.get(id!),
+      administrative
+        ? api<MedicalHistory>(
+            `backoffice/patients/${id}/records/medical-history/`,
+          )
+        : clinicalService.medicalHistory(id!),
+    ])
+      .then(([p, h]) => {
+        setPatient(p);
+        setHistory(h);
+        setBaseline(JSON.stringify(h));
+        setError("");
+      })
+      .catch((requestError) => setError(requestError.message));
   }, [id, reload, administrative]);
   if (!history || !patient)
     return error ? (
       <div className="workspace-page co-mx-auto co-max-w-[1560px]">
-        <div className="workspace-inline-error" role="alert">{error}</div>
-        <button className="clinical-action-outline co-mt-3" onClick={() => setReload((value) => value + 1)}>Reintentar</button>
+        <div className="workspace-inline-error" role="alert">
+          {error}
+        </div>
+        <button
+          className="clinical-action-outline co-mt-3"
+          onClick={() => setReload((value) => value + 1)}
+        >
+          Reintentar
+        </button>
       </div>
     ) : (
-      <div className="page-loader" role="status" aria-label="Cargando antecedentes">
+      <div
+        className="page-loader"
+        role="status"
+        aria-label="Cargando antecedentes"
+      >
         <div className="workspace-loader-spinner" />
       </div>
     );
@@ -84,7 +111,12 @@ export default function MedicalHistoryPage({ administrative = false }: { adminis
     setError("");
     setFieldErrors({});
     try {
-      const saved = administrative ? await api<MedicalHistory>(`backoffice/patients/${id}/records/medical-history/`, { method: 'PUT', body: JSON.stringify(history) }) : await clinicalService.saveMedicalHistory(id!, history!);
+      const saved = administrative
+        ? await api<MedicalHistory>(
+            `backoffice/patients/${id}/records/medical-history/`,
+            { method: "PUT", body: JSON.stringify(history) },
+          )
+        : await clinicalService.saveMedicalHistory(id!, history!);
       setHistory(saved);
       setBaseline(JSON.stringify(saved));
       toast.success("Antecedentes actualizados.");
@@ -101,25 +133,62 @@ export default function MedicalHistoryPage({ administrative = false }: { adminis
     return Array.isArray(message) ? message.join(" ") : message;
   };
   function updateField(name: string, value: boolean | string | null) {
-    setHistory((current) => current ? { ...current, [name]: value } : current);
+    setHistory((current) =>
+      current ? { ...current, [name]: value } : current,
+    );
     setFieldErrors((current) => ({ ...current, [name]: undefined }));
     setError("");
   }
   return (
     <div className="workspace-page co-mx-auto co-max-w-[1560px]">
-      <div className="workspace-page-header"><div><h1>Antecedentes de {patient.nombre} {patient.appat}</h1></div></div>
-      <p className="clinical-page-description">Sin registrar indica que la respuesta aún no está documentada.</p>
-      {history.id !== null && <p className="workspace-inline-warning">En registros anteriores a esta actualización, las respuestas «No» podrían proceder de valores predeterminados. Confirma los antecedentes antes de utilizarlos.</p>}
-      <form onSubmit={submit}><fieldset className="clinical-form-fieldset" disabled={saving}>
-        {questionGroups.map(({ title, items }) => (
-        <fieldset className="history-grid co-mb-4" key={title}>
-          <legend className="form-section-heading">{title}</legend>
-          {items.map(([name, label]) => (
-            <fieldset className="history-question" key={name}>
+      <div className="workspace-page-header">
+        <div>
+          <h1>
+            Antecedentes de {patient.nombre} {patient.appat}
+          </h1>
+        </div>
+      </div>
+      <p className="clinical-page-description">
+        Sin registrar indica que la respuesta aún no está documentada.
+      </p>
+      {history.id !== null && (
+        <p className="workspace-inline-warning">
+          En registros anteriores a esta actualización, las respuestas «No»
+          podrían proceder de valores predeterminados. Confirma los antecedentes
+          antes de utilizarlos.
+        </p>
+      )}
+      <form onSubmit={submit}>
+        <fieldset className="clinical-form-fieldset" disabled={saving}>
+          {questionGroups.map(({ title, items }) => (
+            <fieldset className="history-grid co-mb-4" key={title}>
+              <legend className="form-section-heading">{title}</legend>
+              {items.map(([name, label]) => (
+                <fieldset className="history-question" key={name}>
                   <legend>{label}</legend>
-                  <div className="history-choice" role="group" aria-label={label}>
-                    <input className="clinical-radio-input" type="radio" id={`${name}-unknown`} name={name} checked={history[name] == null} aria-invalid={Boolean(fieldErrors[name])} aria-describedby={fieldErrors[name] ? `${name}-error` : undefined} onChange={() => updateField(name, null)} />
-                    <label className="clinical-radio-choice is-unknown" htmlFor={`${name}-unknown`}>Sin registrar</label>
+                  <div
+                    className="history-choice"
+                    role="group"
+                    aria-label={label}
+                  >
+                    <input
+                      className="clinical-radio-input"
+                      type="radio"
+                      id={`${name}-unknown`}
+                      name={name}
+                      checked={history[name] == null}
+                      aria-invalid={Boolean(fieldErrors[name])}
+                      aria-describedby={
+                        fieldErrors[name] ? `${name}-error` : undefined
+                      }
+                      onChange={() => updateField(name, null)}
+                    />
+                    <label
+                      className="clinical-radio-choice is-unknown"
+                      htmlFor={`${name}-unknown`}
+                    >
+                      Sin registrar
+                    </label>
                     <input
                       className="clinical-radio-input"
                       type="radio"
@@ -127,7 +196,9 @@ export default function MedicalHistoryPage({ administrative = false }: { adminis
                       name={name}
                       checked={history[name] === true}
                       aria-invalid={Boolean(fieldErrors[name])}
-                      aria-describedby={fieldErrors[name] ? `${name}-error` : undefined}
+                      aria-describedby={
+                        fieldErrors[name] ? `${name}-error` : undefined
+                      }
                       onChange={() => updateField(name, true)}
                     />
                     <label
@@ -143,7 +214,9 @@ export default function MedicalHistoryPage({ administrative = false }: { adminis
                       name={name}
                       checked={history[name] === false}
                       aria-invalid={Boolean(fieldErrors[name])}
-                      aria-describedby={fieldErrors[name] ? `${name}-error` : undefined}
+                      aria-describedby={
+                        fieldErrors[name] ? `${name}-error` : undefined
+                      }
                       onChange={() => updateField(name, false)}
                     />
                     <label
@@ -154,14 +227,18 @@ export default function MedicalHistoryPage({ administrative = false }: { adminis
                     </label>
                   </div>
                   {fieldErrors[name] && (
-                    <div id={`${name}-error`} className="clinical-form-field-error history-question-error">
+                    <div
+                      id={`${name}-error`}
+                      className="clinical-form-field-error history-question-error"
+                    >
                       {errorText(name)}
                     </div>
                   )}
+                </fieldset>
+              ))}
             </fieldset>
           ))}
-        </fieldset>))}
-        <section className="history-notes" aria-label="Notas médicas">
+          <section className="history-notes" aria-label="Notas médicas">
             <div className="history-notes-grid">
               {texts.map(([name, label]) => (
                 <div key={name}>
@@ -171,27 +248,34 @@ export default function MedicalHistoryPage({ administrative = false }: { adminis
                   <textarea
                     id={name}
                     className="clinical-form-control"
-              rows={3}
+                    rows={3}
                     aria-invalid={Boolean(fieldErrors[name])}
-                    aria-describedby={fieldErrors[name] ? `${name}-error` : undefined}
+                    aria-describedby={
+                      fieldErrors[name] ? `${name}-error` : undefined
+                    }
                     value={String(history[name] || "")}
                     onChange={(e) => updateField(name, e.target.value)}
                   />
                   {fieldErrors[name] && (
-                    <div id={`${name}-error`} className="clinical-form-field-error">
+                    <div
+                      id={`${name}-error`}
+                      className="clinical-form-field-error"
+                    >
                       {errorText(name)}
                     </div>
                   )}
                 </div>
               ))}
             </div>
-        </section>
-        <div className="clinical-form-actions">
-          <button className="clinical-form-submit" disabled={saving}>
-            {saving ? "Guardando…" : "Guardar antecedentes"}
-          </button>
-        </div>
-      </fieldset></form>{guard.prompt}
+          </section>
+          <div className="clinical-form-actions">
+            <button className="clinical-form-submit" disabled={saving}>
+              {saving ? "Guardando…" : "Guardar antecedentes"}
+            </button>
+          </div>
+        </fieldset>
+      </form>
+      {guard.prompt}
     </div>
   );
 }

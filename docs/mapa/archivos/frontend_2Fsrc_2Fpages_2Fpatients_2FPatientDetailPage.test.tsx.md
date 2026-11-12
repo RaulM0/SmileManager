@@ -18,7 +18,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `SwitchPatient` — línea 11.
+- `SwitchPatient` — línea 20.
 
 ## Dependencias internas
 

@@ -18,10 +18,10 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `AuthValue` — línea 16.
-- `AuthContext` — línea 24.
-- `AuthProvider` — línea 26.
-- `useAuth` — línea 119.
+- `AuthValue` — línea 25.
+- `AuthContext` — línea 33.
+- `AuthProvider` — línea 35.
+- `useAuth` — línea 203.
 
 ## Dependencias internas
 

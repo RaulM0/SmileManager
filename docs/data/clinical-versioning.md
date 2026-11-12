@@ -1,12 +1,12 @@
 # Versionado clínico
 
-| Recurso | Clasificación actual / decisión |
-|---|---|
-| Antecedentes | CURRENT STATE + HISTORY; snapshot estructurado por versión. |
-| Odontograma | CURRENT STATE + HISTORY; snapshot de JSON por versión. |
-| Consulta | Creación sin edición vía API observada; **CLINICAL DECISION REQUIRED** antes de imponer APPEND-ONLY o addendum. |
+| Recurso        | Clasificación actual / decisión                                                                                                                                    |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Antecedentes   | CURRENT STATE + HISTORY; snapshot estructurado por versión.                                                                                                        |
+| Odontograma    | CURRENT STATE + HISTORY; snapshot de JSON por versión.                                                                                                             |
+| Consulta       | Creación sin edición vía API observada; **CLINICAL DECISION REQUIRED** antes de imponer APPEND-ONLY o addendum.                                                    |
 | Consentimiento | **LEGAL/CLINICAL DECISION REQUIRED** para versión del texto, identidad, prueba de aceptación y retención. La implementación previa no garantiza una versión legal. |
-| IA | **BUSINESS/CLINICAL DECISION REQUIRED**; solo se conserva la imagen resultado, sin hash, versión de modelo, detecciones ni ejecución histórica. |
+| IA             | **BUSINESS/CLINICAL DECISION REQUIRED**; solo se conserva la imagen resultado, sin hash, versión de modelo, detecciones ni ejecución histórica.                    |
 
 `ClinicalRevision` guarda recurso, versión, paciente y actor nullable, fecha y snapshot clínico sin archivos. El estado previo de un registro existente se captura como versión 0 al primer cambio; su autor previo es desconocido y se deja null. Nuevos registros empiezan en versión 1. La unicidad `(resource_type, resource_id, version)` solo afecta la tabla nueva. Paciente/actor son SET_NULL, por lo que las revisiones sobreviven a su borrado; decisiones de conservación y acceso necesitan revisión legal. Los snapshots contienen datos clínicos y requieren los mismos controles de acceso, backup y retención que el expediente. El audit log no duplica estos snapshots.
 

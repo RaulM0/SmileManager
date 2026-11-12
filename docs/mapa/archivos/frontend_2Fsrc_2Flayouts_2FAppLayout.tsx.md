@@ -18,8 +18,8 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `navigation` — línea 13.
-- `AppLayout` — línea 34.
+- `navigation` — línea 16.
+- `AppLayout` — línea 40.
 
 ## Dependencias internas
 

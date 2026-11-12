@@ -81,177 +81,176 @@ HEAD y OPTIONS no se repiten. Regenera con `python3 generar_coleccion_postman.py
 
 ## Catálogo
 
-
 ### 00 · Inicio rápido — ejecutar esta carpeta en orden
 
-| Petición | Método | Ruta |
-|---|---|---|
-| 01 · Salud y conexión PostgreSQL | GET | `{{baseUrl}}/health/ready/` |
-| 02 · Login Doctor | POST | `{{baseUrl}}/api/v1/auth/login/` |
-| 03 · Login Admin | POST | `{{baseUrl}}/api/v1/auth/login/` |
-| 04 · Login Platform | POST | `{{baseUrl}}/api/v1/auth/login/` |
-| 05 · Descubrir clínica del médico | GET | `{{baseUrl}}/api/v1/clinics/memberships/` |
-| 06 · Validar contexto clínico | GET | `{{baseUrl}}/api/v1/clinics/context/` |
-| 07 · Crear paciente sintético (guarda patientId) | POST | `{{baseUrl}}/api/v1/clinics/patients/` |
-| 08 · Consultar paciente creado | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/` |
-| 09 · Leer antecedentes y versión | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/medical-history/` |
-| 10 · Guardar antecedentes | PUT | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/medical-history/` |
-| 11 · Leer odontograma y versión | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/odontogram/` |
-| 12 · Guardar odontograma | PUT | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/odontogram/` |
-| 13 · Crear consulta (guarda consultationId) | POST | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/consultations/` |
-| 14 · Crear cita pendiente (guarda appointmentId) | POST | `{{baseUrl}}/api/v1/clinics/appointments/` |
-| 15 · Dashboard del médico | GET | `{{baseUrl}}/api/v1/clinics/dashboard/` |
-| 16 · Dashboard administrador de clínica | GET | `{{baseUrl}}/api/v1/clinics/admin/dashboard/` |
-| 17 · Ver clínicas en backoffice | GET | `{{baseUrl}}/api/v1/backoffice/clinics/` |
+| Petición                                         | Método | Ruta                                                                 |
+| ------------------------------------------------ | ------ | -------------------------------------------------------------------- |
+| 01 · Salud y conexión PostgreSQL                 | GET    | `{{baseUrl}}/health/ready/`                                          |
+| 02 · Login Doctor                                | POST   | `{{baseUrl}}/api/v1/auth/login/`                                     |
+| 03 · Login Admin                                 | POST   | `{{baseUrl}}/api/v1/auth/login/`                                     |
+| 04 · Login Platform                              | POST   | `{{baseUrl}}/api/v1/auth/login/`                                     |
+| 05 · Descubrir clínica del médico                | GET    | `{{baseUrl}}/api/v1/clinics/memberships/`                            |
+| 06 · Validar contexto clínico                    | GET    | `{{baseUrl}}/api/v1/clinics/context/`                                |
+| 07 · Crear paciente sintético (guarda patientId) | POST   | `{{baseUrl}}/api/v1/clinics/patients/`                               |
+| 08 · Consultar paciente creado                   | GET    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/`                 |
+| 09 · Leer antecedentes y versión                 | GET    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/medical-history/` |
+| 10 · Guardar antecedentes                        | PUT    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/medical-history/` |
+| 11 · Leer odontograma y versión                  | GET    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/odontogram/`      |
+| 12 · Guardar odontograma                         | PUT    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/odontogram/`      |
+| 13 · Crear consulta (guarda consultationId)      | POST   | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/consultations/`   |
+| 14 · Crear cita pendiente (guarda appointmentId) | POST   | `{{baseUrl}}/api/v1/clinics/appointments/`                           |
+| 15 · Dashboard del médico                        | GET    | `{{baseUrl}}/api/v1/clinics/dashboard/`                              |
+| 16 · Dashboard administrador de clínica          | GET    | `{{baseUrl}}/api/v1/clinics/admin/dashboard/`                        |
+| 17 · Ver clínicas en backoffice                  | GET    | `{{baseUrl}}/api/v1/backoffice/clinics/`                             |
 
 ### 01 · Sesión y recuperación de contraseña
 
-| Petición | Método | Ruta |
-|---|---|---|
-| session/ | GET | `{{baseUrl}}/api/v1/auth/session/` |
-| refresh/ | POST | `{{baseUrl}}/api/v1/auth/refresh/` |
-| Solicitar recuperación por correo | POST | `{{baseUrl}}/api/v1/auth/password-reset/request/` |
-| Confirmar recuperación — requiere enlace del correo | POST | `{{baseUrl}}/api/v1/auth/password-reset/confirm/` |
+| Petición                                            | Método | Ruta                                              |
+| --------------------------------------------------- | ------ | ------------------------------------------------- |
+| session/                                            | GET    | `{{baseUrl}}/api/v1/auth/session/`                |
+| refresh/                                            | POST   | `{{baseUrl}}/api/v1/auth/refresh/`                |
+| Solicitar recuperación por correo                   | POST   | `{{baseUrl}}/api/v1/auth/password-reset/request/` |
+| Confirmar recuperación — requiere enlace del correo | POST   | `{{baseUrl}}/api/v1/auth/password-reset/confirm/` |
 
 ### 02 · Pacientes
 
-| Petición | Método | Ruta |
-|---|---|---|
-| Listar / buscar | GET | `{{baseUrl}}/api/v1/clinics/patients/?search=Postman&page=1` |
-| Autocompletar | GET | `{{baseUrl}}/api/v1/clinics/patients/autocomplete/?term=Postman` |
-| Detalle | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/` |
-| Actualizar completo | PUT | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/` |
-| Actualizar nombre | PATCH | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/` |
-| Enviar correo al paciente | POST | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/email/` |
+| Petición                  | Método | Ruta                                                             |
+| ------------------------- | ------ | ---------------------------------------------------------------- |
+| Listar / buscar           | GET    | `{{baseUrl}}/api/v1/clinics/patients/?search=Postman&page=1`     |
+| Autocompletar             | GET    | `{{baseUrl}}/api/v1/clinics/patients/autocomplete/?term=Postman` |
+| Detalle                   | GET    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/`             |
+| Actualizar completo       | PUT    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/`             |
+| Actualizar nombre         | PATCH  | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/`             |
+| Enviar correo al paciente | POST   | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/email/`       |
 
 ### 03 · Expediente y consultas
 
-| Petición | Método | Ruta |
-|---|---|---|
-| Leer medical-history/ | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/medical-history/` |
-| Guardar medical-history/ | PUT | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/medical-history/` |
-| Leer odontogram/ | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/odontogram/` |
-| Guardar odontogram/ | PUT | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/odontogram/` |
-| Listar consultas del paciente | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/consultations/` |
-| Detalle consulta | GET | `{{baseUrl}}/api/v1/clinics/consultations/{{consultationId}}/` |
+| Petición                      | Método | Ruta                                                                 |
+| ----------------------------- | ------ | -------------------------------------------------------------------- |
+| Leer medical-history/         | GET    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/medical-history/` |
+| Guardar medical-history/      | PUT    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/medical-history/` |
+| Leer odontogram/              | GET    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/odontogram/`      |
+| Guardar odontogram/           | PUT    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/odontogram/`      |
+| Listar consultas del paciente | GET    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/consultations/`   |
+| Detalle consulta              | GET    | `{{baseUrl}}/api/v1/clinics/consultations/{{consultationId}}/`       |
 
 ### 04 · Agenda
 
-| Petición | Método | Ruta |
-|---|---|---|
-| Listar citas | GET | `{{baseUrl}}/api/v1/clinics/appointments/?status=P` |
-| Detalle cita | GET | `{{baseUrl}}/api/v1/clinics/appointments/{{appointmentId}}/` |
-| Actualizar cita completa | PUT | `{{baseUrl}}/api/v1/clinics/appointments/{{appointmentId}}/` |
-| Actualizar observaciones | PATCH | `{{baseUrl}}/api/v1/clinics/appointments/{{appointmentId}}/` |
-| Completar cita pendiente | POST | `{{baseUrl}}/api/v1/clinics/appointments/{{appointmentId}}/complete/` |
-| Crear otra cita para cancelar | POST | `{{baseUrl}}/api/v1/clinics/appointments/` |
-| Cancelar segunda cita | POST | `{{baseUrl}}/api/v1/clinics/appointments/{{cancelAppointmentId}}/cancel/` |
+| Petición                      | Método | Ruta                                                                      |
+| ----------------------------- | ------ | ------------------------------------------------------------------------- |
+| Listar citas                  | GET    | `{{baseUrl}}/api/v1/clinics/appointments/?status=P`                       |
+| Detalle cita                  | GET    | `{{baseUrl}}/api/v1/clinics/appointments/{{appointmentId}}/`              |
+| Actualizar cita completa      | PUT    | `{{baseUrl}}/api/v1/clinics/appointments/{{appointmentId}}/`              |
+| Actualizar observaciones      | PATCH  | `{{baseUrl}}/api/v1/clinics/appointments/{{appointmentId}}/`              |
+| Completar cita pendiente      | POST   | `{{baseUrl}}/api/v1/clinics/appointments/{{appointmentId}}/complete/`     |
+| Crear otra cita para cancelar | POST   | `{{baseUrl}}/api/v1/clinics/appointments/`                                |
+| Cancelar segunda cita         | POST   | `{{baseUrl}}/api/v1/clinics/appointments/{{cancelAppointmentId}}/cancel/` |
 
 ### 05 · Imágenes y diagnóstico IA — seleccionar archivo
 
-| Petición | Método | Ruta |
-|---|---|---|
-| Subir imagen (guarda imageId) | POST | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/clinical-images/` |
-| Listar imágenes | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/clinical-images/` |
-| Detalle imagen | GET | `{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/` |
-| Descargar original | GET | `{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/original/file/` |
-| Diagnósticos | GET | `{{baseUrl}}/api/v1/clinics/diagnostics/` |
-| Analizar imagen (guarda runId) | POST | `{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/analyze/` |
-| Historial IA | GET | `{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/analysis-runs/` |
-| Descargar resultado actual | GET | `{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/result/file/` |
-| Descargar resultado de ejecución | GET | `{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/analysis-runs/{{runId}}/file/` |
+| Petición                         | Método | Ruta                                                                                   |
+| -------------------------------- | ------ | -------------------------------------------------------------------------------------- |
+| Subir imagen (guarda imageId)    | POST   | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/clinical-images/`                   |
+| Listar imágenes                  | GET    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/clinical-images/`                   |
+| Detalle imagen                   | GET    | `{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/`                              |
+| Descargar original               | GET    | `{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/original/file/`                |
+| Diagnósticos                     | GET    | `{{baseUrl}}/api/v1/clinics/diagnostics/`                                              |
+| Analizar imagen (guarda runId)   | POST   | `{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/analyze/`                      |
+| Historial IA                     | GET    | `{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/analysis-runs/`                |
+| Descargar resultado actual       | GET    | `{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/result/file/`                  |
+| Descargar resultado de ejecución | GET    | `{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/analysis-runs/{{runId}}/file/` |
 
 ### 06 · Consentimiento y estudio comparativo — archivos manuales
 
-| Petición | Método | Ruta |
-|---|---|---|
-| Consultar consentimiento | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/consent/` |
-| Aceptar consentimiento con identificación | POST | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/consent/` |
-| Descargar consentimiento identity | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/consent/identity/file/` |
-| Descargar consentimiento pdf | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/consent/pdf/file/` |
-| Consultar estudio comparativo | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/` |
-| Crear / actualizar estudio comparativo | PUT | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/` |
-| Descargar PDF del estudio | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/pdf/` |
-| Descargar foto antes_oclusal_superior | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/antes_oclusal_superior/` |
-| Descargar foto antes_lateral_izquierda | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/antes_lateral_izquierda/` |
-| Descargar foto antes_frontal | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/antes_frontal/` |
-| Descargar foto antes_lateral_derecha | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/antes_lateral_derecha/` |
-| Descargar foto antes_oclusal_inferior | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/antes_oclusal_inferior/` |
-| Descargar foto despues_perfil | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/despues_perfil/` |
-| Descargar foto despues_semiperfil | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/despues_semiperfil/` |
-| Descargar foto despues_retrato_frontal | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/despues_retrato_frontal/` |
-| Descargar foto despues_retrato_sonrisa | GET | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/despues_retrato_sonrisa/` |
+| Petición                                  | Método | Ruta                                                                                                 |
+| ----------------------------------------- | ------ | ---------------------------------------------------------------------------------------------------- |
+| Consultar consentimiento                  | GET    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/consent/`                                         |
+| Aceptar consentimiento con identificación | POST   | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/consent/`                                         |
+| Descargar consentimiento identity         | GET    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/consent/identity/file/`                           |
+| Descargar consentimiento pdf              | GET    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/consent/pdf/file/`                                |
+| Consultar estudio comparativo             | GET    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/`                               |
+| Crear / actualizar estudio comparativo    | PUT    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/`                               |
+| Descargar PDF del estudio                 | GET    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/pdf/`                           |
+| Descargar foto antes_oclusal_superior     | GET    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/antes_oclusal_superior/`  |
+| Descargar foto antes_lateral_izquierda    | GET    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/antes_lateral_izquierda/` |
+| Descargar foto antes_frontal              | GET    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/antes_frontal/`           |
+| Descargar foto antes_lateral_derecha      | GET    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/antes_lateral_derecha/`   |
+| Descargar foto antes_oclusal_inferior     | GET    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/antes_oclusal_inferior/`  |
+| Descargar foto despues_perfil             | GET    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/despues_perfil/`          |
+| Descargar foto despues_semiperfil         | GET    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/despues_semiperfil/`      |
+| Descargar foto despues_retrato_frontal    | GET    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/despues_retrato_frontal/` |
+| Descargar foto despues_retrato_sonrisa    | GET    | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/despues_retrato_sonrisa/` |
 
 ### 07 · Reportes y exportaciones
 
-| Petición | Método | Ruta |
-|---|---|---|
-| Exportar patients XLSX | GET | `{{baseUrl}}/api/v1/clinics/exports/patients.xlsx` |
-| Exportar consultations XLSX | GET | `{{baseUrl}}/api/v1/clinics/exports/consultations.xlsx` |
-| Exportar clinical-images XLSX | GET | `{{baseUrl}}/api/v1/clinics/exports/clinical-images.xlsx` |
+| Petición                      | Método | Ruta                                                      |
+| ----------------------------- | ------ | --------------------------------------------------------- |
+| Exportar patients XLSX        | GET    | `{{baseUrl}}/api/v1/clinics/exports/patients.xlsx`        |
+| Exportar consultations XLSX   | GET    | `{{baseUrl}}/api/v1/clinics/exports/consultations.xlsx`   |
+| Exportar clinical-images XLSX | GET    | `{{baseUrl}}/api/v1/clinics/exports/clinical-images.xlsx` |
 
 ### 08 · Administración de clínica
 
-| Petición | Método | Ruta |
-|---|---|---|
-| Dashboard | GET | `{{baseUrl}}/api/v1/clinics/admin/dashboard/` |
-| Miembros (guarda membershipId del médico) | GET | `{{baseUrl}}/api/v1/clinics/admin/memberships/` |
-| Invitaciones | GET | `{{baseUrl}}/api/v1/clinics/admin/invitations/` |
-| Auditoría | GET | `{{baseUrl}}/api/v1/clinics/admin/audit/` |
-| Actualizar membresía del médico | PATCH | `{{baseUrl}}/api/v1/clinics/memberships/{{membershipId}}/` |
-| Invitar médico por correo | POST | `{{baseUrl}}/api/v1/clinics/invitations/` |
-| Revocar invitación | POST | `{{baseUrl}}/api/v1/clinics/invitations/{{invitationId}}/revoke/` |
+| Petición                                  | Método | Ruta                                                              |
+| ----------------------------------------- | ------ | ----------------------------------------------------------------- |
+| Dashboard                                 | GET    | `{{baseUrl}}/api/v1/clinics/admin/dashboard/`                     |
+| Miembros (guarda membershipId del médico) | GET    | `{{baseUrl}}/api/v1/clinics/admin/memberships/`                   |
+| Invitaciones                              | GET    | `{{baseUrl}}/api/v1/clinics/admin/invitations/`                   |
+| Auditoría                                 | GET    | `{{baseUrl}}/api/v1/clinics/admin/audit/`                         |
+| Actualizar membresía del médico           | PATCH  | `{{baseUrl}}/api/v1/clinics/memberships/{{membershipId}}/`        |
+| Invitar médico por correo                 | POST   | `{{baseUrl}}/api/v1/clinics/invitations/`                         |
+| Revocar invitación                        | POST   | `{{baseUrl}}/api/v1/clinics/invitations/{{invitationId}}/revoke/` |
 
 ### 09 · Invitaciones — requieren token del correo
 
-| Petición | Método | Ruta |
-|---|---|---|
-| preview/ | POST | `{{baseUrl}}/api/v1/clinics/invitations/preview/` |
-| register/preview/ | POST | `{{baseUrl}}/api/v1/clinics/invitations/register/preview/` |
-| Aceptar invitación con cuenta existente | POST | `{{baseUrl}}/api/v1/clinics/invitations/resolve/` |
-| Registrar nueva cuenta invitada | POST | `{{baseUrl}}/api/v1/clinics/invitations/register/` |
-| Login destinatario existente | POST | `{{baseUrl}}/api/v1/auth/login/` |
+| Petición                                | Método | Ruta                                                       |
+| --------------------------------------- | ------ | ---------------------------------------------------------- |
+| preview/                                | POST   | `{{baseUrl}}/api/v1/clinics/invitations/preview/`          |
+| register/preview/                       | POST   | `{{baseUrl}}/api/v1/clinics/invitations/register/preview/` |
+| Aceptar invitación con cuenta existente | POST   | `{{baseUrl}}/api/v1/clinics/invitations/resolve/`          |
+| Registrar nueva cuenta invitada         | POST   | `{{baseUrl}}/api/v1/clinics/invitations/register/`         |
+| Login destinatario existente            | POST   | `{{baseUrl}}/api/v1/auth/login/`                           |
 
 ### 10 · Backoffice de plataforma
 
-| Petición | Método | Ruta |
-|---|---|---|
-| Dashboard | GET | `{{baseUrl}}/api/v1/backoffice/dashboard/` |
-| Clínicas | GET | `{{baseUrl}}/api/v1/backoffice/clinics/` |
-| Usuarios | GET | `{{baseUrl}}/api/v1/backoffice/users/` |
-| Detalle usuario | GET | `{{baseUrl}}/api/v1/backoffice/users/{{userId}}/` |
-| Auditoría (guarda auditId) | GET | `{{baseUrl}}/api/v1/backoffice/audit/` |
-| Detalle evento | GET | `{{baseUrl}}/api/v1/backoffice/audit/{{auditId}}/` |
-| Ejecuciones IA globales | GET | `{{baseUrl}}/api/v1/backoffice/ai-runs/` |
-| Detalle ejecución IA | GET | `{{baseUrl}}/api/v1/backoffice/ai-runs/{{backofficeRunId}}/` |
-| Estado del sistema | GET | `{{baseUrl}}/api/v1/backoffice/system/` |
-| Crear usuario de prueba (guarda userId) | POST | `{{baseUrl}}/api/v1/backoffice/users/create/` |
-| deactivate usuario de prueba | POST | `{{baseUrl}}/api/v1/backoffice/users/{{userId}}/deactivate/` |
-| activate usuario de prueba | POST | `{{baseUrl}}/api/v1/backoffice/users/{{userId}}/activate/` |
-| Crear clínica e invitar administrador (guarda managedClinicId) | POST | `{{baseUrl}}/api/v1/backoffice/clinics/` |
-| Cambiar estado de clínica creada | POST | `{{baseUrl}}/api/v1/backoffice/clinics/{{managedClinicId}}/status/` |
-| Listar invitaciones iniciales | GET | `{{baseUrl}}/api/v1/backoffice/clinics/{{managedClinicId}}/initial-admin/` |
-| Revocar invitación inicial | POST | `{{baseUrl}}/api/v1/backoffice/clinics/{{managedClinicId}}/initial-admin/{{initialInvitationId}}/revoke/` |
-| Reenviar invitación inicial | POST | `{{baseUrl}}/api/v1/backoffice/clinics/{{managedClinicId}}/initial-admin/` |
+| Petición                                                       | Método | Ruta                                                                                                      |
+| -------------------------------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------- |
+| Dashboard                                                      | GET    | `{{baseUrl}}/api/v1/backoffice/dashboard/`                                                                |
+| Clínicas                                                       | GET    | `{{baseUrl}}/api/v1/backoffice/clinics/`                                                                  |
+| Usuarios                                                       | GET    | `{{baseUrl}}/api/v1/backoffice/users/`                                                                    |
+| Detalle usuario                                                | GET    | `{{baseUrl}}/api/v1/backoffice/users/{{userId}}/`                                                         |
+| Auditoría (guarda auditId)                                     | GET    | `{{baseUrl}}/api/v1/backoffice/audit/`                                                                    |
+| Detalle evento                                                 | GET    | `{{baseUrl}}/api/v1/backoffice/audit/{{auditId}}/`                                                        |
+| Ejecuciones IA globales                                        | GET    | `{{baseUrl}}/api/v1/backoffice/ai-runs/`                                                                  |
+| Detalle ejecución IA                                           | GET    | `{{baseUrl}}/api/v1/backoffice/ai-runs/{{backofficeRunId}}/`                                              |
+| Estado del sistema                                             | GET    | `{{baseUrl}}/api/v1/backoffice/system/`                                                                   |
+| Crear usuario de prueba (guarda userId)                        | POST   | `{{baseUrl}}/api/v1/backoffice/users/create/`                                                             |
+| deactivate usuario de prueba                                   | POST   | `{{baseUrl}}/api/v1/backoffice/users/{{userId}}/deactivate/`                                              |
+| activate usuario de prueba                                     | POST   | `{{baseUrl}}/api/v1/backoffice/users/{{userId}}/activate/`                                                |
+| Crear clínica e invitar administrador (guarda managedClinicId) | POST   | `{{baseUrl}}/api/v1/backoffice/clinics/`                                                                  |
+| Cambiar estado de clínica creada                               | POST   | `{{baseUrl}}/api/v1/backoffice/clinics/{{managedClinicId}}/status/`                                       |
+| Listar invitaciones iniciales                                  | GET    | `{{baseUrl}}/api/v1/backoffice/clinics/{{managedClinicId}}/initial-admin/`                                |
+| Revocar invitación inicial                                     | POST   | `{{baseUrl}}/api/v1/backoffice/clinics/{{managedClinicId}}/initial-admin/{{initialInvitationId}}/revoke/` |
+| Reenviar invitación inicial                                    | POST   | `{{baseUrl}}/api/v1/backoffice/clinics/{{managedClinicId}}/initial-admin/`                                |
 
 ### 11 · Recepción STAFF — requiere aceptar invitación con rol STAFF
 
-| Petición | Método | Ruta |
-|---|---|---|
-| Login recepción | POST | `{{baseUrl}}/api/v1/auth/login/` |
-| Clínicas de recepción | GET | `{{baseUrl}}/api/v1/clinics/memberships/` |
-| Buscar pacientes para agenda | GET | `{{baseUrl}}/api/v1/clinics/staff/patients/?term=Postman` |
-| Listar agenda de recepción | GET | `{{baseUrl}}/api/v1/clinics/staff/appointments/` |
-| Crear cita desde recepción | POST | `{{baseUrl}}/api/v1/clinics/staff/appointments/` |
-| Detalle de cita de recepción | GET | `{{baseUrl}}/api/v1/clinics/staff/appointments/{{staffAppointmentId}}/` |
-| Reprogramar desde recepción | PATCH | `{{baseUrl}}/api/v1/clinics/staff/appointments/{{staffAppointmentId}}/` |
-| complete desde recepción | POST | `{{baseUrl}}/api/v1/clinics/staff/appointments/{{staffAppointmentId}}/complete/` |
-| cancel desde recepción | POST | `{{baseUrl}}/api/v1/clinics/staff/appointments/{{staffAppointmentId}}/cancel/` |
+| Petición                     | Método | Ruta                                                                             |
+| ---------------------------- | ------ | -------------------------------------------------------------------------------- |
+| Login recepción              | POST   | `{{baseUrl}}/api/v1/auth/login/`                                                 |
+| Clínicas de recepción        | GET    | `{{baseUrl}}/api/v1/clinics/memberships/`                                        |
+| Buscar pacientes para agenda | GET    | `{{baseUrl}}/api/v1/clinics/staff/patients/?term=Postman`                        |
+| Listar agenda de recepción   | GET    | `{{baseUrl}}/api/v1/clinics/staff/appointments/`                                 |
+| Crear cita desde recepción   | POST   | `{{baseUrl}}/api/v1/clinics/staff/appointments/`                                 |
+| Detalle de cita de recepción | GET    | `{{baseUrl}}/api/v1/clinics/staff/appointments/{{staffAppointmentId}}/`          |
+| Reprogramar desde recepción  | PATCH  | `{{baseUrl}}/api/v1/clinics/staff/appointments/{{staffAppointmentId}}/`          |
+| complete desde recepción     | POST   | `{{baseUrl}}/api/v1/clinics/staff/appointments/{{staffAppointmentId}}/complete/` |
+| cancel desde recepción       | POST   | `{{baseUrl}}/api/v1/clinics/staff/appointments/{{staffAppointmentId}}/cancel/`   |
 
 ### 12 · Operaciones finales — ejecutar manualmente
 
-| Petición | Método | Ruta |
-|---|---|---|
-| Archivar imagen | DELETE | `{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/` |
-| Desactivar paciente de prueba | POST | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/deactivate/` |
-| Cerrar última sesión de cookies | POST | `{{baseUrl}}/api/v1/auth/logout/` |
+| Petición                        | Método | Ruta                                                            |
+| ------------------------------- | ------ | --------------------------------------------------------------- |
+| Archivar imagen                 | DELETE | `{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/`       |
+| Desactivar paciente de prueba   | POST   | `{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/deactivate/` |
+| Cerrar última sesión de cookies | POST   | `{{baseUrl}}/api/v1/auth/logout/`                               |

@@ -4,11 +4,11 @@ Cambios realizados después de aprobar el plan de la auditoría del 8 de noviemb
 
 ## Resultado por hallazgo
 
-| Hallazgo | Implementación | Pendiente para cierre completo |
-|---|---|---|
-| MX-01 | 276 archivos de `media/` y una base vacía retirados del índice; las 277 copias locales siguen presentes. Comprobación de categorías sensibles incorporada a CI. | Clasificar contenido con el responsable; revisar distribución y copias; limpieza histórica coordinada si corresponde. Hacer obligatorio el job en protección de ramas. |
-| MX-05 | Ventana deslizante Redis atómica, HMAC para identificadores, rechazo 503 ante indisponibilidad, respuesta 429 con espera, proxies explícitos y readiness con Redis. | Provisionar y proteger Redis, verificar proxy real, límites perimetrales, persistencia/failover y alertas. |
-| MX-10, escaneos iniciales | npm, paquetes Python y Gitleaks ejecutados con los resultados descritos abajo. | Escaneo del sistema operativo de la imagen, SBOM, reproducibilidad y evidencia de ejecución en CI remoto. |
+| Hallazgo                  | Implementación                                                                                                                                                      | Pendiente para cierre completo                                                                                                                                         |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| MX-01                     | 276 archivos de `media/` y una base vacía retirados del índice; las 277 copias locales siguen presentes. Comprobación de categorías sensibles incorporada a CI.     | Clasificar contenido con el responsable; revisar distribución y copias; limpieza histórica coordinada si corresponde. Hacer obligatorio el job en protección de ramas. |
+| MX-05                     | Ventana deslizante Redis atómica, HMAC para identificadores, rechazo 503 ante indisponibilidad, respuesta 429 con espera, proxies explícitos y readiness con Redis. | Provisionar y proteger Redis, verificar proxy real, límites perimetrales, persistencia/failover y alertas.                                                             |
+| MX-10, escaneos iniciales | npm, paquetes Python y Gitleaks ejecutados con los resultados descritos abajo.                                                                                      | Escaneo del sistema operativo de la imagen, SBOM, reproducibilidad y evidencia de ejecución en CI remoto.                                                              |
 
 Las bajas de archivos están preparadas en el índice de Git; las modificaciones de código quedan visibles en el árbol de trabajo. No se creó commit, no se publicó ni se reescribió historial. Se conservó el cambio preexistente de `frontend/package-lock.json`.
 
@@ -26,16 +26,16 @@ Las bajas de archivos están preparadas en el índice de Git; las modificaciones
 
 Se utilizó una copia temporal de la imagen local de la aplicación con el cliente Redis y pip-audit instalados. El repositorio se montó de solo lectura. Bases, archivos y servicios de prueba aislados; sin usar PostgreSQL, media o correo del contenedor existente.
 
-| Comprobación | Resultado |
-|---|---|
-| Suite backend con SQLite temporal y Redis | 262 pruebas, OK; 21 omitidas por condiciones del motor o del entorno |
-| Suite backend con PostgreSQL temporal y Redis | 262 pruebas, OK; ninguna omitida |
-| Concurrencia Redis | Pruebas de 40 intentos paralelos con cuota de 5, y cuatro procesos independientes con cuota compartida de 7: aprobadas |
-| Otros contratos | Expiración, conexión nueva, separación de ámbitos, `Retry-After`, IP falsificada, cadena IPv6, error 503 sin detalles internos y readiness: aprobados |
-| Configuración | Producción sin Redis y redes de proxy inválidas rechazadas por pruebas |
-| Índice Git | Cero archivos en categorías bloqueadas; 277 bajas y 277 copias locales conservadas |
-| Estilo de diff | `git diff --check` y variante `--cached`: sin errores |
-| Dependencias instaladas | Coinciden las versiones públicas de todos los pins de `requirements.txt`; `pip check`: sin conflictos |
+| Comprobación                                  | Resultado                                                                                                                                             |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Suite backend con SQLite temporal y Redis     | 262 pruebas, OK; 21 omitidas por condiciones del motor o del entorno                                                                                  |
+| Suite backend con PostgreSQL temporal y Redis | 262 pruebas, OK; ninguna omitida                                                                                                                      |
+| Concurrencia Redis                            | Pruebas de 40 intentos paralelos con cuota de 5, y cuatro procesos independientes con cuota compartida de 7: aprobadas                                |
+| Otros contratos                               | Expiración, conexión nueva, separación de ámbitos, `Retry-After`, IP falsificada, cadena IPv6, error 503 sin detalles internos y readiness: aprobados |
+| Configuración                                 | Producción sin Redis y redes de proxy inválidas rechazadas por pruebas                                                                                |
+| Índice Git                                    | Cero archivos en categorías bloqueadas; 277 bajas y 277 copias locales conservadas                                                                    |
+| Estilo de diff                                | `git diff --check` y variante `--cached`: sin errores                                                                                                 |
+| Dependencias instaladas                       | Coinciden las versiones públicas de todos los pins de `requirements.txt`; `pip check`: sin conflictos                                                 |
 
 Comandos de suite reproducibles con dependencias instaladas y servicios **aislados** accesibles:
 
