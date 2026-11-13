@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
     'storages',
+    'anymail',
     'api',
     'Pacientes',
     'Citas',
@@ -174,6 +175,7 @@ STORAGES = {
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Email
+EMAIL_PROVIDER = os.environ.get('EMAIL_PROVIDER', 'smtp').strip().lower()
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'true').lower() == 'true'
@@ -182,6 +184,17 @@ EMAIL_TIMEOUT = int(os.environ.get('SMTP_TIMEOUT', '30'))
 EMAIL_HOST_USER = os.environ.get('EMAIL_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASS', '')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'webmaster@localhost')
+if EMAIL_PROVIDER == 'brevo':
+    BREVO_API_KEY = os.environ.get('BREVO_API_KEY', '').strip()
+    if not BREVO_API_KEY or not os.environ.get('DEFAULT_FROM_EMAIL', '').strip():
+        raise ImproperlyConfigured('Brevo requiere BREVO_API_KEY y DEFAULT_FROM_EMAIL explícitos.')
+    EMAIL_BACKEND = 'anymail.backends.brevo.EmailBackend'
+    ANYMAIL = {
+        'BREVO_API_KEY': BREVO_API_KEY,
+        'REQUESTS_TIMEOUT': (5, EMAIL_TIMEOUT),
+    }
+elif EMAIL_PROVIDER != 'smtp':
+    raise ImproperlyConfigured('EMAIL_PROVIDER debe ser smtp o brevo.')
 TENANT_INVITATION_URL = os.environ.get('TENANT_INVITATION_URL', f'{_render_origin}/app/invitations/accept' if _render_origin else '')
 ALLOW_LOCAL_HTTP_INVITATIONS = False
 # Compatibility code is retained for migration regression tests, not published

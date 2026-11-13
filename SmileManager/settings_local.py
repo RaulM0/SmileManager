@@ -45,10 +45,13 @@ DEV_EMAIL_DELIVERY = os.environ.get('DEV_EMAIL_DELIVERY', 'file').strip().lower(
 if DEV_EMAIL_DELIVERY == 'file':
     EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
     EMAIL_FILE_PATH = os.environ.get('DEV_EMAIL_DIR', str(BASE_DIR / '.local-mail'))
+elif DEV_EMAIL_DELIVERY == 'brevo':
+    if EMAIL_PROVIDER != 'brevo':
+        raise ImproperlyConfigured('DEV_EMAIL_DELIVERY=brevo requiere EMAIL_PROVIDER=brevo.')
 elif DEV_EMAIL_DELIVERY == 'smtp':
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 else:
-    raise ImproperlyConfigured('DEV_EMAIL_DELIVERY debe ser file o smtp.')
+    raise ImproperlyConfigured('DEV_EMAIL_DELIVERY debe ser file, smtp o brevo.')
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
