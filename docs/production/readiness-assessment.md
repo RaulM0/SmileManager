@@ -1,5 +1,7 @@
 # Production readiness assessment
 
+Actualización de seguimiento: las secciones siguientes conservan evaluaciones históricas. Consultar los resultados actuales de [etapa 1](../security/etapa-1-resultados.md) y [etapa 2](../security/etapa-2-resultados.md) para límites compartidos, sesiones, MFA, privacidad e integridad documental. El estado NO-GO permanece hasta completar las verificaciones externas pendientes.
+
 **Backoffice:** se agregó una superficie administrativa con autorización explícita, acciones de estado auditadas y lectura operativa paginada. No concede acceso clínico universal ni cambia la frontera de DBA. La presencia del panel no cierra S3, TLS, backups, distribución Git, monitoring o decisiones clínicas/legales: el dictamen permanece **NO-GO**. Ver [arquitectura](../architecture/backoffice.md) y [permisos](../security/backoffice-authorization.md).
 
 **Cierre de aplicación, actualización:** el bypass directo de escritura clínica por Django Admin se mitigó y se probó incluso para superusuario; la lectura requiere permisos Django pero es global para quien los posea. Las dependencias se actualizaron y los escaneos locales no encontraron avisos conocidos; falta verificar CI en Linux. Sigue **NOT READY / NO-GO** por paridad legacy/E2E incompleta, almacenamiento/backup/TLS/monitoring no verificados y distribución de Git pendiente. [Admin](admin-security.md), [dependencias](dependency-security.md), [CI](ci-security.md).
@@ -44,6 +46,7 @@ Dictamen inicial: **NOT READY** para datos clínicos reales; el resultado final 
 Pruebas: 91 backend OK en SQLite temporal (3 omitidas de PostgreSQL); 3 pruebas concurrentes PostgreSQL OK con base temporal aleatoria creada desde migraciones; otras 6 pruebas focalizadas de storage y recuperación OK tras añadir cobertura de resultado IA histórico. Frontend: 26 tests, typecheck, lint y build OK. Chromium/HTTP: una prueba sintética ampliada PASS; véase [alcance y faltantes](e2e-results.md). No se ensayó upgrade histórico ni `showmigrations` independiente, recuperación de backup, suite E2E completa o infraestructura real.
 
 Se incorporó un comando de inspección/recuperación de RUNNING con modo seco por defecto y salvaguarda operativa; es necesaria parada confirmada de todos los workers y el comando no puede demostrarla. La política de retención y reconciliación siguen abiertas. La ruta `design-system` aparece en el bundle y en las rutas React de producción; revisar si debe estar accesible a usuarios autenticados. No se halló Dockerfile ni `.dockerignore` en el repositorio; compose solo define PostgreSQL local. Evaluar contenedor real y pipeline externo antes del despliegue.
+
 # Ampliación de Backoffice: revisión pendiente
 
 La asignación existente `access_system_backoffice` ahora permite lectura global de secciones clínicas. Es necesario revisar y aprobar los destinatarios antes del despliegue; ver [acceso a datos](../security/backoffice-data-access.md). La exposición de archivos clínicos desde Backoffice no está implementada. No cambian las verificaciones externas pendientes ni el dictamen NO-GO.

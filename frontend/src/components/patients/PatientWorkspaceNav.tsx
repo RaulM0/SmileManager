@@ -14,8 +14,14 @@ const sections: Array<[string, string, boolean?]> = [
   ["Consentimiento", "/consent"],
 ];
 
-export default function PatientWorkspaceNav({ patientId }: { patientId: string }) {
-  const { data: patient } = useResource<Patient>(`patients/${patientId}/`);
+export default function PatientWorkspaceNav({
+  patientId,
+}: {
+  patientId: string;
+}) {
+  const { data: patient } = useResource<Patient>(
+    `clinics/patients/${patientId}/`,
+  );
   const { pathname } = useLocation();
   const linksRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLElement>(null);
@@ -24,27 +30,51 @@ export default function PatientWorkspaceNav({ patientId }: { patientId: string }
     const nav = navRef.current;
     if (!links || !nav) return;
     const updateIndicator = () => {
-      nav.dataset.more = String(links.scrollWidth - links.clientWidth - links.scrollLeft > 2);
+      nav.dataset.more = String(
+        links.scrollWidth - links.clientWidth - links.scrollLeft > 2,
+      );
     };
     if (window.matchMedia("(max-width: 991.98px)").matches) {
       const active = links.querySelector<HTMLElement>('a[aria-current="page"]');
-      if (active) links.scrollLeft = active.offsetLeft - links.offsetLeft - (links.clientWidth - active.offsetWidth) / 2;
+      if (active)
+        links.scrollLeft =
+          active.offsetLeft -
+          links.offsetLeft -
+          (links.clientWidth - active.offsetWidth) / 2;
     }
     updateIndicator();
     links.addEventListener("scroll", updateIndicator, { passive: true });
     window.addEventListener("resize", updateIndicator);
-    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(updateIndicator);
+    const observer =
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(updateIndicator);
     observer?.observe(links);
-    return () => { links.removeEventListener("scroll", updateIndicator); window.removeEventListener("resize", updateIndicator); observer?.disconnect(); };
+    return () => {
+      links.removeEventListener("scroll", updateIndicator);
+      window.removeEventListener("resize", updateIndicator);
+      observer?.disconnect();
+    };
   }, [pathname, patientId]);
-  const patientName = patient ? [patient.nombre, patient.appat, patient.apmat].filter(Boolean).join(" ") : "";
+  const patientName = patient
+    ? [patient.nombre, patient.appat, patient.apmat].filter(Boolean).join(" ")
+    : "";
   return (
-    <nav ref={navRef} className="patient-workspace-nav" aria-label="Secciones del expediente">
+    <nav
+      ref={navRef}
+      className="patient-workspace-nav"
+      aria-label="Secciones del expediente"
+    >
       <div className="patient-workspace-context">
         <i className="bi bi-person-vcard" aria-hidden="true" />
-        <span className="patient-workspace-identity" title={patientName || undefined}>
+        <span
+          className="patient-workspace-identity"
+          title={patientName || undefined}
+        >
           Expediente <strong>#{patientId}</strong>
-          {patientName && <span className="patient-workspace-name"> · {patientName}</span>}
+          {patientName && (
+            <span className="patient-workspace-name"> · {patientName}</span>
+          )}
         </span>
       </div>
       <div ref={linksRef} className="patient-workspace-links">
@@ -55,7 +85,7 @@ export default function PatientWorkspaceNav({ patientId }: { patientId: string }
               key={label}
               to={to}
               end={Boolean(end)}
-              className={({ isActive }) => isActive ? "is-active" : undefined}
+              className={({ isActive }) => (isActive ? "is-active" : undefined)}
             >
               {label}
             </NavLink>

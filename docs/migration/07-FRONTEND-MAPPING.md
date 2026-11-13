@@ -1,5 +1,7 @@
 # Mapeo React
 
+> Documento histórico: las rutas HTML y Django Admin fueron retiradas. Consultar [estado actual](../production/legacy-routes.md).
+
 | Templates legacy                                                                           | Página/componentes React                                                           | FUNC    |
 | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- | ------- |
 | `sesiones/login.html`                                                                      | LoginPage, LoginForm                                                               | 001     |

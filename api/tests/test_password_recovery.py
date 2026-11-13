@@ -13,7 +13,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
-from rest_framework_simplejwt.tokens import RefreshToken
+from api.authentication import SessionRefreshToken as RefreshToken
 
 from Usuarios.models import AuditEvent
 
@@ -95,8 +95,8 @@ class PasswordRecoveryTests(TestCase):
         self.client.cookies['smile_refresh'] = str(old_refresh)
         self.assertEqual(self.client.post(reverse('api-refresh')).status_code, 401)
         self.assertFalse(self.client.get(reverse('api-session')).json()['authenticated'])
-        # Existing access tokens are valid until expiry: five minutes by default.
-        self.assertEqual(self.client.get(reverse('api-dashboard'), HTTP_AUTHORIZATION=f'Bearer {old_access}').status_code, 200)
+        # Password reset revokes the server session and existing access tokens.
+        self.assertEqual(self.client.get(reverse('api-dashboard'), HTTP_AUTHORIZATION=f'Bearer {old_access}').status_code, 401)
         self.assertEqual(self.client.post(reverse('api-login'), {'username': 'doctor', 'password': 'original-password-123!'}, content_type='application/json').status_code, 400)
         self.assertEqual(self.client.post(reverse('api-login'), {'username': 'doctor', 'password': 'Safe new passphrase 459!'}, content_type='application/json').status_code, 200)
         event = AuditEvent.objects.get(action='PASSWORD_RESET_COMPLETED')

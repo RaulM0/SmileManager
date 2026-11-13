@@ -41,24 +41,6 @@ class ClinicalRecordApiTests(APITestCase):
         self.assertIs(history['problemas_cardiacos'], False)
         self.assertIsNone(history['alergia_medicamentos'])
 
-    def test_legacy_form_preserves_unanswered_fields(self):
-        self.client.force_authenticate(user=None)
-        self.client.force_login(self.owner)
-        url = reverse('antecedentes', args=[self.patient.id])
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        html = response.content.decode()
-        negative_input = html.split('id="tratamiento_medico-no"', 1)[1].split('/>', 1)[0]
-        self.assertNotIn('checked', negative_input)
-        unknown_input = html.split('id="tratamiento_medico-unknown"', 1)[1].split('/>', 1)[0]
-        self.assertIn('checked', unknown_input)
-        self.client.post(url, {'tratamiento_medico': 'False', 'version': '0'})
-        history = AntescedentesMedicos.objects.get(paciente=self.patient)
-        self.assertIs(history.tratamiento_medico, False)
-        self.assertIsNone(history.problemas_cardiacos)
-        self.client.post(url, {'tratamiento_medico': '', 'version': '1'})
-        history.refresh_from_db()
-        self.assertIsNone(history.tratamiento_medico)
 
     def test_foreign_patient_history_is_hidden(self):
         foreign = Paciente.objects.create(

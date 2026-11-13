@@ -43,4 +43,3 @@ La navbar enlaza solo Inicio, Citas, Pacientes y Diagnósticos; las otras págin
 ## Cobertura de análisis
 
 La lista completa de archivos, APIs y controles está en `02-FUNCTIONAL-UI-INVENTORY.md`. El análisis de código no equivale a validación visual/runtime; ejecutar tests/build y, si backend está disponible, E2E antes de marcar verificado.
-

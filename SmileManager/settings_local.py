@@ -13,6 +13,7 @@ from .settings import *
 
 
 DEBUG = True
+ALLOW_LOCAL_HTTP_INVITATIONS = True
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 DATABASES = {

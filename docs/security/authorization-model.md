@@ -4,19 +4,19 @@
 
 No existe rol clínico formal en los modelos o rutas revisadas. `User.is_staff` y permisos/grupos del admin controlan Django admin; no equivalen a un rol clínico. La autoridad existente es `Paciente.medico`. El usuario activo autenticado propietario puede realizar las siguientes acciones sobre sus propios recursos; los ajenos deben responder 404.
 
-| Recurso | Acciones existentes | Control anterior | Riesgo |
-|---|---|---|---|
-| Paciente | lista, búsqueda, crear, leer, editar, desactivar | médico del paciente | Sin permisos funcionales diferenciados. |
-| Cita | listar, crear, leer, editar, completar, cancelar | médico del paciente | Sin rol ni reglas de agenda por función. |
-| Antecedentes | leer, editar | paciente propietario, lectura de primera fila | Fila histórica de otro médico puede quedar accesible. |
-| Consulta | lista, crear, detalle, receta | combinación de paciente y médico según ruta | Relaciones inconsistentes pueden diferir por superficie. |
-| Odontograma | leer, guardar | paciente/médico | HTML y API tienen filtros distintos. |
-| Imagen / IA | lista, cargar, leer, archivo, borrar, analizar | combinación de paciente/médico según ruta | Relación inconsistente y salida de archivos. |
-| Estudio | leer, crear, editar, PDF, archivos | paciente y/o médico según ruta | Selección de filas ajenas inconsistentes. |
-| Consentimiento | leer, aceptar, descargar | paciente y médico | Sin distinción de función clínica. |
-| Exportaciones | pacientes, consultas e imágenes | médico del paciente | Relaciones clínicas inconsistentes; descarga masiva. |
-| Correo | enviar a paciente | paciente propietario | Todos los propietarios tienen misma capacidad. |
-| Administración | Django admin | permisos Django de staff/grupos | Acceso global debe gestionarse por separado. |
+| Recurso        | Acciones existentes                              | Control anterior                              | Riesgo                                                   |
+| -------------- | ------------------------------------------------ | --------------------------------------------- | -------------------------------------------------------- |
+| Paciente       | lista, búsqueda, crear, leer, editar, desactivar | médico del paciente                           | Sin permisos funcionales diferenciados.                  |
+| Cita           | listar, crear, leer, editar, completar, cancelar | médico del paciente                           | Sin rol ni reglas de agenda por función.                 |
+| Antecedentes   | leer, editar                                     | paciente propietario, lectura de primera fila | Fila histórica de otro médico puede quedar accesible.    |
+| Consulta       | lista, crear, detalle, receta                    | combinación de paciente y médico según ruta   | Relaciones inconsistentes pueden diferir por superficie. |
+| Odontograma    | leer, guardar                                    | paciente/médico                               | HTML y API tienen filtros distintos.                     |
+| Imagen / IA    | lista, cargar, leer, archivo, borrar, analizar   | combinación de paciente/médico según ruta     | Relación inconsistente y salida de archivos.             |
+| Estudio        | leer, crear, editar, PDF, archivos               | paciente y/o médico según ruta                | Selección de filas ajenas inconsistentes.                |
+| Consentimiento | leer, aceptar, descargar                         | paciente y médico                             | Sin distinción de función clínica.                       |
+| Exportaciones  | pacientes, consultas e imágenes                  | médico del paciente                           | Relaciones clínicas inconsistentes; descarga masiva.     |
+| Correo         | enviar a paciente                                | paciente propietario                          | Todos los propietarios tienen misma capacidad.           |
+| Administración | Django admin                                     | permisos Django de staff/grupos               | Acceso global debe gestionarse por separado.             |
 
 ## Política implementada
 

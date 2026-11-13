@@ -12,7 +12,7 @@ from django.db import close_old_connections, connection
 from django.test import LiveServerTestCase
 from django.urls import reverse
 from django.utils import timezone
-from rest_framework_simplejwt.tokens import RefreshToken
+from api.authentication import SessionRefreshToken as RefreshToken
 from Citas.models import Cita
 from Pacientes.models import Consulta, ImagenesClinicas, Paciente
 

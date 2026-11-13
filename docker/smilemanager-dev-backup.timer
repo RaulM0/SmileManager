@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily encrypted SmileManager development backup
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+RandomizedDelaySec=5min
+Unit=smilemanager-dev-backup.service
+
+[Install]
+WantedBy=timers.target

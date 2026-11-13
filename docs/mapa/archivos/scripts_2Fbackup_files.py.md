@@ -1,0 +1,27 @@
+---
+generated: true
+source: "scripts/backup_files.py"
+aliases: ["scripts/backup_files.py"]
+tags: [mapa, archivo]
+---
+# backup_files.py
+
+Módulo: [[docs/mapa/Operacion]]. Inicio: [[docs/mapa/Inicio]].
+
+## Archivo real
+
+Ruta desde la raíz: `scripts/backup_files.py`.
+
+[Abrir archivo del proyecto](../../../scripts/backup_files.py)
+
+El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abrirá o permitirá abrirlo con la aplicación predeterminada. Esta nota es un índice; leer el archivo real antes de modificarlo.
+
+## Símbolos principales
+
+Sin declaraciones principales detectadas por el índice estático.
+
+## Dependencias internas
+
+Sin imports internos resueltos automáticamente.
+
+Este índice resuelve imports Python y referencias relativas JS/TS; no ejecuta módulos ni representa todas las dependencias dinámicas.

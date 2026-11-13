@@ -8,7 +8,7 @@ from .services.patients import create_patient, legacy_age, update_patient
 from .services.consultations import create_consultation
 from .services.appointments import save_appointment
 from .services.clinical_images import create_clinical_image
-from .policies import scoped
+from Pacientes.access import scoped
 from .upload_policy import validate_upload
 from django.core.exceptions import ValidationError as DjangoValidationError
 from .services.odontogram import validate_odontogram
@@ -42,10 +42,25 @@ class SessionUserSerializer(serializers.Serializer):
     is_staff = serializers.BooleanField()
     profile = serializers.SerializerMethodField()
     can_access_backoffice = serializers.SerializerMethodField()
+    is_platform_admin = serializers.SerializerMethodField()
+    mfa_enabled = serializers.SerializerMethodField()
+    ai_globally_enabled = serializers.SerializerMethodField()
+
+    def get_mfa_enabled(self, user):
+        from Usuarios.models import MFACredential
+        return MFACredential.objects.filter(user=user).exists()
 
     def get_can_access_backoffice(self, user):
-        from .policies import can_access_backoffice
+        from Usuarios.permissions import can_access_backoffice
         return can_access_backoffice(user)
+
+    def get_is_platform_admin(self, user):
+        from Usuarios.permissions import is_platform_admin
+        return is_platform_admin(user)
+
+    def get_ai_globally_enabled(self, user):
+        from .features import ai_globally_enabled
+        return ai_globally_enabled()
 
     def get_profile(self, user):
         profile = Perfil.objects.filter(user=user).first()
@@ -100,6 +115,7 @@ class PatientSerializer(serializers.ModelSerializer):
             patient=instance,
             medico=self.context['request'].user,
             validated_data=validated_data,
+            clinic_id=self.context.get('clinic_id'),
         )
 
 
@@ -112,14 +128,31 @@ class MedicalHistorySerializer(serializers.ModelSerializer):
 
 class ConsultationSerializer(serializers.ModelSerializer):
     paciente = DashboardPatientSerializer(read_only=True)
+    integrity = serializers.SerializerMethodField()
+    addenda = serializers.SerializerMethodField()
+
+    def get_integrity(self, obj):
+        from .services.document_integrity import verify
+        from .services.document_payloads import consultation_payload
+        if not obj.content_sha256:
+            return 'legacy_unsealed' if obj.status == 'LEGACY' else 'draft'
+        return 'verified' if verify(consultation_payload(obj), obj.content_sha256, obj.integrity_seal) else 'invalid'
+
+    def get_addenda(self, obj):
+        from .services.document_integrity import verify, digest
+        from .services.document_payloads import addendum_payload, consultation_payload
+        return [{'id': row.pk, 'text': row.text, 'author_name': row.author_name, 'created_at': row.created_at,
+                 'integrity': 'verified' if verify(addendum_payload(row), row.content_sha256, row.integrity_seal) and row.base_content_sha256 == digest(consultation_payload(obj)) else 'invalid'}
+                for row in obj.addenda.all()]
 
     class Meta:
         model = Consulta
         fields = (
             'id', 'paciente', 'fecha_consulta', 'motivo_consulta',
             'diagnostico', 'tratamiento', 'observaciones',
+            'status', 'author_name', 'closed_at', 'content_sha256', 'integrity', 'addenda',
         )
-        read_only_fields = ('id', 'paciente', 'fecha_consulta')
+        read_only_fields = ('id', 'paciente', 'fecha_consulta', 'status', 'author_name', 'closed_at', 'content_sha256', 'integrity', 'addenda')
         extra_kwargs = {
             'diagnostico': {'required': False, 'allow_blank': True},
             'tratamiento': {'required': False, 'allow_blank': True},
@@ -131,6 +164,7 @@ class ConsultationSerializer(serializers.ModelSerializer):
             patient=self.context['patient'],
             medico=self.context['request'].user,
             validated_data=validated_data,
+            clinic_id=self.context.get('clinic_id'),
         )
 
 
@@ -201,6 +235,7 @@ class ClinicalImageSerializer(UploadValidationMixin, serializers.ModelSerializer
             patient=self.context['patient'],
             medico=self.context['request'].user,
             validated_data=validated_data,
+            clinic_id=self.context.get('clinic_id'),
         )
 
 

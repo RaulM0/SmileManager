@@ -8,7 +8,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from DiagnosticosIA.models import AIAnalysisRun
-from Usuarios.models import AuditEvent
+from Usuarios.models import AuditEvent, Clinic
 
 
 class AIRecoveryTests(TestCase):
@@ -25,13 +25,13 @@ class AIRecoveryTests(TestCase):
         failed.status = AIAnalysisRun.FAILED
         failed.save(update_fields=['status'])
         output = StringIO()
-        call_command('recover_stale_ai_runs', older_than_minutes=60, stdout=output)
+        call_command('recover_stale_ai_runs', older_than_minutes=60, all_clinics=True, stdout=output)
         old.refresh_from_db()
         self.assertEqual(old.status, AIAnalysisRun.RUNNING)
         self.assertIn(f'run={old.pk}', output.getvalue())
         with self.assertRaises(CommandError):
-            call_command('recover_stale_ai_runs', older_than_minutes=60, apply=True, stdout=StringIO())
-        call_command('recover_stale_ai_runs', older_than_minutes=60, apply=True, workers_stopped=True, stdout=StringIO())
+            call_command('recover_stale_ai_runs', older_than_minutes=60, all_clinics=True, apply=True, stdout=StringIO())
+        call_command('recover_stale_ai_runs', older_than_minutes=60, all_clinics=True, apply=True, workers_stopped=True, stdout=StringIO())
         old.refresh_from_db()
         recent.refresh_from_db()
         succeeded.refresh_from_db()
@@ -41,5 +41,21 @@ class AIRecoveryTests(TestCase):
         self.assertEqual(succeeded.status, AIAnalysisRun.SUCCEEDED)
         self.assertEqual(failed.status, AIAnalysisRun.FAILED)
         self.assertTrue(AuditEvent.objects.filter(action='AI_ANALYSIS_RECOVERED', resource_id=str(old.pk)).exists())
-        call_command('recover_stale_ai_runs', older_than_minutes=60, apply=True, workers_stopped=True, stdout=StringIO())
+        call_command('recover_stale_ai_runs', older_than_minutes=60, all_clinics=True, apply=True, workers_stopped=True, stdout=StringIO())
         self.assertEqual(AuditEvent.objects.filter(action='AI_ANALYSIS_RECOVERED').count(), 1)
+
+    def test_clinic_scope_does_not_recover_other_clinics(self):
+        a = Clinic.objects.create(name='A', slug='a', status='ACTIVE')
+        b = Clinic.objects.create(name='B', slug='b', status='ACTIVE')
+        first = self.make_run(timezone.now() - timedelta(hours=3))
+        second = self.make_run(timezone.now() - timedelta(hours=3))
+        first.clinic, second.clinic = a, b
+        first.save(update_fields=['clinic'])
+        second.save(update_fields=['clinic'])
+        call_command('recover_stale_ai_runs', clinic_id=str(a.pk), older_than_minutes=60,
+                     apply=True, workers_stopped=True, stdout=StringIO())
+        first.refresh_from_db()
+        second.refresh_from_db()
+        self.assertEqual(first.status, AIAnalysisRun.FAILED)
+        self.assertEqual(second.status, AIAnalysisRun.RUNNING)
+        self.assertTrue(AuditEvent.objects.filter(action='AI_ANALYSIS_RECOVERED', clinic=a, resource_id=str(first.pk)).exists())

@@ -1,13 +1,16 @@
 from unittest.mock import patch
+import uuid
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework.test import APIClient
 from DiagnosticosIA.models import AIAnalysisRun
+from DiagnosticosIA.runs import AnalysisClinicConflict, execute
 from Pacientes.models import ImagenesClinicas, Paciente
-from Usuarios.models import AuditEvent
+from Usuarios.models import AuditEvent, Clinic, ClinicMembership
 
 
 class AIAnalysisRunTests(TestCase):
@@ -21,12 +24,12 @@ class AIAnalysisRunTests(TestCase):
         self.url = reverse('api-clinical-image-analyze', args=[self.image.pk])
 
     @staticmethod
-    def fake_analyzer(image, expected_hash):
+    def fake_analyzer(image, expected_hash, expected_version=None):
         image.resultados.save('result.jpg', ContentFile(b'synthetic result'), save=True)
         return [{'clase': 'test', 'confianza': 0.9, 'coordenadas': [1, 2, 3, 4]}]
 
     @patch('DiagnosticosIA.runs.model_version', return_value='a' * 64)
-    @patch('api.views.analyze_clinical_image', side_effect=fake_analyzer.__func__)
+    @patch('api.legacy_views.analyze_clinical_image', side_effect=fake_analyzer.__func__)
     def test_normal_retry_reuse_and_explicit_reanalysis(self, analyzer, version):
         first = self.client.post(self.url, {}, format='json')
         self.assertEqual(first.status_code, 200)
@@ -55,7 +58,7 @@ class AIAnalysisRunTests(TestCase):
         self.assertEqual(self.client.get(reverse('api-analysis-run-file', args=[self.image.pk, first.data['run_id']])).status_code, 404)
 
     @patch('DiagnosticosIA.runs.model_version', return_value='a' * 64)
-    @patch('api.views.analyze_clinical_image', side_effect=RuntimeError('sensitive internal error'))
+    @patch('api.legacy_views.analyze_clinical_image', side_effect=RuntimeError('sensitive internal error'))
     def test_failure_records_only_category(self, analyzer, version):
         response = self.client.post(self.url, {}, format='json')
         self.assertEqual(response.status_code, 500)
@@ -63,3 +66,31 @@ class AIAnalysisRunTests(TestCase):
         self.assertEqual((run.status, run.failure_category), ('FAILED', 'analysis_error'))
         self.assertNotIn('sensitive', response.data['detail'])
         self.assertTrue(AuditEvent.objects.filter(action='AI_ANALYSIS_FAILED', outcome='failure').exists())
+
+    @patch('DiagnosticosIA.runs.model_version', return_value='a' * 64)
+    def test_new_run_and_audit_keep_patient_clinic(self, version):
+        clinic = Clinic.objects.create(name='A', slug='ai-clinic', status='ACTIVE')
+        patient = self.image.paciente
+        patient.clinic = clinic
+        patient.save(update_fields=['clinic'])
+        ClinicMembership.objects.create(user=self.owner, clinic=clinic, role='DOCTOR', status='ACTIVE')
+        run, _ = execute(user=self.owner, clinic_id=clinic.pk, image_id=self.image.pk, request_id=uuid.uuid4(), force=False, analyzer=self.fake_analyzer)
+        self.assertEqual(run.clinic_id, clinic.pk)
+        self.assertTrue(AuditEvent.objects.filter(action='AI_ANALYSIS_SUCCEEDED', clinic=clinic, resource_id=str(run.pk)).exists())
+
+    def test_mismatched_run_cannot_be_listed_downloaded_or_reused(self):
+        clinic = Clinic.objects.create(name='A', slug='ai-a', status='ACTIVE')
+        other = Clinic.objects.create(name='B', slug='ai-b', status='ACTIVE')
+        patient = self.image.paciente
+        patient.clinic = clinic
+        patient.save(update_fields=['clinic'])
+        ClinicMembership.objects.create(user=self.owner, clinic=clinic, role='DOCTOR', status='ACTIVE')
+        run = AIAnalysisRun.objects.create(image=self.image, clinic=other, image_reference=self.image.pk,
+                                           requested_by=self.owner, started_at=timezone.now(), status='SUCCEEDED',
+                                           model_name='test', model_version='a'*64, input_hash='b'*64, request_id=uuid.uuid4())
+        listing = self.client.get(reverse('api-clinical-image-analysis-runs', args=[self.image.pk]))
+        self.assertEqual(listing.status_code, 404)
+        self.assertEqual(self.client.get(reverse('api-analysis-run-file', args=[self.image.pk, run.pk])).status_code, 404)
+        self.assertEqual(self.client.post(self.url, {}, format='json').status_code, 404)
+        with self.assertRaises(AnalysisClinicConflict):
+            execute(user=self.owner, clinic_id=clinic.pk, image_id=self.image.pk, request_id=uuid.uuid4(), force=False, analyzer=self.fake_analyzer)

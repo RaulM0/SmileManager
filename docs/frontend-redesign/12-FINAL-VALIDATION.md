@@ -1,5 +1,7 @@
 # Validación final
 
+> Informe histórico de una fase anterior; las interfaces HTML Django fueron retiradas. Consultar [estado actual](../production/legacy-routes.md).
+
 ## Executive Summary
 
 Fase de arquitectura implementada: autenticación API migrada a JWT Bearer con refresh HttpOnly, caché en memoria mediante TanStack Query, servicios tipados para pacientes/citas/diagnósticos/imágenes y recursos clínicos, y acceso autenticado a archivos clínicos desde la SPA. `/sesiones/` sigue usando la sesión tradicional de Django. `api.tests` 42/42, lint, typecheck, Vitest 8/8, build y E2E 3/3 pasan tras corregir una regresión detectada en la conservación de listas ante 503. Ver `14-QUERY-JWT-ARCHITECTURE.md`.

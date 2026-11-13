@@ -1,109 +1,13 @@
-<!doctype html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{{ asunto }}</title>
-    <style>
-      body {
-        font-family: "Segoe UI", Arial, sans-serif;
-        background-color: #f4f6fb;
-        color: #333;
-        margin: 0;
-        padding: 0;
-      }
-
-      .container {
-        max-width: 600px;
-        margin: 30px auto;
-        background: #ffffff;
-        border-radius: 12px;
-        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
-        overflow: hidden;
-      }
-
-      .header {
-        background-color: #007bff;
-        color: white;
-        text-align: center;
-        padding: 20px 10px;
-      }
-
-      .header h1 {
-        margin: 0;
-        font-size: 22px;
-        font-weight: 600;
-      }
-
-      .content {
-        padding: 25px 30px;
-        line-height: 1.6;
-      }
-
-      .content h2 {
-        color: #007bff;
-        font-size: 20px;
-        margin-bottom: 15px;
-      }
-
-      .content p {
-        font-size: 16px;
-        margin-bottom: 10px;
-      }
-
-      .divider {
-        border-top: 1px solid #e1e1e1;
-        margin: 25px 0;
-      }
-
-      .footer {
-        background-color: #f0f3f8;
-        text-align: center;
-        padding: 15px;
-        font-size: 14px;
-        color: #666;
-      }
-
-      .footer a {
-        color: #007bff;
-        text-decoration: none;
-      }
-
-      .footer p {
-        margin: 4px 0;
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="container">
-      <div class="header">
-        <h1>Clínica Dental {{user.perfil.clinica_nombre}}🦷</h1>
-      </div>
-
-      <div class="content">
-        <h2>{{ asunto }}</h2>
-        <p>{{ mensaje }}</p>
-
-        <div class="divider"></div>
-
-        <p>
-          Gracias por confiar en nosotros.<br />
-          Si tienes alguna duda o deseas reagendar tu cita, contáctanos cuando
-          gustes.
-        </p>
-      </div>
-
-      <div class="footer">
-        <p>📍 {{user.perfil.direccion}}</p>
-        <p>
-          📞 {{user.perfil.telefono}} | ✉️
-          <a href="mailto:{{user.email}}">{{user.email}}</a>
-        </p>
-        <p>
-          &copy; {{ now|date:"Y" }} SmileManager. Todos los derechos reservados.
-        </p>
-      </div>
-    </div>
-  </body>
-</html>
+{% extends "api/emails/base.html" %}
+{% block title %}{{ asunto }} | {{ clinic_name }}{% endblock %}
+{% block preheader %}Has recibido un mensaje de {{ clinic_name }}.{% endblock %}
+{% block content %}
+<p style="margin:0 0 10px;color:#176b78;font-size:13px;font-weight:bold;">{{ clinic_name }}</p>
+<h1 style="margin:0 0 20px;color:#1d2a32;font-size:24px;line-height:1.3;">{{ asunto }}</h1>
+<div style="color:#52616a;font-size:15px;line-height:1.65;">{{ mensaje|linebreaksbr }}</div>
+<p style="margin:24px 0 0;padding-top:20px;border-top:1px solid #dce3e6;color:#52616a;font-size:13px;line-height:1.6;">Atentamente,<br><strong>{{ clinic_name }}</strong></p>
+{% endblock %}
+{% block footer %}
+<p style="margin:0 0 6px;">Si tienes alguna duda, contacta directamente con la clínica.</p>
+{% if user.email %}<p style="margin:0;"><a href="mailto:{{ user.email }}" style="color:#176b78;">{{ user.email }}</a>{% if user.perfil.telefono %} · {{ user.perfil.telefono }}{% endif %}</p>{% endif %}
+{% endblock %}

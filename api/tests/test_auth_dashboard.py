@@ -5,7 +5,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
-from rest_framework_simplejwt.tokens import RefreshToken
+from api.authentication import SessionRefreshToken as RefreshToken
 
 from Citas.models import Cita
 from Pacientes.models import ImagenesClinicas, Paciente

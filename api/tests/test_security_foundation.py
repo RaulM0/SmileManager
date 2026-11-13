@@ -5,13 +5,13 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase, override_settings
+from django.test import TestCase, TransactionTestCase, override_settings
 from django.urls import reverse
 from openpyxl import load_workbook
 from PIL import Image
 from rest_framework.test import APIClient
 
-from api.policies import scoped
+from Pacientes.access import scoped
 from api.services.exports import excel_response
 from api.throttles import AccountThrottle, ExpensiveThrottle, ExportThrottle
 from api.upload_policy import validate_upload
@@ -83,7 +83,7 @@ class FoundationTests(TestCase):
         self.assertEqual(self.client.post(reverse('api-logout')).status_code, 204)
         self.assertTrue(AuditEvent.objects.filter(action='AUTH_LOGOUT', actor=self.a).exists())
 
-    def test_reused_refresh_is_rejected_and_access_survives_logout(self):
+    def test_reused_refresh_and_access_after_logout_are_rejected(self):
         self.client.force_authenticate(None)
         logged_in = self.client.post(reverse('api-login'), {'username': 'foundation-a', 'password': 'test-password'}, format='json')
         access = logged_in.data['access']
@@ -94,8 +94,8 @@ class FoundationTests(TestCase):
         self.assertEqual(self.client.post(reverse('api-refresh')).status_code, 401)
         self.client.cookies['smile_refresh'] = rotated_refresh
         self.assertEqual(self.client.post(reverse('api-logout')).status_code, 204)
-        # Access tokens have their own expiry and are not blacklisted by logout.
-        self.assertEqual(self.client.get(reverse('api-patient-detail', args=[self.patient.pk]), HTTP_AUTHORIZATION='Bearer ' + access).status_code, 200)
+        # Logout revokes the server session, including previously issued access.
+        self.assertEqual(self.client.get(reverse('api-patient-detail', args=[self.patient.pk]), HTTP_AUTHORIZATION='Bearer ' + access).status_code, 401)
 
     def test_failed_audit_insert_rolls_back_clinical_update(self):
         self.client.raise_request_exception = False
@@ -115,14 +115,6 @@ class FoundationTests(TestCase):
         self.assertEqual(self.client.get(reverse('api-export-patients')).status_code, 200)
         self.assertTrue(AuditEvent.objects.filter(action='CLINICAL_EXPORT', actor=self.a).exists())
 
-    def test_image_download_is_audited(self):
-        image = ImagenesClinicas.objects.create(paciente=self.patient, medico=self.a, tipo_imagen='x', imagen=image_upload())
-        response = self.client.get(reverse('api-clinical-image-file', args=[image.pk]))
-        self.assertEqual(response.status_code, 200)
-        response.close()
-        event = AuditEvent.objects.get(action='CLINICAL_IMAGE_VIEW')
-        self.assertEqual((event.actor_id, event.resource_id), (self.a.pk, str(image.pk)))
-
     def test_upload_validation_rejects_invalid_before_save(self):
         validate_upload(image_upload())
         for upload in (SimpleUploadedFile('bad.png', b'not an image', content_type='image/png'), image_upload('wrong.jpg'), image_upload(mime='image/jpeg'), SimpleUploadedFile('empty.png', b'', content_type='image/png')):
@@ -141,10 +133,11 @@ class FoundationTests(TestCase):
             self.assertTrue(cell.value.startswith("'"))
         self.assertEqual(sheet['E2'].value, -2)
 
-    def test_expensive_throttle_is_independent(self):
+    @patch('DiagnosticosIA.runs.model_version', return_value='a' * 64)
+    def test_expensive_throttle_is_independent(self, _version):
         image = ImagenesClinicas.objects.create(paciente=self.patient, medico=self.a, tipo_imagen='x', imagen=SimpleUploadedFile('test.bin', b'synthetic'))
         url = reverse('api-clinical-image-analyze', args=[image.pk])
-        with patch.object(ExpensiveThrottle, 'rate', '1/min', create=True), patch('api.views.analyze_clinical_image', return_value=[]):
+        with patch.object(ExpensiveThrottle, 'rate', '1/min', create=True), patch('api.legacy_views.analyze_clinical_image', return_value=[]):
             self.assertEqual(self.client.post(url).status_code, 200)
             self.assertEqual(self.client.post(url).status_code, 429)
             self.assertEqual(self.client.get(reverse('api-patient-detail', args=[self.patient.pk])).status_code, 200)
@@ -159,9 +152,17 @@ class FoundationTests(TestCase):
             self.assertEqual(self.client.post(reverse('api-login'), data, format='json').status_code, 400)
             self.assertEqual(self.client.post(reverse('api-login'), data, format='json').status_code, 429)
 
-    def test_legacy_login_does_not_redirect_to_external_host(self):
-        self.client.force_authenticate(None)
-        for destination in ('https://evil.example', '//evil.example', '/%2f%2fevil.example'):
-            self.client.logout()
-            response = self.client.post(reverse('login') + '?next=' + destination, {'username': 'foundation-a', 'password': 'test-password'})
-            self.assertNotIn('evil.example', response.get('Location', ''))
+
+
+class StreamingAuditTests(TransactionTestCase):
+    def test_image_download_is_audited(self):
+        user = User.objects.create_user('streaming-audit')
+        patient = Paciente.objects.create(nombre='A', appat='A', apmat='A', fecha_nacimiento='1990-01-01', genero='F', telefono='1000000000', email='a@sample.test', medico=user)
+        image = ImagenesClinicas.objects.create(paciente=patient, medico=user, tipo_imagen='x', imagen=image_upload())
+        client = APIClient()
+        client.force_authenticate(user)
+        response = client.get(reverse('api-clinical-image-file', args=[image.pk]))
+        self.assertEqual(response.status_code, 200)
+        response.close()
+        event = AuditEvent.objects.get(action='CLINICAL_IMAGE_VIEW')
+        self.assertEqual((event.actor_id, event.resource_id), (user.pk, str(image.pk)))

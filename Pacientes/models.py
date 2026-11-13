@@ -1,7 +1,14 @@
+import os
+import uuid
+
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 class Paciente(models.Model):
+    # Nullable during expand/backfill. Existing ownership cannot safely be inferred.
+    clinic = models.ForeignKey('Usuarios.Clinic', null=True, blank=True, on_delete=models.PROTECT, related_name='patients')
     nombre = models.CharField(max_length=50)
     appat = models.CharField(max_length=50)
     apmat = models.CharField(max_length=50)
@@ -18,8 +25,10 @@ class Paciente(models.Model):
         verbose_name = 'Paciente'
         verbose_name_plural = 'Pacientes'
         constraints = [
-            models.UniqueConstraint(fields=['telefono', 'medico'], name='unique_telefono_por_medico'),
-            models.UniqueConstraint(fields=['email', 'medico'], name='unique_email_por_medico'),
+            models.UniqueConstraint(fields=['telefono', 'medico'], condition=models.Q(clinic__isnull=True), name='legacy_phone_doctor_uniq'),
+            models.UniqueConstraint(fields=['email', 'medico'], condition=models.Q(clinic__isnull=True), name='legacy_email_doctor_uniq'),
+            models.UniqueConstraint(fields=['clinic', 'telefono', 'medico'], condition=models.Q(clinic__isnull=False), name='clinic_phone_doctor_uniq'),
+            models.UniqueConstraint(fields=['clinic', 'email', 'medico'], condition=models.Q(clinic__isnull=False), name='clinic_email_doctor_uniq'),
         ]
 
     def __str__(self):
@@ -85,6 +94,21 @@ class Consulta(models.Model):
     diagnostico = models.TextField(blank=True, null=True)
     tratamiento = models.TextField(blank=True, null=True)
     observaciones = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=8, choices=[('DRAFT', 'Borrador'), ('CLOSED', 'Cerrado'), ('LEGACY', 'Histórico')], default='DRAFT')
+    author_name = models.CharField(max_length=300, blank=True)
+    closed_at = models.DateTimeField(null=True, blank=True)
+    content_sha256 = models.CharField(max_length=64, blank=True)
+    integrity_seal = models.CharField(max_length=64, blank=True)
+
+    def save(self, *args, **kwargs):
+        if self.pk and type(self).objects.filter(pk=self.pk, status='CLOSED').exists():
+            raise ValidationError('El documento está cerrado; registra una adenda.')
+        return super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        if self.status == 'CLOSED':
+            raise ValidationError('El documento cerrado no admite borrado ordinario.')
+        return super().delete(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Consulta'
@@ -94,15 +118,35 @@ class Consulta(models.Model):
         return f"Consulta de {self.paciente.nombre} {self.paciente.appat} el {self.fecha_consulta.strftime('%Y-%m-%d')}"
 
 
+def clinical_image_storage_key(instance, filename):
+    """New tenant files use non-identifying names; legacy paths stay compatible."""
+    if instance.paciente.clinic_id is None:
+        return os.path.join('imagenes_clinicas', os.path.basename(filename))
+    extension = os.path.splitext(filename)[1].lower()
+    if extension not in {'.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.tif', '.tiff'}:
+        extension = '.bin'
+    return f'tenants/{instance.paciente.clinic_id}/patients/{instance.paciente_id}/images/{uuid.uuid4().hex}{extension}'
+
+
+def clinical_result_storage_key(instance, filename):
+    if instance.paciente.clinic_id is None:
+        return os.path.join('resultados', os.path.basename(filename))
+    extension = os.path.splitext(filename)[1].lower()
+    if extension not in {'.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.tif', '.tiff'}:
+        extension = '.bin'
+    return f'tenants/{instance.paciente.clinic_id}/patients/{instance.paciente_id}/ai-results/{uuid.uuid4().hex}{extension}'
+
+
 class ImagenesClinicas(models.Model):
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='imagenes_clinicas')
     consulta = models.ForeignKey(Consulta, on_delete=models.CASCADE, related_name='imagenes_clinicas', null=True, blank=True)
     tipo_imagen = models.CharField(max_length=50)
     descripcion = models.TextField(blank=True, null=True)
-    imagen = models.ImageField(upload_to='imagenes_clinicas/')
-    resultados = models.ImageField(upload_to='resultados/', null=True, blank=True)
+    imagen = models.ImageField(upload_to=clinical_image_storage_key)
+    resultados = models.ImageField(upload_to=clinical_result_storage_key, null=True, blank=True)
     fecha_subida = models.DateTimeField(auto_now_add=True)
     medico = models.ForeignKey(User, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = 'Imagen Clinica'
@@ -132,16 +176,39 @@ class Odontograma(models.Model):
 
 class ClinicalRevision(models.Model):
     """Snapshot clínico separado del log de auditoría, sin archivos."""
+    # Revisions can survive without a patient, so retain independent provenance.
+    clinic = models.ForeignKey('Usuarios.Clinic', null=True, blank=True, on_delete=models.PROTECT, related_name='clinical_revisions')
     patient = models.ForeignKey(Paciente, null=True, on_delete=models.SET_NULL, related_name='clinical_revisions')
     actor = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     resource_type = models.CharField(max_length=32)
     resource_id = models.BigIntegerField()
     version = models.PositiveIntegerField()
     snapshot = models.JSONField()
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(default=timezone.now)
+    actor_name = models.CharField(max_length=300, blank=True)
+    content_sha256 = models.CharField(max_length=64, blank=True)
+    integrity_seal = models.CharField(max_length=64, blank=True)
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['resource_type', 'resource_id', 'version'], name='unique_clinical_revision')]
+
+
+def study_before_storage_key(instance, filename):
+    if instance.paciente.clinic_id is None:
+        return os.path.join('estudios', 'antes', os.path.basename(filename))
+    extension = os.path.splitext(filename)[1].lower()
+    if extension not in {'.jpg', '.jpeg', '.png', '.gif', '.webp'}:
+        extension = '.bin'
+    return f'tenants/{instance.paciente.clinic_id}/patients/{instance.paciente_id}/studies/before/{uuid.uuid4().hex}{extension}'
+
+
+def study_after_storage_key(instance, filename):
+    if instance.paciente.clinic_id is None:
+        return os.path.join('estudios', 'despues', os.path.basename(filename))
+    extension = os.path.splitext(filename)[1].lower()
+    if extension not in {'.jpg', '.jpeg', '.png', '.gif', '.webp'}:
+        extension = '.bin'
+    return f'tenants/{instance.paciente.clinic_id}/patients/{instance.paciente_id}/studies/after/{uuid.uuid4().hex}{extension}'
 
 
 class EstudioComparativo(models.Model):
@@ -152,17 +219,17 @@ class EstudioComparativo(models.Model):
     medico = models.ForeignKey(User, on_delete=models.CASCADE)
 
     # Imágenes ANTES
-    antes_oclusal_superior = models.ImageField(upload_to='estudios/antes/', null=True, blank=True)
-    antes_lateral_izquierda = models.ImageField(upload_to='estudios/antes/', null=True, blank=True)
-    antes_frontal = models.ImageField(upload_to='estudios/antes/', null=True, blank=True)
-    antes_lateral_derecha = models.ImageField(upload_to='estudios/antes/', null=True, blank=True)
-    antes_oclusal_inferior = models.ImageField(upload_to='estudios/antes/', null=True, blank=True)
+    antes_oclusal_superior = models.ImageField(upload_to=study_before_storage_key, null=True, blank=True)
+    antes_lateral_izquierda = models.ImageField(upload_to=study_before_storage_key, null=True, blank=True)
+    antes_frontal = models.ImageField(upload_to=study_before_storage_key, null=True, blank=True)
+    antes_lateral_derecha = models.ImageField(upload_to=study_before_storage_key, null=True, blank=True)
+    antes_oclusal_inferior = models.ImageField(upload_to=study_before_storage_key, null=True, blank=True)
 
     # Imágenes DESPUÉS
-    despues_perfil = models.ImageField(upload_to='estudios/despues/', null=True, blank=True)
-    despues_semiperfil = models.ImageField(upload_to='estudios/despues/', null=True, blank=True)
-    despues_retrato_frontal = models.ImageField(upload_to='estudios/despues/', null=True, blank=True)
-    despues_retrato_sonrisa = models.ImageField(upload_to='estudios/despues/', null=True, blank=True)
+    despues_perfil = models.ImageField(upload_to=study_after_storage_key, null=True, blank=True)
+    despues_semiperfil = models.ImageField(upload_to=study_after_storage_key, null=True, blank=True)
+    despues_retrato_frontal = models.ImageField(upload_to=study_after_storage_key, null=True, blank=True)
+    despues_retrato_sonrisa = models.ImageField(upload_to=study_after_storage_key, null=True, blank=True)
 
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
@@ -175,13 +242,28 @@ class EstudioComparativo(models.Model):
         return f"Estudio - {self.paciente.nombre} {self.paciente.appat}"
 
 
+def consent_identity_storage_key(instance, filename):
+    if instance.paciente.clinic_id is None:
+        return os.path.join('consentimientos', 'ine', os.path.basename(filename))
+    extension = os.path.splitext(filename)[1].lower()
+    if extension not in {'.pdf', '.jpg', '.jpeg', '.png', '.gif', '.webp'}:
+        extension = '.bin'
+    return f'tenants/{instance.paciente.clinic_id}/patients/{instance.paciente_id}/consents/identity/{uuid.uuid4().hex}{extension}'
+
+
+def consent_pdf_storage_key(instance, filename):
+    if instance.paciente.clinic_id is None:
+        return os.path.join('consentimientos', 'pdf', os.path.basename(filename))
+    return f'tenants/{instance.paciente.clinic_id}/patients/{instance.paciente_id}/consents/documents/{uuid.uuid4().hex}.pdf'
+
+
 class Consentimiento(models.Model):
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
     medico = models.ForeignKey(User, on_delete=models.CASCADE)
     texto = models.TextField()
     fecha_aceptacion = models.DateTimeField(null=True, blank=True)
-    archivo_ine = models.FileField(upload_to='consentimientos/ine/', null=True, blank=True)
-    pdf_generado = models.FileField(upload_to='consentimientos/pdf/', null=True, blank=True)
+    archivo_ine = models.FileField(upload_to=consent_identity_storage_key, null=True, blank=True)
+    pdf_generado = models.FileField(upload_to=consent_pdf_storage_key, null=True, blank=True)
 
     def __str__(self):
         if self.fecha_aceptacion:
@@ -189,4 +271,7 @@ class Consentimiento(models.Model):
         else:
             fecha = "Sin fecha"
         return f"Consentimiento de {self.paciente.nombre} - {fecha}"
+
+
+from .documents import PrivacyNotice, ConsentTemplate, ConsentEvidence, ConsentRevocation, ConsultationAddendum  # noqa: E402,F401
 

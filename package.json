@@ -1,5 +1,9 @@
 {
   "devDependencies": {
     "prettier": "^3.9.10"
+  },
+  "scripts": {
+    "format": "prettier . --write --ignore-path .gitignore --ignore-path .prettierignore",
+    "format:check": "prettier . --check --ignore-path .gitignore --ignore-path .prettierignore"
   }
 }

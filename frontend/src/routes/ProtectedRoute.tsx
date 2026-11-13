@@ -6,7 +6,11 @@ export default function ProtectedRoute() {
   const location = useLocation();
   if (loading)
     return (
-      <div className="page-loader" role="status" aria-label="Comprobando sesión">
+      <div
+        className="page-loader"
+        role="status"
+        aria-label="Comprobando sesión"
+      >
         <div className="workspace-loader-spinner" />
       </div>
     );

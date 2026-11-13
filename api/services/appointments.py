@@ -5,7 +5,7 @@ from django.db import transaction
 from rest_framework.exceptions import ValidationError
 from rest_framework.exceptions import APIException
 from django.shortcuts import get_object_or_404
-from api.policies import scoped
+from Pacientes.access import clinic_clinical_queryset, scoped
 
 
 class InvalidStateTransition(APIException):
@@ -29,14 +29,17 @@ def validate_appointment_schedule(fecha, hora):
 
 
 @transaction.atomic
-def save_appointment(*, user, appointment=None, patient, validated_data):
+def save_appointment(*, user, appointment=None, patient, validated_data, clinic_id=None):
     from Citas.models import Cita
     from Pacientes.models import Paciente
 
     if appointment is not None:
-        appointment = get_object_or_404(scoped(user, Cita).select_for_update(), pk=appointment.pk)
-    if patient is not None:
-        patient = get_object_or_404(scoped(user, Paciente).select_for_update(), pk=patient.pk)
+        rows = clinic_clinical_queryset(user, clinic_id, Cita) if clinic_id is not None else scoped(user, Cita)
+        appointment = get_object_or_404(rows.select_for_update(of=('self',)), pk=appointment.pk)
+    if patient is not None or (clinic_id is not None and appointment is not None):
+        patient_id = patient.pk if patient is not None else appointment.paciente_id
+        rows = clinic_clinical_queryset(user, clinic_id, Paciente) if clinic_id is not None else scoped(user, Paciente)
+        patient = get_object_or_404(rows.select_for_update(of=('self',)), pk=patient_id)
 
     fecha = validated_data.get('fecha', appointment.fecha if appointment else None)
     hora = validated_data.get('hora', appointment.hora if appointment else None)
@@ -62,17 +65,14 @@ def save_appointment(*, user, appointment=None, patient, validated_data):
 
 
 @transaction.atomic
-def transition_appointment(*, user, appointment, target, administrative=False):
+def transition_appointment(*, user, appointment, target, clinic_id=None):
     from Citas.models import Cita
-    if administrative:
-        from api.policies import can_access_backoffice
-        if not can_access_backoffice(user):
-            from django.core.exceptions import PermissionDenied
-            raise PermissionDenied
-        queryset = Cita.objects.all()
-    else:
-        queryset = scoped(user, Cita)
-    appointment = get_object_or_404(queryset.select_for_update(), pk=appointment.pk)
+    rows = clinic_clinical_queryset(user, clinic_id, Cita) if clinic_id is not None else scoped(user, Cita)
+    appointment = get_object_or_404(rows.select_for_update(of=('self',)), pk=appointment.pk)
+    if clinic_id is not None:
+        from Pacientes.models import Paciente
+        patients = clinic_clinical_queryset(user, clinic_id, Paciente).select_for_update(of=('self',))
+        get_object_or_404(patients, pk=appointment.paciente_id)
     if not can_transition(appointment.estatus, target):
         raise InvalidStateTransition()
     if appointment.estatus != target:

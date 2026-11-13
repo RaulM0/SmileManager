@@ -1,0 +1,20 @@
+{
+  "useMarkdownLinks": false,
+  "newLinkFormat": "absolute",
+  "detectAllFileExtensions": true,
+  "userIgnoreFilters": [
+    "frontend/node_modules/",
+    "node_modules/",
+    "frontend/dist/",
+    "frontend/test-results/",
+    "frontend/playwright-report/",
+    "media/",
+    "uploads/",
+    "staticfiles/",
+    ".local-backups/",
+    ".local-mail/",
+    ".e2e-browser-mail/",
+    ".security-tools/",
+    ".security-test-env/"
+  ]
+}

@@ -16,13 +16,15 @@ Antes de autorizar el despliegue, responsables designados deben aportar evidenci
 - Operación, acceso administrativo, protección perimetral de login, retención y auditoría aprobados por responsables.
 
 RPO/RTO: **BUSINESS DECISION REQUIRED**. Retención y correcciones clínicas: **CLINICAL/LEGAL REVIEW REQUIRED**. La inexistencia de Celery o Redis no es por sí misma un bloqueo.
+
 # Backoffice clínico global
 
 - [ ] Aprobar el alcance de lectura global y revisar cada asignación de `access_system_backoffice`.
 - [ ] Validar con clínica/legal los datos accesibles y las reglas de conservación y consulta.
 - [ ] Verificar rendimiento y alertas de auditoría sobre infraestructura aislada representativa.
+
 # Recuperación de contraseña
 
 - [ ] Verificar URL HTTPS del frontend, remitente, entrega SMTP, SPF/DKIM/DMARC y alertas.
 - [ ] Aprobar mitigación de diferencias temporales y límites por IP/cuenta para la topología real.
-- [ ] Aceptar o cambiar la ventana residual de access JWT y revisar las cuentas con correo duplicado.
+- [ ] Verificar revocación de sesiones y access JWT, transición de tokens antiguos, enrolamiento MFA y recuperación operativa; revisar las cuentas con correo duplicado. Ver [etapa 2](../security/etapa-2-resultados.md).

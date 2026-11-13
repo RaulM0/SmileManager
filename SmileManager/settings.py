@@ -1,5 +1,8 @@
 # Produccion
 import os
+import base64
+import hashlib
+from ipaddress import ip_network
 from datetime import timedelta
 from pathlib import Path
 import dj_database_url
@@ -21,7 +24,6 @@ if not _local_settings:
 
 # Applications
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -31,11 +33,9 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'storages',
     'api',
-    'Home',
     'Pacientes',
     'Citas',
     'DiagnosticosIA',
-    'Sesiones',
     'Usuarios.apps.UsuariosConfig',
 ]
 
@@ -48,8 +48,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'Sesiones.middleware.LoginRequiredMiddleware',
     'api.observability.RequestLogMiddleware',
+    'api.legacy_boundary.LegacyClinicalAPIMiddleware',
     'api.audit.AuditMiddleware',
 ]
 
@@ -76,6 +76,8 @@ WSGI_APPLICATION = 'SmileManager.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
 }
+if not _local_settings and DATABASES['default'].get('ENGINE') != 'django.db.backends.postgresql':
+    raise ImproperlyConfigured('Producción requiere PostgreSQL para los controles de integridad documental.')
 if DATABASES['default'].get('ENGINE') == 'django.db.backends.postgresql':
     DATABASES['default'].setdefault('OPTIONS', {}).setdefault('connect_timeout', int(os.environ.get('DB_CONNECT_TIMEOUT', '10')))
 
@@ -108,7 +110,8 @@ AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
 if not _local_settings and (not os.environ.get('DATABASE_URL') or not AWS_STORAGE_BUCKET_NAME):
     raise ImproperlyConfigured('Producción requiere DATABASE_URL y AWS_STORAGE_BUCKET_NAME.')
-AWS_S3_REGION_NAME = 'us-east-2'
+AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME', 'us-east-2')
+AWS_S3_ENDPOINT_URL = os.environ.get('AWS_S3_ENDPOINT_URL') or None
 AWS_S3_CLIENT_CONFIG = Config(connect_timeout=int(os.environ.get('S3_CONNECT_TIMEOUT', '10')), read_timeout=int(os.environ.get('S3_READ_TIMEOUT', '60')))
 CLINICAL_UPLOAD_MAX_BYTES = int(os.environ.get('CLINICAL_UPLOAD_MAX_BYTES', str(5 * 1024 * 1024)))
 CLINICAL_UPLOAD_MAX_PIXELS = int(os.environ.get('CLINICAL_UPLOAD_MAX_PIXELS', '20000000'))
@@ -118,6 +121,7 @@ CLINICAL_PAGE_SIZE = max(1, int(os.environ.get('CLINICAL_PAGE_SIZE', '20')))
 CLINICAL_MAX_PAGE_SIZE = max(CLINICAL_PAGE_SIZE, int(os.environ.get('CLINICAL_MAX_PAGE_SIZE', '100')))
 APPOINTMENT_MAX_RANGE_DAYS = max(1, int(os.environ.get('APPOINTMENT_MAX_RANGE_DAYS', '62')))
 BACKOFFICE_AI_STALE_SECONDS = max(1, int(os.environ.get('BACKOFFICE_AI_STALE_SECONDS', '3600')))
+FEATURE_AI_ENABLED = os.environ.get('FEATURE_AI_ENABLED', 'false').strip().lower() in ('1', 'true', 'yes', 'on')
 
 # Dominio S3
 AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
@@ -132,7 +136,12 @@ AWS_DEFAULT_ACL = None
 AWS_QUERYSTRING_AUTH = True
 
 # URL pública de media
-MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
+AWS_S3_PUBLIC_ENDPOINT = os.environ.get('AWS_S3_PUBLIC_ENDPOINT', '').rstrip('/')
+MEDIA_URL = (
+    f'{AWS_S3_PUBLIC_ENDPOINT}/{AWS_STORAGE_BUCKET_NAME}/'
+    if AWS_S3_PUBLIC_ENDPOINT
+    else f'https://{AWS_S3_CUSTOM_DOMAIN}/'
+)
 
 # ============================================
 # STORAGES - Configuración moderna de Django
@@ -159,7 +168,12 @@ EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
 EMAIL_TIMEOUT = int(os.environ.get('SMTP_TIMEOUT', '30'))
 EMAIL_HOST_USER = os.environ.get('EMAIL_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASS', '')
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'webmaster@localhost')
+TENANT_INVITATION_URL = os.environ.get('TENANT_INVITATION_URL', '')
+ALLOW_LOCAL_HTTP_INVITATIONS = False
+# Compatibility code is retained for migration regression tests, not published
+# as a second clinical API in application environments.
+LEGACY_CLINICAL_API_ENABLED = False
 FRONTEND_URL = os.environ.get('FRONTEND_URL', '')
 PASSWORD_RESET_TIMEOUT = max(1, int(os.environ.get('PASSWORD_RESET_TIMEOUT', '1800')))
 
@@ -167,14 +181,25 @@ PASSWORD_RESET_TIMEOUT = max(1, int(os.environ.get('PASSWORD_RESET_TIMEOUT', '18
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 1800
 
+# Shared atomic throttling is mandatory in production; local/test may use DRF's
+# in-process cache. Use a private Redis instance, persistent state and no eviction.
+THROTTLE_REDIS_URL = os.environ.get('THROTTLE_REDIS_URL', '')
+THROTTLE_KEY_PREFIX = 'smile:throttle:v1'
+THROTTLE_TRUSTED_PROXIES = [value.strip() for value in os.environ.get('THROTTLE_TRUSTED_PROXIES', '').split(',') if value.strip()]
+try:
+    if any(ip_network(cidr).prefixlen == 0 for cidr in THROTTLE_TRUSTED_PROXIES):
+        raise ValueError
+except ValueError:
+    raise ImproperlyConfigured('THROTTLE_TRUSTED_PROXIES requiere redes explícitas; no se permite confiar en todo Internet.') from None
+if not _local_settings and not THROTTLE_REDIS_URL.startswith(('redis://', 'rediss://')):
+    raise ImproperlyConfigured('Producción requiere THROTTLE_REDIS_URL para límites compartidos.')
+
 # Login
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'home'
-LOGOUT_REDIRECT_URL = 'login'
+LOGIN_URL = '/app/login'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'api.authentication.SessionJWTAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
@@ -182,6 +207,8 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'authentication': os.environ.get('THROTTLE_AUTH', '30/min'),
         'authentication_account': os.environ.get('THROTTLE_ACCOUNT', '10/min'),
+        'mfa_challenge': '5/min',
+        'reauthentication': os.environ.get('THROTTLE_REAUTH', '5/min'),
         'password_reset_ip': os.environ.get('THROTTLE_PASSWORD_RESET_IP', '10/hour'),
         'password_reset_account': os.environ.get('THROTTLE_PASSWORD_RESET_ACCOUNT', '3/hour'),
         'password_reset_confirm': os.environ.get('THROTTLE_PASSWORD_RESET_CONFIRM', '20/hour'),
@@ -190,6 +217,26 @@ REST_FRAMEWORK = {
         'export': os.environ.get('THROTTLE_EXPORT', '10/min'),
     },
 }
+
+AUTH_IDLE_SECONDS = 1800
+AUTH_ABSOLUTE_SECONDS = 28800
+AUTH_REAUTH_SECONDS = 300
+DOCUMENT_SEAL_KEYS = [value.strip() for value in os.environ.get('DOCUMENT_SEAL_KEYS', '').split(',') if value.strip()]
+if _local_settings and not DOCUMENT_SEAL_KEYS:
+    DOCUMENT_SEAL_KEYS = ['local-test-only-document-seal-not-for-production']
+if not DOCUMENT_SEAL_KEYS or any(len(value) < 32 for value in DOCUMENT_SEAL_KEYS):
+    raise ImproperlyConfigured('Producción requiere DOCUMENT_SEAL_KEYS de al menos 32 caracteres.')
+MFA_ENCRYPTION_KEYS = [key.strip() for key in os.environ.get('MFA_ENCRYPTION_KEYS', '').split(',') if key.strip()]
+if _local_settings and not MFA_ENCRYPTION_KEYS:
+    MFA_ENCRYPTION_KEYS = [base64.urlsafe_b64encode(hashlib.sha256(b'local-test-only-mfa-key').digest()).decode()]
+if not MFA_ENCRYPTION_KEYS:
+    raise ImproperlyConfigured('Producción requiere MFA_ENCRYPTION_KEYS para custodiar el segundo factor.')
+from cryptography.fernet import Fernet
+try:
+    for _mfa_key in MFA_ENCRYPTION_KEYS:
+        Fernet(_mfa_key.encode())
+except (ValueError, TypeError):
+    raise ImproperlyConfigured('MFA_ENCRYPTION_KEYS contiene una clave inválida.') from None
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
@@ -221,3 +268,23 @@ LOGGING = {
 # Solo habilitar cuando el proxy confiable elimine y establezca este encabezado.
 if os.environ.get('TRUST_PROXY_HTTPS_HEADER') == 'true':
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Independent operational keys; development fallbacks never authorize production.
+AUDIT_SIGNING_KEYS = [key.strip() for key in os.environ.get('AUDIT_SIGNING_KEYS', '').split(',') if key.strip()]
+FILE_SCAN_KEYS = [key.strip() for key in os.environ.get('FILE_SCAN_KEYS', '').split(',') if key.strip()]
+for _name in ('AUDIT_SIGNING_KEYS', 'FILE_SCAN_KEYS'):
+    _keys = globals()[_name]
+    if not _keys and _local_settings:
+        _keys.append('development-only-' + _name + '-replace-before-production')
+    if not _keys or any(len(key) < 32 for key in _keys):
+        raise ImproperlyConfigured(_name + ' requires keys of at least 32 characters.')
+AUDIT_COLLECTOR_URL = os.environ.get('AUDIT_COLLECTOR_URL', '')
+AUDIT_INGEST_TOKEN = os.environ.get('AUDIT_INGEST_TOKEN', '')
+CLAMAV_HOST = os.environ.get('CLAMAV_HOST', '')
+CLAMAV_PORT = int(os.environ.get('CLAMAV_PORT', '3310'))
+
+# Private inference microservice (weights and runtime belong to SmileIA).
+SMILEIA_URL = os.environ.get('SMILEIA_URL', '')
+SMILEIA_TOKEN = os.environ.get('SMILEIA_TOKEN', '')
+SMILEIA_TIMEOUT = float(os.environ.get('SMILEIA_TIMEOUT', '100'))
+SMILEIA_INPUT_MAX_BYTES = int(os.environ.get('SMILEIA_INPUT_MAX_BYTES', str(32 * 1024 * 1024)))

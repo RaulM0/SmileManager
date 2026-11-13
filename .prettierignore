@@ -1,0 +1,12 @@
+# Generated assets, dependency lockfiles and project navigation notes.
+staticfiles/
+frontend/dist/
+docs/mapa/
+**/package-lock.json
+
+# Django templates require a template-aware formatter.
+**/templates/**
+
+# Runtime artifacts not covered by .gitignore.
+coverage/
+frontend/coverage/

@@ -1,0 +1,12 @@
+#!/bin/sh
+set -eu
+root=$(git rev-parse --show-toplevel)
+cd "$root"
+if command -v python3 >/dev/null 2>&1; then
+    exec python3 scripts/update_obsidian_hook.py
+elif command -v python >/dev/null 2>&1; then
+    exec python scripts/update_obsidian_hook.py
+else
+    echo 'Obsidian: instala Python 3 para actualizar el mapa antes del commit.' >&2
+    exit 1
+fi

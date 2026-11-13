@@ -1,0 +1,4521 @@
+{
+  "info": {
+    "name": "SmileManager · Core multitenant · Local",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Importa y ejecuta SOLO la carpeta 00 para la prueba inicial automática. Requiere docker --context default compose up -d y python manage.py seed_local en backend. Usa cuentas locales; crea datos sintéticos. Las demás carpetas se ejecutan manualmente según sus requisitos. No ejecutar toda la colección de una vez. Ver ENDPOINTS_POSTMAN.md. No incluye HTML retirado, API de compatibilidad ni rutas clínicas globales denegadas."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "doctorUsername",
+      "value": "medico",
+      "type": "string"
+    },
+    {
+      "key": "adminUsername",
+      "value": "admin_clinica",
+      "type": "string"
+    },
+    {
+      "key": "platformUsername",
+      "value": "smile",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "Admin123",
+      "type": "string"
+    },
+    {
+      "key": "clinicSlug",
+      "value": "smile-demo",
+      "type": "string"
+    },
+    {
+      "key": "tokenDoctor",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tokenAdmin",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tokenPlatform",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tokenInvitee",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tokenStaff",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "staffUsername",
+      "value": "recepcion",
+      "type": "string"
+    },
+    {
+      "key": "staffPassword",
+      "value": "PruebaLocal!987",
+      "type": "string"
+    },
+    {
+      "key": "staffAppointmentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "cookieRole",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "clinicId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "patientId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "consultationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "appointmentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "cancelAppointmentId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "historyVersion",
+      "value": "0",
+      "type": "string"
+    },
+    {
+      "key": "odontogramVersion",
+      "value": "0",
+      "type": "string"
+    },
+    {
+      "key": "imageId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "runId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "idempotencyKey",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "sampleId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "patientPhone",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "appointmentDate",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "membershipId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "invitationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "invitationToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "invitedEmail",
+      "value": "invitado@example.test",
+      "type": "string"
+    },
+    {
+      "key": "invitedUsername",
+      "value": "invitado_postman",
+      "type": "string"
+    },
+    {
+      "key": "newPassword",
+      "value": "PruebaLocal!987",
+      "type": "string"
+    },
+    {
+      "key": "resetEmail",
+      "value": "medico@example.test",
+      "type": "string"
+    },
+    {
+      "key": "resetUid",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "resetToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "auditId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "backofficeRunId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "managedClinicId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "initialInvitationId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "00 · Inicio rápido — ejecutar esta carpeta en orden",
+      "item": [
+        {
+          "name": "01 · Salud y conexión PostgreSQL",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/health/ready/",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 · Login Doctor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/auth/login/",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{doctorUsername}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "const data = pm.response.json();",
+                  "if ((data.access) !== undefined && (data.access) !== null) pm.collectionVariables.set(\"tokenDoctor\", String(data.access));",
+                  "}",
+                  "if (pm.response.code === 200) pm.collectionVariables.set(\"cookieRole\", \"Doctor\");",
+                  "pm.test(\"Login autenticado\", () => pm.expect(pm.response.json().authenticated).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 · Login Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/auth/login/",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{adminUsername}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "const data = pm.response.json();",
+                  "if ((data.access) !== undefined && (data.access) !== null) pm.collectionVariables.set(\"tokenAdmin\", String(data.access));",
+                  "}",
+                  "if (pm.response.code === 200) pm.collectionVariables.set(\"cookieRole\", \"Admin\");",
+                  "pm.test(\"Login autenticado\", () => pm.expect(pm.response.json().authenticated).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 · Login Platform",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/auth/login/",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{platformUsername}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "const data = pm.response.json();",
+                  "if ((data.access) !== undefined && (data.access) !== null) pm.collectionVariables.set(\"tokenPlatform\", String(data.access));",
+                  "}",
+                  "if (pm.response.code === 200) pm.collectionVariables.set(\"cookieRole\", \"Platform\");",
+                  "pm.test(\"Login autenticado\", () => pm.expect(pm.response.json().authenticated).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 · Descubrir clínica del médico",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/clinics/memberships/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "const rows = pm.response.json();",
+                  "pm.test(\"El médico tiene clínica activa\", () => pm.expect(rows.length).to.be.above(0));",
+                  "const selected = rows.find(x => x.slug === pm.variables.get(\"clinicSlug\")) || rows[0];",
+                  "if (selected) pm.collectionVariables.set(\"clinicId\", selected.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06 · Validar contexto clínico",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/context/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 · Crear paciente sintético (guarda patientId)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Paciente Postman\",\n  \"appat\": \"Prueba\",\n  \"apmat\": \"Demo\",\n  \"fecha_nacimiento\": \"1990-01-01\",\n  \"genero\": \"F\",\n  \"telefono\": \"{{patientPhone}}\",\n  \"email\": \"postman.{{sampleId}}@example.test\",\n  \"estatus\": \"A\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const id = pm.variables.replaceIn(\"{{$guid}}\");",
+                  "pm.collectionVariables.set(\"sampleId\", id);",
+                  "pm.collectionVariables.set(\"patientPhone\", \"55\" + String(Date.now()).slice(-8));",
+                  "const date = new Date(); date.setDate(date.getDate() + 7);",
+                  "pm.collectionVariables.set(\"appointmentDate\", date.toISOString().slice(0, 10));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [201]\", () => pm.expect(pm.response.code).to.be.oneOf([201]));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "const data = pm.response.json();",
+                  "if ((data.id) !== undefined && (data.id) !== null) pm.collectionVariables.set(\"patientId\", String(data.id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "08 · Consultar paciente creado",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "09 · Leer antecedentes y versión",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/medical-history/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "const data = pm.response.json();",
+                  "if ((data.version) !== undefined && (data.version) !== null) pm.collectionVariables.set(\"historyVersion\", String(data.version));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "10 · Guardar antecedentes",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/medical-history/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"otros\": \"Datos sintéticos de Postman\",\n  \"version\": {{historyVersion}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "const data = pm.response.json();",
+                  "if ((data.version) !== undefined && (data.version) !== null) pm.collectionVariables.set(\"historyVersion\", String(data.version));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11 · Leer odontograma y versión",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/odontogram/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "const data = pm.response.json();",
+                  "if ((data.version) !== undefined && (data.version) !== null) pm.collectionVariables.set(\"odontogramVersion\", String(data.version));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12 · Guardar odontograma",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/odontogram/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"denticion_permanente\": {\n    \"11\": {\n      \"oclusal\": \"caries\"\n    }\n  },\n  \"denticion_decidua\": {},\n  \"resumen\": {},\n  \"version\": {{odontogramVersion}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "const data = pm.response.json();",
+                  "if ((data.version) !== undefined && (data.version) !== null) pm.collectionVariables.set(\"odontogramVersion\", String(data.version));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "13 · Crear consulta (guarda consultationId)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/consultations/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"motivo_consulta\": \"Revisión de prueba\",\n  \"diagnostico\": \"Ejemplo sintético\",\n  \"tratamiento\": \"Control\",\n  \"observaciones\": \"Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [201]\", () => pm.expect(pm.response.code).to.be.oneOf([201]));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "const data = pm.response.json();",
+                  "if ((data.id) !== undefined && (data.id) !== null) pm.collectionVariables.set(\"consultationId\", String(data.id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "14 · Crear cita pendiente (guarda appointmentId)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/appointments/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paciente_id\": {{patientId}},\n  \"fecha\": \"{{appointmentDate}}\",\n  \"hora\": \"10:00\",\n  \"motivo\": \"Control Postman\",\n  \"estatus\": \"P\",\n  \"observaciones\": \"Datos sintéticos\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [201]\", () => pm.expect(pm.response.code).to.be.oneOf([201]));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "const data = pm.response.json();",
+                  "if ((data.id) !== undefined && (data.id) !== null) pm.collectionVariables.set(\"appointmentId\", String(data.id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "15 · Dashboard del médico",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/dashboard/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "16 · Dashboard administrador de clínica",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/admin/dashboard/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "17 · Ver clínicas en backoffice",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/clinics/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenPlatform}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01 · Sesión y recuperación de contraseña",
+      "item": [
+        {
+          "name": "session/",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/auth/session/",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Usa smile_refresh del último login. Mantén habilitado el cookie jar. Tras 00, corresponde a smile; cookieRole indica qué token se actualiza."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "if (pm.response.code === 200) { const data = pm.response.json();",
+                  "const role = pm.collectionVariables.get(\"cookieRole\");",
+                  "if (data.access && role) pm.collectionVariables.set(\"token\" + role, data.access); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "refresh/",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/auth/refresh/",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Usa smile_refresh del último login. Mantén habilitado el cookie jar. Tras 00, corresponde a smile; cookieRole indica qué token se actualiza."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "if (pm.response.code === 200) { const data = pm.response.json();",
+                  "const role = pm.collectionVariables.get(\"cookieRole\");",
+                  "if (data.access && role) pm.collectionVariables.set(\"token\" + role, data.access); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Solicitar recuperación por correo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/auth/password-reset/request/",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{resetEmail}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Confirmar recuperación — requiere enlace del correo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/auth/password-reset/confirm/",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Copia uid y token del correo local. Cambia realmente la contraseña de esa cuenta. No ejecutar automáticamente con las cuentas seed.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"{{resetUid}}\",\n  \"token\": \"{{resetToken}}\",\n  \"new_password\": \"{{newPassword}}\",\n  \"confirm_password\": \"{{newPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 · Pacientes",
+      "item": [
+        {
+          "name": "Listar / buscar",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/?search=Postman&page=1",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Autocompletar",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/autocomplete/?term=Postman",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Detalle",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar completo",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Paciente Postman\",\n  \"appat\": \"Prueba\",\n  \"apmat\": \"Demo\",\n  \"fecha_nacimiento\": \"1990-01-01\",\n  \"genero\": \"F\",\n  \"telefono\": \"{{patientPhone}}\",\n  \"email\": \"postman.{{sampleId}}@example.test\",\n  \"estatus\": \"A\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar nombre",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Paciente Postman actualizado\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Enviar correo al paciente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/email/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asunto\": \"Control\",\n  \"mensaje\": \"Recordatorio sintético de prueba\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 · Expediente y consultas",
+      "item": [
+        {
+          "name": "Leer medical-history/",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/medical-history/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "const data = pm.response.json();",
+                  "if ((data.version) !== undefined && (data.version) !== null) pm.collectionVariables.set(\"historyVersion\", String(data.version));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Guardar medical-history/",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/medical-history/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta antes el GET para obtener la versión actual; una versión obsoleta devuelve 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"otros\": \"Actualización sintética\",\n  \"version\": {{historyVersion}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "const data = pm.response.json();",
+                  "if ((data.version) !== undefined && (data.version) !== null) pm.collectionVariables.set(\"historyVersion\", String(data.version));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Leer odontogram/",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/odontogram/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "const data = pm.response.json();",
+                  "if ((data.version) !== undefined && (data.version) !== null) pm.collectionVariables.set(\"odontogramVersion\", String(data.version));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Guardar odontogram/",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/odontogram/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta antes el GET para obtener la versión actual; una versión obsoleta devuelve 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"denticion_permanente\": {\n    \"11\": {\n      \"oclusal\": \"caries\"\n    }\n  },\n  \"denticion_decidua\": {},\n  \"resumen\": {},\n  \"version\": {{odontogramVersion}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "const data = pm.response.json();",
+                  "if ((data.version) !== undefined && (data.version) !== null) pm.collectionVariables.set(\"odontogramVersion\", String(data.version));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar consultas del paciente",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/consultations/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Detalle consulta",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/consultations/{{consultationId}}/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 · Agenda",
+      "item": [
+        {
+          "name": "Listar citas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/appointments/?status=P",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Detalle cita",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/appointments/{{appointmentId}}/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar cita completa",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/appointments/{{appointmentId}}/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paciente_id\": {{patientId}},\n  \"fecha\": \"{{appointmentDate}}\",\n  \"hora\": \"10:00\",\n  \"motivo\": \"Control Postman\",\n  \"estatus\": \"P\",\n  \"observaciones\": \"Datos sintéticos\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar observaciones",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/appointments/{{appointmentId}}/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"observaciones\": \"Actualizada desde Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Completar cita pendiente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/appointments/{{appointmentId}}/complete/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecutar con una cita pendiente. Completar y cancelar son alternativas; crea otra cita para probar la otra transición."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear otra cita para cancelar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/appointments/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paciente_id\": {{patientId}},\n  \"fecha\": \"{{appointmentDate}}\",\n  \"hora\": \"11:00\",\n  \"motivo\": \"Control Postman\",\n  \"estatus\": \"P\",\n  \"observaciones\": \"Datos sintéticos\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [201]\", () => pm.expect(pm.response.code).to.be.oneOf([201]));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "const data = pm.response.json();",
+                  "if ((data.id) !== undefined && (data.id) !== null) pm.collectionVariables.set(\"cancelAppointmentId\", String(data.id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cancelar segunda cita",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/appointments/{{cancelAppointmentId}}/cancel/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 · Imágenes y diagnóstico IA — seleccionar archivo",
+      "item": [
+        {
+          "name": "Subir imagen (guarda imageId)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/clinical-images/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Selecciona imagen real en Body > form-data > imagen. Usa un archivo sintético; consulta_id pertenece al paciente creado en 00.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "consulta_id",
+                  "value": "{{consultationId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "tipo_imagen",
+                  "value": "Radiografía",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Prueba sintética",
+                  "type": "text"
+                },
+                {
+                  "key": "imagen",
+                  "type": "file",
+                  "src": [],
+                  "description": "Selecciona un archivo sintético local."
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [201]\", () => pm.expect(pm.response.code).to.be.oneOf([201]));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "const data = pm.response.json();",
+                  "if ((data.id) !== undefined && (data.id) !== null) pm.collectionVariables.set(\"imageId\", String(data.id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar imágenes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/clinical-images/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Detalle imagen",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Descargar original",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/original/file/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Diagnósticos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/diagnostics/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Analizar imagen (guarda runId)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idempotencyKey}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/analyze/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta después de subir imagen. Modelo CPU; puede tardar. Vacía idempotencyKey al cambiar de imagen o solicitar otra ejecución. HTTP 202 indica ejecución en curso.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"force\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get(\"idempotencyKey\")) pm.collectionVariables.set(\"idempotencyKey\", pm.variables.replaceIn(\"{{$guid}}\"));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200, 202]\", () => pm.expect(pm.response.code).to.be.oneOf([200, 202]));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "const data = pm.response.json();",
+                  "if ((data.run_id) !== undefined && (data.run_id) !== null) pm.collectionVariables.set(\"runId\", String(data.run_id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Historial IA",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/analysis-runs/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Los resultados requieren una ejecución SUCCEEDED y archivo disponible. Si recibes 202 al analizar, consulta el historial hasta que termine."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Descargar resultado actual",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/result/file/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Los resultados requieren una ejecución SUCCEEDED y archivo disponible. Si recibes 202 al analizar, consulta el historial hasta que termine."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Descargar resultado de ejecución",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/analysis-runs/{{runId}}/file/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Los resultados requieren una ejecución SUCCEEDED y archivo disponible. Si recibes 202 al analizar, consulta el historial hasta que termine."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "06 · Consentimiento y estudio comparativo — archivos manuales",
+      "item": [
+        {
+          "name": "Consultar consentimiento",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/consent/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Aceptar consentimiento con identificación",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/consent/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Selecciona una identificación SINTÉTICA (imagen o PDF). Solo puede aceptarse una vez; repetir devuelve 409.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "texto",
+                  "value": "Consentimiento sintético de pruebas",
+                  "type": "text"
+                },
+                {
+                  "key": "archivo_ine",
+                  "type": "file",
+                  "src": [],
+                  "description": "Selecciona un archivo sintético local."
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Descargar consentimiento identity",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/consent/identity/file/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Los consentimientos nuevos generan su PDF al aceptar. Los históricos sin PDF requieren conciliación."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Descargar consentimiento pdf",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/consent/pdf/file/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Los consentimientos nuevos generan su PDF al aceptar. Los históricos sin PDF requieren conciliación."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consultar estudio comparativo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear / actualizar estudio comparativo",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Al crear son obligatorias las cinco imágenes antes_*. En actualizaciones pueden omitirse; para fotos posteriores agrega alguno de: despues_perfil, despues_semiperfil, despues_retrato_frontal, despues_retrato_sonrisa",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "fecha_inicio",
+                  "value": "{{appointmentDate}}",
+                  "type": "text"
+                },
+                {
+                  "key": "diagnostico",
+                  "value": "Prueba sintética",
+                  "type": "text"
+                },
+                {
+                  "key": "observaciones",
+                  "value": "Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "antes_oclusal_superior",
+                  "type": "file",
+                  "src": [],
+                  "description": "Selecciona un archivo sintético local."
+                },
+                {
+                  "key": "antes_lateral_izquierda",
+                  "type": "file",
+                  "src": [],
+                  "description": "Selecciona un archivo sintético local."
+                },
+                {
+                  "key": "antes_frontal",
+                  "type": "file",
+                  "src": [],
+                  "description": "Selecciona un archivo sintético local."
+                },
+                {
+                  "key": "antes_lateral_derecha",
+                  "type": "file",
+                  "src": [],
+                  "description": "Selecciona un archivo sintético local."
+                },
+                {
+                  "key": "antes_oclusal_inferior",
+                  "type": "file",
+                  "src": [],
+                  "description": "Selecciona un archivo sintético local."
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Descargar PDF del estudio",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/pdf/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Descargar foto antes_oclusal_superior",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/antes_oclusal_superior/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Requiere haber cargado esta foto en el estudio; devuelve 404 si falta."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Descargar foto antes_lateral_izquierda",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/antes_lateral_izquierda/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Requiere haber cargado esta foto en el estudio; devuelve 404 si falta."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Descargar foto antes_frontal",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/antes_frontal/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Requiere haber cargado esta foto en el estudio; devuelve 404 si falta."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Descargar foto antes_lateral_derecha",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/antes_lateral_derecha/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Requiere haber cargado esta foto en el estudio; devuelve 404 si falta."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Descargar foto antes_oclusal_inferior",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/antes_oclusal_inferior/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Requiere haber cargado esta foto en el estudio; devuelve 404 si falta."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Descargar foto despues_perfil",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/despues_perfil/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Requiere haber cargado esta foto en el estudio; devuelve 404 si falta."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Descargar foto despues_semiperfil",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/despues_semiperfil/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Requiere haber cargado esta foto en el estudio; devuelve 404 si falta."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Descargar foto despues_retrato_frontal",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/despues_retrato_frontal/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Requiere haber cargado esta foto en el estudio; devuelve 404 si falta."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Descargar foto despues_retrato_sonrisa",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/comparative-study/media/despues_retrato_sonrisa/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Requiere haber cargado esta foto en el estudio; devuelve 404 si falta."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "07 · Reportes y exportaciones",
+      "item": [
+        {
+          "name": "Exportar patients XLSX",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/exports/patients.xlsx",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Usa Send and Download para guardar el archivo XLSX."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Exportar consultations XLSX",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/exports/consultations.xlsx",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Usa Send and Download para guardar el archivo XLSX."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Exportar clinical-images XLSX",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/exports/clinical-images.xlsx",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Usa Send and Download para guardar el archivo XLSX."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "08 · Administración de clínica",
+      "item": [
+        {
+          "name": "Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/admin/dashboard/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Miembros (guarda membershipId del médico)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/admin/memberships/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "const data = pm.response.json();",
+                  "if (((data.results.find(x => x.username === pm.variables.get(\"doctorUsername\")) || {}).id) !== undefined && ((data.results.find(x => x.username === pm.variables.get(\"doctorUsername\")) || {}).id) !== null) pm.collectionVariables.set(\"membershipId\", String((data.results.find(x => x.username === pm.variables.get(\"doctorUsername\")) || {}).id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invitaciones",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/admin/invitations/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Auditoría",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/admin/audit/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar membresía del médico",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/memberships/{{membershipId}}/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"DOCTOR\",\n  \"status\": \"ACTIVE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invitar médico por correo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/invitations/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "HTTPS en producción; HTTP loopback permitido únicamente en desarrollo. El token se entrega solo en el correo local. Para invitar recepción cambia role a STAFF.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{invitedEmail}}\",\n  \"role\": \"DOCTOR\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [202]\", () => pm.expect(pm.response.code).to.be.oneOf([202]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Revocar invitación",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/invitations/{{invitationId}}/revoke/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Copia invitationId de la lista de invitaciones. Revoca una invitación pendiente."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [204]\", () => pm.expect(pm.response.code).to.be.oneOf([204]));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "09 · Invitaciones — requieren token del correo",
+      "item": [
+        {
+          "name": "preview/",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/invitations/preview/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenInvitee}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{invitationToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "register/preview/",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/invitations/register/preview/",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{invitationToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Aceptar invitación con cuenta existente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/invitations/resolve/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenInvitee}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "tokenInvitee debe pertenecer a la cuenta del correo invitado. Puedes cambiar action a reject. No usar las cuentas seed salvo que sean las destinatarias.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{invitationToken}}\",\n  \"action\": \"accept\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registrar nueva cuenta invitada",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/invitations/register/",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{invitationToken}}\",\n  \"username\": \"{{invitedUsername}}\",\n  \"password\": \"{{newPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [201]\", () => pm.expect(pm.response.code).to.be.oneOf([201]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login destinatario existente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/auth/login/",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{invitedUsername}}\",\n  \"password\": \"{{newPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "const data = pm.response.json();",
+                  "if ((data.access) !== undefined && (data.access) !== null) pm.collectionVariables.set(\"tokenInvitee\", String(data.access));",
+                  "}",
+                  "if (pm.response.code === 200) pm.collectionVariables.set(\"cookieRole\", \"Invitee\");"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "10 · Backoffice de plataforma",
+      "item": [
+        {
+          "name": "Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/dashboard/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenPlatform}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta login Platform en 00. Los detalles de auditoría/IA requieren que existan registros y ejecutar antes sus listas."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Clínicas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/clinics/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenPlatform}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta login Platform en 00. Los detalles de auditoría/IA requieren que existan registros y ejecutar antes sus listas."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Usuarios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/users/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenPlatform}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta login Platform en 00. Los detalles de auditoría/IA requieren que existan registros y ejecutar antes sus listas."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Detalle usuario",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/users/{{userId}}/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenPlatform}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta login Platform en 00. Los detalles de auditoría/IA requieren que existan registros y ejecutar antes sus listas."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Auditoría (guarda auditId)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/audit/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenPlatform}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta login Platform en 00. Los detalles de auditoría/IA requieren que existan registros y ejecutar antes sus listas."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "const data = pm.response.json();",
+                  "if (((data.results[0] || {}).id) !== undefined && ((data.results[0] || {}).id) !== null) pm.collectionVariables.set(\"auditId\", String((data.results[0] || {}).id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Detalle evento",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/audit/{{auditId}}/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenPlatform}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta login Platform en 00. Los detalles de auditoría/IA requieren que existan registros y ejecutar antes sus listas."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ejecuciones IA globales",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/ai-runs/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenPlatform}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta login Platform en 00. Los detalles de auditoría/IA requieren que existan registros y ejecutar antes sus listas."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "const data = pm.response.json();",
+                  "if (((data.results[0] || {}).id) !== undefined && ((data.results[0] || {}).id) !== null) pm.collectionVariables.set(\"backofficeRunId\", String((data.results[0] || {}).id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Detalle ejecución IA",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/ai-runs/{{backofficeRunId}}/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenPlatform}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta login Platform en 00. Los detalles de auditoría/IA requieren que existan registros y ejecutar antes sus listas."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Estado del sistema",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/system/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenPlatform}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta login Platform en 00. Los detalles de auditoría/IA requieren que existan registros y ejecutar antes sus listas."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear usuario de prueba (guarda userId)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/backoffice/users/create/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenPlatform}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta antes de Detalle usuario; repetir requiere un sampleId nuevo.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"postman_{{sampleId}}\",\n  \"email\": \"user.{{sampleId}}@example.test\",\n  \"password\": \"{{newPassword}}\",\n  \"backoffice_access\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [201]\", () => pm.expect(pm.response.code).to.be.oneOf([201]));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "const data = pm.response.json();",
+                  "if ((data.id) !== undefined && (data.id) !== null) pm.collectionVariables.set(\"userId\", String(data.id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "deactivate usuario de prueba",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/users/{{userId}}/deactivate/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenPlatform}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "activate usuario de prueba",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/users/{{userId}}/activate/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenPlatform}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear clínica e invitar administrador (guarda managedClinicId)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/backoffice/clinics/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenPlatform}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "HTTP loopback funciona en desarrollo; producción requiere HTTPS. managedClinicId se mantiene separado de clinicId para conservar el contexto del médico seed.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Clínica Postman\",\n  \"slug\": \"postman-{{sampleId}}\",\n  \"status\": \"ACTIVE\",\n  \"initial_admin_email\": \"{{invitedEmail}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [201]\", () => pm.expect(pm.response.code).to.be.oneOf([201]));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "const data = pm.response.json();",
+                  "if ((data.id) !== undefined && (data.id) !== null) pm.collectionVariables.set(\"managedClinicId\", String(data.id));",
+                  "if ((data.initial_admin_invitation_id) !== undefined && (data.initial_admin_invitation_id) !== null) pm.collectionVariables.set(\"initialInvitationId\", String(data.initial_admin_invitation_id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cambiar estado de clínica creada",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/backoffice/clinics/{{managedClinicId}}/status/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenPlatform}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"ACTIVE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar invitaciones iniciales",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/clinics/{{managedClinicId}}/initial-admin/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenPlatform}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Revocar invitación inicial",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/backoffice/clinics/{{managedClinicId}}/initial-admin/{{initialInvitationId}}/revoke/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenPlatform}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [204]\", () => pm.expect(pm.response.code).to.be.oneOf([204]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reenviar invitación inicial",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/backoffice/clinics/{{managedClinicId}}/initial-admin/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenPlatform}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Revoca primero la anterior; requiere clínica sin administrador activo y URL de invitación HTTPS.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{invitedEmail}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [202]\", () => pm.expect(pm.response.code).to.be.oneOf([202]));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "const data = pm.response.json();",
+                  "if ((data.invitation_id) !== undefined && (data.invitation_id) !== null) pm.collectionVariables.set(\"initialInvitationId\", String(data.invitation_id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "11 · Recepción STAFF — requiere aceptar invitación con rol STAFF",
+      "item": [
+        {
+          "name": "Login recepción",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/auth/login/",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{staffUsername}}\",\n  \"password\": \"{{staffPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "const data = pm.response.json();",
+                  "if ((data.access) !== undefined && (data.access) !== null) pm.collectionVariables.set(\"tokenStaff\", String(data.access));",
+                  "}",
+                  "if (pm.response.code === 200) pm.collectionVariables.set(\"cookieRole\", \"Staff\");"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Clínicas de recepción",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/clinics/memberships/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenStaff}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buscar pacientes para agenda",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/staff/patients/?term=Postman",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenStaff}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar agenda de recepción",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/staff/appointments/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenStaff}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear cita desde recepción",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/staff/appointments/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenStaff}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paciente_id\": {{patientId}},\n  \"fecha\": \"{{appointmentDate}}\",\n  \"hora\": \"12:00\",\n  \"motivo\": \"Recepción\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [201]\", () => pm.expect(pm.response.code).to.be.oneOf([201]));",
+                  "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                  "const data = pm.response.json();",
+                  "if ((data.id) !== undefined && (data.id) !== null) pm.collectionVariables.set(\"staffAppointmentId\", String(data.id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Detalle de cita de recepción",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/staff/appointments/{{staffAppointmentId}}/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenStaff}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reprogramar desde recepción",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/staff/appointments/{{staffAppointmentId}}/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenStaff}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hora\": \"13:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "complete desde recepción",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/staff/appointments/{{staffAppointmentId}}/complete/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenStaff}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Completar y anular son alternativas. Crea otra cita para probar la segunda transición. STAFF no accede a expedientes clínicos."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "cancel desde recepción",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/staff/appointments/{{staffAppointmentId}}/cancel/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenStaff}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Completar y anular son alternativas. Crea otra cita para probar la segunda transición. STAFF no accede a expedientes clínicos."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "12 · Operaciones finales — ejecutar manualmente",
+      "item": [
+        {
+          "name": "Archivar imagen",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/clinical-images/{{imageId}}/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [204]\", () => pm.expect(pm.response.code).to.be.oneOf([204]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Desactivar paciente de prueba",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Clinic-ID",
+                "value": "{{clinicId}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/clinics/patients/{{patientId}}/deactivate/",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDoctor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Ejecuta primero la carpeta 00. Usa datos sintéticos locales."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [200]\", () => pm.expect(pm.response.code).to.be.oneOf([200]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cerrar última sesión de cookies",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/auth/logout/",
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Cierra la sesión del último login; los access tokens emitidos conservan su vigencia hasta expirar."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP esperado [204]\", () => pm.expect(pm.response.code).to.be.oneOf([204]));",
+                  "if (pm.response.code === 204) { const role = pm.collectionVariables.get(\"cookieRole\"); if (role) pm.collectionVariables.unset(\"token\" + role); pm.collectionVariables.unset(\"cookieRole\"); }"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -11,9 +11,22 @@ export default function AppointmentEditPage() {
   const { id } = useParams();
   const toast = useToast();
   const queryClient = useQueryClient();
-  const { data: item, error, reload } = useResource<Appointment>(`appointments/${id}/`);
+  const {
+    data: item,
+    error,
+    reload,
+  } = useResource<Appointment>(`clinics/appointments/${id}/`);
   if (error)
-    return <div className="workspace-page co-mx-auto co-max-w-[1320px]"><div className="workspace-inline-error" role="alert">{error}</div><button className="clinical-action-outline co-mt-3" onClick={reload}>Reintentar</button></div>;
+    return (
+      <div className="workspace-page co-mx-auto co-max-w-[1320px]">
+        <div className="workspace-inline-error" role="alert">
+          {error}
+        </div>
+        <button className="clinical-action-outline co-mt-3" onClick={reload}>
+          Reintentar
+        </button>
+      </div>
+    );
   if (!item)
     return (
       <div className="page-loader" role="status" aria-label="Cargando cita">
@@ -22,17 +35,31 @@ export default function AppointmentEditPage() {
     );
   return (
     <div className="workspace-page co-mx-auto co-max-w-[1320px]">
-      <div className="workspace-page-header"><div><h1>Editar cita #{item.id}</h1><p className="clinical-page-description">{item.paciente.full_name}</p></div></div>
+      <div className="workspace-page-header">
+        <div>
+          <h1>Editar cita #{item.id}</h1>
+          <p className="clinical-page-description">{item.paciente.full_name}</p>
+        </div>
+      </div>
       <AppointmentForm
         key={id}
         initialValue={{ ...item, hora: item.hora.slice(0, 5) }}
         submitLabel="Guardar cambios"
         onSubmit={async (form) => {
-          const updated = await appointmentsService.update(id!, item.paciente.id, form);
-          queryClient.setQueryData(queryKeys.resource(`appointments/${id}/`), updated);
+          const updated = await appointmentsService.update(
+            id!,
+            item.paciente.id,
+            form,
+          );
+          queryClient.setQueryData(
+            queryKeys.resource(`clinics/appointments/${id}/`),
+            updated,
+          );
           await Promise.all([
             queryClient.invalidateQueries({ queryKey: queryKeys.appointments }),
-            queryClient.invalidateQueries({ queryKey: queryKeys.resource("dashboard/") }),
+            queryClient.invalidateQueries({
+              queryKey: queryKeys.resource("clinics/dashboard/"),
+            }),
           ]);
           toast.success("Cita actualizada correctamente.");
           return `/appointments/${id}`;

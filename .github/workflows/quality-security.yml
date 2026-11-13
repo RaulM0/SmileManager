@@ -5,16 +5,32 @@ on:
 permissions:
   contents: read
 jobs:
+  sensitive-files:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: python scripts/check_sensitive_tracking.py
   backend:
     runs-on: ubuntu-latest
+    env:
+      RATE_LIMIT_TEST_REDIS_URL: redis://127.0.0.1:6379/15
     services:
+      redis:
+        image: redis:7.4-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 3s --health-retries 10
       postgres:
         image: postgres:16-alpine
         env:
           POSTGRES_USER: ci
           POSTGRES_PASSWORD: ci-only-test-password
           POSTGRES_DB: postgres
-        ports: ['5432:5432']
+        ports: ["5432:5432"]
         options: >-
           --health-cmd "pg_isready -U ci -d postgres"
           --health-interval 10s --health-timeout 5s --health-retries 5
@@ -22,18 +38,31 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.13'
+          python-version: "3.13"
       - run: python -m pip install -r requirements.txt
       - run: python manage.py test --noinput
         env:
           DJANGO_SETTINGS_MODULE: SmileManager.settings_test
-      - run: python manage.py test api.tests.test_postgres_concurrency --noinput
+      # Run the complete suite on PostgreSQL so membership, invitation, consent,
+      # backfill and reception locking tests cannot silently stay skipped.
+      - run: python manage.py test --noinput
         env:
           DJANGO_SETTINGS_MODULE: SmileManager.settings_postgres_test
           PHASE2_TEST_DATABASE_URL: postgresql://ci:ci-only-test-password@127.0.0.1:5432/postgres
       - run: python manage.py makemigrations --check --dry-run && python manage.py check
         env:
           DJANGO_SETTINGS_MODULE: SmileManager.settings_test
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci && npm run build && npx playwright install --with-deps chromium
+        working-directory: frontend
+      - run: npx playwright test
+        working-directory: frontend
+        env:
+          SMILE_E2E_PYTHON: python
       # Audit the environment installed above, including transitive dependencies,
       # without creating a second copy of the large Torch/CUDA dependency tree.
       - run: python -m pip install pip-audit==2.10.1 && python -m pip check && pip-audit
@@ -46,7 +75,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: "22"
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
@@ -61,7 +90,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version: "1.24"
       - run: go install github.com/zricethezav/gitleaks/v8@v8.24.3
       - run: gitleaks git . --log-opts="--all" --redact=100 --no-banner
       - run: gitleaks dir . --config .gitleaks-closure.toml --max-target-megabytes 2 --redact=100 --no-banner

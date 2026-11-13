@@ -1,0 +1,31 @@
+---
+generated: true
+source: "frontend/src/pages/CompliancePage.tsx"
+aliases: ["frontend/src/pages/CompliancePage.tsx"]
+tags: [mapa, archivo]
+---
+# CompliancePage.tsx
+
+Módulo: [[docs/mapa/Interfaz]]. Inicio: [[docs/mapa/Inicio]].
+
+## Archivo real
+
+Ruta desde la raíz: `frontend/src/pages/CompliancePage.tsx`.
+
+[Abrir archivo del proyecto](../../../frontend/src/pages/CompliancePage.tsx)
+
+El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abrirá o permitirá abrirlo con la aplicación predeterminada. Esta nota es un índice; leer el archivo real antes de modificarlo.
+
+## Símbolos principales
+
+- `CompliancePage` — línea 16.
+
+## Dependencias internas
+
+- [[docs/mapa/archivos/frontend_2Fsrc_2Fapi_2Fclient.ts|frontend/src/api/client.ts]]
+- [[docs/mapa/archivos/frontend_2Fsrc_2Fcomponents_2FFieldLabelHelp.tsx|frontend/src/components/FieldLabelHelp.tsx]]
+- [[docs/mapa/archivos/frontend_2Fsrc_2Fcontext_2FToastContext.tsx|frontend/src/context/ToastContext.tsx]]
+- [[docs/mapa/archivos/frontend_2Fsrc_2Ftypes_2Fcompliance.ts|frontend/src/types/compliance.ts]]
+- [[docs/mapa/archivos/frontend_2Fsrc_2Futils_2FcomplianceGuidance.ts|frontend/src/utils/complianceGuidance.ts]]
+
+Este índice resuelve imports Python y referencias relativas JS/TS; no ejecuta módulos ni representa todas las dependencias dinámicas.

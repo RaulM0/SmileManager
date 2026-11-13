@@ -1,5 +1,7 @@
 # Decisiones de diseño
 
+> Decisiones históricas: las interfaces HTML Django y `/sesiones/` fueron retiradas. Consultar [estado actual](../production/legacy-routes.md).
+
 ## UX-DEC-001 — La navegación actual define el shell
 
 Problema: navbar solo expone cuatro de varios módulos y las páginas clínicas se navegan por enlaces contextuales.
@@ -261,4 +263,3 @@ Razón: reutiliza datos entre subsecciones del paciente, evita solicitudes dupli
 Impacto: listas de pacientes/citas/diagnósticos/imágenes, selector de paciente, `useResource`, cambios de paciente/cita/consulta/imagen/análisis, logout y cambio de identidad.
 
 Validación: Vitest 8/8 incluye refresh concurrente y caché; E2E 3/3 incluye filtros 503, acciones clínicas y segunda cuenta.
-

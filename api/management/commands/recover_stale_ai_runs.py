@@ -1,12 +1,13 @@
 """Mark abandoned runs only after an operator has stopped all inference workers."""
 from datetime import timedelta
+from uuid import UUID
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils import timezone
 
 from DiagnosticosIA.models import AIAnalysisRun
-from Usuarios.models import AuditEvent
+from Usuarios.models import AuditEvent, Clinic
 
 
 class Command(BaseCommand):
@@ -16,6 +17,9 @@ class Command(BaseCommand):
         parser.add_argument('--older-than-minutes', type=int, required=True)
         parser.add_argument('--apply', action='store_true')
         parser.add_argument('--workers-stopped', action='store_true')
+        scope = parser.add_mutually_exclusive_group(required=True)
+        scope.add_argument('--clinic-id')
+        scope.add_argument('--all-clinics', action='store_true')
 
     def handle(self, *args, **options):
         minutes = options['older_than_minutes']
@@ -23,9 +27,19 @@ class Command(BaseCommand):
             raise CommandError('older-than-minutes must be positive.')
         if options['apply'] and not options['workers_stopped']:
             raise CommandError('Stop all inference workers and pass --workers-stopped before applying.')
+        clinic_id = None
+        if options['clinic_id']:
+            try:
+                clinic_id = UUID(options['clinic_id'])
+            except (ValueError, TypeError, AttributeError) as exc:
+                raise CommandError('Invalid clinic UUID.') from exc
+            if not Clinic.objects.filter(pk=clinic_id).exists():
+                raise CommandError('Clinic does not exist.')
         now = timezone.now()
         cutoff = now - timedelta(minutes=minutes)
         runs = AIAnalysisRun.objects.filter(status=AIAnalysisRun.RUNNING, started_at__lt=cutoff).order_by('pk')
+        if clinic_id is not None:
+            runs = runs.filter(clinic_id=clinic_id)
         candidates = list(runs.values_list('pk', 'started_at'))
         for pk, started_at in candidates:
             if not options['apply']:
@@ -33,13 +47,13 @@ class Command(BaseCommand):
                 self.stdout.write(f'run={pk} status=RUNNING age_seconds={age}')
                 continue
             with transaction.atomic():
-                run = AIAnalysisRun.objects.select_for_update().filter(pk=pk, status=AIAnalysisRun.RUNNING, started_at__lt=cutoff).first()
+                run = runs.select_for_update().filter(pk=pk).first()
                 if run is None:
                     continue
                 run.status = AIAnalysisRun.FAILED
                 run.failure_category = 'process_interrupted'
                 run.completed_at = now
                 run.save(update_fields=['status', 'failure_category', 'completed_at'])
-                AuditEvent.objects.create(action='AI_ANALYSIS_RECOVERED', resource_type='ai_run', resource_id=str(pk), outcome='failure', request_id=run.request_id)
+                AuditEvent.objects.create(clinic_id=run.clinic_id, action='AI_ANALYSIS_RECOVERED', resource_type='ai_run', resource_id=str(pk), outcome='failure', request_id=run.request_id)
                 self.stdout.write(f'run={pk} status=FAILED')
         self.stdout.write(f"{'APPLY' if options['apply'] else 'DRY RUN'} candidates={len(candidates)}")

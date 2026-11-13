@@ -1,19 +1,37 @@
 import hashlib
 import hmac
-from functools import wraps
 from django.conf import settings
-from django.http import HttpResponse
 from rest_framework.throttling import SimpleRateThrottle
+from .rate_limit import client_address, consume_window, identity_digest
 
 
-class AddressThrottle(SimpleRateThrottle):
+class SharedRateThrottle(SimpleRateThrottle):
+    def allow_request(self, request, view):
+        if not settings.THROTTLE_REDIS_URL:
+            # Explicitly limited to development/test by production settings.
+            return super().allow_request(request, view)
+        if self.rate is None:
+            return True
+        key = self.get_cache_key(request, view)
+        if key is None:
+            return True
+        allowed, self.retry_after = consume_window(key, self.num_requests, self.duration)
+        return allowed
+
+    def wait(self):
+        if settings.THROTTLE_REDIS_URL:
+            return self.retry_after
+        return super().wait()
+
+
+class AddressThrottle(SharedRateThrottle):
     scope = 'authentication'
 
     def get_cache_key(self, request, view):
-        return self.cache_format % {'scope': self.scope, 'ident': request.META.get('REMOTE_ADDR', 'unknown')}
+        return self.cache_format % {'scope': self.scope, 'ident': identity_digest(client_address(request))}
 
 
-class AccountThrottle(SimpleRateThrottle):
+class AccountThrottle(SharedRateThrottle):
     scope = 'authentication_account'
 
     def get_cache_key(self, request, view):
@@ -28,7 +46,7 @@ class PasswordResetIPThrottle(AddressThrottle):
     scope = 'password_reset_ip'
 
 
-class PasswordResetAccountThrottle(SimpleRateThrottle):
+class PasswordResetAccountThrottle(SharedRateThrottle):
     scope = 'password_reset_account'
 
     def get_cache_key(self, request, view):
@@ -46,16 +64,28 @@ class PasswordResetConfirmThrottle(AddressThrottle):
     scope = 'password_reset_confirm'
 
 
-class UserThrottle(SimpleRateThrottle):
+class MFAChallengeThrottle(SharedRateThrottle):
+    scope = 'mfa_challenge'
+
+    def get_cache_key(self, request, view):
+        raw = request.data.get('challenge', '') if hasattr(request.data, 'get') else ''
+        return self.cache_format % {'scope': self.scope, 'ident': identity_digest(str(raw)[:2048])}
+
+
+class UserThrottle(SharedRateThrottle):
     scope = None
 
     def get_cache_key(self, request, view):
-        identity = str(request.user.pk) if request.user.is_authenticated else request.META.get('REMOTE_ADDR', 'unknown')
-        return self.cache_format % {'scope': self.scope, 'ident': identity}
+        identity = f'user:{request.user.pk}' if request.user.is_authenticated else f'ip:{client_address(request)}'
+        return self.cache_format % {'scope': self.scope, 'ident': identity_digest(identity)}
 
 
 class ExpensiveThrottle(UserThrottle):
     scope = 'expensive'
+
+
+class ReauthenticationThrottle(UserThrottle):
+    scope = 'reauthentication'
 
 
 class EmailThrottle(UserThrottle):
@@ -64,21 +94,3 @@ class EmailThrottle(UserThrottle):
 
 class ExportThrottle(UserThrottle):
     scope = 'export'
-
-
-def limit_legacy(*classes, methods=('POST',)):
-    def decorate(view):
-        @wraps(view)
-        def wrapped(request, *args, **kwargs):
-            if request.method in methods:
-                # Django requests expose POST; DRF exposes data.
-                request.data = request.POST
-                for throttle_class in classes:
-                    throttle = throttle_class()
-                    if not throttle.allow_request(request, None):
-                        response = HttpResponse('Demasiadas solicitudes.', status=429)
-                        response['Retry-After'] = str(max(1, int(throttle.wait() or 1)))
-                        return response
-            return view(request, *args, **kwargs)
-        return wrapped
-    return decorate

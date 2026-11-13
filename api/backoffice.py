@@ -19,9 +19,11 @@ from DiagnosticosIA.models import AIAnalysisRun
 from Citas.models import Cita
 from Pacientes.models import Paciente
 from Usuarios.models import AuditEvent
-from .policies import IsSystemAdmin, has_backoffice_assignment
+from api.permissions import IsSystemAdmin
+from Usuarios.permissions import has_backoffice_assignment, has_platform_assignment
 from .services.backoffice import AdministrativeAccountProtected, create_user, set_user_active
 from .throttles import ExpensiveThrottle
+from .features import GlobalAIFeatureMixin, ai_globally_enabled
 
 User = get_user_model()
 USER_FIELDS = ('id', 'username', 'email', 'is_active', 'is_staff', 'date_joined', 'last_login')
@@ -88,7 +90,7 @@ class UserDetailSerializer(UserSerializer):
         return user._backoffice_assigned
 
     def get_administrative_account(self, user):
-        return user.is_staff or user.is_superuser or self.get_backoffice_assigned(user)
+        return user.is_staff or user.is_superuser or self.get_backoffice_assigned(user) or has_platform_assignment(user)
 
 
 class AuditSerializer(serializers.ModelSerializer):
@@ -136,12 +138,13 @@ class AdminList(generics.ListAPIView):
 class Dashboard(AdminAPIView):
     def get(self, request):
         users = User.objects.aggregate(active=Count('id', filter=Q(is_active=True)), inactive=Count('id', filter=Q(is_active=False)))
-        runs = AIAnalysisRun.objects.aggregate(running=Count('id', filter=Q(status='RUNNING')), failed=Count('id', filter=Q(status='FAILED')), stale=Count('id', filter=Q(status='RUNNING', started_at__lt=stale_cutoff())))
+        runs = (AIAnalysisRun.objects.aggregate(running=Count('id', filter=Q(status='RUNNING')), failed=Count('id', filter=Q(status='FAILED')), stale=Count('id', filter=Q(status='RUNNING', started_at__lt=stale_cutoff())))
+                if ai_globally_enabled() else None)
         patients = Paciente.objects.filter(estatus='A').count()
         today = timezone.localdate()
         appointments = Cita.objects.aggregate(today=Count('id', filter=Q(fecha=today)), upcoming=Count('id', filter=Q(fecha__gt=today, estatus='P')))
         recent = AuditEvent.objects.filter(action__in=('USER_CREATED', 'BACKOFFICE_ACCESS_GRANTED', 'USER_ACTIVATED', 'USER_DEACTIVATED', 'BACKOFFICE_PATIENT_UPDATE', 'BACKOFFICE_HISTORY_UPDATE', 'BACKOFFICE_ODONTOGRAM_UPDATE', 'BACKOFFICE_APPOINTMENT_COMPLETED', 'BACKOFFICE_APPOINTMENT_CANCELLED')).select_related('actor').only('id', 'timestamp', 'actor_id', 'actor__username', 'action', 'resource_type', 'resource_id', 'outcome', 'request_id').order_by('-timestamp', '-pk')[:5]
-        return Response({'users': users, 'ai': runs, 'patients_active': patients, 'appointments': appointments, 'recent_admin_events': AuditSerializer(recent, many=True).data})
+        return Response({'users': users, 'ai': runs, 'ai_enabled': ai_globally_enabled(), 'patients_active': patients, 'appointments': appointments, 'recent_admin_events': AuditSerializer(recent, many=True).data})
 
 
 class Users(AdminList):
@@ -189,10 +192,22 @@ class UserActivation(AdminAPIView):
         return Response(UserSerializer(user).data)
 
 
+# Only explicitly classified administrative events may be exposed globally.
+# Historical clinical events can have clinic_id=NULL, so tenant nullability is
+# not evidence that an event is safe for platform administrators.
+PLATFORM_AUDIT_EVENTS = Q(resource_type='user', action__in=(
+    'USER_ACTIVATED', 'USER_DEACTIVATED', 'PLATFORM_ROLE_GRANTED', 'PLATFORM_ROLE_REVOKED',
+)) | Q(resource_type='clinic', action__in=(
+    'PLATFORM_CLINIC_CREATED', 'PLATFORM_CLINIC_ACTIVE', 'PLATFORM_CLINIC_INACTIVE', 'PLATFORM_CLINIC_SUSPENDED',
+)) | Q(resource_type='clinic_invitation', action__in=(
+    'PLATFORM_INITIAL_ADMIN_INVITED', 'PLATFORM_INITIAL_ADMIN_INVITATION_REVOKED',
+))
+
+
 class AuditList(AdminList):
     serializer_class = AuditSerializer
     def get_queryset(self):
-        qs = date_filters(AuditEvent.objects.select_related('actor').only('id', 'timestamp', 'actor_id', 'actor__username', 'action', 'resource_type', 'resource_id', 'outcome', 'request_id'), self.request.query_params, 'timestamp')
+        qs = date_filters(AuditEvent.objects.filter(PLATFORM_AUDIT_EVENTS).select_related('actor').only('id', 'timestamp', 'actor_id', 'actor__username', 'action', 'resource_type', 'resource_id', 'outcome', 'request_id'), self.request.query_params, 'timestamp')
         for name in ('action', 'resource_type', 'outcome', 'request_id'):
             if self.request.query_params.get(name):
                 value = self.request.query_params[name][:150]
@@ -209,10 +224,10 @@ class AuditList(AdminList):
 class AuditDetail(generics.RetrieveAPIView):
     permission_classes = [IsSystemAdmin]
     serializer_class = AuditSerializer
-    queryset = AuditEvent.objects.select_related('actor').only('id', 'timestamp', 'actor_id', 'actor__username', 'action', 'resource_type', 'resource_id', 'outcome', 'request_id')
+    queryset = AuditEvent.objects.filter(PLATFORM_AUDIT_EVENTS).select_related('actor').only('id', 'timestamp', 'actor_id', 'actor__username', 'action', 'resource_type', 'resource_id', 'outcome', 'request_id')
 
 
-class Runs(AdminList):
+class Runs(GlobalAIFeatureMixin, AdminList):
     serializer_class = RunSerializer
     def get_queryset(self):
         qs = date_filters(AIAnalysisRun.objects.all(), self.request.query_params, 'requested_at')
@@ -223,7 +238,7 @@ class Runs(AdminList):
 
 
 @method_decorator(never_cache, name='dispatch')
-class RunDetail(generics.RetrieveAPIView):
+class RunDetail(GlobalAIFeatureMixin, generics.RetrieveAPIView):
     permission_classes = [IsSystemAdmin]
     serializer_class = RunSerializer
     queryset = AIAnalysisRun.objects.all()

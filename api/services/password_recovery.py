@@ -90,6 +90,8 @@ def confirm_reset(uid, token, password, request_id):
             raise ValidationError([str(message) for message in exc.messages]) from None
     user.set_password(password)
     user.save(update_fields=['password'])
+    from api.authentication import revoke_user_sessions
+    revoke_user_sessions(user.pk)
     # Same lock order as refresh and account deactivation: user then token rows.
     for outstanding in OutstandingToken.objects.select_for_update().filter(user=user, expires_at__gt=timezone.now()).iterator():
         BlacklistedToken.objects.get_or_create(token=outstanding)
