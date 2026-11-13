@@ -2,6 +2,10 @@ import os
 
 import dj_database_url
 
+from .environment import configure_postgres, database_url, load_environment
+
+load_environment()
+
 # Evita que la configuración base intente construir una base vacía antes de
 # sustituirla por la configuración local de PostgreSQL.
 os.environ.setdefault(
@@ -17,10 +21,10 @@ ALLOW_LOCAL_HTTP_INVITATIONS = True
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 DATABASES = {
-    "default": dj_database_url.parse(
-        os.environ["DATABASE_URL"],
+    "default": configure_postgres(dj_database_url.parse(
+        database_url(),
         conn_max_age=60,
-    )
+    ))
 }
 
 MEDIA_URL = "/media/"

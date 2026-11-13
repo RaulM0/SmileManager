@@ -22,6 +22,6 @@ Sin declaraciones principales detectadas por el índice estático.
 
 ## Dependencias internas
 
-Sin imports internos resueltos automáticamente.
+- [[docs/mapa/archivos/SmileManager_2Fenvironment.py|SmileManager/environment.py]]
 
 Este índice resuelve imports Python y referencias relativas JS/TS; no ejecuta módulos ni representa todas las dependencias dinámicas.

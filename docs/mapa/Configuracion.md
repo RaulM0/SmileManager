@@ -12,6 +12,7 @@ Volver a [[docs/mapa/Inicio]]. Consultar también [[docs/mapa/Como usar el mapa]
 
 - [[docs/mapa/archivos/SmileManager_2F__init__.py|SmileManager/__init__.py]]
 - [[docs/mapa/archivos/SmileManager_2Fasgi.py|SmileManager/asgi.py]]
+- [[docs/mapa/archivos/SmileManager_2Fenvironment.py|SmileManager/environment.py]]
 - [[docs/mapa/archivos/SmileManager_2Fsettings.py|SmileManager/settings.py]]
 - [[docs/mapa/archivos/SmileManager_2Fsettings_e2e.py|SmileManager/settings_e2e.py]]
 - [[docs/mapa/archivos/SmileManager_2Fsettings_local.py|SmileManager/settings_local.py]]

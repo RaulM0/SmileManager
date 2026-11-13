@@ -9,6 +9,9 @@ import dj_database_url
 from botocore.config import Config
 from django.core.exceptions import ImproperlyConfigured
 
+from .environment import configure_postgres, database_url, load_environment
+
+load_environment()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY
@@ -16,6 +19,11 @@ _local_settings = os.environ.get('DJANGO_SETTINGS_MODULE') in ('SmileManager.set
 SECRET_KEY = os.environ.get('SECRET_KEY', '' if not _local_settings else 'local-development-only-not-for-production')
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = [host.strip() for host in os.environ.get('ALLOWED_HOSTS', '').split(',') if host.strip()]
+# Render supplies the exact assigned hostname; do not guess the service slug.
+_render_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME', '').strip() if os.environ.get('RENDER') == 'true' else ''
+_render_origin = f'https://{_render_hostname}' if _render_hostname else ''
+if _render_hostname and _render_hostname not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(_render_hostname)
 if not _local_settings:
     if not SECRET_KEY or not ALLOWED_HOSTS or '*' in ALLOWED_HOSTS:
         raise ImproperlyConfigured('Producción requiere SECRET_KEY y ALLOWED_HOSTS explícitos.')
@@ -74,7 +82,7 @@ WSGI_APPLICATION = 'SmileManager.wsgi.application'
 
 # DATABASE
 DATABASES = {
-    'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
+    'default': configure_postgres(dj_database_url.parse(database_url() or ''))
 }
 if not _local_settings and DATABASES['default'].get('ENGINE') != 'django.db.backends.postgresql':
     raise ImproperlyConfigured('Producción requiere PostgreSQL para los controles de integridad documental.')
@@ -123,8 +131,8 @@ APPOINTMENT_MAX_RANGE_DAYS = max(1, int(os.environ.get('APPOINTMENT_MAX_RANGE_DA
 BACKOFFICE_AI_STALE_SECONDS = max(1, int(os.environ.get('BACKOFFICE_AI_STALE_SECONDS', '3600')))
 FEATURE_AI_ENABLED = os.environ.get('FEATURE_AI_ENABLED', 'false').strip().lower() in ('1', 'true', 'yes', 'on')
 
-# Dominio S3
-AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+# Custom S3-compatible endpoints must generate their own signed URLs.
+AWS_S3_CUSTOM_DOMAIN = None if AWS_S3_ENDPOINT_URL else f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
 
 # Configuración de objetos
 AWS_S3_OBJECT_PARAMETERS = {
@@ -135,12 +143,17 @@ AWS_S3_OBJECT_PARAMETERS = {
 AWS_DEFAULT_ACL = None
 AWS_QUERYSTRING_AUTH = True
 
-# URL pública de media
+# Media base; downloads remain behind authorized API endpoints.
+_default_media_url = (
+    f'{AWS_S3_ENDPOINT_URL.rstrip("/")}/{AWS_STORAGE_BUCKET_NAME}/'
+    if AWS_S3_ENDPOINT_URL
+    else f'https://{AWS_S3_CUSTOM_DOMAIN}/'
+)
 AWS_S3_PUBLIC_ENDPOINT = os.environ.get('AWS_S3_PUBLIC_ENDPOINT', '').rstrip('/')
 MEDIA_URL = (
     f'{AWS_S3_PUBLIC_ENDPOINT}/{AWS_STORAGE_BUCKET_NAME}/'
     if AWS_S3_PUBLIC_ENDPOINT
-    else f'https://{AWS_S3_CUSTOM_DOMAIN}/'
+    else _default_media_url
 )
 
 # ============================================
@@ -169,12 +182,12 @@ EMAIL_TIMEOUT = int(os.environ.get('SMTP_TIMEOUT', '30'))
 EMAIL_HOST_USER = os.environ.get('EMAIL_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASS', '')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'webmaster@localhost')
-TENANT_INVITATION_URL = os.environ.get('TENANT_INVITATION_URL', '')
+TENANT_INVITATION_URL = os.environ.get('TENANT_INVITATION_URL', f'{_render_origin}/app/invitations/accept' if _render_origin else '')
 ALLOW_LOCAL_HTTP_INVITATIONS = False
 # Compatibility code is retained for migration regression tests, not published
 # as a second clinical API in application environments.
 LEGACY_CLINICAL_API_ENABLED = False
-FRONTEND_URL = os.environ.get('FRONTEND_URL', '')
+FRONTEND_URL = os.environ.get('FRONTEND_URL', _render_origin)
 PASSWORD_RESET_TIMEOUT = max(1, int(os.environ.get('PASSWORD_RESET_TIMEOUT', '1800')))
 
 # Session
@@ -248,6 +261,8 @@ SIMPLE_JWT = {
 
 # CSRF & Cookies
 CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if origin.strip()]
+if _render_origin and _render_origin not in CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS.append(_render_origin)
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SECURE = True
