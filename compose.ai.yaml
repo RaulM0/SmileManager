@@ -1,0 +1,9 @@
+# Optional local integration; inference source belongs to the sibling project.
+services:
+  smileia:
+    build:
+      context: ../SmileIA
+    init: true
+    restart: unless-stopped
+    environment:
+      SMILEIA_TOKEN: ${SMILEIA_TOKEN:?Set the shared SmileIA secret}

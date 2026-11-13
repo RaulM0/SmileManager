@@ -18,12 +18,13 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `model_version` — línea 11.
-- `get_model` — línea 25.
-- `ClinicalImageMissingError` — línea 37.
-- `ClinicalImageChangedError` — línea 41.
-- `analyze_clinical_image_detached` — línea 45.
-- `analyze_clinical_image` — línea 86.
+- `ClinicalImageMissingError` — línea 13.
+- `ClinicalImageChangedError` — línea 17.
+- `AIServiceError` — línea 21.
+- `_request` — línea 25.
+- `model_version` — línea 53.
+- `analyze_clinical_image_detached` — línea 60.
+- `analyze_clinical_image` — línea 101.
 
 ## Dependencias internas
 

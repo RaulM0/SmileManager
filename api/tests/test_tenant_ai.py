@@ -19,7 +19,7 @@ from Pacientes.models import ImagenesClinicas, Paciente
 from Usuarios.models import AuditEvent, Clinic, ClinicMembership
 
 
-def detached_analyzer(image, *, expected_hash):
+def detached_analyzer(image, *, expected_hash, expected_version=None):
     return ([{'clase': 'synthetic', 'confianza': 0.9, 'coordenadas': [0, 0, 1, 1]}], 'result.png', b'synthetic-result')
 
 
@@ -92,7 +92,7 @@ class TenantAITests(TestCase):
 
     @patch('DiagnosticosIA.tenant_runs.model_version', return_value='a'*64)
     def test_revocation_during_inference_prevents_publication(self, _version):
-        def revoke(image, *, expected_hash):
+        def revoke(image, *, expected_hash, expected_version=None):
             self.member.status = 'REVOKED'
             self.member.save(update_fields=['status'])
             return detached_analyzer(image, expected_hash=expected_hash)
@@ -107,7 +107,7 @@ class TenantAITests(TestCase):
 
     @patch('DiagnosticosIA.tenant_runs.model_version', return_value='a'*64)
     def test_clinic_suspension_during_inference_prevents_publication(self, _version):
-        def suspend(image, *, expected_hash):
+        def suspend(image, *, expected_hash, expected_version=None):
             self.a.status = 'SUSPENDED'
             self.a.save(update_fields=['status'])
             return detached_analyzer(image, expected_hash=expected_hash)
@@ -121,7 +121,7 @@ class TenantAITests(TestCase):
 
     @patch('DiagnosticosIA.tenant_runs.model_version', return_value='a'*64)
     def test_recovered_run_is_not_overwritten_by_late_inference(self, _version):
-        def recover(image, *, expected_hash):
+        def recover(image, *, expected_hash, expected_version=None):
             AIAnalysisRun.objects.filter(image=image, status='RUNNING').update(status='FAILED', failure_category='process_interrupted')
             return detached_analyzer(image, expected_hash=expected_hash)
         with patch('api.tenant_ai.analyze_clinical_image_detached', side_effect=recover):
@@ -162,7 +162,7 @@ class TenantAIConcurrencyTests(TransactionTestCase):
             image = ImagenesClinicas.objects.create(paciente=patient, medico=doctor, tipo_imagen='RX', imagen=SimpleUploadedFile('synthetic.png', b'synthetic-source'))
             entered, release = threading.Event(), threading.Event()
 
-            def analyzer(image, *, expected_hash):
+            def analyzer(image, *, expected_hash, expected_version=None):
                 entered.set()
                 if not release.wait(15):
                     raise RuntimeError('Test synchronization timed out')

@@ -20,7 +20,7 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 - `image_upload` — línea 23.
 - `FoundationTests` — línea 29.
-- `StreamingAuditTests` — línea 156.
+- `StreamingAuditTests` — línea 157.
 
 ## Dependencias internas
 

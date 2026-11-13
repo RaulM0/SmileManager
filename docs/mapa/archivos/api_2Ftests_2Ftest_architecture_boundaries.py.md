@@ -18,11 +18,10 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `ArchitectureBoundaryTests` — línea 15.
+- `ArchitectureBoundaryTests` — línea 10.
 
 ## Dependencias internas
 
-- [[docs/mapa/archivos/DiagnosticosIA_2F__init__.py|DiagnosticosIA/__init__.py]]
-- [[docs/mapa/archivos/DiagnosticosIA_2Fservices.py|DiagnosticosIA/services.py]]
+Sin imports internos resueltos automáticamente.
 
 Este índice resuelve imports Python y referencias relativas JS/TS; no ejecuta módulos ni representa todas las dependencias dinámicas.

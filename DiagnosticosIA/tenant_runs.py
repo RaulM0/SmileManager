@@ -86,7 +86,7 @@ def execute_tenant_analysis(*, user, clinic_id, image_id, request_id, force, ana
 
     saved_name = None
     try:
-        detections, filename, result_bytes = analyzer(image, expected_hash=input_hash)
+        detections, filename, result_bytes = analyzer(image, expected_hash=input_hash, expected_version=version)
         if not isinstance(result_bytes, bytes) or not result_bytes:
             raise ValueError('El análisis no produjo un archivo válido.')
         with transaction.atomic():

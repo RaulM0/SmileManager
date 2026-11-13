@@ -71,7 +71,7 @@ def execute(*, user, image_id, request_id, force, analyzer, idempotency_key=None
         run = AIAnalysisRun.objects.create(image=image, clinic_id=image.paciente.clinic_id, image_reference=image.pk, requested_by=user, started_at=timezone.now(), status=AIAnalysisRun.RUNNING, model_name='YOLO', model_version=version, input_hash=input_hash, request_id=request_id, explicit_reanalysis=force, idempotency_key=idempotency_key)
         audit(user, request_id, 'AI_REANALYSIS_REQUESTED' if force else 'AI_ANALYSIS_REQUESTED', run)
     try:
-        detections = analyzer(image, expected_hash=input_hash)
+        detections = analyzer(image, expected_hash=input_hash, expected_version=version)
         image.refresh_from_db()
         with transaction.atomic():
             run.status = AIAnalysisRun.SUCCEEDED

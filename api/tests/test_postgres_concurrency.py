@@ -180,7 +180,7 @@ class PostgreSQLConcurrencyTests(TransactionTestCase):
         image = ImagenesClinicas.objects.create(paciente=patient, medico=user, tipo_imagen='RX', imagen=SimpleUploadedFile('input.bin', b'synthetic'))
         started, release = Event(), Event()
 
-        def analyzer(item, expected_hash):
+        def analyzer(item, expected_hash, expected_version=None):
             started.set()
             if not release.wait(10):
                 raise TimeoutError('synthetic timeout')

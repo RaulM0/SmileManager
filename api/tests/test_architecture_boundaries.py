@@ -1,15 +1,10 @@
 """Keep domain modules independent of the HTTP adapter and optional AI runtime."""
 import ast
-from concurrent.futures import ThreadPoolExecutor
 import subprocess
 import sys
-from types import SimpleNamespace
-from unittest.mock import patch
 
 from django.conf import settings
 from django.test import SimpleTestCase
-
-from DiagnosticosIA import services
 
 
 class ArchitectureBoundaryTests(SimpleTestCase):
@@ -40,23 +35,8 @@ assert 'torch' not in sys.modules
                                 capture_output=True, text=True, timeout=20)
         self.assertEqual(result.returncode, 0, result.stderr)
 
-    def test_concurrent_model_requests_initialize_only_once(self):
-        model = object()
-        runtime = SimpleNamespace(YOLO=lambda _: model)
-        with patch.object(services, '_model', None), patch.object(services, 'model_version'), \
-                patch.dict(sys.modules, {'ultralytics': runtime}), patch.object(runtime, 'YOLO', return_value=model) as load:
-            with ThreadPoolExecutor(max_workers=4) as pool:
-                results = list(pool.map(lambda _: services.get_model(), range(8)))
-            self.assertTrue(all(result is model for result in results))
-            load.assert_called_once()
-
-    def test_failed_model_load_can_be_retried(self):
-        model = object()
-        runtime = SimpleNamespace(YOLO=lambda _: model)
-        with patch.object(services, '_model', None), patch.object(services, 'model_version'), \
-                patch.dict(sys.modules, {'ultralytics': runtime}), \
-                patch.object(runtime, 'YOLO', side_effect=[RuntimeError('Unavailable model'), model]) as load:
-            with self.assertRaises(RuntimeError):
-                services.get_model()
-            self.assertIs(services.get_model(), model)
-            self.assertEqual(load.call_count, 2)
+    def test_ai_runtime_and_artifact_are_external(self):
+        self.assertFalse((settings.BASE_DIR / 'train_model').exists())
+        source = (settings.BASE_DIR / 'DiagnosticosIA' / 'services.py').read_text()
+        self.assertNotIn('ultralytics', source)
+        self.assertNotIn('torch', source)
