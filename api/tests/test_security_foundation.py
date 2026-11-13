@@ -133,7 +133,8 @@ class FoundationTests(TestCase):
             self.assertTrue(cell.value.startswith("'"))
         self.assertEqual(sheet['E2'].value, -2)
 
-    def test_expensive_throttle_is_independent(self):
+    @patch('DiagnosticosIA.runs.model_version', return_value='a' * 64)
+    def test_expensive_throttle_is_independent(self, _version):
         image = ImagenesClinicas.objects.create(paciente=self.patient, medico=self.a, tipo_imagen='x', imagen=SimpleUploadedFile('test.bin', b'synthetic'))
         url = reverse('api-clinical-image-analyze', args=[image.pk])
         with patch.object(ExpensiveThrottle, 'rate', '1/min', create=True), patch('api.legacy_views.analyze_clinical_image', return_value=[]):

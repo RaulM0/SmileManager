@@ -18,8 +18,8 @@ El enlace apunta al código original. Según el tipo de archivo, Obsidian lo abr
 
 ## Símbolos principales
 
-- `FakeModel` — línea 16.
-- `DetachedAITests` — línea 27.
+- `DetachedAITests` — línea 14.
+- `SmileIAHTTPTests` — línea 41.
 
 ## Dependencias internas
 

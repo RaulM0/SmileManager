@@ -24,7 +24,7 @@ class AIAnalysisRunTests(TestCase):
         self.url = reverse('api-clinical-image-analyze', args=[self.image.pk])
 
     @staticmethod
-    def fake_analyzer(image, expected_hash):
+    def fake_analyzer(image, expected_hash, expected_version=None):
         image.resultados.save('result.jpg', ContentFile(b'synthetic result'), save=True)
         return [{'clase': 'test', 'confianza': 0.9, 'coordenadas': [1, 2, 3, 4]}]
 

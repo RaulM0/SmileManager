@@ -282,3 +282,9 @@ AUDIT_COLLECTOR_URL = os.environ.get('AUDIT_COLLECTOR_URL', '')
 AUDIT_INGEST_TOKEN = os.environ.get('AUDIT_INGEST_TOKEN', '')
 CLAMAV_HOST = os.environ.get('CLAMAV_HOST', '')
 CLAMAV_PORT = int(os.environ.get('CLAMAV_PORT', '3310'))
+
+# Private inference microservice (weights and runtime belong to SmileIA).
+SMILEIA_URL = os.environ.get('SMILEIA_URL', '')
+SMILEIA_TOKEN = os.environ.get('SMILEIA_TOKEN', '')
+SMILEIA_TIMEOUT = float(os.environ.get('SMILEIA_TIMEOUT', '100'))
+SMILEIA_INPUT_MAX_BYTES = int(os.environ.get('SMILEIA_INPUT_MAX_BYTES', str(32 * 1024 * 1024)))

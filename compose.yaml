@@ -14,6 +14,9 @@ services:
       AUDIT_INGEST_TOKEN: ${AUDIT_INGEST_TOKEN:?Missing collector token}
       AUDIT_COLLECTOR_URL: http://audit-collector:8080
       CLAMAV_HOST: clamav
+      SMILEIA_URL: ${SMILEIA_URL:-}
+      SMILEIA_TOKEN: ${SMILEIA_TOKEN:-}
+      SMILEIA_TIMEOUT: ${SMILEIA_TIMEOUT:-100}
       FEATURE_AI_ENABLED: ${FEATURE_AI_ENABLED:-false}
       FRONTEND_URL: http://localhost:5173
       TENANT_INVITATION_URL: http://localhost:5173/invitations/accept

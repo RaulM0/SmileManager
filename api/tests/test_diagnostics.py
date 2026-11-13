@@ -27,12 +27,13 @@ class DiagnosticsApiTests(APITestCase):
     def make_patient(self,user,phone,email): return Paciente.objects.create(nombre='ANA',appat='LOPEZ',apmat='DIAZ',fecha_nacimiento='1990-01-01',genero='F',telefono=phone,email=email,medico=user)
     def test_list_statistics_filters_and_owner_scope(self):
         response=self.client.get(reverse('api-diagnostics'),{'patient':'ana','type':'RX'}); self.assertEqual(response.status_code,200); self.assertEqual(response.data['count'],1); self.assertEqual(response.data['statistics']['pending'],1); self.assertEqual(response.data['results'][0]['patient_name'],'ANA LOPEZ')
+    @patch('DiagnosticosIA.runs.model_version', return_value='a' * 64)
     @patch('api.legacy_views.analyze_clinical_image')
-    def test_analyze_returns_detections(self,analyze):
+    def test_analyze_returns_detections(self,analyze,version):
         analyze.return_value=[{'clase':'Cavity','confianza':.9,'coordenadas':[1,2,3,4]}]
         response=self.client.post(reverse('api-clinical-image-analyze',args=[self.image.id])); self.assertEqual(response.status_code,200); self.assertEqual(response.data['detections'][0]['clase'],'Cavity'); analyze.assert_called_once()
 
-    @patch('DiagnosticosIA.services.get_model')
+    @patch('DiagnosticosIA.services._request')
     def test_missing_source_is_reported_without_calling_yolo(self, predict):
         self.image.imagen.storage.delete(self.image.imagen.name)
         response = self.client.post(reverse('api-clinical-image-analyze', args=[self.image.id]))

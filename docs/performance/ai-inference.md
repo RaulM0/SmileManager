@@ -1,3 +1,5 @@
+> Nota de arquitectura: esta medición es histórica. La inferencia y `benchmark_ai_synthetic.py` ahora viven en `../SmileIA`. SmileManager utiliza HTTP; estas cifras no incluyen su coste. Ver [operación de SmileIA](../operations/smileia.md).
+
 # Perfil de IA
 
 `DiagnosticosIA.services` construye `YOLO` una vez por proceso al importar; no por request. Predicción, archivos temporales, guardado y DB se realizan síncronamente. No hay historial de runs, hash de input/modelo, idempotencia o coordinación distribuida. GET de resultado no vuelve a analizar. La misma imagen/modelo podría reutilizarse solo tras definir validez clínica, trazabilidad y reanálisis explícito; no se añadió caché clínico.
